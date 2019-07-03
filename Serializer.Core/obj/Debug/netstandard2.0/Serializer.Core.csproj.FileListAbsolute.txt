@@ -1,0 +1,12 @@
+E:\SourceCode\DAS\Serializer\Serializer.Core\bin\Debug\netstandard2.0\Serializer.Core.deps.json
+E:\SourceCode\DAS\Serializer\Serializer.Core\bin\Debug\netstandard2.0\Serializer.Core.dll
+E:\SourceCode\DAS\Serializer\Serializer.Core\bin\Debug\netstandard2.0\Serializer.Core.pdb
+E:\SourceCode\DAS\Serializer\Serializer.Core\obj\Debug\netstandard2.0\Serializer.Core.csprojAssemblyReference.cache
+E:\SourceCode\DAS\Serializer\Serializer.Core\obj\Debug\netstandard2.0\Serializer.Core.csproj.CoreCompileInputs.cache
+E:\SourceCode\DAS\Serializer\Serializer.Core\obj\Debug\netstandard2.0\Serializer.Core.AssemblyInfoInputs.cache
+E:\SourceCode\DAS\Serializer\Serializer.Core\obj\Debug\netstandard2.0\Serializer.Core.AssemblyInfo.cs
+E:\SourceCode\DAS\Serializer\Serializer.Core\obj\Debug\netstandard2.0\Serializer.Core.csproj.CopyComplete
+E:\SourceCode\DAS\Serializer\Serializer.Core\obj\Debug\netstandard2.0\Serializer.Core.dll
+E:\SourceCode\DAS\Serializer\Serializer.Core\obj\Debug\netstandard2.0\Serializer.Core.pdb
+E:\SourceCode\DAS\Serializer\Serializer.Core\bin\Debug\netstandard2.0\Serializer.Interfaces.dll
+E:\SourceCode\DAS\Serializer\Serializer.Core\bin\Debug\netstandard2.0\Serializer.Interfaces.pdb

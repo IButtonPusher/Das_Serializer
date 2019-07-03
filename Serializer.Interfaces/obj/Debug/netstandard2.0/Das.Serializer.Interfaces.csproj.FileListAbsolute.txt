@@ -1,0 +1,8 @@
+E:\SourceCode\DAS\Serializer\Das.Serializer.Interfaces\bin\Debug\netstandard2.0\Das.Serializer.Interfaces.deps.json
+E:\SourceCode\DAS\Serializer\Das.Serializer.Interfaces\bin\Debug\netstandard2.0\Das.Serializer.Interfaces.dll
+E:\SourceCode\DAS\Serializer\Das.Serializer.Interfaces\bin\Debug\netstandard2.0\Das.Serializer.Interfaces.pdb
+E:\SourceCode\DAS\Serializer\Das.Serializer.Interfaces\obj\Debug\netstandard2.0\Das.Serializer.Interfaces.csproj.CoreCompileInputs.cache
+E:\SourceCode\DAS\Serializer\Das.Serializer.Interfaces\obj\Debug\netstandard2.0\Das.Serializer.Interfaces.AssemblyInfoInputs.cache
+E:\SourceCode\DAS\Serializer\Das.Serializer.Interfaces\obj\Debug\netstandard2.0\Das.Serializer.Interfaces.AssemblyInfo.cs
+E:\SourceCode\DAS\Serializer\Das.Serializer.Interfaces\obj\Debug\netstandard2.0\Das.Serializer.Interfaces.dll
+E:\SourceCode\DAS\Serializer\Das.Serializer.Interfaces\obj\Debug\netstandard2.0\Das.Serializer.Interfaces.pdb

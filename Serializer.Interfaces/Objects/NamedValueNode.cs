@@ -1,0 +1,25 @@
+﻿using System;
+using System.Collections;
+
+namespace Das.Serializer.Objects
+{
+    /// <inheritdoc />
+    /// <summary>
+    /// A named type/value association
+    /// </summary>
+    public class NamedValueNode : ValueNode
+    {
+        public NamedValueNode(String name, object value, Type type) : base(value, type)
+        {
+            Name = name;
+        }
+
+        public override string ToString() => "[" + Name + "]  " + base.ToString();
+
+        public String Name { get; }
+
+        public static implicit operator NamedValueNode(DictionaryEntry kvp) =>
+            new NamedValueNode(kvp.Key.ToString(), kvp.Value,
+                kvp.Value?.GetType() ?? typeof(Object));
+    }
+}

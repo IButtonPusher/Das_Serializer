@@ -1,0 +1,16 @@
+E:\SourceCode\DAS\Serializer\UnitTestProject1\bin\Release\UnitTestProject1.dll
+E:\SourceCode\DAS\Serializer\UnitTestProject1\bin\Release\UnitTestProject1.pdb
+E:\SourceCode\DAS\Serializer\UnitTestProject1\bin\Release\Das.Serializer.dll
+E:\SourceCode\DAS\Serializer\UnitTestProject1\bin\Release\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll
+E:\SourceCode\DAS\Serializer\UnitTestProject1\bin\Release\Newtonsoft.Json.dll
+E:\SourceCode\DAS\Serializer\UnitTestProject1\bin\Release\Serializer.Core.dll
+E:\SourceCode\DAS\Serializer\UnitTestProject1\bin\Release\Serializer.Interfaces.dll
+E:\SourceCode\DAS\Serializer\UnitTestProject1\bin\Release\Das.Serializer.xml
+E:\SourceCode\DAS\Serializer\UnitTestProject1\bin\Release\Serializer.Interfaces.pdb
+E:\SourceCode\DAS\Serializer\UnitTestProject1\bin\Release\Serializer.Core.pdb
+E:\SourceCode\DAS\Serializer\UnitTestProject1\bin\Release\Newtonsoft.Json.xml
+E:\SourceCode\DAS\Serializer\UnitTestProject1\obj\Release\UnitTestProject1.csprojAssemblyReference.cache
+E:\SourceCode\DAS\Serializer\UnitTestProject1\obj\Release\UnitTestProject1.csproj.CoreCompileInputs.cache
+E:\SourceCode\DAS\Serializer\UnitTestProject1\obj\Release\UnitTestProject1.csproj.CopyComplete
+E:\SourceCode\DAS\Serializer\UnitTestProject1\obj\Release\UnitTestProject1.dll
+E:\SourceCode\DAS\Serializer\UnitTestProject1\obj\Release\UnitTestProject1.pdb

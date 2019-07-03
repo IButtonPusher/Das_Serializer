@@ -1,0 +1,53 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Configurations>Debug;Release;TEST</Configurations>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='TEST|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Binary\ObjectTerminator.cs" />
+    <Compile Remove="DasContext.cs" />
+    <Compile Remove="DynamicExtensions.cs" />
+    <Compile Remove="NodeBuilders\NodeFactory.cs" />
+    <Compile Remove="NodeBuilders\NodeTypes.cs" />
+    <Compile Remove="NodeBuilders\NodeValueProvider.cs" />
+    <Compile Remove="Printers\Enums.cs" />
+    <Compile Remove="Properties\AssemblyInfo.cs" />
+    <Compile Remove="PropertyValue.cs" />
+    <Compile Remove="Remunerators\BinarySaver.cs" />
+    <Compile Remove="Remunerators\BinaryStack.cs" />
+    <Compile Remove="Remunerators\BinaryStackWriter.cs" />
+    <Compile Remove="Remunerators\BufferedStringSaver.cs" />
+    <Compile Remove="Remunerators\StringSaverBase.cs" />
+    <Compile Remove="Scanners\IPrimitiveScanner.cs" />
+    <Compile Remove="Scanners\IScannerBase.cs" />
+    <Compile Remove="SerializerFactory.cs" />
+    <Compile Remove="Streamers\BinaryStreamer.cs" />
+    <Compile Remove="TextCommon\INumberExtractor.cs" />
+    <Compile Remove="TextCommon\ITextParser.cs" />
+    <Compile Remove="Types\DasAttribute.cs" />
+    <Compile Remove="Types\DasProperty.cs" />
+    <Compile Remove="Types\DasType.cs" />
+    <Compile Remove="Types\ObjectFromInterface.cs" />
+    <Compile Remove="Types\TypeDelegates.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Serializer.Interfaces\Serializer.Interfaces.csproj" />
+  </ItemGroup>
+
+</Project>

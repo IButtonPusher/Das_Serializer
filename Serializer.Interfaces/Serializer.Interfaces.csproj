@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>Das.Serializer</RootNamespace>
+    <AssemblyName>Serializer.Interfaces</AssemblyName>
+    <Configurations>Debug;Release;TEST</Configurations>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="IDeepCopyable.cs" />
+    <Compile Remove="Nodes\IBinaryNodeSealer.cs" />
+    <Compile Remove="Nodes\IJsonNodeProvider.cs" />
+    <Compile Remove="Nodes\INodeValueProvider.cs" />
+    <Compile Remove="Nodes\ITextNodeSealer.cs" />
+    <Compile Remove="Nodes\IXmlNodeProvider.cs" />
+    <Compile Remove="Objects\PropertyValue.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+</Project>
