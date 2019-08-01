@@ -172,11 +172,13 @@
     <Rule Id="CS8383" Action="None" />
     <Rule Id="CS8387" Action="None" />
     <Rule Id="CS8402" Action="None" />
+    <Rule Id="CS8424" Action="None" />
     <Rule Id="CS8509" Action="None" />
     <Rule Id="CS8512" Action="None" />
     <Rule Id="CS8513" Action="None" />
     <Rule Id="CS8519" Action="None" />
     <Rule Id="CS8520" Action="None" />
+    <Rule Id="CS8597" Action="None" />
     <Rule Id="CS8599" Action="None" />
     <Rule Id="CS8600" Action="None" />
     <Rule Id="CS8601" Action="None" />
@@ -201,15 +203,25 @@
     <Rule Id="CS8620" Action="None" />
     <Rule Id="CS8621" Action="None" />
     <Rule Id="CS8622" Action="None" />
+    <Rule Id="CS8624" Action="None" />
     <Rule Id="CS8625" Action="None" />
+    <Rule Id="CS8626" Action="None" />
     <Rule Id="CS8629" Action="None" />
     <Rule Id="CS8631" Action="None" />
     <Rule Id="CS8632" Action="None" />
     <Rule Id="CS8633" Action="None" />
     <Rule Id="CS8634" Action="None" />
+    <Rule Id="CS8638" Action="None" />
     <Rule Id="CS8643" Action="None" />
     <Rule Id="CS8644" Action="None" />
     <Rule Id="CS8645" Action="None" />
+    <Rule Id="CS8653" Action="None" />
+    <Rule Id="CS8654" Action="None" />
+    <Rule Id="CS8655" Action="None" />
+    <Rule Id="CS8656" Action="None" />
+  </Rules>
+  <Rules AnalyzerId="Microsoft.CodeAnalysis.CSharp.EditorFeatures" RuleNamespace="Microsoft.CodeAnalysis.CSharp.EditorFeatures">
+    <Rule Id="IDE0065" Action="None" />
   </Rules>
   <Rules AnalyzerId="Microsoft.CodeAnalysis.CSharp.Features" RuleNamespace="Microsoft.CodeAnalysis.CSharp.Features">
     <Rule Id="IDE0001" Action="None" />
@@ -296,6 +308,11 @@
     <Rule Id="IDE0059" Action="None" />
     <Rule Id="IDE0060" Action="None" />
     <Rule Id="IDE0061" Action="None" />
+    <Rule Id="IDE0062" Action="None" />
+    <Rule Id="IDE0062WithoutSuggestion" Action="None" />
+    <Rule Id="IDE0063" Action="None" />
+    <Rule Id="IDE0063WithoutSuggestion" Action="None" />
+    <Rule Id="IDE0064" Action="None" />
     <Rule Id="IDE1005" Action="None" />
     <Rule Id="IDE1005WithoutSuggestion" Action="None" />
     <Rule Id="IDE1006" Action="None" />

@@ -119,12 +119,13 @@ namespace Das.Scanners
                         continue;
                     }
 
-                    if (IsQuote(c))
+                    var isQuote = IsQuote(c);
+
+                    if (isQuote)
                         _isQuoteOpen = !_isQuoteOpen;
                     else switch (c)
                     {
                         case '\0':
-                        case Const.Quote:
                             break;
                         default:
                             ProcessCharacter(c);

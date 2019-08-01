@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using Das.Serializer;
@@ -230,19 +231,16 @@ namespace Das.Types
 
         private String GetClearGeneric(Type type, Boolean isOmitAssemblyName)
         {
-            StringBuilder sb;// = null;
+            StringBuilder sb;
 
             if (type.Namespace == null)
                 return type.Name;
 
             if (isOmitAssemblyName || type.Namespace.StartsWith(Const.Tsystem))
-            {
                 sb = new StringBuilder($"{type.Namespace}.{type.Name}");
-            }
             else
-            {
                 sb = new StringBuilder($"{type.Assembly.ManifestModule.Name}, {type.Namespace}.{type.Name}");
-            }
+            
             sb.Remove(sb.Length - 2, 2);
             foreach (var subType in type.GetGenericArguments())
             {
@@ -287,8 +285,6 @@ namespace Das.Types
         }
         
 
-        
-
         public bool IsDefaultValue(object o)
         {
             switch (o)
@@ -326,9 +322,10 @@ namespace Das.Types
         }
 
         public Type GetTypeFromClearName(String clearName)
-            => FromClearName(clearName, true);
+            => FromClearName(clearName, true, true);
 
-        public Type FromClearName(String clearName, Boolean isRecurse)
+        public Type FromClearName(String clearName, Boolean isRecurse,
+            Boolean isTryGeneric)
         {
             if (String.IsNullOrWhiteSpace(clearName))
                 return null;
@@ -339,14 +336,24 @@ namespace Das.Types
             if (_dynamicTypes.TryGetDynamicType(clearName, out type))
                 return type;
 
-            var genericTypes = DeriveGeneric(clearName, out var genericName);
-            if (genericTypes.Count > 0)
+            if (isTryGeneric)
             {
-                clearName = genericName;
-                if (clearName == null)
+                var genericArgs = DeriveGeneric(clearName, out var genericName);
+                if (genericArgs.Count > 0)
                 {
-                    //couldn't find the type of one of the generic parameters
-                    return default;
+                    if (genericName == null)
+                    {
+                        //couldn't find the type of one of the generic parameters
+                        return default;
+                    }
+
+                    var genericType = FromClearName(genericName, true, true);
+                    if (genericType != null)
+                    {
+                        type = genericType.MakeGenericType(genericArgs.ToArray());
+                        EnsureCached(clearName, type);
+                        return type;
+                    }
                 }
             }
 
@@ -356,11 +363,12 @@ namespace Das.Types
             else
                 type = FromAssemblyQualified(clearName, tokens);
 
-            if (type != null && genericTypes.Count > 0)
-                type = type.MakeGenericType(genericTypes.ToArray());
-
             if (type == null)
-                type = FromHailMary(clearName);
+            {
+                if (isRecurse)
+                    type = FromHailMary(clearName);
+                else return default;
+            }
 
             EnsureCached(clearName, type);
 
@@ -436,7 +444,8 @@ namespace Das.Types
         }
 
         /// <summary>
-        /// Prepends type search namespaces to name and tries to find
+        /// Prepends type search namespaces to name and tries to find. From just a single token
+        /// we can never find anything
         /// </summary>
         private Type FromSingleToken(String singleToken, Boolean isRecurse)
         {
@@ -458,7 +467,7 @@ namespace Das.Types
             for (var c = 0; c < arr.Length; c++)
             {
                 var searchNs = arr[c] + "." + singleToken;
-                var type = FromClearName(searchNs, false);
+                var type = FromClearName(searchNs, false, false);
 
                 if (type != null)
                     return type;
@@ -478,10 +487,17 @@ namespace Das.Types
             var isFound = _assemblies.TryGetAssembly(assName, out var assFound);
 
             if (isFound)
+            {
                 type = assFound.GetType(nsName);
+                if (type != null)
+                    return type;
+            }
 
-            if (type == null && isRecurse)
-                return FromClearName(tokens.Last(), false);
+            if (TryFind(nsName, _assemblies, out type))
+                return type;
+
+            if (isRecurse)
+                return FromClearName(tokens.Last(), false, false);
 
             return default;
         }
@@ -500,31 +516,36 @@ namespace Das.Types
 
         private Type FromHailMary(String clearName)
         {
-            Type type;
+            if (_dynamicTypes.TryGetFromAssemblyQualifiedName(clearName, out var type))
+                return type;
 
-            //exhaustive search assemblies using the whole path
-            foreach (var ass in _assemblies.GetAll())
+            if (TryFind(clearName, _assemblies, out type))
+                return type;
+
+            if (TryFind(clearName, _assemblies.GetAll(), out type))
+                return type;
+
+            TypeNames.TryAdd(clearName, null);
+
+            return default;
+        }
+
+        private static Boolean TryFind(String clearName, IEnumerable<Assembly> assemblies,
+            out Type type)
+        {
+            foreach (var ass in assemblies)
             {
                 type = ass.GetType(clearName);
                 if (type != null)
-                    return type;
-            }
-
-            //exhaustive search assemblies using just the name. 
-            if (!_dynamicTypes.TryGetFromAssemblyQualifiedName(clearName,
-                out type)) return default;
-            
-            foreach (var ass in _assemblies.GetAll())
-            {
-                if (ass.IsDynamic)
-                    continue;
+                    return true;
 
                 type = ass.GetTypes().FirstOrDefault(t => t.Name == clearName);
                 if (type != null)
-                    return type;
+                    return true;
             }
 
-            return default;
+            type = default;
+            return false;
         }
     }
 }

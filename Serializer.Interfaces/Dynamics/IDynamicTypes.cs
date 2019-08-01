@@ -20,10 +20,10 @@ namespace Das.Serializer
 
         Boolean TryGetFromAssemblyQualifiedName(String assemblyQualified, out Type type);
 
-        /// <summary>
-        /// Doesn't delete the types but creates a new module and doesn't use the old module
-        /// for cache lookups
-        /// </summary>
-        void InvalidateDynamicTypes();
+        ///// <summary>
+        ///// Doesn't delete the types but creates a new module and doesn't use the old module
+        ///// for cache lookups
+        ///// </summary>
+        //void InvalidateDynamicTypes();
     }
 }

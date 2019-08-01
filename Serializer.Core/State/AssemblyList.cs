@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -30,6 +31,9 @@ namespace Serializer.Core
             if (TryGetRunningAndDependencies(name, out assembly))
                 return true;
 
+            if (TryFromBinFolder(name, out assembly))
+                return true;
+
             assembly = default;
             return false;
         }
@@ -44,74 +48,136 @@ namespace Serializer.Core
         private static Boolean TryGetRunningAndDependencies(String name, out Assembly assembly)
         {
             var running = GetRunningAndDependencies();
-            assembly = running.FirstOrDefault(n => AreEqual(name, n));
-            return assembly != null;
+            var foundName = running.FirstOrDefault(n => name.Equals(n.Name));
+            if (foundName == null)
+            {
+                assembly = default;
+                return false;
+            }
+
+            return TryLoad(foundName, out assembly);            
         }
 
         private static Boolean AreEqual(String name, Assembly assembly) =>
-            !assembly.IsDynamic && assembly.CodeBase.EndsWith(name,
+            IsAssemblyUsable(assembly) && assembly.CodeBase.EndsWith(name,
                 StringComparison.OrdinalIgnoreCase);
 
         private static IEnumerable<Assembly> GetRunning()
         {
-            foreach (var dll in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                Add(dll);
-                yield return dll;
-            }
-        }
-
-        private static IEnumerable<Assembly> GetRunningAndDependencies()
-        {
             var sended = new HashSet<Assembly>();
-
-            foreach (var dll in GetRunning())
+            foreach (var dll in _actualAssemblies.Values)
             {
                 if (sended.Add(dll))
                     yield return dll;
             }
 
-            foreach (var sent in sended)
+            foreach (var dll in AppDomain.CurrentDomain.GetAssemblies())
             {
-                foreach (var ass in sent.GetReferencedAssemblies())
-                {
-                    if (_actualAssemblies.ContainsKey(ass.FullName))
-                        continue;
-                    var asm = Assembly.Load(ass);
-                    Add(asm);
-                    yield return asm;
+                if (!IsAssemblyUsable(dll))
+                    continue;
 
+                if (!sended.Add(dll))
+                    continue;
+
+                Add(dll);
+                yield return dll;
+            }
+        }
+
+        private static Boolean IsAssemblyUsable(Assembly dll) 
+            => !dll.IsDynamic && !String.IsNullOrWhiteSpace(dll.Location);
+
+        private static IEnumerable<AssemblyName> GetRunningAndDependencies()
+        {
+            var sended = new HashSet<AssemblyName>();
+
+            foreach (var dll in GetRunning())
+            {
+                var name = dll.GetName();
+
+                if (sended.Add(name))
+                    yield return name;
+
+                foreach (var dependency in dll.GetReferencedAssemblies())
+                {
+                    if (sended.Add(dependency))
+                        yield return dependency;
                 }
             }
         }
 
+        private static Boolean TryLoad(AssemblyName name, out Assembly realMcKoy)
+        {
+            try
+            {
+                realMcKoy = Assembly.Load(name);
+                return true;
+            }
+            catch
+            {
+                realMcKoy = default;
+                return false;
+            }
+        }
+
+        private static Boolean TryFromBinFolder(String name, out Assembly found)
+        {
+            found = default;
+            var binDir = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory;
+            if (binDir == null)
+            {
+                
+                return false;
+            }
+
+            var dll = binDir.GetFiles("*.dll").FirstOrDefault(d => 
+            d.Name.EndsWith(name, StringComparison.OrdinalIgnoreCase));
+
+            if (dll != null)
+            {
+                try
+                {
+                    found = Assembly.LoadFile(dll.FullName);
+                }
+                catch { }
+            }
+
+            return found != null;
+        }
+
         public IEnumerable<Assembly> GetAll()
         {
-            var sended = new HashSet<Assembly>();
+            var sended = new HashSet<AssemblyName>();
 
             var allKnown = _actualAssemblies.Values.ToArray();
 
             foreach (var known in allKnown)
             {
-                sended.Add(known);
+                var name = known.GetName();
+                sended.Add(name);
                 yield return known;
             }
 
             foreach (var runningAndNeeded in GetRunningAndDependencies())
             {
-                if (sended.Add(runningAndNeeded))
-                    yield return runningAndNeeded;
+                if (sended.Add(runningAndNeeded) && TryLoad(runningAndNeeded, out var asm))
+                    yield return asm;
             }
         }
 
         private static void Add(Assembly assembly)
         {
-            if (assembly.IsDynamic)
+            if (!IsAssemblyUsable(assembly))
                 return;
 
             var asFile = new FileInfo(assembly.Location);
-           
-                _actualAssemblies.TryAdd(asFile.Name, assembly);
+
+            _actualAssemblies.TryAdd(asFile.Name, assembly);
         }
+
+        public IEnumerator<Assembly> GetEnumerator() => GetRunning().GetEnumerator();
+
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

@@ -15,7 +15,7 @@ namespace Serializer.Core.NodeBuilders
 
         public BinaryNodeProvider(IDynamicFacade dynamicFacade, INodeManipulator nodeManipulator,
             ISerializerSettings settings) 
-            : base(dynamicFacade, nodeManipulator, settings)
+            : base(nodeManipulator, settings)
         {
             Sealer = new BinaryNodeSealer(TypeProvider, dynamicFacade, settings);
             _nodes = nodeManipulator;

@@ -1,17 +1,5 @@
 E:\SourceCode\DAS\Serializer\Das.Serializer\bin\Debug\Das.Serializer.dll
 E:\SourceCode\DAS\Serializer\Das.Serializer\bin\Debug\Das.Serializer.pdb
-E:\SourceCode\DAS\Serializer\Das.Serializer\bin\Debug\System.Data.Common.dll
-E:\SourceCode\DAS\Serializer\Das.Serializer\bin\Debug\System.Diagnostics.StackTrace.dll
-E:\SourceCode\DAS\Serializer\Das.Serializer\bin\Debug\System.Diagnostics.Tracing.dll
-E:\SourceCode\DAS\Serializer\Das.Serializer\bin\Debug\System.Globalization.Extensions.dll
-E:\SourceCode\DAS\Serializer\Das.Serializer\bin\Debug\System.IO.Compression.dll
-E:\SourceCode\DAS\Serializer\Das.Serializer\bin\Debug\System.Net.Http.dll
-E:\SourceCode\DAS\Serializer\Das.Serializer\bin\Debug\System.Net.Sockets.dll
-E:\SourceCode\DAS\Serializer\Das.Serializer\bin\Debug\System.Runtime.Serialization.Primitives.dll
-E:\SourceCode\DAS\Serializer\Das.Serializer\bin\Debug\System.Security.Cryptography.Algorithms.dll
-E:\SourceCode\DAS\Serializer\Das.Serializer\bin\Debug\System.Security.SecureString.dll
-E:\SourceCode\DAS\Serializer\Das.Serializer\bin\Debug\System.Threading.Overlapped.dll
-E:\SourceCode\DAS\Serializer\Das.Serializer\bin\Debug\System.Xml.XPath.XDocument.dll
 E:\SourceCode\DAS\Serializer\Das.Serializer\bin\Debug\Serializer.Core.dll
 E:\SourceCode\DAS\Serializer\Das.Serializer\bin\Debug\Serializer.Interfaces.dll
 E:\SourceCode\DAS\Serializer\Das.Serializer\bin\Debug\Serializer.Interfaces.pdb

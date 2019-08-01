@@ -93,7 +93,8 @@ namespace Serializer
                     case COMMA:
                         break;
                     default:
-                        c = 0;
+                        if (isAnyValid)
+                            c = 0;
                         continue;
 				}
 
@@ -167,7 +168,8 @@ namespace Serializer
 			}
 			else if (_firstGroup == DOT)
 			{
-				if (_commaGroup > 0 || _currentGroup > 0 || fromString[0] == ZERO)
+				if (_commaGroup > 0 || _commaGroupLength > 0 || _currentGroup > 0 
+                    || fromString[0] == ZERO)
 					_buildingResult = _dotGroup
 								  / (Decimal)Math.Pow(10, _dotGroupLength);
 				else

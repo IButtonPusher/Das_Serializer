@@ -11,7 +11,7 @@ using Das.Serializer;
 
 namespace Serializer.Core
 {
-    public abstract class TypeCore : ITypeCore
+    public class TypeCore : ITypeCore
     {
         private ISerializerSettings _settings;
         public virtual ISerializerSettings Settings
@@ -19,9 +19,8 @@ namespace Serializer.Core
             get => _settings;
             set => _settings = value;
         }
-        
 
-        protected TypeCore(ISerializerSettings settings)
+        public TypeCore(ISerializerSettings settings)
         {
             _settings = settings;
         }
@@ -77,7 +76,7 @@ namespace Serializer.Core
         public bool IsInstantiable(Type t) =>
             !IsUseless(t) && !t.IsAbstract && !t.IsInterface;
 
-        public static Boolean IsString(Type t) => t == Const.StrType;
+        protected static Boolean IsString(Type t) => t == Const.StrType;
 
         public static decimal ToDecimal(byte[] bytes)
         {
@@ -112,7 +111,7 @@ namespace Serializer.Core
             return bytes.ToArray();
         }
 
-        public static bool IsAnonymousType(Type type)
+        protected static bool IsAnonymousType(Type type)
         {
             if (type == null)
                 throw new ArgumentNullException(nameof(type));

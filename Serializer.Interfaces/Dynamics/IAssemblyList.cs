@@ -7,7 +7,7 @@ namespace Das.Serializer
     /// <summary>
     /// To find aspecific Assembly or to iterate all in the current app domain
     /// </summary>
-    public interface IAssemblyList
+    public interface IAssemblyList : IEnumerable<Assembly>
     {
         Boolean TryGetAssembly(String name, out Assembly assembly);
 

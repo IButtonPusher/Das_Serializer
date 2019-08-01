@@ -93,36 +93,39 @@ namespace Das.Streamers
             return res;
 		}
 
-		private Byte[] GetPrimitiveBytes(Type type)
-		{
-			if (type.IsValueType && !type.IsGenericType)
-			{
-                var res = GetBytesForValueTypeObject(type);                
-                return res;
-			}
-
-            if (TryGetNullableType(type, out var asPrimitive))
+        private Byte[] GetPrimitiveBytes(Type type)
+        {
+            while (true)
             {
-                var hasValue = GetPrimitive<Boolean>();
-                if (hasValue)
-                    return GetPrimitiveBytes(asPrimitive);
-                return null;
+                if (type.IsValueType && !type.IsGenericType)
+                {
+                    var res = GetBytesForValueTypeObject(type);
+                    return res;
+                }
+
+                if (TryGetNullableType(type, out var asPrimitive))
+                {
+                    var hasValue = GetPrimitive<Boolean>();
+                    if (!hasValue)
+                        return null;
+
+                    type = asPrimitive;
+                    continue;
+                }
+
+                var length = GetNextBlockSize();
+
+                if (IsString(type))
+                {
+                    if (length == -1) return null;
+                }
+                else if (length == 0) return null;
+
+                return GetBytes(length);
             }
+        }
 
-			var length = GetNextBlockSize();
-
-			if (IsString(type))
-			{
-				if (length == -1)
-					return null;
-			}
-			else if (length == 0)
-				return null;
-
-			return GetBytes(length);
-		}
-
-		private Byte[] GetBytesForValueTypeObject(Type type)
+        private Byte[] GetBytesForValueTypeObject(Type type)
 		{
 			var length = BytesNeeded(type);
 			return GetBytes(length);
@@ -138,8 +141,6 @@ namespace Das.Streamers
 			var str = _scanner.GetString(bytes);
 
             var typeName = _typeInferrer.GetTypeFromClearName(str);
-            
-            Trace.WriteLine($"reading TYPE from string {str} found {typeName?.Name} used bytes {bytes.ToString(Const.Comma)}-{_byteIndex + bytes.Length}. Forced: " + (Settings.TypeSpecificity == TypeSpecificity.All));
 
             return typeName;
 		}
@@ -156,8 +157,6 @@ namespace Das.Streamers
 			try
 			{
                 var res = _currentBytes[_byteIndex, count];
-                var last = _byteIndex + count - 1;
-                Trace.WriteLine($"feeding bytes {_byteIndex}-{last} {res.ToString(',')}");
 
                 return res;
             }

@@ -20,8 +20,13 @@ namespace Das.Extensions
             get => _dynamicFacade ?? (_dynamicFacade = new DefaultStateProvider());
             set => _dynamicFacade = value;
         }
-       
-        internal static ISerializerSettings Settings { get; set; }
+
+        private static ISerializerSettings _settings;
+        internal static ISerializerSettings Settings
+        {
+            get => _settings ?? (_settings = DasSettings.Default);
+            set => _settings = value;
+        }
 
         static ExtensionMethods()
         {

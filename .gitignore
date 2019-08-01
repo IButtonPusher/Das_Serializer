@@ -3,3 +3,14 @@
 ################################################################################
 
 /.vs/Serializer/v15/Server/sqlite3/storage.ide-wal
+/.vs/Serializer/v15/Server/sqlite3/storage.ide-shm
+/.vs/Serializer/v15/Server/sqlite3/storage.ide
+/.vs/Serializer/v15/Server/sqlite3/db.lock
+/.vs/Serializer/v15/.suo
+/.vs/Serializer/DesignTimeBuild/.dtbcache
+/.vs/Serializer/v16/Server/sqlite3/storage.ide
+/.vs/Serializer/v16/Server/sqlite3/db.lock
+/.vs/Serializer/v16/.suo
+/bin/Debug
+/obj/Debug
+/packages/Newtonsoft.Json.12.0.2

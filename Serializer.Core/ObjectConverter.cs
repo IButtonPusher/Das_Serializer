@@ -152,7 +152,6 @@ namespace Das
         private Object CopyObjects(Object from, ref Object to, Type toType,
             Dictionary<Object, Object> references, ISerializerSettings settings)
         {
-            //foreach (var propInfo in _types.GetPublicProperties(toType))
             foreach (var propInfo in _dynamicFacade.GetPropertiesToSerialize(toType,
                 settings.SerializationDepth))
             {

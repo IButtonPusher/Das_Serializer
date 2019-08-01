@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
+
 // ReSharper disable UnusedMember.Global
 
 namespace Serializer
@@ -66,8 +67,6 @@ namespace Serializer
 
 			return input.Substring(leftIndex, rightIndex - leftIndex);
 		}
-
-		public string FindTextWithin(string input, int leftIndex, string rightBounds) => null;
 
         public string LeftOf(string input, string rightBounds)
 		{
@@ -560,10 +559,11 @@ namespace Serializer
             searchIn.IndexOf(searchFor, startIndex, 
                 StringComparison.OrdinalIgnoreCase);
 
-        public string[] GetLines(string str) 
-			=> str.Split(_splitTokens, StringSplitOptions.RemoveEmptyEntries);
+        //     public IHandLines GetLines(string str) 
+        //=> new StringHand(str, str.Split(_splitTokens, 
+        //             StringSplitOptions.RemoveEmptyEntries));
 
-
-		
-	}
+	    public String[] GetLines(string str) =>
+	        str.Split(_splitTokens, StringSplitOptions.RemoveEmptyEntries);
+    }
 }

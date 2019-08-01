@@ -40,7 +40,9 @@ namespace Serializer.Core
 
             if (!_values.TryBuildValue(node))
             {
-                dynProps.Add(name, value);
+                if (!dynProps.ContainsKey(name))
+                    dynProps.Add(name, value);
+                //todo: else adding an unknown property value multiple times...
                 return;
             }
 
@@ -91,6 +93,9 @@ namespace Serializer.Core
 
         protected void ConstructCollection(ref TNode node)
         {
+            if (node.Type == null)
+                return;
+
             var childType = _types.GetGermaneType(node.Type);
 
             if (node.Type.IsArray || node.Type.GetConstructor(new[] { childType }) != null)

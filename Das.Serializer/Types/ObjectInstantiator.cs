@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
-//using Das.Extensions;
 using Das.Types;
 using Serializer.Core;
 
@@ -73,9 +72,9 @@ namespace Das.Serializer
                         default:
                             throw new NotImplementedException();
                     }
+                default:
+                    throw new NotImplementedException();
             }
-            
-            return null;
         }
        
 
@@ -170,7 +169,7 @@ namespace Das.Serializer
         public T CreatePrimitiveObject<T>(byte[] rawValue, Type objType)
         {
             if (rawValue.Length == 0)
-                return default(T);
+                return default;
 
             var handle = GCHandle.Alloc(rawValue, GCHandleType.Pinned);
             var structure = (T)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), objType);

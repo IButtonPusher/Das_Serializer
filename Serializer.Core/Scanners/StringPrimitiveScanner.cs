@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Globalization;
 using Das.Serializer;
 using Serializer;
 
@@ -32,7 +33,7 @@ namespace Das.Scanners
                 return Descape(input);
             
             else if (Const.IConvertible.IsAssignableFrom(type))
-                return Convert.ChangeType(input, type);
+                return Convert.ChangeType(input, type, CultureInfo.InvariantCulture);
             
 			else
 			{

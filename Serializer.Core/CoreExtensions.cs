@@ -130,8 +130,11 @@ namespace Das.CoreExtensions
 
         public static Boolean Congruent<T>(this IList<T> left, IList<T> right)
         {
-            if (right.Count != left.Count)
+            if (right?.Count != left?.Count)
                 return false;
+
+            if (left == null)
+                return true;
 
             for (var i = 0; i < left.Count; i++)
             {

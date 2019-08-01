@@ -5,6 +5,10 @@
     <RootNamespace>Das.Serializer</RootNamespace>
     <AssemblyName>Serializer.Interfaces</AssemblyName>
     <Configurations>Debug;Release;TEST</Configurations>
+    <SignAssembly>true</SignAssembly>
+    <DelaySign>false</DelaySign>
+    <AssemblyOriginatorKeyFile>InterfacesArmstrong.snk</AssemblyOriginatorKeyFile>
+	<SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
   </PropertyGroup>
 
   <ItemGroup>

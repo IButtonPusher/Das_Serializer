@@ -108,7 +108,6 @@ namespace Das.Scanners
                     
                     CurrentValue.Append(c);
 
-
                     break;
 			}
 		}

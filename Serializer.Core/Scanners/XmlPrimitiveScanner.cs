@@ -25,7 +25,7 @@ namespace Serializer.Core
         public override string Descape(string input) => HtmlDecode(input);
 
         //https://github.com/mono/mono/blob/master/mcs/class/System.Web/System.Web.Util/HttpEncoder.cs
-        internal static string HtmlDecode(string s)
+        public static string HtmlDecode(string s)
         {
             if (s == null)
                 return null;

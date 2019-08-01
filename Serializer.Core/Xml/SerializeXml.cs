@@ -53,8 +53,8 @@ namespace Das
 
                     printer.PrintNode(node);
 
-                    if (amAnonymous)
-                        state.DynamicTypes.InvalidateDynamicTypes();
+                    //if (amAnonymous)
+                     //   state.DynamicTypes.InvalidateDynamicTypes();
 
                     return writer.ToString();
                 }

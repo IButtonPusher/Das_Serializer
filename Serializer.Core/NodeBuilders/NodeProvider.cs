@@ -8,13 +8,9 @@ namespace Serializer.Core
     public abstract class NodeProvider<T> : TypeCore, 
         INodeProvider<T> where T : INode, IEnumerable<T>
     {
-        private readonly IDynamicFacade _dynamicFacade;
-
-        protected NodeProvider(IDynamicFacade dynamicFacade, INodeManipulator typeProvider,
-            ISerializerSettings settings)
+        protected NodeProvider(INodeManipulator typeProvider, ISerializerSettings settings)
             : base(settings)
         {
-            _dynamicFacade = dynamicFacade;
             TypeProvider = typeProvider;
         }
 
@@ -31,8 +27,8 @@ namespace Serializer.Core
             if (node == null)
                 return;
 
-            if (IsAnonymousType(node.Type))
-                _dynamicFacade.DynamicTypes.InvalidateDynamicTypes();
+            //if (IsAnonymousType(node.Type))
+             //   _dynamicFacade.DynamicTypes.InvalidateDynamicTypes();
 
             var buffer = Buffer;
             node.Clear();

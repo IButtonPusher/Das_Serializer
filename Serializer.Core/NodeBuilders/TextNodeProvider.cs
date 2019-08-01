@@ -9,7 +9,7 @@ namespace Serializer.Core
     {
         public TextNodeProvider(IDynamicFacade facade, INodeManipulator nodeManipulator,
             IStringPrimitiveScanner scanner, ISerializerSettings settings) 
-            : base(facade, nodeManipulator, settings)
+            : base(nodeManipulator, settings)
         {
             _nodeManipulator = nodeManipulator;
             Sealer = new TextNodeSealer(TypeProvider, scanner, facade, settings);

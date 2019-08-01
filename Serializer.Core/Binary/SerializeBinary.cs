@@ -2,7 +2,6 @@
 using System;
 using System.IO;
 using Serializer.Core.Files;
-using System.Diagnostics;
 using Das.Serializer.Objects;
 using Serializer;
 using Serializer.Core.Remunerators;
@@ -14,25 +13,20 @@ namespace Das
         public Byte[] ToBytes(Object o) => ToBytes(o, Const.ObjectType);
 
         public Byte[] ToBytes(Object o, Type asType)
-		{
-            Trace.WriteLine("=================================\r\nSerializing " + o + " as type " + asType.Name);
-
+        {
             using (var ms = new MemoryStream())
-			{
-				using (var writer = new BinaryWriterWrapper(ms))
-				{
-                    using (var state = StateProvider.BorrowBinary(Settings))
-                    {
-                        using (var bp = new BinaryPrinter(writer, state))
-                        {
-                            var node = new NamedValueNode(Const.Root, o, asType);
-                            bp.PrintNode(node);
-                        }
-                    }
-				}
+            {
+                using (var writer = new BinaryWriterWrapper(ms))
+                using (var state = StateProvider.BorrowBinary(Settings))
+                using (var bp = new BinaryPrinter(writer, state))
+                {
+                    var node = new NamedValueNode(Const.Root, o, asType);
+                    bp.PrintNode(node);
+                }
+
                 return ms.ToArray();
-			}
-		}
+            }
+        }
 
         public byte[] ToBytes<TObject>(TObject o) => ToBytes(o, typeof(TObject));
         

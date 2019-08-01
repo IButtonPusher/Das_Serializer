@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+
 // ReSharper disable UnusedMember.Global
 
 namespace Serializer
@@ -17,8 +18,6 @@ namespace Serializer
         Double FindJsonDouble(String input, String toFind);
 
 		String FindTextWithin(String input, String leftBounds, String rightBounds);
-
-		String FindTextWithin(String input, Int32 leftIndex, String rightBounds);
 
 		String LeftOf(String input, String rightBounds);
 
@@ -130,7 +129,7 @@ namespace Serializer
 
 		Int32 IndexOf(String searchIn, String searchFor, Int32 startIndex);
 
-		String[] GetLines(String str);
+	    String[] GetLines(String str);
 
 	}
 }

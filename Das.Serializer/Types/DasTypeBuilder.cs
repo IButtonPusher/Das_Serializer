@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Threading;
 using Das.Serializer;
 using Serializer.Core;
 using Das.CoreExtensions;
@@ -25,6 +24,8 @@ namespace Das.Types
 
         static DasTypeBuilder()
         {
+            _codeGenerator = new DasCodeGenerator("DasSerializerTypes","DAS_MODULE",
+                AssemblyBuilderAccess.Run);
             _createdTypes = new ConcurrentDictionary<string, Type>();
             _createdDTypes = new ConcurrentDictionary<string, DasType>();
             _lockDynamic = new object();
@@ -35,67 +36,71 @@ namespace Das.Types
 
         private static readonly ConcurrentDictionary<String, DasType> _createdDTypes;
 
-        private static AssemblyBuilder _assemblyBuilder;
-        private static ModuleBuilder _moduleBuilder;
-        private static Int32 _timesBuildersConstructed;
-        private static Int32 _moduleIndex;
+        //private static AssemblyBuilder _assemblyBuilder;
+        //private static ModuleBuilder _moduleBuilder;
+        
+        //private static Int32 _moduleIndex;
         private static readonly ConcurrentDictionary<String, Type> _createdTypes;
+        private static readonly DasCodeGenerator _codeGenerator;
         
         private static readonly Object _lockDynamic;
 
-        private static Int32 _assemblyIndex = 1;
+        //private static Int32 _assemblyIndex = 1;
 
+        //public void InvalidateDynamicTypes()
+        //{
+        //    if (_createdTypes.IsEmpty && _createdDTypes.IsEmpty)
+        //        return;
 
-        public void InvalidateDynamicTypes()
-        {
-            lock (_lockDynamic)
-            {
-                if (_createdTypes.IsEmpty && _createdDTypes.IsEmpty)
-                    return;
+        //        throw new NotImplementedException();
+        //    //lock (_lockDynamic)
+        //    //{
+        //    //    if (_createdTypes.IsEmpty && _createdDTypes.IsEmpty)
+        //    //        return;
 
-                _createdTypes.Clear();
-                _createdDTypes.Clear();
-                _moduleBuilder = null;
-                _timesBuildersConstructed = 0;
-            }
-        }
+        //    //    _createdTypes.Clear();
+        //    //    _createdDTypes.Clear();
+        //    //    _moduleBuilder = null;
+        //    //    _timesBuildersConstructed = 0;
+        //    //}
+        //}
 
-        private static TypeBuilder GetTypeBuilder(String typeName)
-        {
-            if (_moduleBuilder == null)
-            {
-                if (Interlocked.Increment(ref _timesBuildersConstructed) == 1)
-                {
-                    CreateBuilders();
-                }
+        //private static TypeBuilder GetTypeBuilder(String typeName)
+        //{
+        //    if (_moduleBuilder == null)
+        //    {
+        //        if (Interlocked.Increment(ref _timesBuildersConstructed) == 1)
+        //        {
+        //            CreateBuilders();
+        //        }
 
-                while (_moduleBuilder == null)
-                    Thread.Sleep(10);
-            }
+        //        while (_moduleBuilder == null)
+        //            Thread.Sleep(10);
+        //    }
 
-            var typeBuilder = _moduleBuilder.DefineType(typeName,
-                TypeAttributes.Public |
-                TypeAttributes.Class |
-                TypeAttributes.AutoClass |
-                TypeAttributes.AnsiClass |
-                TypeAttributes.BeforeFieldInit |
-                TypeAttributes.AutoLayout,
-                null);
-            return typeBuilder;
-        }
+        //    var typeBuilder = _moduleBuilder.DefineType(typeName,
+        //        TypeAttributes.Public |
+        //        TypeAttributes.Class |
+        //        TypeAttributes.AutoClass |
+        //        TypeAttributes.AnsiClass |
+        //        TypeAttributes.BeforeFieldInit |
+        //        TypeAttributes.AutoLayout,
+        //        null);
+        //    return typeBuilder;
+        //}
 
-        private static void CreateBuilders()
-		{
-			var typeSignature = $"DasTypes{_assemblyIndex++}";
-			var an = new AssemblyName(typeSignature);
+  //      private static void CreateBuilders()
+		//{
+		//	var typeSignature = $"DasTypes{_assemblyIndex++}";
+		//	var an = new AssemblyName(typeSignature);
 
-			_assemblyBuilder = _assemblyBuilder ?? AppDomain.CurrentDomain.DefineDynamicAssembly(an,
-				AssemblyBuilderAccess.RunAndSave);
+		//	_assemblyBuilder = _assemblyBuilder ?? AppDomain.CurrentDomain.DefineDynamicAssembly(an,
+		//		AssemblyBuilderAccess.RunAndSave);
 
-            var index = Interlocked.Increment(ref _moduleIndex);
+  //          var index = Interlocked.Increment(ref _moduleIndex);
 
-			_moduleBuilder = _assemblyBuilder.DefineDynamicModule("DasDynamicTypes" + index);
-		}
+		//	_moduleBuilder = _assemblyBuilder.DefineDynamicModule("DasDynamicTypes" + index);
+		//}
 
 
         public Type GetDynamicImplementation(Type interfaceType)
@@ -148,7 +153,8 @@ namespace Das.Types
         /// <param name="parentTypes">Can be a single unsealed class and/or 1-N interfaces</param>
         
         public IDynamicType GetDynamicType(String typeName, IList<DasProperty> properties,
-            Boolean isCreatePropertyDelegates, Dictionary<MethodInfo, MethodInfo> methodReplacements,
+            Boolean isCreatePropertyDelegates, 
+            Dictionary<MethodInfo, MethodInfo> methodReplacements,
             params Type[] parentTypes) 
             => GetDynamicTypeImpl(typeName, properties, isCreatePropertyDelegates,
                 methodReplacements, parentTypes);
@@ -158,31 +164,34 @@ namespace Das.Types
             Boolean isCreatePropertyDelegates, Dictionary<MethodInfo, MethodInfo> methodReplacements,
             params Type[] parentTypes)
         {
+            DasType dt;
+            Type created;
+
             lock (_lockDynamic)
             {
                 if (_createdDTypes.TryGetValue(typeName, out var val))
                     return val;
 
-                var created = GetDynamicType(typeName, methodReplacements, properties, parentTypes);
+                created = GetDynamicType(typeName, methodReplacements, properties, parentTypes);
                 
                 //set our fake type as the ManagedType which acts like a real type but can still be
                 //identified as dynamic/anonymous etc
-                var dt = new DasType(created, properties);
+                dt = new DasType(created, properties);
 
                 _createdDTypes.TryAdd(typeName, dt);
-
-                if (!isCreatePropertyDelegates)
-                    return dt;
-
-                foreach (var prop in properties)
-                {
-                    var propInfo = created.GetProperty(prop.Name);
-                    dt.PublicSetters.Add(prop.Name, _typeManipulator.CreateSetMethod(propInfo));
-                    dt.PublicGetters.Add(prop.Name, _typeManipulator.CreatePropertyGetter(created, propInfo));
-                }
-
-                return dt;
             }
+
+            if (!isCreatePropertyDelegates)
+                return dt;
+
+            foreach (var prop in properties)
+            {
+                var propInfo = created.GetProperty(prop.Name);
+                dt.PublicSetters.Add(prop.Name, _typeManipulator.CreateSetMethod(propInfo));
+                dt.PublicGetters.Add(prop.Name, _typeManipulator.CreatePropertyGetter(created, propInfo));
+            }
+
+            return dt;
         }
 
         /// <summary>
@@ -200,49 +209,46 @@ namespace Das.Types
 			Dictionary<MethodInfo, MethodInfo> methodReplacements, IList<DasProperty> properties,
 			params Type[] parentTypes)
 		{
-			if (_createdTypes.TryGetValue(typeName, out var val))
-				return val;
+            if (_createdTypes.TryGetValue(typeName, out var val))
+                return val;
 
-			#region define type/inheritance
+            lock (_lockDynamic)
+            {
+                var typeBuilder = _codeGenerator.GetTypeBuilder(typeName);
 
-			var typeBuilder = GetTypeBuilder(typeName);
+                typeBuilder.DefineDefaultConstructor(
+                    MethodAttributes.Public | MethodAttributes.SpecialName |
+                    MethodAttributes.RTSpecialName);
 
-			typeBuilder.DefineDefaultConstructor(
-				MethodAttributes.Public | MethodAttributes.SpecialName |
-				MethodAttributes.RTSpecialName);
+                var addedMethods = new HashSet<String>();
+                var addedProperties = new HashSet<string>();
 
-			var addedMethods = new HashSet<String>();
-			var addedProperties = new HashSet<string>();
+                //abstract before interfaces in case an abstract already implements 
+                //items from the interface
+                foreach (var type in parentTypes.OrderBy(t => t.IsAbstract).
+                    ThenByDescending(t => t.IsClass))
+                {
+                    ImplementParent(typeBuilder, type, addedProperties, methodReplacements,
+                        addedMethods);
+                }
 
-			//abstract before interfaces in case an abstract already implements 
-			//items from the interface
-			foreach (var type in parentTypes.OrderBy(t => t.IsAbstract).
-				ThenByDescending(t => t.IsClass))
-			{
-				ImplementParent(typeBuilder, type, addedProperties, methodReplacements, 
-					addedMethods);
-			}
+                if (properties != null)
+                {
+                    foreach (var kvp in properties)
+                    {
+                        var strKey = kvp.Name;
 
-			#endregion
+                        if (addedProperties.Contains(strKey))
+                            continue;
+                        CreateProperty(typeBuilder, kvp);
+                    }
+                }
 
-			if (properties != null)
-			{
-				foreach (var kvp in properties)
-				{
-					var strKey = kvp.Name;
-					
-					if (addedProperties.Contains(strKey))
-						continue;
-					CreateProperty(typeBuilder, kvp);
-				}
-			}
-
-			var created = typeBuilder.CreateType();
-			_createdTypes.AddOrUpdate(typeName, created, (k,v) => created);
-			return created;
+                var created = typeBuilder.CreateType();
+                _createdTypes.AddOrUpdate(typeName, created, (k, v) => created);
+                return created;
+            }
 		}
-
-        
 
         public DasAttribute[] Copy(IEnumerable<object> attributes)
         {
@@ -250,12 +256,9 @@ namespace Das.Types
             {
                 var valu = new ValueNode(o);
                 var attr = new DasAttribute { Type = o.GetType() };
-                
 
                 foreach (var propVal in _objectManipulator.GetPropertyResults(valu, Settings))
-                {
                     attr.PropertyValues.Add(propVal.Name, propVal.Value);
-                }
             }
 
             return new DasAttribute[0];
