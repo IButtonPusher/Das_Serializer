@@ -1,8 +1,0 @@
-E:\SourceCode\DAS\Serializer\Serializer.Interfaces\bin\Release\netstandard2.0\Serializer.Interfaces.deps.json
-E:\SourceCode\DAS\Serializer\Serializer.Interfaces\bin\Release\netstandard2.0\Serializer.Interfaces.dll
-E:\SourceCode\DAS\Serializer\Serializer.Interfaces\bin\Release\netstandard2.0\Serializer.Interfaces.pdb
-E:\SourceCode\DAS\Serializer\Serializer.Interfaces\obj\Release\netstandard2.0\Serializer.Interfaces.csproj.CoreCompileInputs.cache
-E:\SourceCode\DAS\Serializer\Serializer.Interfaces\obj\Release\netstandard2.0\Serializer.Interfaces.AssemblyInfoInputs.cache
-E:\SourceCode\DAS\Serializer\Serializer.Interfaces\obj\Release\netstandard2.0\Serializer.Interfaces.AssemblyInfo.cs
-E:\SourceCode\DAS\Serializer\Serializer.Interfaces\obj\Release\netstandard2.0\Serializer.Interfaces.dll
-E:\SourceCode\DAS\Serializer\Serializer.Interfaces\obj\Release\netstandard2.0\Serializer.Interfaces.pdb
