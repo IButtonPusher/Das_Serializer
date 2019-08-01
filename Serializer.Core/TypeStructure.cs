@@ -46,7 +46,7 @@ namespace Das
             if (type.IsDefined(typeof(SerializeAsTypeAttribute), false))
             {
                 var serAs = type.GetCustomAttributes(typeof(SerializeAsTypeAttribute
-                    ), false).First() as SerializeAsTypeAttribute;
+                ), false).First() as SerializeAsTypeAttribute;
                 if (serAs?.TargetType != null)
                     type = serAs.TargetType;
             }
@@ -59,7 +59,8 @@ namespace Das
             _fieldSetters = new SortedList<string, Action<object, object>>();
 
             var cmp = isPropertyNamesCaseSensitive
-                ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase;
+                ? StringComparer.Ordinal
+                : StringComparer.OrdinalIgnoreCase;
 
             _propertySetters = new SortedList<string, PropertySetter>(cmp);
             _readOnlySetters = new SortedList<string, Action<object, object>>(cmp);
@@ -155,6 +156,7 @@ namespace Das
                 var sp = _types.CreateSetMethod(pi);
                 _propertySetters.Add(pi.Name, sp);
             }
+
             MemberTypes.TryAdd(pi.Name, pi);
         }
 
@@ -193,7 +195,7 @@ namespace Das
 
                 var type = _types.InstanceMemberType(MemberTypes[strName]);
 
-                yield return new NamedValueNode(strName, 
+                yield return new NamedValueNode(strName,
                     _propGetters[propInfo.Name](o), type);
             }
 
@@ -311,4 +313,3 @@ namespace Das
         }
     }
 }
-

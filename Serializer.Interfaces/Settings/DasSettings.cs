@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+
 // ReSharper disable UnusedMember.Global
 // ReSharper disable UnusedMemberInSuper.Global
 
@@ -35,7 +36,6 @@ namespace Das.Serializer
 
         CircularReference CircularReferenceBehavior { get; set; }
 
-        
 
         /// <summary>
         /// Types from xml/json that are not namespace or assembly qualified will be

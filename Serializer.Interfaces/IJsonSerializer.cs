@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+
 // ReSharper disable UnusedMember.Global
 
 namespace Das.Serializer
@@ -40,6 +41,5 @@ namespace Das.Serializer
         void ToJson(Object o, FileInfo fileName);
 
         void ToJson<TTarget>(Object o, FileInfo fileName);
-        
     }
 }

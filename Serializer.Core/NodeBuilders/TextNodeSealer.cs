@@ -23,7 +23,7 @@ namespace Serializer.Core
             _values = nodeValues;
             _typeProvider = nodeValues;
             _facade = facade;
-            
+
             _typeManipulator = facade.TypeManipulator;
             _scanner = scanner;
             _objects = facade.ObjectManipulator;
@@ -32,14 +32,16 @@ namespace Serializer.Core
         public override void CloseNode(ITextNode node)
         {
             _values.TryBuildValue(node);
-            
+
             if (node.NodeType == NodeTypes.None)
                 node.NodeType = _typeProvider.GetNodeType(node, Settings.SerializationDepth);
 
             switch (node.NodeType)
             {
                 case NodeTypes.Object:
+
                     #region object = sum of attributes (primitives) and children (should already be imbued)
+
                     foreach (var attr in node.Attributes)
                     {
                         if (attr.Key == DasCoreSerializer.RefTag ||
@@ -53,7 +55,7 @@ namespace Serializer.Core
 
                         if (type == null)
                             continue;
-                        
+
                         var str = attr.Value;
 
                         var val = _scanner.GetValue(str, type) ?? str;
@@ -61,23 +63,31 @@ namespace Serializer.Core
                         _objects.SetProperty(node.Type, attr.Key, ref wal, val);
                         node.Value = wal;
                     }
+
                     break;
+
                 #endregion
+
                 case NodeTypes.Collection:
                     ConstructCollection(ref node);
                     break;
 
                 case NodeTypes.Primitive:
+
                     #region build primitive
+
                     var nodeText = node.Text.ToString();
                     if (!String.IsNullOrWhiteSpace(nodeText))
                         node.Value = _scanner.GetValue(nodeText, node.Type);
                     break;
+
                 #endregion
+
                 case NodeTypes.PropertiesToConstructor:
                     ConstructFromProperties(ref node);
                     break;
                 case NodeTypes.Dynamic:
+
                     #region collate property types, generate type, set prop values
 
                     if (_facade.TypeInferrer.IsCollection(node.Type))
@@ -99,6 +109,7 @@ namespace Serializer.Core
                         var atVal = _scanner.GetValue(attr.Value, typeof(Object));
                         node.DynamicProperties.Add(attr.Key, atVal);
                     }
+
                     if (node.Type != null && node.Children.Count == 1)
                     {
                         var onlyChild = node.Children.First().Value;
@@ -136,9 +147,13 @@ namespace Serializer.Core
                     }
 
                     break;
+
                 #endregion
+
                 case NodeTypes.Fallback:
+
                     #region serialize/maybe takes string as a constructor
+
                     if (node.Text == null)
                         break;
                     var txt = node.Text.ToString();
@@ -160,8 +175,10 @@ namespace Serializer.Core
                         node.Value = _scanner.GetValue(txt, node.Type);
                         Imbue(node.Parent, node.Name, node.Value);
                     }
+
                     break;
-                    #endregion
+
+                #endregion
             }
 
             var parent = node.Parent;
@@ -191,7 +208,7 @@ namespace Serializer.Core
 
             if (current.Value == null)
                 _values.TryBuildValue(current);
-         
+
             node.Value = current.Value;
             if (node.Parent != null)
                 Imbue(node.Parent, node.Name, node.Value);
@@ -202,7 +219,7 @@ namespace Serializer.Core
             Type propertyType, out object val)
         {
             var propKey = _facade.TypeInferrer.ToPropertyStyle(key);
-            
+
             if (node.Attributes.TryGetValue(propKey, out var attrib))
             {
                 val = _scanner.GetValue(attrib, propertyType);

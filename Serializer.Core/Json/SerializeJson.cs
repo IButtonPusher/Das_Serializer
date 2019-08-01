@@ -8,30 +8,29 @@ using Serializer.Core.Files;
 
 namespace Das
 {
-	public partial class DasCoreSerializer
-	{
+    public partial class DasCoreSerializer
+    {
         public void ToJson(Object o, FileInfo fi)
-		{
+        {
             var xml = ToJson(o);
 
             using (var _ = new SafeFile(fi))
                 File.WriteAllText(fi.FullName, xml);
-            
-		}
+        }
 
-		public void ToJson<TTarget>(Object o, FileInfo fileName)
-		{
+        public void ToJson<TTarget>(Object o, FileInfo fileName)
+        {
             var obj = CastDynamic<TTarget>(o);
             ToJson(obj, fileName);
-		}
+        }
 
-		/// <summary>
-		/// Create a Json string from any object.  For more options set the Settings
-		/// property of the serializer instance or the factory on which this is invoked
-		/// </summary>
-		/// <param name="o">The object to serialize</param>
-		/// <returns></returns>
-		public String ToJson(Object o) => ToJson(o, o.GetType());
+        /// <summary>
+        /// Create a Json string from any object.  For more options set the Settings
+        /// property of the serializer instance or the factory on which this is invoked
+        /// </summary>
+        /// <param name="o">The object to serialize</param>
+        /// <returns></returns>
+        public String ToJson(Object o) => ToJson(o, o.GetType());
 
         public String ToJson<TObject>(TObject o) => ToJson(o, typeof(TObject));
 
@@ -54,13 +53,11 @@ namespace Das
 
 
         public String ToJson<TTarget>(Object o)
-		{
+        {
             var obj = CastDynamic<TTarget>(o);
-			var str = ToJson(obj);
-			
-			return str;
-		}
+            var str = ToJson(obj);
 
-     
+            return str;
+        }
     }
 }

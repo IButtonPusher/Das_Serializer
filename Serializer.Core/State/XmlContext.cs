@@ -5,15 +5,15 @@ namespace Serializer.Core
 {
     public class XmlContext : CoreContext, ITextContext
     {
-        public XmlContext(IDynamicFacade dynamicFacade, ISerializerSettings settings) 
+        public XmlContext(IDynamicFacade dynamicFacade, ISerializerSettings settings)
             : base(dynamicFacade, settings)
         {
             PrimitiveScanner = new XmlPrimitiveScanner();
             var manipulator = new XmlNodeTypeProvider(dynamicFacade, PrimitiveScanner, settings);
-            
+
             _nodeProvider = new TextNodeProvider(dynamicFacade, manipulator, PrimitiveScanner,
                 settings);
-            
+
             Sealer = new TextNodeSealer(manipulator, PrimitiveScanner, dynamicFacade, settings);
         }
 

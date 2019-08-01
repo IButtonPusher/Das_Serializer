@@ -10,5 +10,5 @@ namespace Das.Serializer
         //IScannerBase<IEnumerable<Char>> Scanner { get; }
 
         ITextScanner Scanner { get; }
-}
+    }
 }

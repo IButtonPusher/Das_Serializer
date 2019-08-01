@@ -7,14 +7,13 @@ namespace Serializer.Core.NodeBuilders
 {
     public class BinaryNodeProvider : NodeProvider<IBinaryNode>, IBinaryNodeProvider
     {
-        public BinaryNodeProvider(IDynamicFacade dynamicFacade, ISerializerSettings settings) 
+        public BinaryNodeProvider(IDynamicFacade dynamicFacade, ISerializerSettings settings)
             : this(dynamicFacade, new NodeTypeProvider(dynamicFacade, settings), settings)
         {
-            
         }
 
         public BinaryNodeProvider(IDynamicFacade dynamicFacade, INodeManipulator nodeManipulator,
-            ISerializerSettings settings) 
+            ISerializerSettings settings)
             : base(nodeManipulator, settings)
         {
             Sealer = new BinaryNodeSealer(TypeProvider, dynamicFacade, settings);
@@ -52,7 +51,8 @@ namespace Serializer.Core.NodeBuilders
         private IBinaryNode Get(string name, Type type)
         {
             var buffer = Buffer;
-            var item =  buffer.Count > 0 ? buffer.Dequeue() 
+            var item = buffer.Count > 0
+                ? buffer.Dequeue()
                 : new BinaryNode(name, Settings);
             item.Type = type;
             return item;

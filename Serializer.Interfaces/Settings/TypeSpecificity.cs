@@ -10,6 +10,7 @@ namespace Das.Serializer
         /// classes have properties of type Object, abstract classes, or interfaces.
         /// </summary>
         None,
+
         /// <summary>
         /// Selecting this option will embed type data only for data that is typed as Object or
         /// as an interface/abstract class.  Selecting this option will create somewhat of a 
@@ -17,6 +18,7 @@ namespace Das.Serializer
         /// but is necessary in most cases to deserialize.  This is the default setting
         /// </summary>
         Discrepancy,
+
         /// <summary>
         /// Selecting this option will embed type information into every piece of data.  
         /// This option will generate the largest amount of bytes and be the slowest. However, 

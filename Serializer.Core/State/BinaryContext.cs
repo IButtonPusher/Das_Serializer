@@ -7,7 +7,7 @@ namespace Serializer.Core
 {
     public class BinaryContext : CoreContext, IBinaryContext
     {
-        public BinaryContext(IDynamicFacade dynamicFacade, ISerializerSettings settings) 
+        public BinaryContext(IDynamicFacade dynamicFacade, ISerializerSettings settings)
             : base(dynamicFacade, settings)
         {
             _nodeProvider = new BinaryNodeProvider(dynamicFacade, settings);

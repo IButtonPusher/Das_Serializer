@@ -12,7 +12,7 @@ namespace Das.Streamers
         Int32 GetNextBlockSize();
 
         Byte GetCircularReferenceIndex();
-        
+
         Object GetPrimitive(Type type);
 
         T GetPrimitive<T>();

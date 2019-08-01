@@ -12,11 +12,11 @@ namespace Serializer.Core
         {
             Entities = new Dictionary<string, string>
             {
-                { "&amp;", "&"},
-                { "&lt;", "<"},
-                { "&gt;", ">"},
-                { "&quot;", "\""},
-                { "&apos;", "\'"}
+                {"&amp;", "&"},
+                {"&lt;", "<"},
+                {"&gt;", ">"},
+                {"&quot;", "\""},
+                {"&apos;", "\'"}
             };
         }
 
@@ -63,6 +63,7 @@ namespace Serializer.Core
                     {
                         output.Append(c);
                     }
+
                     continue;
                 }
 
@@ -102,6 +103,7 @@ namespace Serializer.Core
                         {
                             state = 3;
                         }
+
                         entity.Append(c);
                         rawEntity.Append(c);
                     }
@@ -127,8 +129,7 @@ namespace Serializer.Core
                     {
                         if (number == 0)
                             output.Append(rawEntity + ";");
-                        else
-                        if (number > 65535)
+                        else if (number > 65535)
                         {
                             output.Append("&#");
                             output.Append(number.ToString(CultureInfo.InvariantCulture));
@@ -136,8 +137,9 @@ namespace Serializer.Core
                         }
                         else
                         {
-                            output.Append((char)number);
+                            output.Append((char) number);
                         }
+
                         state = 0;
                         entity.Length = 0;
                         rawEntity.Length = 0;
@@ -168,6 +170,7 @@ namespace Serializer.Core
                             entity.Append(number.ToString(CultureInfo.InvariantCulture));
                             have_trailing_digits = false;
                         }
+
                         entity.Append(c);
                     }
                 }
@@ -181,6 +184,7 @@ namespace Serializer.Core
             {
                 output.Append(number.ToString(CultureInfo.InvariantCulture));
             }
+
             return output.ToString();
         }
     }

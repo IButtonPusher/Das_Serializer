@@ -22,7 +22,7 @@ namespace Serializer.Core.Remunerators
 
             //for nullable primitive we will write a single byte to indicate null or not
             if (!_isWrapPossible)
-                return; 
+                return;
 
             WriteInt32(0);
 
@@ -53,7 +53,6 @@ namespace Serializer.Core.Remunerators
             if (_isWrapPossible)
             {
                 SetLength(_backingList.Count);
-                
             }
 
             _parent.Imbue(this);
@@ -73,27 +72,28 @@ namespace Serializer.Core.Remunerators
 
         public override IEnumerator<byte> GetEnumerator() => _backingList.GetEnumerator();
 
-        public override string ToString() => _node + ".  Index " + ParentIndex + 
-            " Byte Count: " + _backingList.Count + " Length: " + 
-            Length + " Nodes: " + Children.Count;
+        public override string ToString() => _node + ".  Index " + ParentIndex +
+                                             " Byte Count: " + _backingList.Count + " Length: " +
+                                             Length + " Nodes: " + Children.Count;
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         private readonly List<Byte> _backingList;
+
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
         private readonly PrintNode _node;
         private readonly IBinaryWriter _parent;
         private readonly Boolean _isWrapPossible;
         private Boolean _isPopped;
 
-       // void IBinaryWriter.WriteInt8(byte value) => _backingList.Add(value);
+        // void IBinaryWriter.WriteInt8(byte value) => _backingList.Add(value);
 
         void IBinaryWriter.Write(byte[] values) => _backingList.AddRange(values);
 
         [MethodImpl(256)]
         private void SetLength(long val)
         {
-            var pi = (byte*)&val;
+            var pi = (byte*) &val;
             for (var c = 0; c < 4; c++)
                 _backingList[c] = pi[c];
         }

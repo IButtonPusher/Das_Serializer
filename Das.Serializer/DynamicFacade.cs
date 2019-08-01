@@ -20,7 +20,9 @@ namespace Das.Serializer
         public IDictionary<Type, Type> Surrogates { get; }
 
         public DynamicFacade(ISerializerSettings settings)
-            : this(settings, new ConcurrentDictionary<Type, Type>()) { }
+            : this(settings, new ConcurrentDictionary<Type, Type>())
+        {
+        }
 
         public DynamicFacade(ISerializerSettings settings,
             IDictionary<Type, Type> typeSurrogates)
@@ -41,11 +43,12 @@ namespace Das.Serializer
 
             var typeInferrer = new TypeInference(dynamicTypes, assemblyList, settings);
             TypeInferrer = typeInferrer;
-            
+
             ObjectInstantiator = new ObjectInstantiator(typeInferrer,
                 typeManipulator, typeSurrogates, manipulator, dynamicTypes);
             Surrogates = typeSurrogates is ConcurrentDictionary<Type, Type> conc
-                ? conc : new ConcurrentDictionary<Type, Type>(typeSurrogates);
+                ? conc
+                : new ConcurrentDictionary<Type, Type>(typeSurrogates);
         }
     }
 }

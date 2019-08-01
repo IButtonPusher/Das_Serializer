@@ -9,9 +9,9 @@ namespace Serializer.Core
         private readonly Action<IJsonLoaner> _returnToLibrary;
 
         public JsonBorrowable(Action<IJsonLoaner> returnToLibrary, IStateProvider stateProvider,
-            ISerializerSettings settings) 
-            : base(stateProvider, stateProvider.JsonContext,  
-                  new JsonScanner(stateProvider, stateProvider.JsonContext), settings)
+            ISerializerSettings settings)
+            : base(stateProvider, stateProvider.JsonContext,
+                new JsonScanner(stateProvider, stateProvider.JsonContext), settings)
         {
             _returnToLibrary = returnToLibrary;
         }

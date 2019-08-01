@@ -18,7 +18,7 @@ namespace Das
         Object ConvertEx(Object obj, Type newObjectType,
             ISerializerSettings settings);
 
-        Object SpawnCollection(Object[] objects, Type collectionType, 
+        Object SpawnCollection(Object[] objects, Type collectionType,
             ISerializerSettings settings, Type collectionGenericArgs = null);
     }
 }

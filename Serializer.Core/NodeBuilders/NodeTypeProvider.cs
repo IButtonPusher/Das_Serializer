@@ -9,11 +9,11 @@ namespace Serializer.Core
 {
     public class NodeTypeProvider : TypeCore, INodeManipulator
     {
-        public NodeTypeProvider(IDynamicFacade dynamicFacade, ISerializerSettings settings) 
+        public NodeTypeProvider(IDynamicFacade dynamicFacade, ISerializerSettings settings)
             : base(settings)
         {
             _dynamicFacade = dynamicFacade;
-            _cachedNodeTypes =new ConcurrentDictionary<Type, NodeTypes>();
+            _cachedNodeTypes = new ConcurrentDictionary<Type, NodeTypes>();
             _types = dynamicFacade.TypeInferrer;
             _instantiator = dynamicFacade.ObjectInstantiator;
         }
@@ -50,10 +50,10 @@ namespace Serializer.Core
             //if this is based off an interface we need to implement that
             Type[] parentTypes;
             if (node.Type != null)
-                parentTypes = new[] { node.Type };
+                parentTypes = new[] {node.Type};
             else
                 parentTypes = new Type[0];
-            
+
             var dType = _dynamicFacade.DynamicTypes.GetDynamicType(
                 typeName.ToString(), propTypes.ToArray(), true,
                 null, parentTypes);
@@ -144,7 +144,7 @@ namespace Serializer.Core
 
         public void EnsureNodeType(INode node)
         {
-            node.NodeType = GetNodeType(node.Type,Settings.SerializationDepth);
+            node.NodeType = GetNodeType(node.Type, Settings.SerializationDepth);
         }
 
         public NodeTypes GetNodeType(INode node, SerializationDepth depth)
@@ -161,10 +161,10 @@ namespace Serializer.Core
             if (_types.IsLeaf(type, true))
                 output = NodeTypes.Primitive;
 
-            else if ( !_types.IsInstantiable(type))
+            else if (!_types.IsInstantiable(type))
             {
                 output = type == typeof(Type)
-                    ? NodeTypes.Fallback 
+                    ? NodeTypes.Fallback
                     : NodeTypes.Dynamic;
             }
             else if (_dynamicFacade.TypeManipulator.PropertyCount(type) > 0)

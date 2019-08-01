@@ -8,7 +8,7 @@ namespace Das.Serializer
 {
     public interface IObjectManipulator : IDynamicAccessor
     {
-        NamedValueNode GetPropertyResult(Object o , Type asType, String propertyName);
+        NamedValueNode GetPropertyResult(Object o, Type asType, String propertyName);
 
         T GetPropertyValue<T>(Object obj, String propertyName);
 
@@ -16,7 +16,7 @@ namespace Das.Serializer
 
         IEnumerable<NamedValueNode> GetPropertyResults(ValueNode obj, ISerializationDepth depth);
 
-       Boolean SetFieldValue(Type classType, String fieldName, Object targetObj,
+        Boolean SetFieldValue(Type classType, String fieldName, Object targetObj,
             Object propVal);
 
         Boolean SetFieldValue<T>(Type classType, String fieldName, Object targetObj,
@@ -24,7 +24,7 @@ namespace Das.Serializer
 
         void SetFieldValues<TObject>(TObject obj, Action<ITypeStructure, TObject> action);
 
-        Boolean SetProperty(Type classType, String propName, ref Object targetObj, 
+        Boolean SetProperty(Type classType, String propName, ref Object targetObj,
             Object propVal);
 
         void Method(Object obj, String methodName, Object[] parameters,
@@ -56,6 +56,5 @@ namespace Das.Serializer
         ///  Tries to cast or convert as IConvertible. Otherwise returns false
         /// </summary>
         Boolean TryCastDynamic<T>(Object o, out T casted);
-        
     }
 }

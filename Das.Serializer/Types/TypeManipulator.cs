@@ -40,13 +40,13 @@ namespace Das.Types
             PropertyInfo propertyInfo)
         {
             var setParamType = typeof(object);
-            Type[] setParamTypes = { setParamType };
+            Type[] setParamTypes = {setParamType};
             var setReturnType = typeof(object);
 
             var owner = typeof(DasType);
 
             var getMethod = new DynamicMethod(String.Empty, setReturnType,
-                    setParamTypes, owner, true);
+                setParamTypes, owner, true);
 
             var ilCommunication = getMethod.GetILGenerator();
 
@@ -75,7 +75,7 @@ namespace Das.Types
 
         private static readonly Type[] ParamTypes = new Type[]
         {
-    typeof(object).MakeByRefType(), typeof(object)
+            typeof(object).MakeByRefType(), typeof(object)
         };
 
         PropertySetter ITypeManipulator.CreateSetMethod(MemberInfo memberInfo)
@@ -119,8 +119,8 @@ namespace Das.Types
             if (decType.IsValueType)
             {
                 generator.Emit(OpCodes.Unbox, decType);
-
             }
+
             generator.Emit(OpCodes.Ldarg_1);
             if (paramType.IsValueType)
                 generator.Emit(OpCodes.Unbox_Any, paramType);
@@ -137,7 +137,7 @@ namespace Das.Types
 
             generator.Emit(OpCodes.Ret);
 
-            return (PropertySetter)setter.CreateDelegate(typeof(PropertySetter));
+            return (PropertySetter) setter.CreateDelegate(typeof(PropertySetter));
         }
 
         IEnumerable<FieldInfo> ITypeManipulator.GetRecursivePrivateFields(Type type)
@@ -163,7 +163,7 @@ namespace Das.Types
 
             var decType = pi?.DeclaringType;
 
-            if (decType == null || !pi.CanRead || 
+            if (decType == null || !pi.CanRead ||
                 !pi.GetGetMethod(true).IsDefined(compGen, true))
                 return null;
             var backingField = decType.GetField($"<{pi.Name}>k__BackingField",
@@ -180,8 +180,8 @@ namespace Das.Types
             var name = $"<{pi.Name}>";
 
             backingField = flds.FirstOrDefault(f => f.Name.Contains(name))
-                ?? flds.FirstOrDefault(f => f.Name.IndexOf(name,
-                    StringComparison.OrdinalIgnoreCase) >= 0);
+                           ?? flds.FirstOrDefault(f => f.Name.IndexOf(name,
+                                                           StringComparison.OrdinalIgnoreCase) >= 0);
 
             if (backingField == null || backingField.FieldType != pi.PropertyType)
                 return null;
@@ -198,14 +198,15 @@ namespace Das.Types
                 setter = default;
                 return false;
             }
+
             setter = CreateFieldSetter(backingField);
             return setter != null;
         }
 
         public Func<Object, Object> CreateFieldGetter(FieldInfo fieldInfo)
         {
-            var dynam = new DynamicMethod("", typeof(object), new[] { typeof(object) }
-              , typeof(Func<Object, Object>), true);
+            var dynam = new DynamicMethod("", typeof(object), new[] {typeof(object)}
+                , typeof(Func<Object, Object>), true);
 
             var il = dynam.GetILGenerator();
 
@@ -225,7 +226,7 @@ namespace Das.Types
             }
 
             il.Emit(OpCodes.Ret);
-            return (Func<Object, Object>)dynam.CreateDelegate(typeof(Func<Object, Object>));
+            return (Func<Object, Object>) dynam.CreateDelegate(typeof(Func<Object, Object>));
         }
 
         public Action<Object, Object> CreateFieldSetter(FieldInfo fieldInfo)
@@ -233,7 +234,7 @@ namespace Das.Types
             var dynam = new DynamicMethod(
                 ""
                 , typeof(void)
-                , new[] { typeof(object), typeof(object) }
+                , new[] {typeof(object), typeof(object)}
                 , typeof(VoidMethod)
                 , true
             );
@@ -247,7 +248,8 @@ namespace Das.Types
                 // Argument 0 of dynamic method is target instance.
                 il.Emit(OpCodes.Ldarg_0);
             }
-            il.Emit(OpCodes.Ldarg_1);     // load value
+
+            il.Emit(OpCodes.Ldarg_1); // load value
 
             if (fieldInfo.FieldType.IsValueType)
             {
@@ -263,40 +265,37 @@ namespace Das.Types
                 il.Emit(OpCodes.Stsfld, fieldInfo); // static store into field
             }
 
-         
+
             il.Emit(OpCodes.Ret);
-            return (Action<Object, Object>)dynam.CreateDelegate(typeof(Action<Object, Object>));
+            return (Action<Object, Object>) dynam.CreateDelegate(typeof(Action<Object, Object>));
         }
 
 
         public VoidMethod CreateMethodCaller(MethodInfo method)
         {
             var dyn = CreateMethodCaller(method, true);
-            return (VoidMethod)dyn.CreateDelegate(typeof(VoidMethod));
+            return (VoidMethod) dyn.CreateDelegate(typeof(VoidMethod));
         }
 
         public Func<Object, Object[], Object> CreateFuncCaller(MethodInfo method)
         {
             var dyn = CreateMethodCaller(method, false);
-            return (Func<Object, Object[], Object>)dyn.CreateDelegate(typeof(Func<Object, Object[], Object>));
+            return (Func<Object, Object[], Object>) dyn.CreateDelegate(typeof(Func<Object, Object[], Object>));
         }
 
         public DynamicMethod CreateMethodCaller(MethodInfo method, Boolean isSuppressReturnValue)
         {
-            Type[] argTypes = { typeof(object), typeof(object[]) };
+            Type[] argTypes = {typeof(object), typeof(object[])};
             var parms = method.GetParameters();
 
-            var retType = isSuppressReturnValue ? typeof(void) :
-                typeof(object);
+            var retType = isSuppressReturnValue ? typeof(void) : typeof(object);
 
             var dynam = new DynamicMethod(String.Empty, retType, argTypes
                 , typeof(DasType), true);
             var il = dynam.GetILGenerator();
 
             //pass the target object.  If it's a struct (value type) we have to pass the address
-            il.Emit(method.DeclaringType?.IsValueType == true ?
-                OpCodes.Ldarga :
-                OpCodes.Ldarg, 0);
+            il.Emit(method.DeclaringType?.IsValueType == true ? OpCodes.Ldarga : OpCodes.Ldarg, 0);
 
             for (var i = 0; i < parms.Length; i++)
             {
@@ -345,8 +344,9 @@ namespace Das.Types
             if (method != null)
             {
                 var dynam = CreateMethodCaller(method, true);
-                res = (VoidMethod)dynam.CreateDelegate(typeof(VoidMethod));
+                res = (VoidMethod) dynam.CreateDelegate(typeof(VoidMethod));
             }
+
             CachedAdders.TryAdd(colType, res);
 
             return res;
@@ -394,8 +394,9 @@ namespace Das.Types
             if (method != null)
             {
                 var dynam = CreateMethodCaller(method, true);
-                res = (VoidMethod)dynam.CreateDelegate(typeof(VoidMethod));
+                res = (VoidMethod) dynam.CreateDelegate(typeof(VoidMethod));
             }
+
             CachedAdders.TryAdd(colType, res);
 
             return res;
@@ -411,12 +412,12 @@ namespace Das.Types
             var cType = collection.GetType();
 
             if (typeof(ICollection<T>).IsAssignableFrom(cType))
-                return typeof(ICollection<T>).GetMethod("Add", new[] { typeof(T) });
+                return typeof(ICollection<T>).GetMethod("Add", new[] {typeof(T)});
             if (typeof(IList).IsAssignableFrom(cType))
-                return typeof(IList).GetMethod("Add", new[] { typeof(T) });
+                return typeof(IList).GetMethod("Add", new[] {typeof(T)});
 
             var prmType = cType.GetGenericArguments().FirstOrDefault()
-                ?? typeof(Object);
+                          ?? typeof(Object);
 
 
             foreach (var meth in cType.GetMethods(BindingFlags.Instance | BindingFlags.Public))
@@ -439,11 +440,9 @@ namespace Das.Types
                 return default;
 
             var ts = GetStructure(classType, SerializationDepth.AllProperties);
-            return ts.MemberTypes.TryGetValue(propName, out var res) ?
-                InstanceMemberType(res) : default;
+            return ts.MemberTypes.TryGetValue(propName, out var res) ? InstanceMemberType(res) : default;
         }
 
-       
 
         ITypeStructure ITypeManipulator.GetStructure(Type type, SerializationDepth depth)
             => GetStructure(type, depth);
@@ -500,12 +499,12 @@ namespace Das.Types
         {
             if (Settings.IsPropertyNamesCaseSensitive)
                 return ValidateCollection(type, depth, true);
-            
+
             return ValidateCollection(type, depth, false);
         }
 
         private TypeStructure ValidateCollection(Type type, SerializationDepth depth,
-                Boolean caseSensitive)
+            Boolean caseSensitive)
         {
             var collection = caseSensitive ? _knownSensitive : _knownInsensitive;
 
@@ -518,8 +517,7 @@ namespace Das.Types
             if (!doCache)
                 return result;
 
-            return collection.AddOrUpdate(type, result, (k, v) => v.Depth > result.Depth ?
-                v : result);
+            return collection.AddOrUpdate(type, result, (k, v) => v.Depth > result.Depth ? v : result);
         }
     }
 }

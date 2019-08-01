@@ -5,7 +5,7 @@ namespace Serializer.Core
 {
     public class JsonNodeTypeProvider : NodeTypeProvider
     {
-        public JsonNodeTypeProvider(IDynamicFacade dynamicFacade, ISerializerSettings settings) 
+        public JsonNodeTypeProvider(IDynamicFacade dynamicFacade, ISerializerSettings settings)
             : base(dynamicFacade, settings)
         {
             _typeInferrer = dynamicFacade.TypeInferrer;

@@ -10,7 +10,7 @@ namespace Serializer.Core
         private readonly ITypeInferrer _typeInferrer;
 
         public XmlNodeTypeProvider(IDynamicFacade dynamicFacade,
-            IStringPrimitiveScanner scanner, ISerializerSettings settings) 
+            IStringPrimitiveScanner scanner, ISerializerSettings settings)
             : base(dynamicFacade, settings)
         {
             _scanner = scanner;
@@ -24,10 +24,10 @@ namespace Serializer.Core
             {
                 var str = _textParser.After(xmlType, ":");
                 str = _scanner.Descape(str);
-                
+
                 type = _typeInferrer.GetTypeFromClearName(str);
 
-               // if (type == null) //we had an explicit type specified but couldn't find it??
+                // if (type == null) //we had an explicit type specified but couldn't find it??
                 //    _dynamicTypes.InvalidateDynamicTypes(); //not in this state
 
                 node.Attributes.Remove(Const.XmlType);

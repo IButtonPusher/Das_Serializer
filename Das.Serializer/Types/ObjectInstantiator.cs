@@ -76,19 +76,19 @@ namespace Das.Serializer
                     throw new NotImplementedException();
             }
         }
-       
+
 
         public T BuildDefault<T>(Boolean isCacheConstructors)
         {
             var def = BuildDefault(typeof(T), isCacheConstructors);
-            return (T)def;
+            return (T) def;
         }
 
         private static ConstructorInfo GetConstructor(Type type, IList<Type> genericArguments,
             out Type[] argTypes)
         {
-            argTypes = genericArguments.Count > 1 ?
-                genericArguments.Take(genericArguments.Count - 1).ToArray()
+            argTypes = genericArguments.Count > 1
+                ? genericArguments.Take(genericArguments.Count - 1).ToArray()
                 : Type.EmptyTypes;
 
             return type.GetConstructor(argTypes);
@@ -113,15 +113,15 @@ namespace Das.Serializer
 
             var dynamicMethod = new DynamicMethod("DM$_" + type.Name, type, argTypes, type);
             var ilGen = dynamicMethod.GetILGenerator();
-            for (var i = 0; i < argTypes.Length; i++)            
+            for (var i = 0; i < argTypes.Length; i++)
                 ilGen.Emit(OpCodes.Ldarg, i);
-            
+
             ilGen.Emit(OpCodes.Newobj, constructor);
             ilGen.Emit(OpCodes.Ret);
             return dynamicMethod.CreateDelegate(delegateType);
         }
 
-        public Func<object> GetConstructorDelegate(Type type) 
+        public Func<object> GetConstructorDelegate(Type type)
             => (Func<object>) GetConstructorDelegate(type, typeof(Func<object>));
 
         public void OnDeserialized(object obj, SerializationDepth depth)
@@ -161,7 +161,7 @@ namespace Das.Serializer
             if (isAnomymous)
                 return true;
 
-            
+
             CachedConstructors.TryAdd(type, constr);
             return true;
         }
@@ -172,13 +172,13 @@ namespace Das.Serializer
                 return default;
 
             var handle = GCHandle.Alloc(rawValue, GCHandleType.Pinned);
-            var structure = (T)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), objType);
+            var structure = (T) Marshal.PtrToStructure(handle.AddrOfPinnedObject(), objType);
             handle.Free();
             return structure;
         }
 
         public Object CreatePrimitiveObject(byte[] rawValue, Type objType)
-            => CreatePrimitiveObject<Object>(rawValue, objType);       
+            => CreatePrimitiveObject<Object>(rawValue, objType);
 
         private InstantiationTypes GetInstantiationType(Type type)
         {
@@ -204,7 +204,7 @@ namespace Das.Serializer
             }
             else if (_typeInferrer.IsCollection(type))
                 res = InstantiationTypes.EmptyArray;
-            else return InstantiationTypes.Abstract;            
+            else return InstantiationTypes.Abstract;
 
             InstantionTypes.TryAdd(type, res);
             return res;
@@ -212,7 +212,7 @@ namespace Das.Serializer
 
         private object CreateInstance(Type type, Boolean isCacheTypeConstructors)
         {
-            if (!isCacheTypeConstructors  || IsAnonymousType(type))
+            if (!isCacheTypeConstructors || IsAnonymousType(type))
             {
                 var ctor = GetConstructor(type, new List<Type>(), out _);
                 var ctored = ctor.Invoke(new Object[0]);

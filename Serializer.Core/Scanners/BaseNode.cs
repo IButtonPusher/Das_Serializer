@@ -5,10 +5,9 @@ using Serializer.Core;
 
 namespace Das.Scanners
 {
-	internal abstract class BaseNode<TNode> : TypeCore, INode<TNode>
+    internal abstract class BaseNode<TNode> : TypeCore, INode<TNode>
         where TNode : INode<TNode>
-	{
-
+    {
         public BaseNode(ISerializerSettings settings) : base(settings)
         {
             DynamicProperties = new Dictionary<string, object>();
@@ -25,18 +24,17 @@ namespace Das.Scanners
         }
 
         public Type Type { get; set; }
-		public Object Value { get; set; }
-		public IDictionary<String, String> Attributes { get; }
+        public Object Value { get; set; }
+        public IDictionary<String, String> Attributes { get; }
         public IDictionary<string, object> DynamicProperties { get; }
 
         public INode Parent => _parent;
-		public NodeTypes NodeType { get; set; }
+        public NodeTypes NodeType { get; set; }
 
         public virtual Boolean IsEmpty => false;
-		
+
         private TNode _parent;
 
-      
 
         public virtual void Clear()
         {
@@ -51,6 +49,6 @@ namespace Das.Scanners
             NodeType = NodeTypes.None;
         }
 
-		public override string ToString() => $"Name: {Name} Type: {Type}: Val: {Value} ";
+        public override string ToString() => $"Name: {Name} Type: {Type}: Val: {Value} ";
     }
 }

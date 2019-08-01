@@ -10,7 +10,7 @@ namespace Das.Types
     public class ObjectManipulator : IObjectManipulator
     {
         private readonly TypeManipulator _typeDelegates;
-        
+
         private readonly ConcurrentDictionary<Type, ConcurrentDictionary
             <String, VoidMethod>> _cachedMethods;
 
@@ -22,7 +22,7 @@ namespace Das.Types
             _typeDelegates = typeDelegates;
             _cachedMethods = new ConcurrentDictionary<Type,
                 ConcurrentDictionary<string, VoidMethod>>();
-            _cachedFuncs = new ConcurrentDictionary<Type, 
+            _cachedFuncs = new ConcurrentDictionary<Type,
                 ConcurrentDictionary<string, Func<object, object[], object>>>();
         }
 
@@ -35,7 +35,7 @@ namespace Das.Types
         }
 
         public T GetPropertyValue<T>(object obj, string propertyName)
-            => (T) GetPropertyResult(obj, obj.GetType(),propertyName).Value;
+            => (T) GetPropertyResult(obj, obj.GetType(), propertyName).Value;
 
         public bool TryGetPropertyValue(object obj, string propertyName, out object result)
         {
@@ -60,11 +60,12 @@ namespace Das.Types
                 if (TryCastDynamic(res, out result))
                     return true;
             }
+
             result = default;
             return false;
         }
 
-        public IEnumerable<NamedValueNode> GetPropertyResults(ValueNode value, 
+        public IEnumerable<NamedValueNode> GetPropertyResults(ValueNode value,
             ISerializationDepth depth)
         {
             var val = value?.Value;
@@ -113,7 +114,6 @@ namespace Das.Types
         {
             var str = GetStructure(typeof(TObject), SerializationDepth.Full);
             action(str);
-
         }
 
         /// <summary>
@@ -208,7 +208,7 @@ namespace Das.Types
             return meth.Invoke(obj, parameters);
         }
 
-    private static Boolean TryCleanCast<T>(Object o, out T result)
+        private static Boolean TryCleanCast<T>(Object o, out T result)
         {
             if (o is T ez)
             {
@@ -221,7 +221,7 @@ namespace Das.Types
             if (typeof(IConvertible).IsAssignableFrom(tt) &&
                 o is IConvertible)
             {
-                result = (T)Convert.ChangeType(o, tt);
+                result = (T) Convert.ChangeType(o, tt);
                 return true;
             }
 
@@ -254,8 +254,7 @@ namespace Das.Types
             return false;
         }
 
-        private TypeStructure GetStructure(Type type, SerializationDepth depth) 
+        private TypeStructure GetStructure(Type type, SerializationDepth depth)
             => _typeDelegates.GetStructure(type, depth);
-
     }
 }

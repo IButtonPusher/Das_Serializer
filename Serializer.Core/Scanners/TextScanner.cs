@@ -7,23 +7,23 @@ using Serializer.Core;
 
 namespace Das.Scanners
 {
-	public abstract class TextScanner : SerializerCore, ITextScanner
+    public abstract class TextScanner : SerializerCore, ITextScanner
     {
         protected List<Char> EscapeChars;
-		protected List<Char> WhiteSpaceChars;
+        protected List<Char> WhiteSpaceChars;
 
         protected abstract Boolean IsQuote(Char c);
 
         private readonly ITextNodeProvider _nodes;
-		
-		private Boolean _isQuoteOpen;
-		private Boolean _isEscapeNext;
-		protected readonly StringBuilder CurrentValue;
-		public ITextNode RootNode { get; protected set; }
-		protected ITextNode CurrentNode;
-		protected readonly Dictionary<String, String> CurrentAttributes;
-		protected readonly IStringPrimitiveScanner PrimitiveScanner;
-		protected String CurrentTagName;
+
+        private Boolean _isQuoteOpen;
+        private Boolean _isEscapeNext;
+        protected readonly StringBuilder CurrentValue;
+        public ITextNode RootNode { get; protected set; }
+        protected ITextNode CurrentNode;
+        protected readonly Dictionary<String, String> CurrentAttributes;
+        protected readonly IStringPrimitiveScanner PrimitiveScanner;
+        protected String CurrentTagName;
 
         protected bool HasCurrentTag => !String.IsNullOrWhiteSpace(CurrentTagName);
 
@@ -45,12 +45,12 @@ namespace Das.Scanners
             Types = state.NodeProvider.TypeProvider;
 
             PrimitiveScanner = state.PrimitiveScanner;
-			EscapeChars = new List<Char>{ Const.BackSlash};
-			WhiteSpaceChars = new List<Char> { Const.CarriageReturn, '\n', '\t', Const.Space };
+            EscapeChars = new List<Char> {Const.BackSlash};
+            WhiteSpaceChars = new List<Char> {Const.CarriageReturn, '\n', '\t', Const.Space};
 
 
             _nodes = state.NodeProvider;
-		}
+        }
 
 
         protected void OpenNode()
@@ -100,7 +100,7 @@ namespace Das.Scanners
                 do
                 {
                     c = iterator.Current;
-                    
+
                     if (_isQuoteOpen)
                     {
                         if (!_isEscapeNext && IsQuote(c))
@@ -123,20 +123,19 @@ namespace Das.Scanners
 
                     if (isQuote)
                         _isQuoteOpen = !_isQuoteOpen;
-                    else switch (c)
-                    {
-                        case '\0':
-                            break;
-                        default:
-                            ProcessCharacter(c);
-                            break;
-                    }
-                }
-                while (iterator.MoveNext());
+                    else
+                        switch (c)
+                        {
+                            case '\0':
+                                break;
+                            default:
+                                ProcessCharacter(c);
+                                break;
+                        }
+                } while (iterator.MoveNext());
             }
 
-            return TextState.ObjectManipulator.
-                CastDynamic<T>(RootNode.Value, _converter, Settings);
+            return TextState.ObjectManipulator.CastDynamic<T>(RootNode.Value, _converter, Settings);
         }
 
         public void Invalidate()

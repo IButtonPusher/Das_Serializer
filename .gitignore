@@ -21,3 +21,5 @@
 /Serializer.Core/bin/Debug/netstandard2.0
 /Serializer.Core/obj
 /Serializer.Interfaces/obj
+/UnitTestProject1/bin/Debug
+/UnitTestProject1/obj/Debug

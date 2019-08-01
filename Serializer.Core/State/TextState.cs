@@ -7,7 +7,7 @@ namespace Serializer.Core
     public class TextState : BaseState, ITextState
     {
         public TextState(IStateProvider stateProvider,
-            ITextContext context, TextScanner scanner, ISerializerSettings settings) 
+            ITextContext context, TextScanner scanner, ISerializerSettings settings)
             : base(stateProvider, settings)
         {
             _context = context;
@@ -27,7 +27,7 @@ namespace Serializer.Core
         public INodeSealer<ITextNode> Sealer => _context.Sealer;
 
         public IStringPrimitiveScanner PrimitiveScanner { get; }
-        
+
         private readonly ITextContext _context;
 
         public override void Dispose()
@@ -36,6 +36,7 @@ namespace Serializer.Core
         }
 
         private ISerializerSettings _settings;
+
         public override ISerializerSettings Settings
         {
             get => _settings;

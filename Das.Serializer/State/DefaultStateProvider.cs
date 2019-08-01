@@ -9,12 +9,14 @@ namespace Das.Serializer
         public DefaultStateProvider(ISerializerSettings settings)
             : base(GetDynamicFacade(settings),
                 _xmlContext, _jsonContext, _binaryContext, settings)
-        { }
+        {
+        }
 
-        public DefaultStateProvider() 
+        public DefaultStateProvider()
             : base(GetDynamicFacade(DasSettings.Default),
-                  _xmlContext, _jsonContext, _binaryContext, DasSettings.Default)
-        { }
+                _xmlContext, _jsonContext, _binaryContext, DasSettings.Default)
+        {
+        }
 
 
         public static IDynamicFacade GetDynamicFacade()
@@ -30,7 +32,7 @@ namespace Das.Serializer
 
             return dynamicFacade;
         }
-       
+
 
         private static XmlContext _xmlContext;
         private static JsonContext _jsonContext;

@@ -7,7 +7,9 @@ namespace Das.Serializer.Objects
     /// </summary>
     public class ValueNode
     {
-        public ValueNode(object value) : this(value, value?.GetType()) { }
+        public ValueNode(object value) : this(value, value?.GetType())
+        {
+        }
 
         public ValueNode(object value, Type type)
         {

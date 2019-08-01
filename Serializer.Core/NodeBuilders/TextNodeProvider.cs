@@ -8,7 +8,7 @@ namespace Serializer.Core
     public class TextNodeProvider : NodeProvider<ITextNode>, ITextNodeProvider
     {
         public TextNodeProvider(IDynamicFacade facade, INodeManipulator nodeManipulator,
-            IStringPrimitiveScanner scanner, ISerializerSettings settings) 
+            IStringPrimitiveScanner scanner, ISerializerSettings settings)
             : base(nodeManipulator, settings)
         {
             _nodeManipulator = nodeManipulator;
@@ -19,17 +19,18 @@ namespace Serializer.Core
 
         public INodeSealer<ITextNode> Sealer { get; }
 
-        public ITextNode Get(string name, Dictionary<string, string> attributes, 
+        public ITextNode Get(string name, Dictionary<string, string> attributes,
             ITextNode parent)
         {
             ITextNode node;
             var buffer = Buffer;
-            
+
             if (buffer.Count > 0)
             {
                 node = buffer.Dequeue();
                 node.Name = name;
             }
+
             node = new TextNode(name, Settings, _nodeManipulator);
 
             node.Parent = parent;
@@ -39,7 +40,5 @@ namespace Serializer.Core
 
             return node;
         }
-
-      
     }
 }

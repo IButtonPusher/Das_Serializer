@@ -6,7 +6,7 @@ using Serializer.Core.Printers;
 namespace Serializer.Core.Remunerators
 {
     public interface IBinaryWriter : IEnumerable<Byte>,
-        IRemunerable<Byte[], Byte>, 
+        IRemunerable<Byte[], Byte>,
         IDisposable
     {
         void WriteInt8(Byte value);
@@ -30,7 +30,7 @@ namespace Serializer.Core.Remunerators
         void Flush();
 
         Int32 Length { get; }
-        
+
         Int32 SumLength { get; }
 
         IBinaryWriter Pop();

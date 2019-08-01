@@ -6,35 +6,34 @@ using Das.Serializer;
 
 namespace Das.Streamers
 {
-	internal class BinaryStreamer : IStreamWrapper<Byte>
-	{
-		private readonly Stream _stream;
+    internal class BinaryStreamer : IStreamWrapper<Byte>
+    {
+        private readonly Stream _stream;
 
-		public BinaryStreamer(Stream stream)
-		{
-			_stream = stream;
-		}
+        public BinaryStreamer(Stream stream)
+        {
+            _stream = stream;
+        }
 
-		public IEnumerator<byte> GetEnumerator()
-		{
-			var bufferSize = 1024;
-			var offset = 0;
-			var buffer = new Byte[bufferSize];
-			var found = _stream.Read(buffer, 0, bufferSize);
+        public IEnumerator<byte> GetEnumerator()
+        {
+            var bufferSize = 1024;
+            var offset = 0;
+            var buffer = new Byte[bufferSize];
+            var found = _stream.Read(buffer, 0, bufferSize);
 
-			do
-			{
-				offset += found;
+            do
+            {
+                offset += found;
 
-				foreach (var b in buffer)
-					yield return b;
+                foreach (var b in buffer)
+                    yield return b;
 
-				found = _stream.Read(buffer, offset, bufferSize);
-			}
-			while (found > 0);
-		}
+                found = _stream.Read(buffer, offset, bufferSize);
+            } while (found > 0);
+        }
 
-		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         public void Dispose()
         {

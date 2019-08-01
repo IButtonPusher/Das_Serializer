@@ -16,7 +16,9 @@ namespace Serializer.Core.Remunerators
 
         private readonly BinaryWriterWrapper _parent;
 
-        public BinaryWriterWrapper(Stream stream) : base(stream) { }
+        public BinaryWriterWrapper(Stream stream) : base(stream)
+        {
+        }
 
         protected BinaryWriterWrapper(BinaryWriterWrapper parent)
             : base(parent.OutStream)
@@ -46,23 +48,22 @@ namespace Serializer.Core.Remunerators
         public virtual IEnumerator<byte> GetEnumerator()
         {
             foreach (var node in Children)
-                foreach (var b in node)
-                    yield return b;
+            foreach (var b in node)
+                yield return b;
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
 
-
         public unsafe void WriteInt16(short val)
         {
-            var pi = (byte*)&val;
+            var pi = (byte*) &val;
             Write(pi, 2);
         }
 
         public unsafe void WriteInt16(ushort val)
         {
-            var pi = (byte*)&val;
+            var pi = (byte*) &val;
             Write(pi, 2);
         }
 
@@ -74,32 +75,32 @@ namespace Serializer.Core.Remunerators
 
         public unsafe void WriteInt8(SByte val)
         {
-            var pi = (byte*)&val;
+            var pi = (byte*) &val;
             Write(pi, 1);
         }
 
         [MethodImpl(256)]
         public unsafe void WriteInt32(int val)
         {
-            var pi = (byte*)&val;
+            var pi = (byte*) &val;
             Write(pi, 4);
         }
 
         public unsafe void WriteInt32(long val)
         {
-            var pi = (byte*)&val;
+            var pi = (byte*) &val;
             Write(pi, 4);
         }
 
         public unsafe void WriteInt64(Int64 val)
         {
-            var pi = (byte*)&val;
+            var pi = (byte*) &val;
             Write(pi, 8);
         }
 
         public unsafe void WriteInt64(UInt64 val)
         {
-            var pi = (byte*)&val;
+            var pi = (byte*) &val;
             Write(pi, 8);
         }
 
@@ -121,7 +122,7 @@ namespace Serializer.Core.Remunerators
             }
         }
 
-        protected virtual Int32 GetLengthImpl() => (Int32)OutStream.Length;
+        protected virtual Int32 GetLengthImpl() => (Int32) OutStream.Length;
 
         void IRemunerable<byte[], byte>.Append(byte data)
         {
@@ -130,14 +131,13 @@ namespace Serializer.Core.Remunerators
 
         bool IRemunerable.IsEmpty => BaseStream.Length == 0;
 
-      
+
         public virtual IBinaryWriter Pop() => this;
 
         void IRemunerable<byte[]>.Append(byte[] data) => Write(data);
-        
+
 
         void IRemunerable<byte[]>.Append(byte[] data, int limit)
             => Write(data, 0, limit);
-
     }
 }

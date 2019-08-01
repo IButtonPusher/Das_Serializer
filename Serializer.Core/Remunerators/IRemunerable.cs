@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace Das.Remunerators
 {
-	public interface IRemunerable<in T, in E> : IRemunerable<T>,
+    public interface IRemunerable<in T, in E> : IRemunerable<T>,
         IDisposable where T : IEnumerable<E>
-	{
+    {
         void Append(E data);
     }
 

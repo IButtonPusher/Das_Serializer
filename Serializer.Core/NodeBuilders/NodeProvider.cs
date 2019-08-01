@@ -5,7 +5,7 @@ using Das.Serializer;
 
 namespace Serializer.Core
 {
-    public abstract class NodeProvider<T> : TypeCore, 
+    public abstract class NodeProvider<T> : TypeCore,
         INodeProvider<T> where T : INode, IEnumerable<T>
     {
         protected NodeProvider(INodeManipulator typeProvider, ISerializerSettings settings)
@@ -28,13 +28,11 @@ namespace Serializer.Core
                 return;
 
             //if (IsAnonymousType(node.Type))
-             //   _dynamicFacade.DynamicTypes.InvalidateDynamicTypes();
+            //   _dynamicFacade.DynamicTypes.InvalidateDynamicTypes();
 
             var buffer = Buffer;
             node.Clear();
             buffer.Enqueue(node);
         }
-
-        
     }
 }

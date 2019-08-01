@@ -14,6 +14,7 @@ namespace Serializer.Core
     public class TypeCore : ITypeCore
     {
         private ISerializerSettings _settings;
+
         public virtual ISerializerSettings Settings
         {
             get => _settings;
@@ -27,9 +28,9 @@ namespace Serializer.Core
 
         private static readonly HashSet<Type> NumericTypes = new HashSet<Type>
         {
-            typeof(int),  typeof(double),  typeof(decimal),
-            typeof(long), typeof(short),   typeof(sbyte),
-            typeof(byte), typeof(ulong),   typeof(ushort),
+            typeof(int), typeof(double), typeof(decimal),
+            typeof(long), typeof(short), typeof(sbyte),
+            typeof(byte), typeof(ulong), typeof(ushort),
             typeof(uint), typeof(float)
         };
 
@@ -45,7 +46,7 @@ namespace Serializer.Core
         public bool TryGetNullableType(Type candidate, out Type primitive)
         {
             primitive = null;
-            if (!candidate.IsGenericType || 
+            if (!candidate.IsGenericType ||
                 candidate.GetGenericTypeDefinition() != typeof(Nullable<>))
                 return false;
 
@@ -61,9 +62,9 @@ namespace Serializer.Core
             => propInfo.GetGetMethod()?.IsAbstract == true ||
                propInfo.GetSetMethod()?.IsAbstract == true;
 
-        public bool IsCollection(Type type) 
+        public bool IsCollection(Type type)
             => type != null &&
-                typeof(IEnumerable).IsAssignableFrom(type) && type != Const.StrType;
+               typeof(IEnumerable).IsAssignableFrom(type) && type != Const.StrType;
 
         public bool IsUseless(Type t) => t == null || t == typeof(Object);
 
@@ -116,10 +117,10 @@ namespace Serializer.Core
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
 
-            return type.IsGenericType && 
-                type.Namespace == null && 
-                type.IsSealed && type.BaseType == Const.ObjectType &&
-                Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false)
+            return type.IsGenericType &&
+                   type.Namespace == null &&
+                   type.IsSealed && type.BaseType == Const.ObjectType &&
+                   Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false)
                    && type.Name.Contains("AnonymousType")
                    && (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))
                    && type.Attributes.ContainsFlag(TypeAttributes.NotPublic);
@@ -171,6 +172,7 @@ namespace Serializer.Core
                     bt = bt.BaseType;
                 }
             }
+
             if (numericFirst)
                 res = res.OrderByDescending(p => IsLeaf(p.PropertyType, false));
 
@@ -179,7 +181,5 @@ namespace Serializer.Core
             foreach (var prop in res)
                 yield return prop;
         }
-
-        
     }
 }

@@ -6,14 +6,14 @@ namespace Serializer.Core.State
 {
     public class JsonContext : CoreContext, ITextContext
     {
-        public JsonContext(IDynamicFacade dynamicFacade, ISerializerSettings settings) 
+        public JsonContext(IDynamicFacade dynamicFacade, ISerializerSettings settings)
             : base(dynamicFacade, settings)
         {
             var manipulator = new JsonNodeTypeProvider(dynamicFacade, settings);
             PrimitiveScanner = new JsonPrimitiveScanner();
             _nodeProvider = new TextNodeProvider(dynamicFacade, manipulator, PrimitiveScanner,
                 settings);
-            
+
             Sealer = new TextNodeSealer(manipulator, PrimitiveScanner, dynamicFacade, settings);
         }
 
@@ -24,6 +24,5 @@ namespace Serializer.Core.State
         public INodeSealer<ITextNode> Sealer { get; }
 
         public IStringPrimitiveScanner PrimitiveScanner { get; }
-
     }
 }

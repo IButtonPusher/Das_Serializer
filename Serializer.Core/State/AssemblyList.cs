@@ -15,7 +15,6 @@ namespace Serializer.Core
 
         static AssemblyList()
         {
-            
             _actualAssemblies = new ConcurrentDictionary<string, Assembly>(
                 StringComparer.OrdinalIgnoreCase);
         }
@@ -55,7 +54,7 @@ namespace Serializer.Core
                 return false;
             }
 
-            return TryLoad(foundName, out assembly);            
+            return TryLoad(foundName, out assembly);
         }
 
         private static Boolean AreEqual(String name, Assembly assembly) =>
@@ -84,7 +83,7 @@ namespace Serializer.Core
             }
         }
 
-        private static Boolean IsAssemblyUsable(Assembly dll) 
+        private static Boolean IsAssemblyUsable(Assembly dll)
             => !dll.IsDynamic && !String.IsNullOrWhiteSpace(dll.Location);
 
         private static IEnumerable<AssemblyName> GetRunningAndDependencies()
@@ -126,12 +125,11 @@ namespace Serializer.Core
             var binDir = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory;
             if (binDir == null)
             {
-                
                 return false;
             }
 
-            var dll = binDir.GetFiles("*.dll").FirstOrDefault(d => 
-            d.Name.EndsWith(name, StringComparison.OrdinalIgnoreCase));
+            var dll = binDir.GetFiles("*.dll").FirstOrDefault(d =>
+                d.Name.EndsWith(name, StringComparison.OrdinalIgnoreCase));
 
             if (dll != null)
             {
@@ -139,7 +137,9 @@ namespace Serializer.Core
                 {
                     found = Assembly.LoadFile(dll.FullName);
                 }
-                catch { }
+                catch
+                {
+                }
             }
 
             return found != null;

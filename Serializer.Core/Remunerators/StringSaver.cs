@@ -5,14 +5,14 @@ using System.Text;
 
 namespace Das.Remunerators
 {
-	internal class StringSaver : ITextRemunerable
+    internal class StringSaver : ITextRemunerable
     {
-		private readonly StringBuilder _sb;		
+        private readonly StringBuilder _sb;
 
-		public StringSaver()
-		{
-			_sb = new StringBuilder();
-		}
+        public StringSaver()
+        {
+            _sb = new StringBuilder();
+        }
 
         void IRemunerable<String>.Append(String str, Int32 cnt)
         {
@@ -21,22 +21,21 @@ namespace Das.Remunerators
 
 
         [MethodImpl(256)]
-        public  void Append(string data)
-		{
-			_sb.Append(data);
-		}
+        public void Append(string data)
+        {
+            _sb.Append(data);
+        }
 
         [MethodImpl(256)]
-        public  void Append(string data1, string data2)
+        public void Append(string data1, string data2)
         {
             _sb.Append(data1);
             _sb.Append(data2);
         }
 
-       
 
         [MethodImpl(256)]
-        public  void Append(char data1, string data2)
+        public void Append(char data1, string data2)
         {
             _sb.Append(data1);
             _sb.Append(data2);
@@ -53,20 +52,17 @@ namespace Das.Remunerators
 
         [MethodImpl(256)]
         public void Dispose()
-		{
-			_sb.Clear();
-		}
+        {
+            _sb.Clear();
+        }
 
 
         [MethodImpl(256)]
         public void Append(char data)
-		{
-			_sb.Append(data);
-		}
+        {
+            _sb.Append(data);
+        }
 
         public bool IsEmpty => _sb.Length == 0;
-       
     }
-
-	
 }

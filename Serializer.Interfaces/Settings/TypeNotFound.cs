@@ -8,6 +8,7 @@ namespace Das.Serializer
         /// Attempt to generate a dynamic type at runtime 
         /// </summary>
         GenerateRuntime,
+
         /// <summary>
         /// Throw an exception if no type can be determined from any piece of data
         /// </summary>

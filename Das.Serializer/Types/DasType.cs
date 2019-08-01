@@ -22,12 +22,12 @@ namespace Das.Serializer
 
         public bool IsLegalValue(string forProperty, object value)
             => _properties.TryGetValue(forProperty, out var prop) &&
-                prop.Type.IsInstanceOfType(value);
+               prop.Type.IsInstanceOfType(value);
 
         public Type GetPropertyType(string propertyName)
             => _properties.TryGetValue(propertyName, out var prop) ? prop.Type : default;
 
-        public static implicit  operator  Type(DasType das) 
+        public static implicit operator Type(DasType das)
             => das.ManagedType;
 
         public bool SetPropertyValue(ref object targetObj, string propName,
@@ -40,7 +40,7 @@ namespace Das.Serializer
             return true;
         }
 
-        public bool TryGetPropertyValue(object obj, string propertyName, 
+        public bool TryGetPropertyValue(object obj, string propertyName,
             out object result)
         {
             if (!(PublicGetters.TryGetValue(propertyName, out var getter)))

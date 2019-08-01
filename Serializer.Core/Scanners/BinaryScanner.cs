@@ -44,7 +44,7 @@ namespace Das.Scanners
             var orgType = typeof(T);
             var retType = orgType;
 
-            _rootNode = NewNode(null, null, retType);                     
+            _rootNode = NewNode(null, null, retType);
 
             BuildNext(ref _rootNode);
 
@@ -55,7 +55,7 @@ namespace Das.Scanners
                 _state.ObjectInstantiator.OnDeserialized(_rootNode.Value,
                     Settings.SerializationDepth);
 
-            return (T)_rootNode.Value;
+            return (T) _rootNode.Value;
         }
 
 
@@ -73,15 +73,15 @@ namespace Das.Scanners
                     var distanceFromRoot = _feeder.GetCircularReferenceIndex();
                     _nodes.ResolveCircularReference(node, ref distanceFromRoot);
                     return;
-            }          
+            }
 
             var propVals = _state.TypeManipulator.GetPropertiesToSerialize(
                 node.Type, Settings.SerializationDepth);
 
             foreach (var prop in propVals)
             {
-                Debug("*PROP* [" + prop.Name + "] " + prop.MemberType + 
-                    " scanning " + _feeder.Index);
+                Debug("*PROP* [" + prop.Name + "] " + prop.MemberType +
+                      " scanning " + _feeder.Index);
 
                 var propType = InstanceMemberType(prop);
 
@@ -95,7 +95,7 @@ namespace Das.Scanners
                 else
                 {
                     var child = NewNode(prop.Name, node, propType);
-                    BuildNext(ref child);                    
+                    BuildNext(ref child);
                 }
             }
         }
@@ -112,18 +112,19 @@ namespace Das.Scanners
         private void BuildCollection(ref IBinaryNode node)
         {
             var germane = GetGermaneType(node.Type);
-            
+
             var index = 0;
             var blockEnd = node.BlockStart + node.BlockSize;
 
             if (IsLeaf(germane, true))
-            {                
+            {
                 while (_feeder.Index < blockEnd)
                 {
                     var res = _feeder.GetPrimitive(germane);
-                    _nodes.Sealer.Imbue(node, index.ToString(), res);                    
-                    index++;                    
+                    _nodes.Sealer.Imbue(node, index.ToString(), res);
+                    index++;
                 }
+
                 return;
             }
 
@@ -139,7 +140,7 @@ namespace Das.Scanners
         {
             var child = _nodes.Get(name, parent, type);
             child.BlockStart = _feeder.Index;
-            if (child.NodeType == NodeTypes.Primitive && 
+            if (child.NodeType == NodeTypes.Primitive &&
                 Settings.TypeSpecificity != TypeSpecificity.All)
                 return child;
 
@@ -157,7 +158,7 @@ namespace Das.Scanners
             //envelope is providing type explicitly.  Re-calibrate
             child.Type = _feeder.GetNextType();
             child.NodeType = NodeTypes.None;
-            
+
             //substract the type wrapping from the effective size of the block
             child.BlockSize -= (_feeder.Index - sizeStart);
             //adjust starting point to after the size/type decl the 

@@ -8,7 +8,7 @@ namespace Serializer.Core
         private readonly INodeManipulator _nodeManipulator;
         private readonly IDynamicFacade _dynamicFacade;
 
-        public BinaryNodeSealer(INodeManipulator nodeManipulator, 
+        public BinaryNodeSealer(INodeManipulator nodeManipulator,
             IDynamicFacade dynamicFacade, ISerializerSettings settings)
             : base(dynamicFacade, nodeManipulator, settings)
         {
@@ -17,7 +17,7 @@ namespace Serializer.Core
         }
 
         public override void CloseNode(IBinaryNode node)
-        {          
+        {
             switch (node.NodeType)
             {
                 case NodeTypes.Collection:
@@ -39,9 +39,10 @@ namespace Serializer.Core
 
                         node.Value = wal;
                     }
+
                     _dynamicFacade.ObjectInstantiator.OnDeserialized(node.Value,
                         Settings.SerializationDepth);
-                    
+
                     break;
             }
 
@@ -49,7 +50,7 @@ namespace Serializer.Core
                 item.Value = node.Value;
         }
 
-        public override bool TryGetPropertyValue(IBinaryNode node, string key, 
+        public override bool TryGetPropertyValue(IBinaryNode node, string key,
             Type propertyType, out object val)
         {
             var propKey = _dynamicFacade.TypeInferrer.ToPropertyStyle(key);

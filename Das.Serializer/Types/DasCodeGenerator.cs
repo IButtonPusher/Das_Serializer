@@ -16,10 +16,10 @@ namespace Das.Serializer
             _access = access;
         }
 
-        private AssemblyBuilder AssemblyBuilder => 
+        private AssemblyBuilder AssemblyBuilder =>
             _assemblyBuilder ?? (_assemblyBuilder = GetAssemblyBuilder());
 
-        private ModuleBuilder ModuleBuilder => 
+        private ModuleBuilder ModuleBuilder =>
             _moduleBuilder ?? (_moduleBuilder = GetModuleBuilder());
 
         private AssemblyBuilder _assemblyBuilder;
@@ -79,11 +79,10 @@ namespace Das.Serializer
                 return AssemblyBuilder.DefineDynamicModule(_moduleName);
             }
         }
-        
+
         public void Save(String fileName)
         {
             _assemblyBuilder.Save(fileName);
         }
-
     }
 }

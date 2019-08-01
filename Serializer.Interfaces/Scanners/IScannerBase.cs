@@ -8,7 +8,7 @@ namespace Das.Scanners
     }
 
     public interface IScannerBase
-	{
+    {
         void Invalidate();
     }
 }

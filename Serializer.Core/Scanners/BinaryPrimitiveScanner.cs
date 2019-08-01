@@ -7,21 +7,21 @@ using Serializer.Core;
 
 namespace Das.Scanners
 {
-	internal class BinaryPrimitiveScanner : SerializerCore, IBinaryPrimitiveScanner
+    internal class BinaryPrimitiveScanner : SerializerCore, IBinaryPrimitiveScanner
     {
         #region fields		
 
         private readonly BinaryFormatter _fallbackFormatter;
 
-		#endregion
+        #endregion
 
-		#region construction
+        #region construction
 
-		public BinaryPrimitiveScanner(IDynamicFacade dynamicFacade, ISerializerSettings settings) 
+        public BinaryPrimitiveScanner(IDynamicFacade dynamicFacade, ISerializerSettings settings)
             : base(dynamicFacade, settings)
-		{
-			_fallbackFormatter = new BinaryFormatter();
-		}
+        {
+            _fallbackFormatter = new BinaryFormatter();
+        }
 
         #endregion
 
@@ -64,32 +64,31 @@ namespace Das.Scanners
                         using (var ms = new MemoryStream(input))
                             res = _fallbackFormatter.Deserialize(ms);
                     }
+
                     break;
             }
 
             return res;
         }
 
-        public unsafe Int32  GetInt32(byte[] value)
+        public unsafe Int32 GetInt32(byte[] value)
         {
             fixed (byte* pbyte = &value[0])
-                return *((int*)pbyte);
+                return *((int*) pbyte);
         }
 
         public unsafe String GetString(Byte[] tempByte)
-		{
-			if (tempByte == null)
-				return null;
+        {
+            if (tempByte == null)
+                return null;
 
-			fixed (byte* bptr = tempByte)
-			{
-				var cptr = (char*)bptr;
-				return new string(cptr, 0, tempByte.Length / 2);
-			}
-		}
+            fixed (byte* bptr = tempByte)
+            {
+                var cptr = (char*) bptr;
+                return new string(cptr, 0, tempByte.Length / 2);
+            }
+        }
 
-		#endregion
-
-		
-	}
+        #endregion
+    }
 }

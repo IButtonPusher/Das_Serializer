@@ -6,6 +6,7 @@ namespace Das.Serializer
     public enum SerializationDepth
     {
         None = 0,
+
         /// <summary>
         /// Considers only properties with getters and setters. Private fields and properties without
         /// setters are not serialized/deserialized.

@@ -7,7 +7,7 @@ namespace Das.Serializer
         INodeSealer<IBinaryNode> Sealer { get; }
 
         IBinaryNode Get(String name, IBinaryNode parent, Type type);
-        
+
 
         void ResolveCircularReference(IBinaryNode node, ref Byte distanceFromParent);
     }

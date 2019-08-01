@@ -70,7 +70,7 @@ namespace Serializer.Core.Scanners
                             case 'u':
                                 var unicode = input.Substring(i + 1, 4);
                                 var unichar = Convert.ToInt32(unicode, 16);
-                                _sbString.Append((Char)unichar);
+                                _sbString.Append((Char) unichar);
 
                                 for (var j = 0; j < 4; j++)
                                     enumerator.MoveNext();

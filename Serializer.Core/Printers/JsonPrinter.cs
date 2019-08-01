@@ -10,8 +10,8 @@ using Serializer.Core.Printers;
 
 namespace Das.Printers
 {
-	internal class JsonPrinter : TextPrinter
-	{
+    internal class JsonPrinter : TextPrinter
+    {
         private readonly ISerializationState _stateProvider;
 
         #region construction
@@ -22,62 +22,63 @@ namespace Das.Printers
         private const Char CloseCollection = ']';
 
         public JsonPrinter(ITextRemunerable writer, ISerializationState stateProvider)
-			: base(writer, stateProvider)
-		{
+            : base(writer, stateProvider)
+        {
             _stateProvider = stateProvider;
             SequenceSeparator = ',';
-		}
+        }
 
         #endregion
 
         #region public interface
 
         public override Boolean PrintNode(NamedValueNode node)
-		{
+        {
             var name = node.Name;
             var propType = node.Type;
             var val = node.Value;
 
             if (val == null)
-				return false;
+                return false;
 
             if (!_isIgnoreCircularDependencies)
                 PushStack(String.IsNullOrWhiteSpace(name) ? Const.Root : name);
 
-			try
-			{
-				var isCloseBlock = false;
-				var valType = val.GetType();
-				var isWrapping = IsWrapNeeded(propType, valType);
+            try
+            {
+                var isCloseBlock = false;
+                var valType = val.GetType();
+                var isWrapping = IsWrapNeeded(propType, valType);
 
-				if (!String.IsNullOrWhiteSpace(name))
-				{
-					if (name.Equals(PathAttribute))
-					{
-						Writer.Append(OpenBrace);
-						TabOut();
-						isCloseBlock = true;
-					}
+                if (!String.IsNullOrWhiteSpace(name))
+                {
+                    if (name.Equals(PathAttribute))
+                    {
+                        Writer.Append(OpenBrace);
+                        TabOut();
+                        isCloseBlock = true;
+                    }
+
                     Writer.Append(Const.Quote, name);
                     Writer.Append(Const.Quote, ":");
-				}
-				else if (!isWrapping)
-				{
-					var res = _stateProvider.GetNodeType(valType, Settings.SerializationDepth);
-					//root node, we have to wrap primitives
-					if (res == NodeTypes.Primitive || res == NodeTypes.Fallback)
-					{
-						Writer.Append(OpenBrace, _newLine);
-						TabOut();
-						isCloseBlock = true;
-					}
-				}
+                }
+                else if (!isWrapping)
+                {
+                    var res = _stateProvider.GetNodeType(valType, Settings.SerializationDepth);
+                    //root node, we have to wrap primitives
+                    if (res == NodeTypes.Primitive || res == NodeTypes.Fallback)
+                    {
+                        Writer.Append(OpenBrace, _newLine);
+                        TabOut();
+                        isCloseBlock = true;
+                    }
+                }
 
-				if (isWrapping)
-				{
-					Writer.Append(OpenBrace);
-					TabOut();
-					NewLine();
+                if (isWrapping)
+                {
+                    Writer.Append(OpenBrace);
+                    TabOut();
+                    NewLine();
                     var clear = _stateProvider.TypeInferrer.ToClearName(valType, false);
 
                     Writer.Append(Const.StrQuote, Const.TypeWrap);
@@ -86,33 +87,33 @@ namespace Das.Printers
                     Writer.Append(Const.StrQuote, ",");
 
                     NewLine();
-                    
+
                     Writer.Append(Const.Quote, DasCoreSerializer.Val);
                     Writer.Append(Const.Quote, ": ");
                     TabIn();
-					isCloseBlock = true;
-				}
+                    isCloseBlock = true;
+                }
 
-				///////////////////
-				var nodeType = _stateProvider.GetNodeType(valType, Settings.SerializationDepth);
+                ///////////////////
+                var nodeType = _stateProvider.GetNodeType(valType, Settings.SerializationDepth);
                 var print = new PrintNode(node, nodeType);
-				PrintObject(print);
-				//////////////////
+                PrintObject(print);
+                //////////////////
 
-				if (!isCloseBlock)
-					return true;
-				NewLine();
+                if (!isCloseBlock)
+                    return true;
+                NewLine();
 
-				Writer.Append(CloseBrace);
+                Writer.Append(CloseBrace);
 
                 return true;
             }
-			finally
-			{
+            finally
+            {
                 if (!_isIgnoreCircularDependencies)
                     PopStack();
-			}
-		}
+            }
+        }
 
         protected override void PrintSeries<T>(IEnumerable<T> values, Func<T, Boolean> meth)
         {
@@ -132,18 +133,18 @@ namespace Das.Printers
                 }
             }
         }
-     
+
         #endregion
 
         #region private implementation primary
 
         protected override void PrintReferenceType(PrintNode node)
-		{
-			if (node.Value == null)
-			{
-				Writer.Append(DasCoreSerializer.StrNull);
-				return;
-			}
+        {
+            if (node.Value == null)
+            {
+                Writer.Append(DasCoreSerializer.StrNull);
+                return;
+            }
 
             var wasAny = !Writer.IsEmpty;
 
@@ -225,37 +226,37 @@ namespace Das.Printers
         }
 
         protected Boolean PrintCollectionObject(ObjectNode val)
-		{
+        {
             var res = _stateProvider.GetNodeType(val.Type, Settings.SerializationDepth);
             var print = new PrintNode(val, res);
-			PrintObject(print);
+            PrintObject(print);
 
-			return true;
-		}
+            return true;
+        }
 
-		protected override void PrintFallback(PrintNode node)
-		{
-			Writer.Append(Const.Quote);
+        protected override void PrintFallback(PrintNode node)
+        {
+            Writer.Append(Const.Quote);
             node.Type = node.Value.GetType();
 
             PrintPrimitive(node);
-			Writer.Append(Const.Quote);
-		}
+            Writer.Append(Const.Quote);
+        }
 
-		#endregion
+        #endregion
 
-		#region private implementation helpers
+        #region private implementation helpers
 
-		protected override void PrintString(string str, Boolean isInQuotes)
-		{
-			if (isInQuotes)
-				Writer.Append(Const.Quote);
+        protected override void PrintString(string str, Boolean isInQuotes)
+        {
+            if (isInQuotes)
+                Writer.Append(Const.Quote);
 
-			AppendEscaped(str);
+            AppendEscaped(str);
 
-			if (isInQuotes)
-				Writer.Append(Const.Quote);
-		}
+            if (isInQuotes)
+                Writer.Append(Const.Quote);
+        }
 
         private void AppendEscaped(String value)
         {
@@ -269,7 +270,7 @@ namespace Das.Printers
             {
                 cIn = value[i];
 
-                if ((cIn < 0 || cIn > 31) && cIn != 34 && cIn != 39 && cIn != 60 && 
+                if ((cIn < 0 || cIn > 31) && cIn != 34 && cIn != 39 && cIn != 60 &&
                     cIn != 62 && cIn != 92)
                     continue;
                 needEncode = true;
@@ -289,12 +290,12 @@ namespace Das.Printers
                 if (cIn >= 0 && cIn <= 7 || cIn == 11 || cIn >= 14 && cIn <= 31
                     || cIn == 39 || cIn == 60 || cIn == 62)
                 {
-                    Writer.Append($"\\u{(Int32)cIn:x4}");
+                    Writer.Append($"\\u{(Int32) cIn:x4}");
                     continue;
                 }
 
                 String cOut;
-                switch ((int)cIn)
+                switch ((int) cIn)
                 {
                     case 8:
                         cOut = "\\b";

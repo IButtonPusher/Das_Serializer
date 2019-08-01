@@ -30,7 +30,7 @@ namespace Das.Types
         private readonly IAssemblyList _assemblies;
         private static readonly ConcurrentDictionary<Type, Object> CachedDefaults;
         private static readonly ConcurrentDictionary<Type, int> CachedSizes;
-        
+
 
         static TypeInference()
         {
@@ -82,8 +82,7 @@ namespace Das.Types
                     yield return GetTypeFromClearName(type);
 
                 meat = ExtractGenericMeat(type, out startIndex, out endIndex);
-            }
-            while (startIndex >= 0);
+            } while (startIndex >= 0);
         }
 
         private static String ExtractGenericMeat(String clearName, out Int32 startIndex,
@@ -117,9 +116,9 @@ namespace Das.Types
                 endIndex = i;
                 break;
             }
+
             startIndex++;
             return clearName.Substring(startIndex, endIndex - startIndex);
-
         }
 
         public string ToPropertyStyle(string name)
@@ -180,18 +179,17 @@ namespace Das.Types
                 {
                     case 1 when ownerType.IsGenericType:
                         typ = gargs[0];
-                        return typ;                                                
+                        return typ;
                     case 2:
-                        var lastChanceDictionary = typeof(IDictionary<,>).
-                            MakeGenericType(gargs);
+                        var lastChanceDictionary = typeof(IDictionary<,>).MakeGenericType(gargs);
                         typ = lastChanceDictionary.IsAssignableFrom(ownerType)
                             ? GetKeyValuePair(lastChanceDictionary)
                             : ownerType;
                         return typ;
                     case 0:
                         var gen0 = ownerType.GetInterfaces().FirstOrDefault(i =>
-                        i.IsGenericType);
-                        return GetGermaneType(gen0);                                                
+                            i.IsGenericType);
+                        return GetGermaneType(gen0);
                 }
             }
             finally
@@ -240,7 +238,7 @@ namespace Das.Types
                 sb = new StringBuilder($"{type.Namespace}.{type.Name}");
             else
                 sb = new StringBuilder($"{type.Assembly.ManifestModule.Name}, {type.Namespace}.{type.Name}");
-            
+
             sb.Remove(sb.Length - 2, 2);
             foreach (var subType in type.GetGenericArguments())
             {
@@ -283,7 +281,7 @@ namespace Das.Types
 
             return length;
         }
-        
+
 
         public bool IsDefaultValue(object o)
         {
@@ -299,7 +297,7 @@ namespace Das.Types
                     return Convert.ToInt32(conv) == 0;
             }
 
-           
+
             var t = o.GetType();
 
             if (!t.IsValueType || t == typeof(void))
@@ -332,7 +330,7 @@ namespace Das.Types
 
             if (TypeNames.TryGetValue(clearName, out var type))
                 return type;
-            
+
             if (_dynamicTypes.TryGetDynamicType(clearName, out type))
                 return type;
 
@@ -404,9 +402,10 @@ namespace Das.Types
                             generic = default;
                             return new List<Type> {null};
                         }
+
                         genericTypes.Add(meat);
                     }
-                    
+
                     startIndex = endIndex + 1;
                     if (startIndex >= search.Length)
                         break;
@@ -438,8 +437,8 @@ namespace Das.Types
         private Type GetNotAssemblyQualified(String clearName, Boolean isRecurse)
         {
             var tokens = clearName.Split('.');
-            return tokens.Length == 1 
-                ? FromSingleToken(clearName, isRecurse) 
+            return tokens.Length == 1
+                ? FromSingleToken(clearName, isRecurse)
                 : FromNamespaceQualified(clearName, tokens, isRecurse);
         }
 
@@ -463,7 +462,7 @@ namespace Das.Types
                 return default;
 
             /////////////////////
-            
+
             for (var c = 0; c < arr.Length; c++)
             {
                 var searchNs = arr[c] + "." + singleToken;
@@ -508,9 +507,10 @@ namespace Das.Types
 
             if (_assemblies.TryGetAssembly(tokens[0], out var assembly))
             {
-                type = assembly.GetType(tokens[1]) ?? 
-                    Type.GetType($"{tokens[1]},{assembly.FullName}");
+                type = assembly.GetType(tokens[1]) ??
+                       Type.GetType($"{tokens[1]},{assembly.FullName}");
             }
+
             return type ?? Type.GetType(clearName) ?? GetTypeFromClearName(tokens[0]);
         }
 
@@ -549,6 +549,3 @@ namespace Das.Types
         }
     }
 }
-
-
-

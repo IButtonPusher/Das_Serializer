@@ -6,7 +6,7 @@ using Das.Serializer;
 
 namespace Das.Scanners
 {
-	internal class TextNode : BaseNode<ITextNode>, ITextNode
+    internal class TextNode : BaseNode<ITextNode>, ITextNode
     {
         public TextNode(String name, ISerializerSettings settings,
             INodeManipulator nodeManipulator) : base(settings)
@@ -14,11 +14,11 @@ namespace Das.Scanners
             Text = new StringBuilder();
             _nodeManipulator = nodeManipulator;
             Name = name;
-            
+
             Children = new Dictionary<string, ITextNode>(
                 StringComparer.InvariantCultureIgnoreCase);
         }
-        
+
         private readonly INodeManipulator _nodeManipulator;
         public StringBuilder Text { get; }
 
@@ -30,13 +30,13 @@ namespace Das.Scanners
                 child.Clear();
 
             Children.Clear();
-           
+
             base.Clear();
             Text.Clear();
         }
 
-        public override Boolean IsEmpty => Name == null && Type == null 
-            && Children.Count == 0;
+        public override Boolean IsEmpty => Name == null && Type == null
+                                                        && Children.Count == 0;
 
 
         public IEnumerator<ITextNode> GetEnumerator()
@@ -58,11 +58,11 @@ namespace Das.Scanners
             if (NodeType == NodeTypes.None)
             {
                 _nodeManipulator.InferType(this);
-                
+
                 if (!IsUseless(Type))
                     NodeType = _nodeManipulator.GetNodeType(Type,
                         Settings.SerializationDepth);
-                
+
 
                 if (NodeType == NodeTypes.PropertiesToConstructor)
                     Children.Clear();
@@ -82,9 +82,12 @@ namespace Das.Scanners
                 else
                     Children.Add(node.Name, node);
             }
-            else { Children.Add($"{Children.Count}", node); }
+            else
+            {
+                Children.Add($"{Children.Count}", node);
+            }
         }
-		
+
 
         public void SetText(object value)
         {

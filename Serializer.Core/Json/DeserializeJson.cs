@@ -6,30 +6,30 @@ using System.Threading.Tasks;
 
 namespace Das
 {
-	public partial class DasCoreSerializer
-	{
+    public partial class DasCoreSerializer
+    {
         public Object FromJson(String json)
         {
             using (var state = StateProvider.BorrowJson(Settings))
-                return state.Scanner.Deserialize<Object>(json);            
+                return state.Scanner.Deserialize<Object>(json);
         }
 
-		public T FromJson<T>(String json) => FromJsonCharArray<T>(json);
+        public T FromJson<T>(String json) => FromJsonCharArray<T>(json);
 
         public T FromJson<T>(FileInfo file)
-		{
-			using (var fs = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
-				return FromJson<T>(fs);
-		}
+        {
+            using (var fs = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
+                return FromJson<T>(fs);
+        }
 
-		public virtual T FromJson<T>(Stream stream)
-		{
-			var streamWrap = new StreamStreamer(stream);
-			return FromJsonCharArray<T>(streamWrap);
-		}
+        public virtual T FromJson<T>(Stream stream)
+        {
+            var streamWrap = new StreamStreamer(stream);
+            return FromJsonCharArray<T>(streamWrap);
+        }
 
-		protected virtual T FromJsonCharArray<T>(IEnumerable<Char> json)
-		{
+        protected virtual T FromJsonCharArray<T>(IEnumerable<Char> json)
+        {
             using (var state = StateProvider.BorrowJson(Settings))
             {
                 var res = state.Scanner.Deserialize<T>(json);
@@ -42,7 +42,6 @@ namespace Das
 
         public override void Dispose()
         {
-            
         }
     }
 }

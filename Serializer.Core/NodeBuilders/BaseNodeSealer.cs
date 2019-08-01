@@ -86,7 +86,7 @@ namespace Serializer.Core
         public void Imbue(TNode childNode) => Imbue(childNode.Parent, childNode.Name,
             childNode.Value);
 
-        public abstract bool TryGetPropertyValue(TNode node, string key, 
+        public abstract bool TryGetPropertyValue(TNode node, string key,
             Type propertyType, out object val);
 
         public abstract void CloseNode(TNode node);
@@ -98,7 +98,7 @@ namespace Serializer.Core
 
             var childType = _types.GetGermaneType(node.Type);
 
-            if (node.Type.IsArray || node.Type.GetConstructor(new[] { childType }) != null)
+            if (node.Type.IsArray || node.Type.GetConstructor(new[] {childType}) != null)
             {
                 //build via initializer if possible
                 var arr2 = Array.CreateInstance(childType, node.DynamicProperties.Count);
@@ -141,7 +141,6 @@ namespace Serializer.Core
             {
                 if (TryGetPropertyValue(node, conParam.Name, conParam.ParameterType, out var val))
                     values.Add(val);
-                
             }
 
             node.Value = cInfo.Invoke(values.ToArray());

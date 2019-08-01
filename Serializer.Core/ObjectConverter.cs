@@ -9,7 +9,7 @@ using System.Reflection;
 
 namespace Das
 {
-	[SuppressMessage("ReSharper", "UseMethodIsInstanceOfType")]
+    [SuppressMessage("ReSharper", "UseMethodIsInstanceOfType")]
     internal class ObjectConverter : SerializerCore, IObjectConverter
     {
         private readonly IStateProvider _dynamicFacade;
@@ -17,7 +17,7 @@ namespace Das
         private readonly ITypeInferrer _types;
         private readonly IObjectManipulator _objects;
 
-        public ObjectConverter(IStateProvider dynamicFacade, ISerializerSettings settings) 
+        public ObjectConverter(IStateProvider dynamicFacade, ISerializerSettings settings)
             : base(dynamicFacade, settings)
         {
             _dynamicFacade = dynamicFacade;
@@ -25,10 +25,10 @@ namespace Das
             _types = dynamicFacade.TypeInferrer;
             _objects = dynamicFacade.ObjectManipulator;
         }
-        
+
 
         // ReSharper disable once UnusedParameter.Local
-        private T ConvertEx<T>(Object obj, T newObject, ISerializerSettings settings) 
+        private T ConvertEx<T>(Object obj, T newObject, ISerializerSettings settings)
             => ConvertEx<T>(obj, settings);
 
         public T ConvertEx<T>(object obj, ISerializerSettings settings)
@@ -43,7 +43,7 @@ namespace Das
             outObj = Copy(obj, ref outObj, nodeType, new
                 Dictionary<Object, Object>(), settings);
 
-            return (T)outObj;
+            return (T) outObj;
         }
 
         public T ConvertEx<T>(object obj) => ConvertEx<T>(obj, Settings);
@@ -81,7 +81,7 @@ namespace Das
 
             Copy(from, ref o, nodeType, new Dictionary<object, object>(), settings);
 
-            to = (T)o;
+            to = (T) o;
         }
 
         private Object Copy(Object from, ref Object to, NodeTypes nodeType,
@@ -119,9 +119,9 @@ namespace Das
 
                         var nextNode = _dynamicFacade.GetNodeType(prop.PropertyType,
                             settings.SerializationDepth);
-                        var toProp = _instantiate.BuildDefault(prop.PropertyType, 
+                        var toProp = _instantiate.BuildDefault(prop.PropertyType,
                             settings.CacheTypeConstructors);
-                        toProp = Copy(fromProp, ref toProp, nextNode, references,  settings);
+                        toProp = Copy(fromProp, ref toProp, nextNode, references, settings);
                         props.Add(prop.Name, toProp);
                     }
 
@@ -133,7 +133,6 @@ namespace Das
 
                         if (props.ContainsKey(search))
                             values.Add(props[search]);
-                        
                     }
 
                     to = cInfo.Invoke(values.ToArray());
@@ -143,6 +142,7 @@ namespace Das
                     {
                         to = from;
                     }
+
                     break;
             }
 
@@ -239,8 +239,8 @@ namespace Das
                 if (collectionType.IsArray)
                     return arr2;
             }
-            
-            if (collectionType.GetConstructor(new[] { itemType }) != null)
+
+            if (collectionType.GetConstructor(new[] {itemType}) != null)
                 return Activator.CreateInstance(collectionType, objects);
 
             var gargs = itemType.GetGenericArguments();
@@ -259,7 +259,7 @@ namespace Das
             Boolean TryGetCtor(out ConstructorInfo c)
             {
                 var otherDic = typeof(IDictionary<,>).MakeGenericType(gargs);
-                c = collectionType.GetConstructor(new[] { otherDic });
+                c = collectionType.GetConstructor(new[] {otherDic});
                 return ctor != null;
             }
         }
@@ -268,7 +268,7 @@ namespace Das
             ISerializerSettings settings)
         {
             var val = _instantiate.BuildDefault(collectionType, settings.CacheTypeConstructors);
-            var addDelegate = _dynamicFacade.TypeManipulator.GetAdder(val as IEnumerable); 
+            var addDelegate = _dynamicFacade.TypeManipulator.GetAdder(val as IEnumerable);
 
             foreach (var child in objects)
                 addDelegate(val, child);

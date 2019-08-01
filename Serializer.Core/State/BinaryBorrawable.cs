@@ -8,7 +8,7 @@ namespace Serializer.Core.State
         private readonly Action<IBinaryLoaner> _returnToLibrary;
 
         public BinaryBorrawable(Action<IBinaryLoaner> returnToLibrary,
-            ISerializerSettings settings, IStateProvider dynamicFacade)  
+            ISerializerSettings settings, IStateProvider dynamicFacade)
             : base(dynamicFacade, settings)
         {
             _returnToLibrary = returnToLibrary;

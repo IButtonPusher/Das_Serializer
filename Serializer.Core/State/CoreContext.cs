@@ -5,7 +5,7 @@ namespace Serializer.Core
 {
     public abstract class CoreContext : SerializerCore, ISerializationContext
     {
-        public CoreContext(IDynamicFacade dynamicFacade, ISerializerSettings settings) 
+        public CoreContext(IDynamicFacade dynamicFacade, ISerializerSettings settings)
             : base(dynamicFacade, settings)
         {
         }

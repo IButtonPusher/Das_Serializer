@@ -12,13 +12,13 @@ namespace Serializer.Core.Files
         {
             if (fi.DirectoryName == null)
                 //||  !Uri.IsWellFormedUriString(fi.FullName, UriKind.RelativeOrAbsolute)
-                
+
                 throw new InvalidDataException("Path of specified file is not valid");
 
             if (!Directory.Exists(fi.DirectoryName))
                 Directory.CreateDirectory(fi.DirectoryName);
 
-            _protector=  new Mutex(false, fi.FullName.Replace(
+            _protector = new Mutex(false, fi.FullName.Replace(
                 Path.DirectorySeparatorChar, '_'));
 
             _protector.WaitOne();

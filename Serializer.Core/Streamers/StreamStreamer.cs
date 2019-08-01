@@ -7,32 +7,31 @@ using System.Text;
 
 namespace Das.Streamers
 {
-	internal class StreamStreamer : IStreamWrapper<Char> 
-	{
-		private readonly Stream _stream;
+    internal class StreamStreamer : IStreamWrapper<Char>
+    {
+        private readonly Stream _stream;
 
         public StreamStreamer(Stream stream)
-		{
+        {
             _stream = stream;
-		}
-       
-		public IEnumerator<char> GetEnumerator()
-		{
-			var bufferSize = 1024;
-			var offset = 0;
-			_stream.Position = 0;
-			var buffer = new Byte[bufferSize];
-			var found = _stream.Read(buffer, offset, bufferSize);
-            var encoding = GetEncoding(buffer);
-			do
-			{
-				foreach (var c in encoding.GetChars(buffer, offset, found))
-					yield return c;
+        }
 
-				found = _stream.Read(buffer, offset, bufferSize);
-			}
-			while (found > 0);
-		}
+        public IEnumerator<char> GetEnumerator()
+        {
+            var bufferSize = 1024;
+            var offset = 0;
+            _stream.Position = 0;
+            var buffer = new Byte[bufferSize];
+            var found = _stream.Read(buffer, offset, bufferSize);
+            var encoding = GetEncoding(buffer);
+            do
+            {
+                foreach (var c in encoding.GetChars(buffer, offset, found))
+                    yield return c;
+
+                found = _stream.Read(buffer, offset, bufferSize);
+            } while (found > 0);
+        }
 
         private static Encoding GetEncoding(Byte[] bom)
         {
@@ -44,7 +43,8 @@ namespace Das.Streamers
             return Encoding.ASCII;
         }
 
-		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
         public void Dispose()
         {
             _stream.Dispose();

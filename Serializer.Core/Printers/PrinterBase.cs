@@ -12,36 +12,38 @@ using Serializer.Core.Printers;
 
 namespace Das.Printers
 {
-	internal abstract class PrinterBase<TEFormat> : SerializerCore, ISerializationDepth
+    internal abstract class PrinterBase<TEFormat> : SerializerCore, ISerializationDepth
     {
-		#region fields
-		
+        #region fields
+
         private readonly ISerializationState _stateProvider;
         protected readonly Boolean _isIgnoreCircularDependencies;
         private readonly Boolean _isElideDefaultProperties;
 
         //to quickly detected if an object exists in this path
         private readonly HashSet<Object> _pathReferences;
+
         //to print the x/json path by property/index
         private readonly List<String> _pathStack;
+
         //to map the order to property names
-        private readonly List<Object> _pathObjects; 
+        private readonly List<Object> _pathObjects;
 
-		protected Char PathSeparator;
-		protected String PathAttribute;
+        protected Char PathSeparator;
+        protected String PathAttribute;
 
-		protected Boolean IsPrintNullProperties;
-		
-		protected TEFormat SequenceSeparator;
+        protected Boolean IsPrintNullProperties;
 
-		protected Boolean IsTextPrinter;
+        protected TEFormat SequenceSeparator;
+
+        protected Boolean IsTextPrinter;
 
         #endregion
 
         #region construction
 
         public PrinterBase(ISerializationState stateProvider,
-            ISerializerSettings settings) :  base(stateProvider, settings)
+            ISerializerSettings settings) : base(stateProvider, settings)
         {
             _stateProvider = stateProvider;
             _pathReferences = new HashSet<object>();
@@ -58,7 +60,9 @@ namespace Das.Printers
 
 
         protected PrinterBase(ISerializationState stateProvider)
-            : this(stateProvider, stateProvider.Settings) { }
+            : this(stateProvider, stateProvider.Settings)
+        {
+        }
 
         #endregion
 
@@ -83,41 +87,41 @@ namespace Das.Printers
         /// 2. Route to proper method
         /// </summary>
         protected Boolean PrintObject(PrintNode node)
-		{
+        {
             var o = node.Value;
             var nodeType = node.NodeType;
 
             var checkCircs = IsCheckCircularRefs(nodeType);
 
-			if (checkCircs && TryHandleCircularReference(node))
-				return false;
+            if (checkCircs && TryHandleCircularReference(node))
+                return false;
 
-			switch (nodeType)
-			{
-				case NodeTypes.Primitive:
+            switch (nodeType)
+            {
+                case NodeTypes.Primitive:
                     PrintPrimitive(node);
-					break;
-				case NodeTypes.Object:
-				case NodeTypes.PropertiesToConstructor:
+                    break;
+                case NodeTypes.Object:
+                case NodeTypes.PropertiesToConstructor:
                     PrintReferenceType(node);
-					break;
-				case NodeTypes.Collection:
+                    break;
+                case NodeTypes.Collection:
                     PrintCollection(node);
-					break;
-				case NodeTypes.Fallback:
+                    break;
+                case NodeTypes.Fallback:
                     PrintFallback(node);
-					break;
-				case NodeTypes.Dynamic:
+                    break;
+                case NodeTypes.Dynamic:
                     //should only be trying to print a dynamic if it's a prop of type object
                     //with a null value. Can't do anything with that
                     if (o != null)
                         PrintFallback(node);
                     else
                         PrintReferenceType(node);
-					break;
-				default:
-					throw new NotImplementedException();
-			}
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
 
             var willReturn = node.Value != null;
 
@@ -158,6 +162,7 @@ namespace Das.Printers
                         var nullRef = new PrintNode(node.Name, null, node.Type, node.NodeType);
                         PrintObject(nullRef);
                     }
+
                     break;
                 case CircularReference.ThrowException:
                     var path = _pathStack.ToString(PathSeparator, '[');
@@ -175,19 +180,19 @@ namespace Das.Printers
             return true;
         }
 
-		protected virtual void PrintCircularDependency(Int32 index)
-		{
-			//have to assume that we don't have a tag open for xml
-			//since attribute properties are only for primitives
-			var reference = _pathStack.Take(index + 1).ToString(PathSeparator, '[');
-			PrintProperty(new NamedValueNode(PathAttribute, reference, Const.StrType));
-		}
+        protected virtual void PrintCircularDependency(Int32 index)
+        {
+            //have to assume that we don't have a tag open for xml
+            //since attribute properties are only for primitives
+            var reference = _pathStack.Take(index + 1).ToString(PathSeparator, '[');
+            PrintProperty(new NamedValueNode(PathAttribute, reference, Const.StrType));
+        }
 
         /// <summary>
         /// prints most objects as series of properties
         /// </summary>
         protected virtual void PrintReferenceType(PrintNode node)
-		{
+        {
             var properyValues = _stateProvider.ObjectManipulator.GetPropertyResults(node, this);
             PrintSeries(properyValues, PrintProperty);
         }
@@ -241,38 +246,38 @@ namespace Das.Printers
             }
         }
 
-		protected virtual void PrintSeries<T>(IEnumerable<T> values, Func<T, Boolean> meth)
-		{
+        protected virtual void PrintSeries<T>(IEnumerable<T> values, Func<T, Boolean> meth)
+        {
             foreach (var val in values)
                 meth(val);
         }
 
-		protected IEnumerable<ObjectNode> ExplodeList(IEnumerable list, Type itemType)
-		{
-			if (list == null)
-				yield break;
+        protected IEnumerable<ObjectNode> ExplodeList(IEnumerable list, Type itemType)
+        {
+            if (list == null)
+                yield break;
 
-			var index = 0;
-			foreach (var o in list)
-			{
-				yield return new ObjectNode(o, itemType, index++);
-			}
-		}
+            var index = 0;
+            foreach (var o in list)
+            {
+                yield return new ObjectNode(o, itemType, index++);
+            }
+        }
 
-		protected Boolean PrintProperty(NamedValueNode prop)
-		{
-			if (prop.Type.IsNestedPrivate && IsCollection(prop.Type))
-			{
-				//force deferred to run
-			}
+        protected Boolean PrintProperty(NamedValueNode prop)
+        {
+            if (prop.Type.IsNestedPrivate && IsCollection(prop.Type))
+            {
+                //force deferred to run
+            }
 
-			if (_isElideDefaultProperties && IsDefaultValue(prop.Value))
-				return false;
+            if (_isElideDefaultProperties && IsDefaultValue(prop.Value))
+                return false;
 
             var printed = PrintNode(prop);
 
             return printed;
-		}
+        }
 
         #endregion
 

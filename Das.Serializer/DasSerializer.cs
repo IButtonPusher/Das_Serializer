@@ -3,9 +3,9 @@ using Das.Serializer;
 
 namespace Das
 {
-	public class DasSerializer : DasCoreSerializer
-	{
-        public DasSerializer(IStateProvider stateProvider) 
+    public class DasSerializer : DasCoreSerializer
+    {
+        public DasSerializer(IStateProvider stateProvider)
             : base(stateProvider)
         {
         }
@@ -17,7 +17,6 @@ namespace Das
 
         public DasSerializer() : base(new DefaultStateProvider())
         {
-            
         }
     }
 }

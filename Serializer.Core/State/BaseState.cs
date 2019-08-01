@@ -4,11 +4,11 @@ using Das.Serializer;
 
 namespace Serializer.Core
 {
-    public abstract class BaseState : CoreContext,  ISerializationState
+    public abstract class BaseState : CoreContext, ISerializationState
     {
         private readonly IStateProvider _stateProvider;
 
-        protected BaseState(IStateProvider stateProvider, ISerializerSettings settings) 
+        protected BaseState(IStateProvider stateProvider, ISerializerSettings settings)
             : base(stateProvider, settings)
         {
             _stateProvider = stateProvider;
@@ -27,21 +27,20 @@ namespace Serializer.Core
         public T ConvertEx<T>(object obj, ISerializerSettings settings) =>
             _stateProvider.ObjectConverter.ConvertEx<T>(obj, settings);
 
-        public T ConvertEx<T>(object obj) => 
+        public T ConvertEx<T>(object obj) =>
             _stateProvider.ObjectConverter.ConvertEx<T>(obj, Settings);
 
-        public object ConvertEx(object obj, Type newObjectType, ISerializerSettings settings) 
+        public object ConvertEx(object obj, Type newObjectType, ISerializerSettings settings)
             => _stateProvider.ObjectConverter.ConvertEx(obj, newObjectType, settings);
 
         public object SpawnCollection(object[] objects, Type collectionType,
-            ISerializerSettings settings, Type collectionGenericArgs = null) 
-            => _stateProvider.ObjectConverter.SpawnCollection(objects, 
+            ISerializerSettings settings, Type collectionGenericArgs = null)
+            => _stateProvider.ObjectConverter.SpawnCollection(objects,
                 collectionType, settings);
 
 
         public IObjectConverter ObjectConverter => _stateProvider.ObjectConverter;
 
         public abstract void Dispose();
-        
     }
 }

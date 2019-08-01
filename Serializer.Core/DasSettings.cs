@@ -68,14 +68,15 @@ namespace Das.Serializer
             TextEncoding = Encoding.ASCII;
             TypeSpecificity = TypeSpecificity.Discrepancy;
             SerializationDepth = SerializationDepth.GetSetProperties;
-            TypeSearchNameSpaces = new[] { Const.Tsystem };
+            TypeSearchNameSpaces = new[] {Const.Tsystem};
             CacheTypeConstructors = true;
         }
 
         private static DasSettings _default;
+
         public static DasSettings Default
         {
-            get => (DasSettings)_default.MemberwiseClone();
+            get => (DasSettings) _default.MemberwiseClone();
             set => _default = value;
         }
 
@@ -84,6 +85,5 @@ namespace Das.Serializer
         {
             Default = new DasSettings();
         }
-       
     }
 }

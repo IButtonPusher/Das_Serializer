@@ -4,19 +4,19 @@ using Serializer.Core;
 
 namespace Das
 {
-	public partial class DasCoreSerializer : BaseState, IMultiSerializer
+    public partial class DasCoreSerializer : BaseState, IMultiSerializer
     {
         protected readonly IStateProvider StateProvider;
         internal const String StrNull = "null";
         internal const String Val = "__val";
-		internal const String RefTag = "__ref";
-		internal const String RefAttr = "$ref";
-		internal const String Root = "Root";
+        internal const String RefTag = "__ref";
+        internal const String RefAttr = "$ref";
+        internal const String Root = "Root";
 
         public override INodeProvider NodeProvider
             => StateProvider.BinaryContext.NodeProvider;
 
-        public DasCoreSerializer(IStateProvider stateProvider, ISerializerSettings settings) 
+        public DasCoreSerializer(IStateProvider stateProvider, ISerializerSettings settings)
             : base(stateProvider, settings)
         {
             StateProvider = stateProvider;
@@ -24,7 +24,9 @@ namespace Das
         }
 
         public DasCoreSerializer(IStateProvider stateProvider) : this(stateProvider,
-            stateProvider.Settings) { }
+            stateProvider.Settings)
+        {
+        }
 
         public void SetTypeSurrogate(Type looksLike, Type isReally)
         {
@@ -33,7 +35,7 @@ namespace Das
 
         public bool TryDeleteSurrogate(Type lookedLike, Type wasReally)
             => Surrogates.TryGetValue(lookedLike, out var was) && was == wasReally &&
-                Surrogates.TryRemove(lookedLike, out var stillWas) && stillWas == wasReally;
+               Surrogates.TryRemove(lookedLike, out var stillWas) && stillWas == wasReally;
 
         private ISerializerSettings _settings;
 

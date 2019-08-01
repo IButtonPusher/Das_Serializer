@@ -40,6 +40,7 @@ namespace Das.CoreExtensions
                 for (var i = 0; i < length; i++)
                     res[i] = arr[i];
             }
+
             return res;
         }
 
@@ -73,6 +74,7 @@ namespace Das.CoreExtensions
                 else
                     sb.Append($"{i}{sep}");
             }
+
             if (sb.Length > 0)
                 sb.Remove(sb.Length - 1, 1);
             return sb.ToString();
@@ -93,13 +95,16 @@ namespace Das.CoreExtensions
 
 
         [MethodImpl(256)]
-        public static Boolean In<T>(this T item, T c1, T c2, T c3, T c4, T c5, T c6, T c7) => item.Equals(c7) || item.In(c1, c2, c3, c4, c5, c6);
+        public static Boolean In<T>(this T item, T c1, T c2, T c3, T c4, T c5, T c6, T c7) =>
+            item.Equals(c7) || item.In(c1, c2, c3, c4, c5, c6);
 
         [MethodImpl(256)]
-        public static Boolean In<T>(this T item, T c1, T c2, T c3, T c4, T c5, T c6) => item.Equals(c6) || item.In(c1, c2, c3, c4, c5);
+        public static Boolean In<T>(this T item, T c1, T c2, T c3, T c4, T c5, T c6) =>
+            item.Equals(c6) || item.In(c1, c2, c3, c4, c5);
 
         [MethodImpl(256)]
-        public static Boolean In<T>(this T item, T c1, T c2, T c3, T c4, T c5) => item.Equals(c5) || item.In(c1, c2, c3, c4);
+        public static Boolean In<T>(this T item, T c1, T c2, T c3, T c4, T c5) =>
+            item.Equals(c5) || item.In(c1, c2, c3, c4);
 
         [MethodImpl(256)]
         public static Boolean In<T>(this T item, T c1, T c2, T c3, T c4) => item.Equals(c4) || item.In(c1, c2, c3);
@@ -166,7 +171,7 @@ namespace Das.CoreExtensions
 
             fixed (byte* bptr = tempByte)
             {
-                var cptr = (char*)bptr;
+                var cptr = (char*) bptr;
                 return new string(cptr, 0, useBytes / 2);
             }
         }

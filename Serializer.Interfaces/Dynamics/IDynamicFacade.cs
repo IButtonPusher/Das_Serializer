@@ -4,8 +4,7 @@ using Serializer;
 
 namespace Das.Serializer
 {
-    
-    public interface IDynamicFacade 
+    public interface IDynamicFacade
     {
         ITextParser TextParser { get; }
 

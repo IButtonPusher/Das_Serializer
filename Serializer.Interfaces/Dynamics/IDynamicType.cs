@@ -9,7 +9,7 @@ namespace Das.Serializer
 
         Dictionary<String, Func<Object, Object>> PublicGetters { get; }
 
-        Type ManagedType { get;  }
+        Type ManagedType { get; }
 
         Boolean IsLegalValue(String forProperty, object value);
 

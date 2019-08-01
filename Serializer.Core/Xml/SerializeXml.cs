@@ -5,17 +5,18 @@ using System.IO;
 using Das.Serializer;
 using Serializer.Core.Files;
 using Das.Serializer.Objects;
+
 // ReSharper disable UnusedMember.Global
 
 namespace Das
 {
-	public partial class DasCoreSerializer
-	{
-		public String ToXml(Object o)
-		{
-			var oType = o.GetType();
+    public partial class DasCoreSerializer
+    {
+        public String ToXml(Object o)
+        {
+            var oType = o.GetType();
             return ToXml(o, oType);
-		}
+        }
 
         private String ToXml(Object o, Type asType)
         {
@@ -33,6 +34,7 @@ namespace Das
                     settings = Copy(settings, settings);
                     settings.TypeSpecificity = TypeSpecificity.All;
                 }
+
                 if (amAnonymous)
                 {
                     if (doCopy)
@@ -46,15 +48,14 @@ namespace Das
                 {
                     var printer = new XmlPrinter(writer, state, settings);
 
-                    var rootText = !asType.IsGenericType && !IsCollection(asType) ?
-                        ToClearName(asType, true) : Root;
+                    var rootText = !asType.IsGenericType && !IsCollection(asType) ? ToClearName(asType, true) : Root;
 
                     var node = new NamedValueNode(rootText, o, asType);
 
                     printer.PrintNode(node);
 
                     //if (amAnonymous)
-                     //   state.DynamicTypes.InvalidateDynamicTypes();
+                    //   state.DynamicTypes.InvalidateDynamicTypes();
 
                     return writer.ToString();
                 }
@@ -68,10 +69,10 @@ namespace Das
         }
 
         public String ToXml<TTarget>(Object o)
-		{
-			var obj = CastDynamic<TTarget>(o);
-			return ToXml(obj);
-		}
+        {
+            var obj = CastDynamic<TTarget>(o);
+            return ToXml(obj);
+        }
 
         public void ToXml(object o, FileInfo fi)
         {
@@ -116,9 +117,9 @@ namespace Das
         /// <param name="o"></param>
         /// <param name="fileName"></param>
         public void ToXml(Object o, string fileName)
-		{
-			var fi = new FileInfo(fileName);
+        {
+            var fi = new FileInfo(fileName);
             ToXml(o, fi);
-		}
-	}
+        }
+    }
 }
