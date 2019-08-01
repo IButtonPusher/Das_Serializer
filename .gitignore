@@ -14,3 +14,10 @@
 /bin/Debug
 /obj/Debug
 /packages/Newtonsoft.Json.12.0.2
+/.vs/Serializer/v16/Server/sqlite3
+/Das.Serializer/bin/Debug
+/Das.Serializer/obj/Debug
+/Serializer.Interfaces/bin/Debug/netstandard2.0
+/Serializer.Core/bin/Debug/netstandard2.0
+/Serializer.Core/obj
+/Serializer.Interfaces/obj
