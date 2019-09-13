@@ -65,7 +65,6 @@ namespace Das.Streamers
         /// Returns the amount of bytes that the next object will use.  Advances
         /// the byte index forward by 4 bytes
         /// </summary>
-        /// <returns></returns>
         public Int32 GetNextBlockSize()
         {
             var forInt = _currentBytes[_byteIndex, 4];
@@ -134,7 +133,6 @@ namespace Das.Streamers
         /// <summary>
         /// takes the next 4 bytes for length then the next N bytes and turns them into a Type
         /// </summary>
-        /// <returns></returns>
         public Type GetNextType()
         {
             var bytes = GetTypeBytes();

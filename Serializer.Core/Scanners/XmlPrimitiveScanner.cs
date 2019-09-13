@@ -114,10 +114,8 @@ namespace Serializer.Core
                     if (c != ';')
                         continue;
 
-                    string key = entity.ToString();
+                    var key = entity.ToString();
                     if (key.Length > 1 && Entities.TryGetValue(key, out key))
-                        //key = Entities[key.Substring(1, key.Length - 2)].ToString();
-
                         output.Append(key);
                     state = 0;
                     entity.Length = 0;

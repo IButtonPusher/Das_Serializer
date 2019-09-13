@@ -42,7 +42,7 @@ namespace Das.Printers
 
         #region construction
 
-        public PrinterBase(ISerializationState stateProvider,
+        protected PrinterBase(ISerializationState stateProvider,
             ISerializerSettings settings) : base(stateProvider, settings)
         {
             _stateProvider = stateProvider;
@@ -120,7 +120,7 @@ namespace Das.Printers
                         PrintReferenceType(node);
                     break;
                 default:
-                    throw new NotImplementedException();
+                    throw new ArgumentOutOfRangeException();
             }
 
             var willReturn = node.Value != null;
@@ -259,9 +259,7 @@ namespace Das.Printers
 
             var index = 0;
             foreach (var o in list)
-            {
                 yield return new ObjectNode(o, itemType, index++);
-            }
         }
 
         protected Boolean PrintProperty(NamedValueNode prop)

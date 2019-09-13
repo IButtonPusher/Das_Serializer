@@ -35,79 +35,19 @@ namespace Das.Types
         private readonly IObjectManipulator _objectManipulator;
 
         private static readonly ConcurrentDictionary<String, DasType> _createdDTypes;
-
-        //private static AssemblyBuilder _assemblyBuilder;
-        //private static ModuleBuilder _moduleBuilder;
-
-        //private static Int32 _moduleIndex;
+        
         private static readonly ConcurrentDictionary<String, Type> _createdTypes;
         private static readonly DasCodeGenerator _codeGenerator;
 
         private static readonly Object _lockDynamic;
-
-        //private static Int32 _assemblyIndex = 1;
-
-        //public void InvalidateDynamicTypes()
-        //{
-        //    if (_createdTypes.IsEmpty && _createdDTypes.IsEmpty)
-        //        return;
-
-        //        throw new NotImplementedException();
-        //    //lock (_lockDynamic)
-        //    //{
-        //    //    if (_createdTypes.IsEmpty && _createdDTypes.IsEmpty)
-        //    //        return;
-
-        //    //    _createdTypes.Clear();
-        //    //    _createdDTypes.Clear();
-        //    //    _moduleBuilder = null;
-        //    //    _timesBuildersConstructed = 0;
-        //    //}
-        //}
-
-        //private static TypeBuilder GetTypeBuilder(String typeName)
-        //{
-        //    if (_moduleBuilder == null)
-        //    {
-        //        if (Interlocked.Increment(ref _timesBuildersConstructed) == 1)
-        //        {
-        //            CreateBuilders();
-        //        }
-
-        //        while (_moduleBuilder == null)
-        //            Thread.Sleep(10);
-        //    }
-
-        //    var typeBuilder = _moduleBuilder.DefineType(typeName,
-        //        TypeAttributes.Public |
-        //        TypeAttributes.Class |
-        //        TypeAttributes.AutoClass |
-        //        TypeAttributes.AnsiClass |
-        //        TypeAttributes.BeforeFieldInit |
-        //        TypeAttributes.AutoLayout,
-        //        null);
-        //    return typeBuilder;
-        //}
-
-        //      private static void CreateBuilders()
-        //{
-        //	var typeSignature = $"DasTypes{_assemblyIndex++}";
-        //	var an = new AssemblyName(typeSignature);
-
-        //	_assemblyBuilder = _assemblyBuilder ?? AppDomain.CurrentDomain.DefineDynamicAssembly(an,
-        //		AssemblyBuilderAccess.RunAndSave);
-
-        //          var index = Interlocked.Increment(ref _moduleIndex);
-
-        //	_moduleBuilder = _assemblyBuilder.DefineDynamicModule("DasDynamicTypes" + index);
-        //}
-
 
         public Type GetDynamicImplementation(Type interfaceType)
         {
             var uniqueProps = new HashSet<String>();
             var allProps = _typeManipulator.GetPublicProperties(interfaceType);
             var propTypes = new List<DasProperty>();
+
+            var allEvents = interfaceType.GetEvents();
 
             foreach (var pi in allProps)
             {
@@ -117,10 +57,8 @@ namespace Das.Types
                 propTypes.Add(cooked);
             }
 
-            var buildType = GetDynamicType(
-                $"_{interfaceType}", propTypes.ToArray(),
-                false, null,
-                interfaceType);
+            var buildType = GetDynamicType($"_{interfaceType}", propTypes.ToArray(),
+                false, allEvents, null, interfaceType);
 
             return buildType.ManagedType;
         }
@@ -137,8 +75,7 @@ namespace Das.Types
 
 
         /// <summary>
-        /// Returns the type along with property/method delegates.  Results are cached. If a type needs
-        /// to be redefined call InvalidateType
+        /// Returns the type along with property/method delegates.  Results are cached.
         /// </summary>
         /// <param name="typeName">The returned type may not get this exact name if a type with 
         /// the same name was created/invalidated</param>
@@ -147,34 +84,39 @@ namespace Das.Types
         /// <param name="isCreatePropertyDelegates">Specifies whether the PublicGetters
         /// and PublicSetters properties should have delegates to quickly get/set values
         /// for properties.</param>
+        /// <param name="events">public events to be published by the Type</param>
         /// <param name="methodReplacements">For interface implementations, the methods
         /// are created but they return default primitives or null references</param>
         /// <param name="parentTypes">Can be a single unsealed class and/or 1-N interfaces</param>
-        public IDynamicType GetDynamicType(String typeName, IList<DasProperty> properties,
-            Boolean isCreatePropertyDelegates,
-            Dictionary<MethodInfo, MethodInfo> methodReplacements,
+        public IDynamicType GetDynamicType(String typeName, IEnumerable<DasProperty> properties,
+            Boolean isCreatePropertyDelegates, IEnumerable<EventInfo> events,
+            IDictionary<MethodInfo, MethodInfo> methodReplacements,
             params Type[] parentTypes)
             => GetDynamicTypeImpl(typeName, properties, isCreatePropertyDelegates,
-                methodReplacements, parentTypes);
+                methodReplacements, events, parentTypes);
 
 
-        private DasType GetDynamicTypeImpl(String typeName, IList<DasProperty> properties,
-            Boolean isCreatePropertyDelegates, Dictionary<MethodInfo, MethodInfo> methodReplacements,
+        private DasType GetDynamicTypeImpl(String typeName, IEnumerable<DasProperty> properties,
+            Boolean isCreatePropertyDelegates, IDictionary<MethodInfo, MethodInfo> methodReplacements,
+            IEnumerable<EventInfo> events,
             params Type[] parentTypes)
         {
             DasType dt;
             Type created;
+
+            var props = properties.ToArray();
 
             lock (_lockDynamic)
             {
                 if (_createdDTypes.TryGetValue(typeName, out var val))
                     return val;
 
-                created = GetDynamicType(typeName, methodReplacements, properties, parentTypes);
+                created = GetDynamicType(typeName, methodReplacements, props, events, 
+                    parentTypes);
 
                 //set our fake type as the ManagedType which acts like a real type but can still be
                 //identified as dynamic/anonymous etc
-                dt = new DasType(created, properties);
+                dt = new DasType(created, props);
 
                 _createdDTypes.TryAdd(typeName, dt);
             }
@@ -182,7 +124,7 @@ namespace Das.Types
             if (!isCreatePropertyDelegates)
                 return dt;
 
-            foreach (var prop in properties)
+            foreach (var prop in props)
             {
                 var propInfo = created.GetProperty(prop.Name);
                 dt.PublicSetters.Add(prop.Name, _typeManipulator.CreateSetMethod(propInfo));
@@ -192,6 +134,7 @@ namespace Das.Types
             return dt;
         }
 
+
         /// <summary>
         /// Returns the type cached if it exists, builds/caches it otherwise
         /// </summary>
@@ -200,11 +143,13 @@ namespace Das.Types
         /// are created but they return default primitives or null references</param>
         /// <param name="properties">properties from parent types do not need to be 
         /// specified</param>
+        /// <param name="events">public events to be published by the Type</param>
         /// <param name="parentTypes">Can contain maximum one class and any amount of 
         /// interfaces</param>
         /// <returns></returns>
         public Type GetDynamicType(String typeName,
-            Dictionary<MethodInfo, MethodInfo> methodReplacements, IList<DasProperty> properties,
+            IDictionary<MethodInfo, MethodInfo> methodReplacements, 
+            IEnumerable<DasProperty> properties, IEnumerable<EventInfo> events,
             params Type[] parentTypes)
         {
             if (_createdTypes.TryGetValue(typeName, out var val))
@@ -417,7 +362,7 @@ namespace Das.Types
         }
 
         private static void AddAttributes(PropertyBuilder propBuilder,
-            DasAttribute[] attributes)
+            IEnumerable<DasAttribute> attributes)
         {
             foreach (var att in attributes)
             {

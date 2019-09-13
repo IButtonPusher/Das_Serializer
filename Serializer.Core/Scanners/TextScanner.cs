@@ -46,7 +46,10 @@ namespace Das.Scanners
 
             PrimitiveScanner = state.PrimitiveScanner;
             EscapeChars = new List<Char> {Const.BackSlash};
-            WhiteSpaceChars = new List<Char> {Const.CarriageReturn, '\n', '\t', Const.Space};
+            WhiteSpaceChars = new List<Char>
+            {
+                Const.CarriageReturn, '\n', '\t', Const.Space
+            };
 
 
             _nodes = state.NodeProvider;

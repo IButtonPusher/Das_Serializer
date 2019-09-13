@@ -48,14 +48,12 @@ namespace Das
                 {
                     var printer = new XmlPrinter(writer, state, settings);
 
-                    var rootText = !asType.IsGenericType && !IsCollection(asType) ? ToClearName(asType, true) : Root;
+                    var rootText = !asType.IsGenericType && !IsCollection(asType) 
+                        ? ToClearName(asType, true) : Root;
 
                     var node = new NamedValueNode(rootText, o, asType);
 
                     printer.PrintNode(node);
-
-                    //if (amAnonymous)
-                    //   state.DynamicTypes.InvalidateDynamicTypes();
 
                     return writer.ToString();
                 }
@@ -82,25 +80,6 @@ namespace Das
             {
                 File.WriteAllText(fi.FullName, xml);
             }
-
-//                if (fi.DirectoryName == null || !Uri.IsWellFormedUriString(
-//                    fi.FullName, UriKind.RelativeOrAbsolute))
-//                    throw new InvalidDataException("Path of specified file is not valid");
-//
-//                if (!Directory.Exists(fi.DirectoryName))
-//                    Directory.CreateDirectory(fi.DirectoryName);
-//
-//            var _mutey = new Mutex(false, fi.FullName.Replace(
-//                Path.DirectorySeparatorChar, '_'));
-//            _mutey.WaitOne();
-//            try
-//            {
-//                File.WriteAllText(fi.FullName, ToXml(o));
-//            }
-//            finally
-//            {
-//                _mutey.ReleaseMutex();
-//            }
         }
 
         public void ToXml<TTarget>(object o, FileInfo fi)
@@ -114,8 +93,6 @@ namespace Das
         /// dumps to file when ready.  Creates the directory for the file if it doesn't
         /// already exist
         /// </summary>
-        /// <param name="o"></param>
-        /// <param name="fileName"></param>
         public void ToXml(Object o, string fileName)
         {
             var fi = new FileInfo(fileName);

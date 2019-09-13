@@ -1,4 +1,5 @@
 ﻿using System;
+// ReSharper disable UnusedMemberInSuper.Global
 
 // ReSharper disable UnusedMember.Global
 
@@ -20,8 +21,6 @@ namespace Serializer
         /// <summary>
         /// tries to infer in which format the text is (e.g 1.23 | 1,234.56 etc)
         /// </summary>
-        /// <param name="fromString"></param>
-        /// <returns></returns>
         Double GetDouble(String fromString);
 
         Int32 GetInt32(String fromString);

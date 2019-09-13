@@ -11,8 +11,6 @@ namespace Serializer.Core.Files
         public SafeFile(FileInfo fi)
         {
             if (fi.DirectoryName == null)
-                //||  !Uri.IsWellFormedUriString(fi.FullName, UriKind.RelativeOrAbsolute)
-
                 throw new InvalidDataException("Path of specified file is not valid");
 
             if (!Directory.Exists(fi.DirectoryName))

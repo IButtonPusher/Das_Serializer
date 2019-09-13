@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+// ReSharper disable UnusedMember.Global
 
 namespace Serializer
 {
@@ -64,7 +65,7 @@ namespace Serializer
                     }
                 }
                 else
-                    current = EOL; // _commaGroupLength == 0 ? COMMA : DOT;
+                    current = EOL; 
 
                 switch (current)
                 {
@@ -194,9 +195,9 @@ namespace Serializer
                 for (var i = 0; i < str.Length; i++)
                 {
                     var ch = str[i];
-                    if (char.IsDigit(ch))
+                    if (Char.IsDigit(ch))
                         yield return ch;
-                    else if (!isDotDetected && ch == '.' && i < str.Length - 1)
+                    else if (!isDotDetected && ch == DOT && i < str.Length - 1)
                     {
                         isDotDetected = true;
                         yield return ch;
@@ -220,13 +221,9 @@ namespace Serializer
 
             //right = baseline
             if (left > right)
-            {
                 return ((left / right) - 1) * 100;
-            }
             else
-            {
                 return (0 - (1 - (left / right))) * 100;
-            }
         }
 
         public bool AreEqual(double left, double right) => Math.Abs(left - right) < TOLERANCE;

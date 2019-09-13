@@ -81,18 +81,19 @@ namespace Das.Printers
                 var tabBlob = Enumerable.Repeat(_indenter, current.Tabs);
                 if (Settings.CircularReferenceBehavior != CircularReference.IgnoreObject
                     || !IsObjectReferenced(node.Value))
-                    //don't open a tag unless we need it
+                //don't open a tag unless we need it
                 {
                     Writer.Append(tabBlob);
                     Writer.Append(OpenAttributes, node.Name);
                 }
+                else return false; //we're ignoring circular refs and this was a circular ref...
 
                 if (isWrapping)
                 {
                     //embed type info
                     var typeName = _stateProvider.TypeInferrer.ToClearName(valType, false);
                     typeName = System.Security.SecurityElement.Escape(typeName);
-
+                    
                     Writer.Append(" ", Const.XmlType);
 
                     Writer.Append(Const.Equal, Const.StrQuote);
@@ -170,7 +171,7 @@ namespace Das.Printers
             var parent = _formatStack.Pop();
             if (parent.IsTagOpen)
             {
-                Writer.Append($"{CloseTag}");
+                Writer.Append(CloseTag);
                 parent.IsTagOpen = false;
             }
 

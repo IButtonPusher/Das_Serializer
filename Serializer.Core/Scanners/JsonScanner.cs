@@ -21,23 +21,23 @@ namespace Das.Scanners
                     CurrentTagName = CurrentValue.ToString();
                     CurrentValue.Clear();
                     return;
-                case '[':
+                case Const.OpenBracket:
                     CreateNode();
                     CurrentTagName = null;
                     break;
-                case '{':
+                case Const.OpenBrace:
                     CreateNode();
                     CurrentTagName = null;
                     return;
-                case ']':
+                case Const.CloseBracket:
                     AddAttribute();
                     CloseNode();
                     break;
-                case '}':
+                case Const.CloseBrace:
                     AddAttribute();
                     CloseNode();
                     break;
-                case ',':
+                case Const.Comma:
                     AddAttribute();
                     break;
                 default:

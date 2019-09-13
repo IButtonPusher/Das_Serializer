@@ -16,10 +16,7 @@ namespace Das.Printers
 
         #region construction
 
-        private const Char OpenBrace = '{';
-        private const Char CloseBrace = '}';
-        private const Char OpenCollection = '[';
-        private const Char CloseCollection = ']';
+        
 
         public JsonPrinter(ITextRemunerable writer, ISerializationState stateProvider)
             : base(writer, stateProvider)
@@ -54,7 +51,7 @@ namespace Das.Printers
                 {
                     if (name.Equals(PathAttribute))
                     {
-                        Writer.Append(OpenBrace);
+                        Writer.Append(Const.OpenBrace);
                         TabOut();
                         isCloseBlock = true;
                     }
@@ -68,7 +65,7 @@ namespace Das.Printers
                     //root node, we have to wrap primitives
                     if (res == NodeTypes.Primitive || res == NodeTypes.Fallback)
                     {
-                        Writer.Append(OpenBrace, _newLine);
+                        Writer.Append(Const.OpenBrace, _newLine);
                         TabOut();
                         isCloseBlock = true;
                     }
@@ -76,7 +73,7 @@ namespace Das.Printers
 
                 if (isWrapping)
                 {
-                    Writer.Append(OpenBrace);
+                    Writer.Append(Const.OpenBrace);
                     TabOut();
                     NewLine();
                     var clear = _stateProvider.TypeInferrer.ToClearName(valType, false);
@@ -93,18 +90,16 @@ namespace Das.Printers
                     TabIn();
                     isCloseBlock = true;
                 }
-
-                ///////////////////
+                
                 var nodeType = _stateProvider.GetNodeType(valType, Settings.SerializationDepth);
                 var print = new PrintNode(node, nodeType);
                 PrintObject(print);
-                //////////////////
 
                 if (!isCloseBlock)
                     return true;
                 NewLine();
 
-                Writer.Append(CloseBrace);
+                Writer.Append(Const.CloseBrace);
 
                 return true;
             }
@@ -153,12 +148,12 @@ namespace Das.Printers
                 TabOut();
                 NewLine();
 
-                Writer.Append(OpenBrace);
+                Writer.Append(Const.OpenBrace);
 
                 TabOut();
                 NewLine();
             }
-            else Writer.Append(OpenBrace);
+            else Writer.Append(Const.OpenBrace);
 
             base.PrintReferenceType(node);
 
@@ -166,16 +161,16 @@ namespace Das.Printers
             {
                 TabIn();
                 NewLine();
-                Writer.Append(CloseBrace);
+                Writer.Append(Const.CloseBrace);
                 TabIn();
                 NewLine();
             }
-            else Writer.Append(CloseBrace);
+            else Writer.Append(Const.CloseBrace);
         }
 
         private void PrintSpecialDictionary(IDictionary dic)
         {
-            Writer.Append(OpenBrace);
+            Writer.Append(Const.OpenBrace);
             TabOut();
 
             var enumerator = dic.GetEnumerator();
@@ -194,7 +189,7 @@ namespace Das.Printers
             }
 
             TabIn();
-            Writer.Append(CloseBrace);
+            Writer.Append(Const.CloseBrace);
         }
 
         protected override void PrintCollection(PrintNode node)
@@ -211,7 +206,7 @@ namespace Das.Printers
                 return;
             }
 
-            Writer.Append(OpenCollection);
+            Writer.Append(Const.OpenBracket);
             TabOut();
 
             var germane = _stateProvider.TypeInferrer.GetGermaneType(serializeAs);
@@ -220,7 +215,7 @@ namespace Das.Printers
                 PrintCollectionObject);
 
             TabIn();
-            Writer.Append(CloseCollection);
+            Writer.Append(Const.CloseBracket);
             if (!_isIgnoreCircularDependencies)
                 PopStack();
         }

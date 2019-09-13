@@ -181,5 +181,10 @@ namespace Serializer.Core
             foreach (var prop in res)
                 yield return prop;
         }
+
+        public PropertyInfo FindPublicProperty(Type type, string propertyName)
+            => GetPublicProperties(type, false).
+                FirstOrDefault(p => p.Name == propertyName);
+        
     }
 }

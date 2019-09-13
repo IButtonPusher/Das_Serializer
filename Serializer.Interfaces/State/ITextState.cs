@@ -7,8 +7,6 @@ namespace Das.Serializer
     /// </summary>
     public interface ITextState : ISerializationState, ITextContext
     {
-        //IScannerBase<IEnumerable<Char>> Scanner { get; }
-
         ITextScanner Scanner { get; }
     }
 }

@@ -7,22 +7,22 @@ using System.Text;
 
 namespace Serializer
 {
-	public class CoreTextParser : CoreNumeric, ITextParser
-	{
-		private readonly CultureInfo _enUs;
-        private readonly String[] _splitTokens = { "\r\n", "\r", "\n" };
+    public class CoreTextParser : CoreNumeric, ITextParser
+    {
+        private readonly CultureInfo _enUs;
+        private readonly String[] _splitTokens = {"\r\n", "\r", "\n"};
 
-		public CoreTextParser()
-		{
-			_enUs = new CultureInfo("en-US");
-		}
-		
+        public CoreTextParser()
+        {
+            _enUs = new CultureInfo("en-US");
+        }
 
-		public string FindJsonValue(String input, String toFind)
-		{
-			var hold = 0;
-			return FindValue(input, toFind, ref hold);
-		}
+
+        public string FindJsonValue(String input, String toFind)
+        {
+            var hold = 0;
+            return FindValue(input, toFind, ref hold);
+        }
 
         public IEnumerable<string> EnumerateJsonValues(string input, string key)
         {
@@ -50,37 +50,37 @@ namespace Serializer
         }
 
         public Double FindJsonDouble(String input, String toFind)
-		{
-			var hold = 0;
-			var val = FindValue(input, toFind, ref hold);
-			return GetDouble(val);
-		}
+        {
+            var hold = 0;
+            var val = FindValue(input, toFind, ref hold);
+            return GetDouble(val);
+        }
 
-		public string FindTextWithin(string input, string leftBounds, string rightBounds)
-		{
-			var rightIndex = input.IndexOf(rightBounds, StringComparison.OrdinalIgnoreCase);
-			var leftIndex = input.IndexOf(leftBounds, StringComparison.OrdinalIgnoreCase);
-			if (rightIndex == -1 || leftIndex == -1)
-				return null;
+        public string FindTextWithin(string input, string leftBounds, string rightBounds)
+        {
+            var rightIndex = input.IndexOf(rightBounds, StringComparison.OrdinalIgnoreCase);
+            var leftIndex = input.IndexOf(leftBounds, StringComparison.OrdinalIgnoreCase);
+            if (rightIndex == -1 || leftIndex == -1)
+                return null;
 
-			leftIndex += leftBounds.Length;
+            leftIndex += leftBounds.Length;
 
-			return input.Substring(leftIndex, rightIndex - leftIndex);
-		}
+            return input.Substring(leftIndex, rightIndex - leftIndex);
+        }
 
         public string LeftOf(string input, string rightBounds)
-		{
-			var index = input.IndexOf(rightBounds, StringComparison.OrdinalIgnoreCase);
-			if (index == -1)
-				return input;
-			return input.Substring(0, index);
-		}
+        {
+            var index = input.IndexOf(rightBounds, StringComparison.OrdinalIgnoreCase);
+            if (index == -1)
+                return input;
+            return input.Substring(0, index);
+        }
 
         public bool TryFindTextWithin(string input, string[] delimiters, out string[] found)
         {
             if (delimiters.Length == 1)
             {
-                found = new[] { After(input, delimiters[0]) };
+                found = new[] {After(input, delimiters[0])};
                 return true;
             }
 
@@ -102,7 +102,6 @@ namespace Serializer
             return false;
         }
 
-       
 
         public IEnumerable<string> FindTextWithin(string input, string[] delimiters)
         {
@@ -131,13 +130,15 @@ namespace Serializer
 
                 var end = input.IndexOf(delimiters[c + 1], start, StringComparison.Ordinal);
                 if (end == -1)
-                { yield return null; yield break; }
+                {
+                    yield return null;
+                    yield break;
+                }
 
                 current = end;
 
                 yield return input.Substring(start, end - start);
             }
-
         }
 
         public bool TryFindTextSurrounding(string input, string[] delimiters, out string[] found,
@@ -155,7 +156,6 @@ namespace Serializer
 
                 if (end != start)
                 {
-
                     if (end == -1)
                         break;
 
@@ -165,6 +165,7 @@ namespace Serializer
                     if (res.Count == findRequired)
                         break;
                 }
+
                 start = end + delimiters[c].Length;
             }
 
@@ -186,22 +187,22 @@ namespace Serializer
             return true;
         }
 
-        public IEnumerable<string> FindTextsWithin(string input, string leftOf, 
-			string rightOf)
-		{
-			var endFirst = input.IndexOf(leftOf, StringComparison.OrdinalIgnoreCase);
+        public IEnumerable<string> FindTextsWithin(string input, string leftOf,
+            string rightOf)
+        {
+            var endFirst = input.IndexOf(leftOf, StringComparison.OrdinalIgnoreCase);
 
-			var first = input.Substring(0, endFirst);
-			yield return first;
+            var first = input.Substring(0, endFirst);
+            yield return first;
 
-			var startSecond = input.IndexOf(rightOf, endFirst + first.Length,
-				StringComparison.OrdinalIgnoreCase) + rightOf.Length;
+            var startSecond = input.IndexOf(rightOf, endFirst + first.Length,
+                                  StringComparison.OrdinalIgnoreCase) + rightOf.Length;
 
-			yield return input.Substring(startSecond);
-		}
+            yield return input.Substring(startSecond);
+        }
 
-		public IEnumerable<string> FindTextWithin(string input, string 
-			leftBounds, string middleBounds, string rightBounds)
+        public IEnumerable<string> FindTextWithin(string input, string
+            leftBounds, string middleBounds, string rightBounds)
         {
             var leftIndex = input.IndexOf(leftBounds, StringComparison.OrdinalIgnoreCase);
             if (leftIndex == -1)
@@ -211,8 +212,8 @@ namespace Serializer
             if (middleIndex == -1)
                 yield break;
 
-            var rightIndex = middleIndex > 0 ?
-                input.IndexOf(rightBounds, middleIndex, StringComparison.OrdinalIgnoreCase)
+            var rightIndex = middleIndex > 0
+                ? input.IndexOf(rightBounds, middleIndex, StringComparison.OrdinalIgnoreCase)
                 : input.IndexOf(rightBounds, leftIndex, StringComparison.OrdinalIgnoreCase);
 
             if (rightIndex == -1)
@@ -231,7 +232,7 @@ namespace Serializer
             }
         }
 
-        public string FindTextWithin(string input, string leftBounds, 
+        public string FindTextWithin(string input, string leftBounds,
             string rightBounds, int startIndex)
         {
             var rightIndex = input.IndexOf(rightBounds, startIndex,
@@ -246,13 +247,13 @@ namespace Serializer
         }
 
         public string After(string inText, string afterFound)
-		{
-			var index = inText.IndexOf(afterFound, StringComparison.Ordinal);
-			if (index == -1)
-				return inText;
-			
-			return inText.Substring(index + afterFound.Length);
-		}
+        {
+            var index = inText.IndexOf(afterFound, StringComparison.Ordinal);
+            if (index == -1)
+                return inText;
+
+            return inText.Substring(index + afterFound.Length);
+        }
 
         public string RemoveAll(string input, string[] toRemove)
         {
@@ -264,7 +265,7 @@ namespace Serializer
         }
 
         public bool EndsWithOrdinal(string checkingString, string value) =>
-            value != null && checkingString != null && 
+            value != null && checkingString != null &&
             checkingString.EndsWith(value,
                 StringComparison.OrdinalIgnoreCase);
 
@@ -274,119 +275,116 @@ namespace Serializer
                 StringComparison.OrdinalIgnoreCase) >= 0;
 
         /// <summary>
-		/// Returns the rest of the text if the text started with whenStartsWith
-		/// </summary>
-		/// <param name="inText"></param>
-		/// <param name="whenStartsWith"></param>
-		/// <param name="remaining"></param>
-		public bool TrySkip(string inText, string whenStartsWith, out string remaining)
-		{
-			if (inText.StartsWith(whenStartsWith, StringComparison.Ordinal))
-			{
-				remaining =  inText.Substring(whenStartsWith.Length);
-				return true;
-			}
+        /// Returns the rest of the text if the text started with whenStartsWith
+        /// </summary>
+        public bool TrySkip(string inText, string whenStartsWith, out string remaining)
+        {
+            if (inText.StartsWith(whenStartsWith, StringComparison.Ordinal))
+            {
+                remaining = inText.Substring(whenStartsWith.Length);
+                return true;
+            }
 
-			remaining = null;
-			return false;
-		}
+            remaining = null;
+            return false;
+        }
 
 
-		private String NextOrNull(String input, String toFind, ref Int32 index)
-		{
-			if (index == -1 || !TryFindValueWithRetry(input, toFind, ref index, out var result))
-				return null;
-			return result;
-		}
+        private String NextOrNull(String input, String toFind, ref Int32 index)
+        {
+            if (index == -1 || !TryFindValueWithRetry(input, toFind, ref index, out var result))
+                return null;
+            return result;
+        }
 
-		public IEnumerator<string> FindJsonValues(string input, string toFind1, string toFind2)
-		{
-			var index = 0;
-			yield return NextOrNull(input, toFind1, ref index);
-			yield return NextOrNull(input, toFind2, ref index);
+        public IEnumerator<string> FindJsonValues(string input, string toFind1, string toFind2)
+        {
+            var index = 0;
+            yield return NextOrNull(input, toFind1, ref index);
+            yield return NextOrNull(input, toFind2, ref index);
+        }
 
-		}
+        public IEnumerator<string> FindJsonValues(string input, string toFind1, string toFind2,
+            string toFind3)
+        {
+            var index = 0;
 
-		public IEnumerator<string> FindJsonValues(string input, string toFind1, string toFind2, 
-			string toFind3)
-		{
-			var index = 0;
+            yield return NextOrNull(input, toFind1, ref index);
+            yield return NextOrNull(input, toFind2, ref index);
+            yield return NextOrNull(input, toFind3, ref index);
+        }
 
-			yield return NextOrNull(input, toFind1, ref index);
-			yield return NextOrNull(input, toFind2, ref index);
-			yield return NextOrNull(input, toFind3, ref index);
-		}
-		
-		public IEnumerator<string> FindJsonValues(string input, string toFind1, string toFind2, 
-			string toFind3, string toFind4)
-		{
-			var index = 0;
+        public IEnumerator<string> FindJsonValues(string input, string toFind1, string toFind2,
+            string toFind3, string toFind4)
+        {
+            var index = 0;
 
-			yield return NextOrNull(input, toFind1, ref index);
-			yield return NextOrNull(input, toFind2, ref index);
-			yield return NextOrNull(input, toFind3, ref index);
-			yield return NextOrNull(input, toFind4, ref index);
-		}
+            yield return NextOrNull(input, toFind1, ref index);
+            yield return NextOrNull(input, toFind2, ref index);
+            yield return NextOrNull(input, toFind3, ref index);
+            yield return NextOrNull(input, toFind4, ref index);
+        }
 
-		public IEnumerator<string> FindJsonValues(string input, string toFind1, string toFind2,
-			string toFind3, string toFind4, string toFind5)
-		{
-			var index = 0;
+        public IEnumerator<string> FindJsonValues(string input, string toFind1, string toFind2,
+            string toFind3, string toFind4, string toFind5)
+        {
+            var index = 0;
 
-			yield return NextOrNull(input, toFind1, ref index);
-			yield return NextOrNull(input, toFind2, ref index);
-			yield return NextOrNull(input, toFind3, ref index);
-			yield return NextOrNull(input, toFind4, ref index);
-			yield return NextOrNull(input, toFind5, ref index);
-		}
+            yield return NextOrNull(input, toFind1, ref index);
+            yield return NextOrNull(input, toFind2, ref index);
+            yield return NextOrNull(input, toFind3, ref index);
+            yield return NextOrNull(input, toFind4, ref index);
+            yield return NextOrNull(input, toFind5, ref index);
+        }
 
-		public IEnumerator<string> FindJsonValues(string input, string toFind1, string toFind2, string toFind3, string toFind4, string toFind5,
-			string toFind6)
-		{
-			var index = 0;
+        public IEnumerator<string> FindJsonValues(string input, string toFind1, string toFind2, string toFind3,
+            string toFind4, string toFind5,
+            string toFind6)
+        {
+            var index = 0;
 
-			yield return NextOrNull(input, toFind1, ref index);
-			yield return NextOrNull(input, toFind2, ref index);
-			yield return NextOrNull(input, toFind3, ref index);
-			yield return NextOrNull(input, toFind4, ref index);
-			yield return NextOrNull(input, toFind5, ref index);
-			yield return NextOrNull(input, toFind6, ref index);
-		}
+            yield return NextOrNull(input, toFind1, ref index);
+            yield return NextOrNull(input, toFind2, ref index);
+            yield return NextOrNull(input, toFind3, ref index);
+            yield return NextOrNull(input, toFind4, ref index);
+            yield return NextOrNull(input, toFind5, ref index);
+            yield return NextOrNull(input, toFind6, ref index);
+        }
 
-		public IEnumerator<string> FindJsonValues(string input, string toFind1, string toFind2, string toFind3, string toFind4, string toFind5,
-			string toFind6, string toFind7)
-		{
-			var index = 0;
+        public IEnumerator<string> FindJsonValues(string input, string toFind1, string toFind2, string toFind3,
+            string toFind4, string toFind5,
+            string toFind6, string toFind7)
+        {
+            var index = 0;
 
-			yield return NextOrNull(input, toFind1, ref index);
-			yield return NextOrNull(input, toFind2, ref index);
-			yield return NextOrNull(input, toFind3, ref index);
-			yield return NextOrNull(input, toFind4, ref index);
-			yield return NextOrNull(input, toFind5, ref index);
-			yield return NextOrNull(input, toFind6, ref index);
-			yield return NextOrNull(input, toFind7, ref index);
-		}
+            yield return NextOrNull(input, toFind1, ref index);
+            yield return NextOrNull(input, toFind2, ref index);
+            yield return NextOrNull(input, toFind3, ref index);
+            yield return NextOrNull(input, toFind4, ref index);
+            yield return NextOrNull(input, toFind5, ref index);
+            yield return NextOrNull(input, toFind6, ref index);
+            yield return NextOrNull(input, toFind7, ref index);
+        }
 
-		private Boolean TryFindValueWithRetry(string json, string item, 
-			ref Int32 startIndex,  out String result)
-		{
-			result = FindValue(json, item, ref startIndex);
-			if (startIndex != -1)
-				return true;
+        private Boolean TryFindValueWithRetry(string json, string item,
+            ref Int32 startIndex, out String result)
+        {
+            result = FindValue(json, item, ref startIndex);
+            if (startIndex != -1)
+                return true;
 
-			startIndex = 0;
-			result = FindValue(json, item, ref startIndex);
-			if (startIndex == -1)
-				return false;
+            startIndex = 0;
+            result = FindValue(json, item, ref startIndex);
+            if (startIndex == -1)
+                return false;
 
-			return true;
-		}
+            return true;
+        }
 
-        [ThreadStatic]
-        private static StringBuilder _findBuilder;
+        [ThreadStatic] private static StringBuilder _findBuilder;
 
-        private static StringBuilder GetBuilder => _findBuilder 
-            ?? (_findBuilder = new StringBuilder());
+        private static StringBuilder GetBuilder => _findBuilder
+                                                   ?? (_findBuilder = new StringBuilder());
 
         private static String GetJsonStringValue(String json, ref Int32 beg)
         {
@@ -433,22 +431,21 @@ namespace Serializer
                     yield break;
 
                 yield return new Tuple<string, int>(found, index);
-                
             } while (index >= 0);
         }
 
         public String FindValue(string json, string item, ref Int32 startIndex)
-		{
-			var pos = json.IndexOf("\"" + item + "\":", startIndex, StringComparison.Ordinal);
-			if (pos == -1)
-			{
-				startIndex = -1;
-				return null;
-			}
+        {
+            var pos = json.IndexOf("\"" + item + "\":", startIndex, StringComparison.Ordinal);
+            if (pos == -1)
+            {
+                startIndex = -1;
+                return null;
+            }
 
-			var beg = json.IndexOf(":", pos + 2, StringComparison.Ordinal);
-			if (beg == -1) return "";
-            
+            var beg = json.IndexOf(":", pos + 2, StringComparison.Ordinal);
+            if (beg == -1) return "";
+
             var end = -1;
 
             for (var c = beg + 1; c < json.Length; c++)
@@ -481,7 +478,6 @@ namespace Serializer
             {
                 if (beg > 0)
                 {
-
                     end = json.IndexOf("}", beg, StringComparison.Ordinal);
                     if (end == -1)
                         return "";
@@ -495,75 +491,74 @@ namespace Serializer
 
             var value = json.Substring(beg + 1, end - (beg + 1));
             return value;
-		}
+        }
 
-		public string AsUSString(decimal amount, int decimalPlaces) => AsUSString((Double)amount, decimalPlaces);
+        public string AsUSString(decimal amount, int decimalPlaces) => AsUSString((Double) amount, decimalPlaces);
 
         public string AsUSString(double amount, int decimalPlaces)
-		{
-			switch (decimalPlaces)
-			{
-				case 2:
-					return amount.ToString("0.00", _enUs);
-				case 1:
-					return amount.ToString("0.0", _enUs);
-				case 0:
-					return amount.ToString("0", _enUs);
-				default:
-					return amount.ToString("0." + "".PadLeft(decimalPlaces), _enUs);
-			}
-		}
+        {
+            switch (decimalPlaces)
+            {
+                case 2:
+                    return amount.ToString("0.00", _enUs);
+                case 1:
+                    return amount.ToString("0.0", _enUs);
+                case 0:
+                    return amount.ToString("0", _enUs);
+                default:
+                    return amount.ToString("0." + "".PadLeft(decimalPlaces), _enUs);
+            }
+        }
 
-		public string AsUSString(decimal amount) => amount.ToString("0.00", _enUs);
+        public string AsUSString(decimal amount) => amount.ToString("0.00", _enUs);
 
         public string AsUSString(double amount) => amount.ToString("0.00", _enUs);
 
-        public bool AppendAsUsCommaString(StringBuilder sb, IEnumerable<decimal> amountList, 
-			int multiple, int decimalPlaces)
-		{
-			using (var iter = amountList.GetEnumerator())
-			{
-				if (!iter.MoveNext())
-					return false;
-				
-				sb.Append(AsUSString(iter.Current * multiple, decimalPlaces));
+        public bool AppendAsUsCommaString(StringBuilder sb, IEnumerable<decimal> amountList,
+            int multiple, int decimalPlaces)
+        {
+            using (var iter = amountList.GetEnumerator())
+            {
+                if (!iter.MoveNext())
+                    return false;
 
-				while (iter.MoveNext())
-					sb.Append(", " + AsUSString(iter.Current * multiple, decimalPlaces));
+                sb.Append(AsUSString(iter.Current * multiple, decimalPlaces));
 
-				return true;
-			}
-		}
+                while (iter.MoveNext())
+                    sb.Append(", " + AsUSString(iter.Current * multiple, decimalPlaces));
 
-		public int IndexOfEnd(string searchIn, string searchFor)
-		{
-			var start = searchIn.IndexOf(searchFor, StringComparison.Ordinal);
-			return start == -1 ? -1 : start + searchFor.Length;
-		}
+                return true;
+            }
+        }
 
-		public int IndexOf(string searchIn, string searchFor) => searchIn.IndexOf(searchFor, StringComparison.OrdinalIgnoreCase);
+        public int IndexOfEnd(string searchIn, string searchFor)
+        {
+            var start = searchIn.IndexOf(searchFor, StringComparison.Ordinal);
+            return start == -1 ? -1 : start + searchFor.Length;
+        }
+
+        public int IndexOf(string searchIn, string searchFor) =>
+            searchIn.IndexOf(searchFor, StringComparison.OrdinalIgnoreCase);
 
         public bool TryIndexOf(string searchIn, string searchFor, out int index)
-		{
-			index = searchIn.IndexOf(searchFor, StringComparison.OrdinalIgnoreCase);
-			return index >= 0;
-		}
+        {
+            index = searchIn.IndexOf(searchFor, StringComparison.OrdinalIgnoreCase);
+            return index >= 0;
+        }
 
-		public int LastIndexOf(string searchIn, string searchFor) => searchIn.LastIndexOf(searchFor, StringComparison.OrdinalIgnoreCase);
+        public int LastIndexOf(string searchIn, string searchFor) =>
+            searchIn.LastIndexOf(searchFor, StringComparison.OrdinalIgnoreCase);
 
         public int LastIndexOf(string searchIn, string searchFor, int startIndex) =>
             searchIn.LastIndexOf(searchFor, startIndex,
                 StringComparison.OrdinalIgnoreCase);
 
         public int IndexOf(string searchIn, string searchFor, int startIndex) =>
-            searchIn.IndexOf(searchFor, startIndex, 
+            searchIn.IndexOf(searchFor, startIndex,
                 StringComparison.OrdinalIgnoreCase);
+        
 
-        //     public IHandLines GetLines(string str) 
-        //=> new StringHand(str, str.Split(_splitTokens, 
-        //             StringSplitOptions.RemoveEmptyEntries));
-
-	    public String[] GetLines(string str) =>
-	        str.Split(_splitTokens, StringSplitOptions.RemoveEmptyEntries);
+        public String[] GetLines(string str) =>
+            str.Split(_splitTokens, StringSplitOptions.RemoveEmptyEntries);
     }
 }

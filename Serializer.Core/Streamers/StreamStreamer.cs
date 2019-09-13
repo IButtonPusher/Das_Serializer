@@ -30,7 +30,8 @@ namespace Das.Streamers
                     yield return c;
 
                 found = _stream.Read(buffer, offset, bufferSize);
-            } while (found > 0);
+            }
+            while (found > 0);
         }
 
         private static Encoding GetEncoding(Byte[] bom)

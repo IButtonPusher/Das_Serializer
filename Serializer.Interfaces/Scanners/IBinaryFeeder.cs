@@ -8,7 +8,6 @@ namespace Das.Streamers
         /// Returns the amount of bytes that the next object will use.  Advances
         /// the byte index forward by 4 bytes
         /// </summary>
-        /// <returns></returns>
         Int32 GetNextBlockSize();
 
         Byte GetCircularReferenceIndex();
@@ -22,7 +21,6 @@ namespace Das.Streamers
         /// <summary>
         /// takes the next 4 bytes for length then the next N bytes and turns them into a Type
         /// </summary>
-        /// <returns></returns>
         Type GetNextType();
 
         Byte[] GetTypeBytes();

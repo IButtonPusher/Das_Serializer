@@ -35,7 +35,6 @@ namespace Das.Scanners
         protected override void ProcessCharacter(char c)
         {
             //we should never get here if we are in quotes/escaping
-
             switch (c)
             {
                 case '<':
@@ -156,7 +155,6 @@ namespace Das.Scanners
             //<SomeTag> could be a pointless tag like
             //<Properties></Properties>
             //or could be good like <ID>5</ID>
-
             if (HasCurrentTag)
                 BuildNode();
 

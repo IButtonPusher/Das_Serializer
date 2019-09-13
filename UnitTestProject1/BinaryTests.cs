@@ -226,19 +226,6 @@ namespace UnitTestProject1
 			var bList2 = Serializer.FromBytes<List<Int32>>(bytes);
 		}
 
-		//[TestCategory("array"), TestCategory("binary"), TestCategory("collections"), TestMethod]
-		//public void InferredBinaryArray()
-		//{
-		//	Int32[] arr = new Int32[] { 4, 5, 6, 99 };
-		//	DasSerializer std = new DasSerializer();
-		//	std.Settings.TypeSpecificity = TypeSpecificity.All;
-		//	var bytes = std.ToBytes(arr);
-		//	Int32[] test2 = (Int32[])std.FromBytes(bytes);
-
-
-		//	Assert.IsTrue(Enumerable.SequenceEqual(arr, test2));
-		//}
-
 		[TestCategory("array"), TestCategory("binary"), TestCategory("collections"), TestMethod]
 		public void ObjectArrayBinary()
 		{
@@ -511,9 +498,6 @@ namespace UnitTestProject1
 		[TestCategory("binary"), TestCategory("special"), TestMethod]
 		public void GdiPointBinary()
 		{
-
-//			TypeStructure ts = new TypeStructure(typeof(Point), false, 
-//				SerializationDepth.GetSetProperties);
 			var pt = new Point(1, 0);
             pt.Y = 1;
             pt.Y = 0;

@@ -27,9 +27,6 @@ namespace Serializer.Core
             if (node == null)
                 return;
 
-            //if (IsAnonymousType(node.Type))
-            //   _dynamicFacade.DynamicTypes.InvalidateDynamicTypes();
-
             var buffer = Buffer;
             node.Clear();
             buffer.Enqueue(node);

@@ -83,8 +83,6 @@ namespace Das.CoreExtensions
         /// <summary>
         /// True for all IEnumerables except for string
         /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
         public static Boolean IsCollection(this Type type) =>
             typeof(IEnumerable).IsAssignableFrom(type) && !type.IsString();
 

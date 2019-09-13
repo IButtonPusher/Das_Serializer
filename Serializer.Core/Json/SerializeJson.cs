@@ -29,7 +29,6 @@ namespace Das
         /// property of the serializer instance or the factory on which this is invoked
         /// </summary>
         /// <param name="o">The object to serialize</param>
-        /// <returns></returns>
         public String ToJson(Object o) => ToJson(o, o.GetType());
 
         public String ToJson<TObject>(TObject o) => ToJson(o, typeof(TObject));

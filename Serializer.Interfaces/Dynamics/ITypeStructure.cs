@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
 using Das.Serializer.Objects;
+// ReSharper disable UnusedMemberInSuper.Global
 
 namespace Das.Serializer
 {
@@ -18,8 +19,6 @@ namespace Das.Serializer
         /// <summary>
         /// Returns properties and/or fields depending on specified depth
         /// </summary>
-        /// <param name="depth"></param>
-        /// <returns></returns>
         IEnumerable<MemberInfo> GetMembersToSerialize(SerializationDepth depth);
 
         NamedValueNode GetPropertyValue(Object o, String propertyName);

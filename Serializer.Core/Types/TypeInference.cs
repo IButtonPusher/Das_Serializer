@@ -461,8 +461,6 @@ namespace Das.Types
             if (!isRecurse)
                 return default;
 
-            /////////////////////
-
             for (var c = 0; c < arr.Length; c++)
             {
                 var searchNs = arr[c] + "." + singleToken;

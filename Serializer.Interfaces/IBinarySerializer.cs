@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+// ReSharper disable UnusedMemberInSuper.Global
 
 // ReSharper disable UnusedMember.Global
 
@@ -14,8 +15,6 @@ namespace Das.Serializer
         T FromBytes<T>(Stream stream);
 
         Object FromBytes(Byte[] bytes);
-
-        /////////////////////////////////////////////////////////////////
 
         Byte[] ToBytes(Object o);
 

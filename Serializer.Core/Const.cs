@@ -20,13 +20,16 @@ namespace Serializer
 
         public const Char Space = ' ';
         public const Char Comma = ',';
-        public const Char Dot = '.';
+        
         public const Char Quote = '\"';
         public const Char SingleQuote = '\'';
         public const Char BackSlash = '\\';
         public const Char CarriageReturn = '\r';
-        public const Char newLine = '\n';
-        public const Char RootChar = '$';
+
+       public const Char OpenBrace = '{';
+       public const Char CloseBrace = '}';
+       public const Char OpenBracket = '[';
+       public const Char CloseBracket = ']';
 
         public const Int32 BACKSLASH = 92;
 

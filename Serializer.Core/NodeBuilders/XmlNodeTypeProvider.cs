@@ -27,9 +27,6 @@ namespace Serializer.Core
 
                 type = _typeInferrer.GetTypeFromClearName(str);
 
-                // if (type == null) //we had an explicit type specified but couldn't find it??
-                //    _dynamicTypes.InvalidateDynamicTypes(); //not in this state
-
                 node.Attributes.Remove(Const.XmlType);
             }
             else type = default;

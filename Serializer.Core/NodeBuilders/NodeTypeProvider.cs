@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Text;
 using Das.Serializer;
 
@@ -48,14 +50,10 @@ namespace Serializer.Core
             }
 
             //if this is based off an interface we need to implement that
-            Type[] parentTypes;
-            if (node.Type != null)
-                parentTypes = new[] {node.Type};
-            else
-                parentTypes = new Type[0];
+            var parentTypes = node.Type != null ? new[] {node.Type} : new Type[0];
 
             var dType = _dynamicFacade.DynamicTypes.GetDynamicType(
-                typeName.ToString(), propTypes.ToArray(), true,
+                typeName.ToString(), propTypes.ToArray(), true, Enumerable.Empty<EventInfo>(),
                 null, parentTypes);
 
             return dType;

@@ -29,12 +29,12 @@ namespace Das
         private readonly SortedList<String, Action<Object, Object>> _readOnlySetters;
         private readonly SortedList<String, Action<Object, Object>> _fieldSetters;
 
-        public ConcurrentDictionary<String, MemberInfo> MemberTypes { get; private set; }
+        public ConcurrentDictionary<String, MemberInfo> MemberTypes { get; }
 
         private readonly String _onDeserializedMethodName;
 
 
-        public Int32 PropertyCount { get; private set; }
+        public Int32 PropertyCount { get; }
 
         public TypeStructure(Type type, Boolean isPropertyNamesCaseSensitive,
             SerializationDepth depth, ITypeManipulator state)
@@ -118,7 +118,10 @@ namespace Das
                 if (reallyWrite)
                     continue;
 
-                _getOnly.Add(pi.Name, _types.CreatePropertyGetter(type, pi));
+
+                if (!_getOnly.ContainsKey(pi.Name))
+                    _getOnly.Add(pi.Name, _types.CreatePropertyGetter(type, pi));
+
                 if ((depth & SerializationDepth.GetOnlyProperties)
                     != SerializationDepth.GetOnlyProperties)
                     continue;
@@ -222,8 +225,6 @@ namespace Das
         /// <summary>
         /// Returns properties and/or fields depending on specified depth
         /// </summary>
-        /// <param name="depth"></param>
-        /// <returns></returns>
         public IEnumerable<MemberInfo> GetMembersToSerialize(SerializationDepth depth)
         {
             var isSet = false;

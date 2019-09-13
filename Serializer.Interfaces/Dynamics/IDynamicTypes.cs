@@ -6,12 +6,15 @@ namespace Das.Serializer
 {
     public interface IDynamicTypes
     {
-        IDynamicType GetDynamicType(String typeName, IList<DasProperty> properties,
-            Boolean isCreatePropertyDelegates, Dictionary<MethodInfo, MethodInfo> methodReplacements,
-            params Type[] parentTypes);
+        /// <summary>
+        /// Gets a dynamic type in a wrapper that allows for properties to be accessed quickly
+        /// </summary>
+        IDynamicType GetDynamicType(String typeName, IEnumerable<DasProperty> properties,
+            Boolean isCreatePropertyDelegates, IEnumerable<EventInfo> events,
+            IDictionary<MethodInfo, MethodInfo> methodReplacements, params Type[] parentTypes);
 
-        Type GetDynamicType(String typeName,
-            Dictionary<MethodInfo, MethodInfo> methodReplacements, IList<DasProperty> properties,
+        Type GetDynamicType(String typeName, IDictionary<MethodInfo, MethodInfo> methodReplacements, 
+            IEnumerable<DasProperty> properties, IEnumerable<EventInfo> events,
             params Type[] parentTypes);
 
         Type GetDynamicImplementation(Type baseInterface);
@@ -19,11 +22,5 @@ namespace Das.Serializer
         Boolean TryGetDynamicType(String clearName, out Type type);
 
         Boolean TryGetFromAssemblyQualifiedName(String assemblyQualified, out Type type);
-
-        ///// <summary>
-        ///// Doesn't delete the types but creates a new module and doesn't use the old module
-        ///// for cache lookups
-        ///// </summary>
-        //void InvalidateDynamicTypes();
     }
 }

@@ -311,9 +311,6 @@ namespace UnitTestProject1
 			var mc1 = ObjectDictionary.Get();
 
 			var json = Serializer.ToJson(mc1);
-			//var vvv = JsonConvert.SerializeObject(mc1);
-
-			//var ns = Newtonsoft.Json.JsonConvert.SerializeObject(mc1);
 
 			var res = Serializer.FromJson<ObjectDictionary>(json);
 
