@@ -7,8 +7,8 @@ namespace Das.Scanners
 {
     internal class BinaryNode : BaseNode<IBinaryNode>, IBinaryNode
     {
-        public int BlockSize { get; set; }
-        public int BlockStart { get; set; }
+        public Int32 BlockSize { get; set; }
+        public Int32 BlockStart { get; set; }
         public IList<IBinaryNode> PendingReferences { get; }
 
         public BinaryNode(String name, ISerializerSettings settings) : base(settings)

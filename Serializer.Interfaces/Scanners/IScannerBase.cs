@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Das.Scanners
+﻿namespace Das.Scanners
 {
     public interface IScannerBase<in TInput> : IScannerBase
     {

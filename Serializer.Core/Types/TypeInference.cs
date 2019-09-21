@@ -20,8 +20,8 @@ namespace Das.Types
         {
             _dynamicTypes = dynamicTypes;
             _assemblies = assemblyList;
-            TypeNames = new ConcurrentDictionary<string, Type>();
-            _cachedTypeNames = new ConcurrentDictionary<Type, string>();
+            TypeNames = new ConcurrentDictionary<String, Type>();
+            _cachedTypeNames = new ConcurrentDictionary<Type, String>();
             _cachedGermane = new ConcurrentDictionary<Type, Type>();
         }
 
@@ -29,23 +29,23 @@ namespace Das.Types
         private readonly ConcurrentDictionary<Type, Type> _cachedGermane;
         private readonly IAssemblyList _assemblies;
         private static readonly ConcurrentDictionary<Type, Object> CachedDefaults;
-        private static readonly ConcurrentDictionary<Type, int> CachedSizes;
+        private static readonly ConcurrentDictionary<Type, Int32> CachedSizes;
 
 
         static TypeInference()
         {
-            CachedSizes = new ConcurrentDictionary<Type, int>();
+            CachedSizes = new ConcurrentDictionary<Type, Int32>();
             //bitconverter gives 1 byte.  SizeOf gives 4
             CachedSizes.TryAdd(typeof(Boolean), 1);
             CachedSizes.TryAdd(typeof(DateTime), 8);
 
-            CachedDefaults = new ConcurrentDictionary<Type, object>();
+            CachedDefaults = new ConcurrentDictionary<Type, Object>();
 
             CachedDefaults.TryAdd(typeof(Byte), 0);
             CachedDefaults.TryAdd(typeof(Int16), 0);
             CachedDefaults.TryAdd(typeof(Int32), 0);
             CachedDefaults.TryAdd(typeof(Int64), 0);
-            CachedDefaults.TryAdd(typeof(float), 0f);
+            CachedDefaults.TryAdd(typeof(Single), 0f);
             CachedDefaults.TryAdd(typeof(Double), 0.0);
             CachedDefaults.TryAdd(typeof(Decimal), 0M);
             CachedDefaults.TryAdd(typeof(DateTime), DateTime.MinValue);
@@ -121,10 +121,10 @@ namespace Das.Types
             return clearName.Substring(startIndex, endIndex - startIndex);
         }
 
-        public string ToPropertyStyle(string name)
+        public String ToPropertyStyle(String name)
             => $"{Char.ToUpper(name[0])}{name.Substring(1)}";
 
-        public string ToClearName(Type type, Boolean isOmitAssemblyName)
+        public String ToClearName(Type type, Boolean isOmitAssemblyName)
         {
             if (!isOmitAssemblyName && _cachedTypeNames.TryGetValue(type, out var name))
                 return name;
@@ -201,7 +201,7 @@ namespace Das.Types
             return null;
         }
 
-        public Type GetGermaneType(object mustBeCollection)
+        public Type GetGermaneType(Object mustBeCollection)
         {
             if (mustBeCollection == null)
                 throw new ArgumentNullException();
@@ -253,7 +253,7 @@ namespace Das.Types
             TypeNames.Clear();
         }
 
-        public int BytesNeeded(Type typ)
+        public Int32 BytesNeeded(Type typ)
         {
             if (CachedSizes.TryGetValue(typ, out var length))
                 return length;
@@ -283,7 +283,7 @@ namespace Das.Types
         }
 
 
-        public bool IsDefaultValue(object o)
+        public Boolean IsDefaultValue(Object o)
         {
             switch (o)
             {
@@ -533,13 +533,17 @@ namespace Das.Types
         {
             foreach (var ass in assemblies)
             {
-                type = ass.GetType(clearName);
-                if (type != null)
-                    return true;
+                try
+                {
+                    type = ass.GetType(clearName);
+                    if (type != null)
+                        return true;
 
-                type = ass.GetTypes().FirstOrDefault(t => t.Name == clearName);
-                if (type != null)
-                    return true;
+                    type = ass.GetTypes().FirstOrDefault(t => t.Name == clearName);
+                    if (type != null)
+                        return true;
+                }
+                catch (ReflectionTypeLoadException) { }
             }
 
             type = default;

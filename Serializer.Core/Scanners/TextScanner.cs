@@ -25,7 +25,7 @@ namespace Das.Scanners
         protected readonly IStringPrimitiveScanner PrimitiveScanner;
         protected String CurrentTagName;
 
-        protected bool HasCurrentTag => !String.IsNullOrWhiteSpace(CurrentTagName);
+        protected Boolean HasCurrentTag => !String.IsNullOrWhiteSpace(CurrentTagName);
 
         protected readonly ITextContext TextState;
 
@@ -39,7 +39,7 @@ namespace Das.Scanners
         {
             _converter = converterProvider.ObjectConverter;
             CurrentValue = new StringBuilder();
-            CurrentAttributes = new Dictionary<string, string>();
+            CurrentAttributes = new Dictionary<String, String>();
             TextState = state;
             Sealer = state.NodeProvider.Sealer;
             Types = state.NodeProvider.TypeProvider;
@@ -81,7 +81,7 @@ namespace Das.Scanners
 
         protected abstract void ProcessCharacter(Char c);
 
-        public T Deserialize<T>(IEnumerable<char> source)
+        public T Deserialize<T>(IEnumerable<Char> source)
         {
             _resultType = typeof(T);
 

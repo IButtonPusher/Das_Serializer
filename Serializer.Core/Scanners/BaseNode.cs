@@ -10,11 +10,11 @@ namespace Das.Scanners
     {
         public BaseNode(ISerializerSettings settings) : base(settings)
         {
-            DynamicProperties = new Dictionary<string, object>();
-            Attributes = new Dictionary<string, string>();
+            DynamicProperties = new Dictionary<String, Object>();
+            Attributes = new Dictionary<String, String>();
         }
 
-        public bool IsForceNullValue { get; set; }
+        public Boolean IsForceNullValue { get; set; }
         public String Name { get; set; }
 
         TNode INode<TNode>.Parent
@@ -26,7 +26,7 @@ namespace Das.Scanners
         public Type Type { get; set; }
         public Object Value { get; set; }
         public IDictionary<String, String> Attributes { get; }
-        public IDictionary<string, object> DynamicProperties { get; }
+        public IDictionary<String, Object> DynamicProperties { get; }
 
         public INode Parent => _parent;
         public NodeTypes NodeType { get; set; }
@@ -49,6 +49,6 @@ namespace Das.Scanners
             NodeType = NodeTypes.None;
         }
 
-        public override string ToString() => $"Name: {Name} Type: {Type}: Val: {Value} ";
+        public override String ToString() => $"Name: {Name} Type: {Type}: Val: {Value} ";
     }
 }

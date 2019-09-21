@@ -27,7 +27,7 @@ namespace Serializer.Printers
         protected void ConditionalBlock(StringBuilder sb, params Func<Boolean>[] blocks)
         {
             sb.Append("{ ");
-            bool lastPrinted;
+            Boolean lastPrinted;
             var isDeficit = false;
 
             if (blocks?.Length > 0)

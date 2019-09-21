@@ -13,7 +13,7 @@ namespace Das.Streamers
             _bytes = bytes;
         }
 
-        public IEnumerator<byte[]> GetEnumerator()
+        public IEnumerator<Byte[]> GetEnumerator()
         {
             yield return _bytes;
         }

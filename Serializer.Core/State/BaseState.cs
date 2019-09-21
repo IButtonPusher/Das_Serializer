@@ -24,16 +24,16 @@ namespace Serializer.Core
         public void Copy<T>(T from, ref T to, ISerializerSettings settings) where T : class
             => _stateProvider.ObjectConverter.Copy(from, ref to, settings);
 
-        public T ConvertEx<T>(object obj, ISerializerSettings settings) =>
+        public T ConvertEx<T>(Object obj, ISerializerSettings settings) =>
             _stateProvider.ObjectConverter.ConvertEx<T>(obj, settings);
 
-        public T ConvertEx<T>(object obj) =>
+        public T ConvertEx<T>(Object obj) =>
             _stateProvider.ObjectConverter.ConvertEx<T>(obj, Settings);
 
-        public object ConvertEx(object obj, Type newObjectType, ISerializerSettings settings)
+        public Object ConvertEx(Object obj, Type newObjectType, ISerializerSettings settings)
             => _stateProvider.ObjectConverter.ConvertEx(obj, newObjectType, settings);
 
-        public object SpawnCollection(object[] objects, Type collectionType,
+        public Object SpawnCollection(Object[] objects, Type collectionType,
             ISerializerSettings settings, Type collectionGenericArgs = null)
             => _stateProvider.ObjectConverter.SpawnCollection(objects,
                 collectionType, settings);

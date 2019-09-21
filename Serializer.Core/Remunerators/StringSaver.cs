@@ -21,13 +21,13 @@ namespace Das.Remunerators
 
 
         [MethodImpl(256)]
-        public void Append(string data)
+        public void Append(String data)
         {
             _sb.Append(data);
         }
 
         [MethodImpl(256)]
-        public void Append(string data1, string data2)
+        public void Append(String data1, String data2)
         {
             _sb.Append(data1);
             _sb.Append(data2);
@@ -35,19 +35,19 @@ namespace Das.Remunerators
 
 
         [MethodImpl(256)]
-        public void Append(char data1, string data2)
+        public void Append(Char data1, String data2)
         {
             _sb.Append(data1);
             _sb.Append(data2);
         }
 
-        public void Append(IEnumerable<string> datas)
+        public void Append(IEnumerable<String> datas)
         {
             foreach (var data in datas)
                 _sb.Append(data);
         }
 
-        public override string ToString() => _sb.ToString();
+        public override String ToString() => _sb.ToString();
 
 
         [MethodImpl(256)]
@@ -58,11 +58,11 @@ namespace Das.Remunerators
 
 
         [MethodImpl(256)]
-        public void Append(char data)
+        public void Append(Char data)
         {
             _sb.Append(data);
         }
 
-        public bool IsEmpty => _sb.Length == 0;
+        public Boolean IsEmpty => _sb.Length == 0;
     }
 }

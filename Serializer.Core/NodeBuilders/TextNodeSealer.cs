@@ -7,7 +7,7 @@ using Das.Serializer;
 
 namespace Serializer.Core
 {
-    public class TextNodeSealer : BaseNodeSealer<ITextNode>, INodeSealer<ITextNode>
+    public class TextNodeSealer : BaseNodeSealer<ITextNode>
     {
         private readonly INodeManipulator _values;
         private readonly INodeManipulator _typeProvider;
@@ -215,8 +215,8 @@ namespace Serializer.Core
         }
 
 
-        public override bool TryGetPropertyValue(ITextNode node, string key,
-            Type propertyType, out object val)
+        public override Boolean TryGetPropertyValue(ITextNode node, String key,
+            Type propertyType, out Object val)
         {
             var propKey = _facade.TypeInferrer.ToPropertyStyle(key);
 

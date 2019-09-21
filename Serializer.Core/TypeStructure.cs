@@ -51,20 +51,20 @@ namespace Das
                     type = serAs.TargetType;
             }
 
-            _getOnly = new Dictionary<string, Func<Object, Object>>();
-            _propGetters = new Dictionary<string, Func<Object, Object>>();
-            _getDontSerialize = new Dictionary<string, Func<object, object>>();
-            _fieldGetters = new Dictionary<string, Func<object, object>>();
+            _getOnly = new Dictionary<String, Func<Object, Object>>();
+            _propGetters = new Dictionary<String, Func<Object, Object>>();
+            _getDontSerialize = new Dictionary<String, Func<Object, Object>>();
+            _fieldGetters = new Dictionary<String, Func<Object, Object>>();
 
-            _fieldSetters = new SortedList<string, Action<object, object>>();
+            _fieldSetters = new SortedList<String, Action<Object, Object>>();
 
             var cmp = isPropertyNamesCaseSensitive
                 ? StringComparer.Ordinal
                 : StringComparer.OrdinalIgnoreCase;
 
-            _propertySetters = new SortedList<string, PropertySetter>(cmp);
-            _readOnlySetters = new SortedList<string, Action<object, object>>(cmp);
-            MemberTypes = new ConcurrentDictionary<string, MemberInfo>(cmp);
+            _propertySetters = new SortedList<String, PropertySetter>(cmp);
+            _readOnlySetters = new SortedList<String, Action<Object, Object>>(cmp);
+            MemberTypes = new ConcurrentDictionary<String, MemberInfo>(cmp);
 
 
             if (_types.IsLeaf(type, true) || IsCollection(type))
@@ -181,7 +181,7 @@ namespace Das
         public void OnDeserialized(Object obj, IObjectManipulator objectManipulator)
         {
             if (_onDeserializedMethodName != null)
-                objectManipulator.Method(obj, _onDeserializedMethodName, new object[0]);
+                objectManipulator.Method(obj, _onDeserializedMethodName, new Object[0]);
         }
 
         public IEnumerable<NamedValueNode> GetPropertyValues(Object o, SerializationDepth depth)

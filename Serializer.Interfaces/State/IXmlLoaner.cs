@@ -2,7 +2,7 @@
 
 namespace Das.Serializer
 {
-    public interface IXmlLoaner : ITextState, IDisposable
+    public interface IXmlLoaner : ITextState
     {
     }
 }

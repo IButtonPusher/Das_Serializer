@@ -1,5 +1,4 @@
-﻿using System;
-using Das.Serializer;
+﻿using Das.Serializer;
 
 namespace Serializer.Core
 {

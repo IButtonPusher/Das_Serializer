@@ -59,7 +59,7 @@ namespace Serializer.Core
             return dType;
         }
 
-        public bool TryBuildValue(INode node)
+        public Boolean TryBuildValue(INode node)
         {
             if (node.Value != null)
                 return true;

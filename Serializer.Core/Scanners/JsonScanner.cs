@@ -11,9 +11,9 @@ namespace Das.Scanners
         {
         }
 
-        protected override bool IsQuote(char c) => c == Const.Quote;
+        protected override Boolean IsQuote(Char c) => c == Const.Quote;
 
-        protected override void ProcessCharacter(char c)
+        protected override void ProcessCharacter(Char c)
         {
             switch (c)
             {

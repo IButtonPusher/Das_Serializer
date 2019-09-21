@@ -7,7 +7,7 @@ namespace Das.Serializer
     /// transactions
     /// </summary>
     public interface ISerializationState : ISerializationContext,
-        IConverterProvider, IObjectConverter, IDisposable, ISettingsUser
+        IConverterProvider, IObjectConverter, IDisposable
     {
         new ISerializerSettings Settings { get; set; }
     }

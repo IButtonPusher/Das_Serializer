@@ -1,9 +1,9 @@
 ﻿using Das;
-using Das.Extensions;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Das.CoreExtensions;
+// ReSharper disable All
 
 namespace UnitTestProject1
 {

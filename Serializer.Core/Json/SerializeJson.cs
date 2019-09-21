@@ -34,7 +34,7 @@ namespace Das
         public String ToJson<TObject>(TObject o) => ToJson(o, typeof(TObject));
 
         [MethodImpl(256)]
-        private String ToJson(object obj, Type asType)
+        private String ToJson(Object obj, Type asType)
         {
             using (var sp = new StringSaver())
             {

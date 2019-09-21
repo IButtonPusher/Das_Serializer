@@ -173,6 +173,7 @@
     <Rule Id="CS8387" Action="None" />
     <Rule Id="CS8402" Action="None" />
     <Rule Id="CS8424" Action="None" />
+    <Rule Id="CS8425" Action="None" />
     <Rule Id="CS8509" Action="None" />
     <Rule Id="CS8512" Action="None" />
     <Rule Id="CS8513" Action="None" />
@@ -219,6 +220,8 @@
     <Rule Id="CS8654" Action="None" />
     <Rule Id="CS8655" Action="None" />
     <Rule Id="CS8656" Action="None" />
+    <Rule Id="CS8667" Action="None" />
+    <Rule Id="CS8714" Action="None" />
   </Rules>
   <Rules AnalyzerId="Microsoft.CodeAnalysis.CSharp.EditorFeatures" RuleNamespace="Microsoft.CodeAnalysis.CSharp.EditorFeatures">
     <Rule Id="IDE0065" Action="None" />
@@ -313,6 +316,9 @@
     <Rule Id="IDE0063" Action="None" />
     <Rule Id="IDE0063WithoutSuggestion" Action="None" />
     <Rule Id="IDE0064" Action="None" />
+    <Rule Id="IDE0065" Action="None" />
+    <Rule Id="IDE0066" Action="None" />
+    <Rule Id="IDE0066WithoutSuggestion" Action="None" />
     <Rule Id="IDE1005" Action="None" />
     <Rule Id="IDE1005WithoutSuggestion" Action="None" />
     <Rule Id="IDE1006" Action="None" />
@@ -329,5 +335,8 @@
     <Rule Id="IDE0044WithoutSuggestion" Action="None" />
     <Rule Id="IDE0055" Action="None" />
     <Rule Id="IDE0055WithoutSuggestion" Action="None" />
+    <Rule Id="IDE0067" Action="None" />
+    <Rule Id="IDE0068" Action="None" />
+    <Rule Id="IDE0069" Action="None" />
   </Rules>
 </RuleSet>

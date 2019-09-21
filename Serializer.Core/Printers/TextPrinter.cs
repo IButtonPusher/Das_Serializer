@@ -9,7 +9,7 @@ using Serializer.Core.Printers;
 
 namespace Das.Printers
 {
-    internal abstract class TextPrinter : PrinterBase<char>
+    internal abstract class TextPrinter : PrinterBase<Char>
     {
         protected TextPrinter(ITextRemunerable writer, ISerializationState stateProvider,
             ISerializerSettings settings) : base(stateProvider, settings)
@@ -39,7 +39,7 @@ namespace Das.Printers
         private readonly Int32 _indentLength;
 
 
-        protected static bool IsRequiresQuotes(object o)
+        protected static Boolean IsRequiresQuotes(Object o)
         {
             var oType = o?.GetType();
             if (oType == null)

@@ -9,7 +9,7 @@ namespace Das.Scanners
 {
     public abstract class StringPrimitiveScanner : IStringPrimitiveScanner
     {
-        public object GetValue(string input, Type type)
+        public Object GetValue(String input, Type type)
         {
             if (type == Const.ObjectType)
             {
@@ -51,6 +51,6 @@ namespace Das.Scanners
             return conv.ConvertFromInvariantString(input);
         }
 
-        public abstract string Descape(string input);
+        public abstract String Descape(String input);
     }
 }

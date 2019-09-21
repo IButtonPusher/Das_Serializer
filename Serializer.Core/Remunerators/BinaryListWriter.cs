@@ -14,7 +14,7 @@ namespace Serializer.Core.Remunerators
             : base(parent)
         {
             ParentIndex = index;
-            _backingList = new List<byte>();
+            _backingList = new List<Byte>();
             _node = node;
             _parent = parent;
 
@@ -33,13 +33,13 @@ namespace Serializer.Core.Remunerators
         }
 
         [MethodImpl(256)]
-        protected override void Write(byte* bytes, int count)
+        protected override void Write(Byte* bytes, Int32 count)
         {
             for (var c = 0; c < count; c++)
                 _backingList.Add(bytes[c]);
         }
 
-        public override void Write(byte[] buffer)
+        public override void Write(Byte[] buffer)
         {
             var count = buffer.Length;
             for (var c = 0; c < count; c++)
@@ -62,7 +62,7 @@ namespace Serializer.Core.Remunerators
         public override void Imbue(IBinaryWriter writer)
             => _backingList.AddRange(writer);
 
-        void IRemunerable<byte[]>.Append(byte[] data, int limit)
+        void IRemunerable<Byte[]>.Append(Byte[] data, Int32 limit)
         {
             for (var c = 0; c < limit; c++)
                 _backingList.Add(data[c]);
@@ -70,9 +70,9 @@ namespace Serializer.Core.Remunerators
 
         public Int32 ParentIndex { get; }
 
-        public override IEnumerator<byte> GetEnumerator() => _backingList.GetEnumerator();
+        public override IEnumerator<Byte> GetEnumerator() => _backingList.GetEnumerator();
 
-        public override string ToString() => _node + ".  Index " + ParentIndex +
+        public override String ToString() => _node + ".  Index " + ParentIndex +
                                              " Byte Count: " + _backingList.Count + " Length: " +
                                              Length + " Nodes: " + Children.Count;
 
@@ -88,17 +88,17 @@ namespace Serializer.Core.Remunerators
 
         // void IBinaryWriter.WriteInt8(byte value) => _backingList.Add(value);
 
-        void IBinaryWriter.Write(byte[] values) => _backingList.AddRange(values);
+        void IBinaryWriter.Write(Byte[] values) => _backingList.AddRange(values);
 
         [MethodImpl(256)]
-        private void SetLength(long val)
+        private void SetLength(Int64 val)
         {
-            var pi = (byte*) &val;
+            var pi = (Byte*) &val;
             for (var c = 0; c < 4; c++)
                 _backingList[c] = pi[c];
         }
 
-        bool IRemunerable.IsEmpty => _backingList.Count == 0 && Children.Count == 0;
+        Boolean IRemunerable.IsEmpty => _backingList.Count == 0 && Children.Count == 0;
 
         public override Int32 Length
         {

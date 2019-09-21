@@ -27,7 +27,7 @@ namespace Das.Scanners
 
         #region public interface
 
-        public object GetValue(Byte[] input, Type type)
+        public Object GetValue(Byte[] input, Type type)
         {
             Object res;
             if (input == null)
@@ -71,10 +71,10 @@ namespace Das.Scanners
             return res;
         }
 
-        public unsafe Int32 GetInt32(byte[] value)
+        public unsafe Int32 GetInt32(Byte[] value)
         {
-            fixed (byte* pbyte = &value[0])
-                return *((int*) pbyte);
+            fixed (Byte* pbyte = &value[0])
+                return *((Int32*) pbyte);
         }
 
         public unsafe String GetString(Byte[] tempByte)
@@ -82,10 +82,10 @@ namespace Das.Scanners
             if (tempByte == null)
                 return null;
 
-            fixed (byte* bptr = tempByte)
+            fixed (Byte* bptr = tempByte)
             {
-                var cptr = (char*) bptr;
-                return new string(cptr, 0, tempByte.Length / 2);
+                var cptr = (Char*) bptr;
+                return new String(cptr, 0, tempByte.Length / 2);
             }
         }
 

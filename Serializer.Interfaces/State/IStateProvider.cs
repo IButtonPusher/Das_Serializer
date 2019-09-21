@@ -1,7 +1,4 @@
-﻿using System;
-
-
-namespace Das.Serializer
+﻿namespace Das.Serializer
 {
     public interface IStateProvider : ISerializationContext, IConverterProvider
     {

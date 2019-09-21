@@ -16,7 +16,7 @@ namespace Das.Streamers
             _stream = stream;
         }
 
-        public IEnumerator<char> GetEnumerator()
+        public IEnumerator<Char> GetEnumerator()
         {
             var bufferSize = 1024;
             var offset = 0;

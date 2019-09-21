@@ -15,11 +15,11 @@ namespace Serializer.Core
 
         static AssemblyList()
         {
-            _actualAssemblies = new ConcurrentDictionary<string, Assembly>(
+            _actualAssemblies = new ConcurrentDictionary<String, Assembly>(
                 StringComparer.OrdinalIgnoreCase);
         }
 
-        public bool TryGetAssembly(string name, out Assembly assembly)
+        public Boolean TryGetAssembly(String name, out Assembly assembly)
         {
             if (_actualAssemblies.TryGetValue(name, out assembly))
                 return true;

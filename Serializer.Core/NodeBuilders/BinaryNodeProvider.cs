@@ -20,7 +20,7 @@ namespace Serializer.Core.NodeBuilders
             _nodes = nodeManipulator;
         }
 
-        public void ResolveCircularReference(IBinaryNode node, ref byte distanceFromRoot)
+        public void ResolveCircularReference(IBinaryNode node, ref Byte distanceFromRoot)
         {
             var chain = new Stack<IBinaryNode>();
             var current = node.Parent;
@@ -48,7 +48,7 @@ namespace Serializer.Core.NodeBuilders
 
         public INodeSealer<IBinaryNode> Sealer { get; }
 
-        private IBinaryNode Get(string name, Type type)
+        private IBinaryNode Get(String name, Type type)
         {
             var buffer = Buffer;
             var item = buffer.Count > 0
@@ -58,7 +58,7 @@ namespace Serializer.Core.NodeBuilders
             return item;
         }
 
-        public IBinaryNode Get(string name, IBinaryNode parent, Type type)
+        public IBinaryNode Get(String name, IBinaryNode parent, Type type)
         {
             var node = Get(name, type);
             node.Parent = parent;

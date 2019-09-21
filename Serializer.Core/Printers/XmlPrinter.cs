@@ -204,7 +204,7 @@ namespace Das.Printers
             Writer.Append(Const.Quote);
         }
 
-        protected override void PrintString(string input, Boolean isInQuotes)
+        protected override void PrintString(String input, Boolean isInQuotes)
         {
             var parent = _formatStack.Pop();
 

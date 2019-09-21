@@ -15,7 +15,7 @@ namespace Das.Scanners
             _nodeManipulator = nodeManipulator;
             Name = name;
 
-            Children = new Dictionary<string, ITextNode>(
+            Children = new Dictionary<String, ITextNode>(
                 StringComparer.InvariantCultureIgnoreCase);
         }
 
@@ -50,7 +50,7 @@ namespace Das.Scanners
             yield return this;
         }
 
-        public override string ToString() => $"Name: {Name} Type: {Type}: Val: {Value} Text: {Text}";
+        public override String ToString() => $"Name: {Name} Type: {Type}: Val: {Value} Text: {Text}";
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         public void AddChild(ITextNode node)
@@ -89,7 +89,7 @@ namespace Das.Scanners
         }
 
 
-        public void SetText(object value)
+        public void SetText(Object value)
         {
             Text.Clear();
             Text.Append(value);

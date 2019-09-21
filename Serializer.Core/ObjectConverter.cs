@@ -31,7 +31,7 @@ namespace Das
         private T ConvertEx<T>(Object obj, T newObject, ISerializerSettings settings)
             => ConvertEx<T>(obj, settings);
 
-        public T ConvertEx<T>(object obj, ISerializerSettings settings)
+        public T ConvertEx<T>(Object obj, ISerializerSettings settings)
         {
             if (obj is T already)
                 return already;
@@ -46,9 +46,9 @@ namespace Das
             return (T) outObj;
         }
 
-        public T ConvertEx<T>(object obj) => ConvertEx<T>(obj, Settings);
+        public T ConvertEx<T>(Object obj) => ConvertEx<T>(obj, Settings);
 
-        public object ConvertEx(object obj, Type newObjectType, ISerializerSettings settings)
+        public Object ConvertEx(Object obj, Type newObjectType, ISerializerSettings settings)
         {
             var newObject = _dynamicFacade.ObjectInstantiator.BuildDefault(newObjectType,
                 settings.CacheTypeConstructors);
@@ -79,7 +79,7 @@ namespace Das
             var nodeType = _dynamicFacade.GetNodeType(typeof(T), depth);
             var o = to as Object;
 
-            Copy(from, ref o, nodeType, new Dictionary<object, object>(), settings);
+            Copy(from, ref o, nodeType, new Dictionary<Object, Object>(), settings);
 
             to = (T) o;
         }
@@ -111,7 +111,7 @@ namespace Das
                     break;
                 case NodeTypes.PropertiesToConstructor:
 
-                    var props = new Dictionary<string, object>();
+                    var props = new Dictionary<String, Object>();
                     foreach (var prop in _types.GetPublicProperties(toType))
                     {
                         if (!_objects.TryGetPropertyValue(@from, prop.Name, out var fromProp))
@@ -126,7 +126,7 @@ namespace Das
                     }
 
                     _instantiate.TryGetPropertiesConstructor(toType, out var cInfo);
-                    var values = new List<object>();
+                    var values = new List<Object>();
                     foreach (var conParam in cInfo.GetParameters())
                     {
                         var search = _dynamicFacade.TypeInferrer.ToPropertyStyle(conParam.Name);

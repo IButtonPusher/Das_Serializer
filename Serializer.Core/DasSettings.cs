@@ -60,7 +60,7 @@ namespace Das.Serializer
 
         public String NewLine { get; set; } = "\r\n";
 
-        public bool CacheTypeConstructors { get; set; }
+        public Boolean CacheTypeConstructors { get; set; }
 
         public DasSettings()
         {

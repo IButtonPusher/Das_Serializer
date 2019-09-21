@@ -13,7 +13,7 @@ namespace Serializer.Core
             _stream = stream;
         }
 
-        public byte this[int bytes]
+        public Byte this[Int32 bytes]
         {
             get
             {
@@ -23,7 +23,7 @@ namespace Serializer.Core
             }
         }
 
-        public byte[] this[int start, int length]
+        public Byte[] this[Int32 start, Int32 length]
         {
             get
             {

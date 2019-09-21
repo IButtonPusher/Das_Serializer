@@ -12,7 +12,7 @@ using Serializer.Core.Remunerators;
 
 namespace Das.Printers
 {
-    internal class BinaryPrinter : PrinterBase<byte>, IDisposable, ISerializationDepth
+    internal class BinaryPrinter : PrinterBase<Byte>, IDisposable, ISerializationDepth
     {
         public BinaryPrinter(IBinaryWriter writer, ISerializationState stateProvider)
             : base(stateProvider)
@@ -24,7 +24,7 @@ namespace Das.Printers
             IsTextPrinter = false;
         }
 
-        bool ISerializationDepth.IsOmitDefaultValues
+        Boolean ISerializationDepth.IsOmitDefaultValues
         {
             get => false;
             set => throw new NotSupportedException();
@@ -105,7 +105,7 @@ namespace Das.Printers
             }
         }
 
-        private Boolean TryWrap(Type propType, ref object val, ref Type valType)
+        private Boolean TryWrap(Type propType, ref Object val, ref Type valType)
         {
             var isWrapping = val != null && IsWrapNeeded(propType, valType);
 

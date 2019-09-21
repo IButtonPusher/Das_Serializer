@@ -2,7 +2,7 @@
 
 namespace Das.Serializer
 {
-    public interface IJsonLoaner : ITextState, IDisposable
+    public interface IJsonLoaner : ITextState
     {
     }
 }

@@ -12,7 +12,7 @@ namespace Serializer.Core.Scanners
         private static readonly ThreadLocal<StringBuilder> _buffer
             = new ThreadLocal<StringBuilder>(() => new StringBuilder());
 
-        public override String Descape(string input)
+        public override String Descape(String input)
         {
             var isEscaped = false;
 

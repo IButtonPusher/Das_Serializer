@@ -60,7 +60,7 @@ namespace Das
             }
         }
 
-        public string ToXml<TObject>(TObject o)
+        public String ToXml<TObject>(TObject o)
         {
             var oType = typeof(TObject);
             return ToXml(o, oType);
@@ -72,7 +72,7 @@ namespace Das
             return ToXml(obj);
         }
 
-        public void ToXml(object o, FileInfo fi)
+        public void ToXml(Object o, FileInfo fi)
         {
             var xml = ToXml(o);
 
@@ -82,7 +82,7 @@ namespace Das
             }
         }
 
-        public void ToXml<TTarget>(object o, FileInfo fi)
+        public void ToXml<TTarget>(Object o, FileInfo fi)
         {
             var obj = CastDynamic<TTarget>(o);
             ToXml(obj, fi);
@@ -93,7 +93,7 @@ namespace Das
         /// dumps to file when ready.  Creates the directory for the file if it doesn't
         /// already exist
         /// </summary>
-        public void ToXml(Object o, string fileName)
+        public void ToXml(Object o, String fileName)
         {
             var fi = new FileInfo(fileName);
             ToXml(o, fi);

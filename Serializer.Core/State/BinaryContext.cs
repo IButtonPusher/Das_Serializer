@@ -1,5 +1,4 @@
-﻿using System;
-using Das.Scanners;
+﻿using Das.Scanners;
 using Das.Serializer;
 using Serializer.Core.NodeBuilders;
 

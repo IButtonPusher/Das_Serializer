@@ -3,7 +3,7 @@ using Das.Serializer;
 
 namespace Serializer.Core
 {
-    public class BinaryNodeSealer : BaseNodeSealer<IBinaryNode>, INodeSealer<IBinaryNode>
+    public class BinaryNodeSealer : BaseNodeSealer<IBinaryNode>
     {
         private readonly INodeManipulator _nodeManipulator;
         private readonly IDynamicFacade _dynamicFacade;
@@ -50,8 +50,8 @@ namespace Serializer.Core
                 item.Value = node.Value;
         }
 
-        public override bool TryGetPropertyValue(IBinaryNode node, string key,
-            Type propertyType, out object val)
+        public override Boolean TryGetPropertyValue(IBinaryNode node, String key,
+            Type propertyType, out Object val)
         {
             var propKey = _dynamicFacade.TypeInferrer.ToPropertyStyle(key);
             return node.DynamicProperties.TryGetValue(propKey, out val);

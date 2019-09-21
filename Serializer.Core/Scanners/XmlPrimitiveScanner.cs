@@ -10,7 +10,7 @@ namespace Serializer.Core
     {
         static XmlPrimitiveScanner()
         {
-            Entities = new Dictionary<string, string>
+            Entities = new Dictionary<String, String>
             {
                 {"&amp;", "&"},
                 {"&lt;", "<"},
@@ -22,10 +22,10 @@ namespace Serializer.Core
 
         private static Dictionary<String, String> Entities { get; }
 
-        public override string Descape(string input) => HtmlDecode(input);
+        public override String Descape(String input) => HtmlDecode(input);
 
         //https://github.com/mono/mono/blob/master/mcs/class/System.Web/System.Web.Util/HttpEncoder.cs
-        public static string HtmlDecode(string s)
+        public static String HtmlDecode(String s)
         {
             if (s == null)
                 return null;
@@ -135,7 +135,7 @@ namespace Serializer.Core
                         }
                         else
                         {
-                            output.Append((char) number);
+                            output.Append((Char) number);
                         }
 
                         state = 0;

@@ -2,7 +2,7 @@
 
 namespace Das.Serializer
 {
-    public interface IStateLoaner : ISerializationState, IDisposable
+    public interface IStateLoaner : ISerializationState
     {
     }
 }

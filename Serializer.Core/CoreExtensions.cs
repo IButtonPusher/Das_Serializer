@@ -50,11 +50,11 @@ namespace Das.CoreExtensions
             return arr.Take(startIndex, length);
         }
 
-        public static byte[] GetBytes(this decimal dec)
+        public static Byte[] GetBytes(this Decimal dec)
             => TypeCore.GetBytes(dec);
 
 
-        public static decimal ToDecimal(this byte[] bytes)
+        public static Decimal ToDecimal(this Byte[] bytes)
             => TypeCore.ToDecimal(bytes);
 
 
@@ -167,10 +167,10 @@ namespace Das.CoreExtensions
             if (tempByte == null)
                 return null;
 
-            fixed (byte* bptr = tempByte)
+            fixed (Byte* bptr = tempByte)
             {
-                var cptr = (char*) bptr;
-                return new string(cptr, 0, useBytes / 2);
+                var cptr = (Char*) bptr;
+                return new String(cptr, 0, useBytes / 2);
             }
         }
 

@@ -25,7 +25,7 @@ namespace Serializer.Core
 
         public ISerializerSettings Settings { get; set; }
 
-        public void Imbue(TNode node, string name, object value)
+        public void Imbue(TNode node, String name, Object value)
         {
             if (node == null)
                 return;
@@ -86,8 +86,8 @@ namespace Serializer.Core
         public void Imbue(TNode childNode) => Imbue(childNode.Parent, childNode.Name,
             childNode.Value);
 
-        public abstract bool TryGetPropertyValue(TNode node, string key,
-            Type propertyType, out object val);
+        public abstract Boolean TryGetPropertyValue(TNode node, String key,
+            Type propertyType, out Object val);
 
         public abstract void CloseNode(TNode node);
 
@@ -136,7 +136,7 @@ namespace Serializer.Core
                 node.Type, out var cInfo))
                 return;
 
-            var values = new List<object>();
+            var values = new List<Object>();
             foreach (var conParam in cInfo.GetParameters())
             {
                 if (TryGetPropertyValue(node, conParam.Name, conParam.ParameterType, out var val))

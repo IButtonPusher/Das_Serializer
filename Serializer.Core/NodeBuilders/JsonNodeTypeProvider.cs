@@ -13,7 +13,7 @@ namespace Serializer.Core
 
         private readonly ITypeInferrer _typeInferrer;
 
-        protected override bool TryGetExplicitType(INode node, out Type type)
+        protected override Boolean TryGetExplicitType(INode node, out Type type)
         {
             if (node.Attributes.TryGetValue(Const.TypeWrap, out var typeName))
             {

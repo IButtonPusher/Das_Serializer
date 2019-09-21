@@ -6,8 +6,7 @@ using Serializer.Core.Printers;
 namespace Serializer.Core.Remunerators
 {
     public interface IBinaryWriter : IEnumerable<Byte>,
-        IRemunerable<Byte[], Byte>,
-        IDisposable
+        IRemunerable<Byte[], Byte>
     {
         void WriteInt8(Byte value);
 

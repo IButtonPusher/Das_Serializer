@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Das.Serializer
+﻿namespace Das.Serializer
 {
     /// <summary>
     /// Stateful and not thread safe

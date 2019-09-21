@@ -19,7 +19,7 @@ namespace Serializer.Core
 
         public INodeSealer<ITextNode> Sealer { get; }
 
-        public ITextNode Get(string name, Dictionary<string, string> attributes,
+        public ITextNode Get(String name, Dictionary<String, String> attributes,
             ITextNode parent)
         {
             ITextNode node;

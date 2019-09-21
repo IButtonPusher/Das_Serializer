@@ -20,7 +20,7 @@ namespace Das.Scanners
         private readonly ITextNodeProvider _nodes;
 
         [MethodImpl(256)]
-        protected sealed override bool IsQuote(char c)
+        protected sealed override Boolean IsQuote(Char c)
             => (_isOpeningTag || _isClosingTag) && (c == Const.Quote || c == Const.SingleQuote);
 
 
@@ -32,7 +32,7 @@ namespace Das.Scanners
             WhiteSpaceChars = new List<Char> {Const.CarriageReturn, '\n', '\t'};
         }
 
-        protected override void ProcessCharacter(char c)
+        protected override void ProcessCharacter(Char c)
         {
             //we should never get here if we are in quotes/escaping
             switch (c)

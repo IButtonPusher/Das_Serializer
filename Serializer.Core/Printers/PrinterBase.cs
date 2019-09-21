@@ -46,10 +46,10 @@ namespace Das.Printers
             ISerializerSettings settings) : base(stateProvider, settings)
         {
             _stateProvider = stateProvider;
-            _pathReferences = new HashSet<object>();
+            _pathReferences = new HashSet<Object>();
             _pathStack = new List<String>();
             PathSeparator = '.';
-            _pathObjects = new List<object>();
+            _pathObjects = new List<Object>();
             PathAttribute = "$ref";
             IsTextPrinter = true;
             _isIgnoreCircularDependencies = stateProvider.Settings.CircularReferenceBehavior
@@ -290,7 +290,7 @@ namespace Das.Printers
 
         #endregion
 
-        bool ISerializationDepth.IsOmitDefaultValues
+        Boolean ISerializationDepth.IsOmitDefaultValues
         {
             get => Settings.IsOmitDefaultValues;
             set => throw new NotSupportedException();

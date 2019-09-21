@@ -33,7 +33,7 @@ namespace Das
             Surrogates.AddOrUpdate(looksLike, isReally, (k, v) => isReally);
         }
 
-        public bool TryDeleteSurrogate(Type lookedLike, Type wasReally)
+        public Boolean TryDeleteSurrogate(Type lookedLike, Type wasReally)
             => Surrogates.TryGetValue(lookedLike, out var was) && was == wasReally &&
                Surrogates.TryRemove(lookedLike, out var stillWas) && stillWas == wasReally;
 

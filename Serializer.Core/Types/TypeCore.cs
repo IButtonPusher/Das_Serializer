@@ -28,10 +28,10 @@ namespace Serializer.Core
 
         private static readonly HashSet<Type> NumericTypes = new HashSet<Type>
         {
-            typeof(int), typeof(double), typeof(decimal),
-            typeof(long), typeof(short), typeof(sbyte),
-            typeof(byte), typeof(ulong), typeof(ushort),
-            typeof(uint), typeof(float)
+            typeof(Int32), typeof(Double), typeof(Decimal),
+            typeof(Int64), typeof(Int16), typeof(SByte),
+            typeof(Byte), typeof(UInt64), typeof(UInt16),
+            typeof(UInt32), typeof(Single)
         };
 
         static TypeCore()
@@ -43,7 +43,7 @@ namespace Serializer.Core
         private static readonly ConcurrentDictionary<Type, IEnumerable<PropertyInfo>>
             CachedProperties;
 
-        public bool TryGetNullableType(Type candidate, out Type primitive)
+        public Boolean TryGetNullableType(Type candidate, out Type primitive)
         {
             primitive = null;
             if (!candidate.IsGenericType ||
@@ -54,38 +54,38 @@ namespace Serializer.Core
             return true;
         }
 
-        public bool IsLeaf(Type t, bool isStringCounts)
+        public Boolean IsLeaf(Type t, Boolean isStringCounts)
             => t != null && (t.IsValueType || isStringCounts && t == Const.StrType)
                          && Type.GetTypeCode(t) > TypeCode.DBNull;
 
-        public bool IsAbstract(PropertyInfo propInfo)
+        public Boolean IsAbstract(PropertyInfo propInfo)
             => propInfo.GetGetMethod()?.IsAbstract == true ||
                propInfo.GetSetMethod()?.IsAbstract == true;
 
-        public bool IsCollection(Type type)
+        public Boolean IsCollection(Type type)
             => type != null &&
                typeof(IEnumerable).IsAssignableFrom(type) && type != Const.StrType;
 
-        public bool IsUseless(Type t) => t == null || t == typeof(Object);
+        public Boolean IsUseless(Type t) => t == null || t == typeof(Object);
 
-        public bool IsNumeric(Type myType) => NumericTypes.Contains(
+        public Boolean IsNumeric(Type myType) => NumericTypes.Contains(
             Nullable.GetUnderlyingType(myType) ?? myType);
 
-        public bool HasEmptyConstructor(Type t)
+        public Boolean HasEmptyConstructor(Type t)
             => t.GetConstructor(Type.EmptyTypes) != null;
 
-        public bool IsInstantiable(Type t) =>
+        public Boolean IsInstantiable(Type t) =>
             !IsUseless(t) && !t.IsAbstract && !t.IsInterface;
 
         protected static Boolean IsString(Type t) => t == Const.StrType;
 
-        public static decimal ToDecimal(byte[] bytes)
+        public static Decimal ToDecimal(Byte[] bytes)
         {
             var bits = new Int32[4];
             for (var i = 0; i <= 15; i += 4)
                 bits[i / 4] = BitConverter.ToInt32(bytes, i);
 
-            return new decimal(bits);
+            return new Decimal(bits);
         }
 
         public static unsafe Byte[] GetBytes(String str)
@@ -100,10 +100,10 @@ namespace Serializer.Core
             return bytes;
         }
 
-        public static byte[] GetBytes(decimal dec)
+        public static Byte[] GetBytes(Decimal dec)
         {
             var bits = Decimal.GetBits(dec);
-            var bytes = new List<byte>();
+            var bytes = new List<Byte>();
 
             foreach (var i in bits)
                 bytes.AddRange(BitConverter.GetBytes(i));
@@ -112,7 +112,7 @@ namespace Serializer.Core
             return bytes.ToArray();
         }
 
-        protected static bool IsAnonymousType(Type type)
+        protected static Boolean IsAnonymousType(Type type)
         {
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
@@ -126,7 +126,7 @@ namespace Serializer.Core
                    && type.Attributes.ContainsFlag(TypeAttributes.NotPublic);
         }
 
-        public IEnumerable<PropertyInfo> GetPublicProperties(Type type, bool numericFirst = true)
+        public IEnumerable<PropertyInfo> GetPublicProperties(Type type, Boolean numericFirst = true)
         {
             if (CachedProperties.TryGetValue(type, out var res))
             {
@@ -182,7 +182,7 @@ namespace Serializer.Core
                 yield return prop;
         }
 
-        public PropertyInfo FindPublicProperty(Type type, string propertyName)
+        public PropertyInfo FindPublicProperty(Type type, String propertyName)
             => GetPublicProperties(type, false).
                 FirstOrDefault(p => p.Name == propertyName);
         

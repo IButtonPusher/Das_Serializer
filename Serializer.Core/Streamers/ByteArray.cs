@@ -5,16 +5,16 @@ namespace Serializer.Core
 {
     public class ByteArray : IByteArray
     {
-        private readonly byte[] _array;
+        private readonly Byte[] _array;
 
         public ByteArray(Byte[] array)
         {
             _array = array;
         }
 
-        public Byte this[int bytes] => _array[bytes];
+        public Byte this[Int32 bytes] => _array[bytes];
 
-        public Byte[] this[int start, int length]
+        public Byte[] this[Int32 start, Int32 length]
         {
             get
             {

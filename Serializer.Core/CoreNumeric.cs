@@ -23,13 +23,13 @@ namespace Serializer
             return 0;
         }
 
-        public decimal GetCurrency(string fromString)
+        public Decimal GetCurrency(String fromString)
         {
             var isAnyValid = false;
             return GetCurrencyImpl(fromString, ref isAnyValid);
         }
 
-        public bool TryGetCurrency(string fromString, out decimal currency)
+        public Boolean TryGetCurrency(String fromString, out Decimal currency)
         {
             var isAnyValid = false;
             currency = GetCurrencyImpl(fromString, ref isAnyValid);
@@ -187,7 +187,7 @@ namespace Serializer
         }
 
 
-        public string GetCurrencyText(string str)
+        public String GetCurrencyText(String str)
         {
             IEnumerable<Char> GetValidChars()
             {
@@ -208,10 +208,10 @@ namespace Serializer
             return String.Concat(GetValidChars());
         }
 
-        public Double GetDouble(string fromString) =>
+        public Double GetDouble(String fromString) =>
             Convert.ToDouble(GetCurrency(fromString));
 
-        public int GetInt32(string fromString)
+        public Int32 GetInt32(String fromString)
             => Convert.ToInt32(GetCurrency(fromString));
 
         public Decimal GetNumericalDifference(Decimal left, Decimal right)
@@ -226,7 +226,7 @@ namespace Serializer
                 return (0 - (1 - (left / right))) * 100;
         }
 
-        public bool AreEqual(double left, double right) => Math.Abs(left - right) < TOLERANCE;
+        public Boolean AreEqual(Double left, Double right) => Math.Abs(left - right) < TOLERANCE;
 
         [ThreadStatic] private static Decimal _buildingResult;
 

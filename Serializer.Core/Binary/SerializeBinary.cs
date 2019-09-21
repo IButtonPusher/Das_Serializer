@@ -28,7 +28,7 @@ namespace Das
             }
         }
 
-        public byte[] ToBytes<TObject>(TObject o) => ToBytes(o, typeof(TObject));
+        public Byte[] ToBytes<TObject>(TObject o) => ToBytes(o, typeof(TObject));
 
 
         // ReSharper disable once UnusedMember.Global

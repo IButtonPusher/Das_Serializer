@@ -33,7 +33,7 @@ namespace Das.Scanners
             return Deserialize<TOutput>();
         }
 
-        public T Deserialize<T>(IEnumerable<byte[]> source)
+        public T Deserialize<T>(IEnumerable<Byte[]> source)
         {
             _feeder = new BinaryFeeder(_state.PrimitiveScanner, _state, source, Settings, _logger);
             return Deserialize<T>();

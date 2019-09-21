@@ -18,7 +18,7 @@ namespace Serializer.Core
             _typeInferrer = dynamicFacade.TypeInferrer;
         }
 
-        protected override bool TryGetExplicitType(INode node, out Type type)
+        protected override Boolean TryGetExplicitType(INode node, out Type type)
         {
             if (node.Attributes.TryGetValue(Const.XmlType, out var xmlType))
             {

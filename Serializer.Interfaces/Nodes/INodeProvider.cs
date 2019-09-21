@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Das.Serializer
+﻿namespace Das.Serializer
 {
     public interface INodeProvider<in TNode> : INodeProvider
         where TNode : INode

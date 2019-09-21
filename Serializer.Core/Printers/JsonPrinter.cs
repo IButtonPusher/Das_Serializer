@@ -199,7 +199,7 @@ namespace Das.Printers
             if (!_isIgnoreCircularDependencies)
                 PushStack($"[{serializeAs}]");
             if (typeof(IDictionary).IsAssignableFrom(serializeAs) &&
-                serializeAs.GetGenericArguments().FirstOrDefault() == typeof(string)
+                serializeAs.GetGenericArguments().FirstOrDefault() == typeof(String)
                 && node.Value is IDictionary dic)
             {
                 PrintSpecialDictionary(dic);
@@ -242,7 +242,7 @@ namespace Das.Printers
 
         #region private implementation helpers
 
-        protected override void PrintString(string str, Boolean isInQuotes)
+        protected override void PrintString(String str, Boolean isInQuotes)
         {
             if (isInQuotes)
                 Writer.Append(Const.Quote);
@@ -260,7 +260,7 @@ namespace Das.Printers
 
             var len = value.Length;
             var needEncode = false;
-            char cIn;
+            Char cIn;
             for (var i = 0; i < len; i++)
             {
                 cIn = value[i];
@@ -290,7 +290,7 @@ namespace Das.Printers
                 }
 
                 String cOut;
-                switch ((int) cIn)
+                switch ((Int32) cIn)
                 {
                     case 8:
                         cOut = "\\b";
