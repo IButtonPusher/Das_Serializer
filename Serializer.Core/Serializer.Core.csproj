@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -23,35 +23,67 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Binary\ObjectTerminator.cs" />
+    <Compile Remove="Binary\**" />
+    <Compile Remove="Files\**" />
+    <Compile Remove="Json\**" />
+    <Compile Remove="NodeBuilders\**" />
+    <Compile Remove="Printers\**" />
+    <Compile Remove="Remunerators\**" />
+    <Compile Remove="Scanners\**" />
+    <Compile Remove="State\**" />
+    <Compile Remove="Streamers\**" />
+    <Compile Remove="TextCommon\**" />
+    <Compile Remove="Types\**" />
+    <Compile Remove="Xml\**" />
+    <EmbeddedResource Remove="Binary\**" />
+    <EmbeddedResource Remove="Files\**" />
+    <EmbeddedResource Remove="Json\**" />
+    <EmbeddedResource Remove="NodeBuilders\**" />
+    <EmbeddedResource Remove="Printers\**" />
+    <EmbeddedResource Remove="Remunerators\**" />
+    <EmbeddedResource Remove="Scanners\**" />
+    <EmbeddedResource Remove="State\**" />
+    <EmbeddedResource Remove="Streamers\**" />
+    <EmbeddedResource Remove="TextCommon\**" />
+    <EmbeddedResource Remove="Types\**" />
+    <EmbeddedResource Remove="Xml\**" />
+    <None Remove="Binary\**" />
+    <None Remove="Files\**" />
+    <None Remove="Json\**" />
+    <None Remove="NodeBuilders\**" />
+    <None Remove="Printers\**" />
+    <None Remove="Remunerators\**" />
+    <None Remove="Scanners\**" />
+    <None Remove="State\**" />
+    <None Remove="Streamers\**" />
+    <None Remove="TextCommon\**" />
+    <None Remove="Types\**" />
+    <None Remove="Xml\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Attributes.cs" />
+    <Compile Remove="Const.cs" />
+    <Compile Remove="CoreExtensions.cs" />
+    <Compile Remove="CoreNumeric.cs" />
     <Compile Remove="DasContext.cs" />
+    <Compile Remove="DasCoreSerializer.cs" />
+    <Compile Remove="DasSettings.cs" />
     <Compile Remove="DynamicExtensions.cs" />
-    <Compile Remove="NodeBuilders\NodeFactory.cs" />
-    <Compile Remove="NodeBuilders\NodeTypes.cs" />
-    <Compile Remove="NodeBuilders\NodeValueProvider.cs" />
-    <Compile Remove="Printers\Enums.cs" />
+    <Compile Remove="ISaveToFile.cs" />
+    <Compile Remove="ObjectConverter.cs" />
     <Compile Remove="Properties\AssemblyInfo.cs" />
     <Compile Remove="PropertyValue.cs" />
-    <Compile Remove="Remunerators\BinarySaver.cs" />
-    <Compile Remove="Remunerators\BinaryStack.cs" />
-    <Compile Remove="Remunerators\BinaryStackWriter.cs" />
-    <Compile Remove="Remunerators\BufferedStringSaver.cs" />
-    <Compile Remove="Remunerators\StringSaverBase.cs" />
-    <Compile Remove="Scanners\IPrimitiveScanner.cs" />
-    <Compile Remove="Scanners\IScannerBase.cs" />
+    <Compile Remove="SerializerCore.cs" />
     <Compile Remove="SerializerFactory.cs" />
-    <Compile Remove="Streamers\BinaryStreamer.cs" />
-    <Compile Remove="TextCommon\INumberExtractor.cs" />
-    <Compile Remove="TextCommon\ITextParser.cs" />
-    <Compile Remove="Types\DasAttribute.cs" />
-    <Compile Remove="Types\DasProperty.cs" />
-    <Compile Remove="Types\DasType.cs" />
-    <Compile Remove="Types\ObjectFromInterface.cs" />
-    <Compile Remove="Types\TypeDelegates.cs" />
+    <Compile Remove="TypeStructure.cs" />
+    <Compile Remove="Util.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Serializer.Interfaces\Serializer.Interfaces.csproj" />
   </ItemGroup>
+
+  <Import Project="..\Core.Shared\Core.Shared.projitems" Label="Shared" />
 
 </Project>

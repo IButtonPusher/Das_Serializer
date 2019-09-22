@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -12,17 +12,42 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Dynamics\**" />
+    <Compile Remove="Nodes\**" />
+    <Compile Remove="Objects\**" />
+    <Compile Remove="Scanners\**" />
+    <Compile Remove="Settings\**" />
+    <Compile Remove="State\**" />
+    <EmbeddedResource Remove="Dynamics\**" />
+    <EmbeddedResource Remove="Nodes\**" />
+    <EmbeddedResource Remove="Objects\**" />
+    <EmbeddedResource Remove="Scanners\**" />
+    <EmbeddedResource Remove="Settings\**" />
+    <EmbeddedResource Remove="State\**" />
+    <None Remove="Dynamics\**" />
+    <None Remove="Nodes\**" />
+    <None Remove="Objects\**" />
+    <None Remove="Scanners\**" />
+    <None Remove="Settings\**" />
+    <None Remove="State\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="DasAttribute.cs" />
+    <Compile Remove="Delegates.cs" />
+    <Compile Remove="IBinarySerializer.cs" />
+    <Compile Remove="IByteArray.cs" />
     <Compile Remove="IDeepCopyable.cs" />
-    <Compile Remove="Nodes\IBinaryNodeSealer.cs" />
-    <Compile Remove="Nodes\IJsonNodeProvider.cs" />
-    <Compile Remove="Nodes\INodeValueProvider.cs" />
-    <Compile Remove="Nodes\ITextNodeSealer.cs" />
-    <Compile Remove="Nodes\IXmlNodeProvider.cs" />
-    <Compile Remove="Objects\PropertyValue.cs" />
+    <Compile Remove="IJsonSerializer.cs" />
+    <Compile Remove="IMultiSerializer.cs" />
+    <Compile Remove="ISerializationCore.cs" />
+    <Compile Remove="IXmlSerializer.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Properties\" />
   </ItemGroup>
+
+  <Import Project="..\Interfaces.Shared\Interfaces.Shared.projitems" Label="Shared" />
 
 </Project>

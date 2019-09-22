@@ -28,3 +28,5 @@
 *.cache
 *.suo
 *.json
+/.vs/Serializer/v16/TestStore/0/testlog.manifest
+/.vs/Serializer/v16/TestStore/0/000-0000.testlog

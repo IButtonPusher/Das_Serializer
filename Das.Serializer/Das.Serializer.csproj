@@ -68,18 +68,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DasSerializer.cs" />
-    <Compile Include="DynamicExtensions.cs" />
-    <Compile Include="DynamicFacade.cs" />
-    <Compile Include="Extensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="State\DefaultStateProvider.cs" />
-    <Compile Include="Types\DasCodeGenerator.cs" />
-    <Compile Include="Types\DasType.cs" />
-    <Compile Include="Types\DasTypeBuilder.cs" />
-    <Compile Include="Types\ObjectInstantiator.cs" />
-    <Compile Include="Types\ObjectManipulator.cs" />
-    <Compile Include="Types\TypeManipulator.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Serializer.Interfaces\Serializer.Interfaces.csproj">
@@ -95,6 +84,7 @@
     <None Include="Das.Serializer.ruleset" />
     <None Include="DasArmstrong.snk" />
   </ItemGroup>
+  <Import Project="..\Serializer.Shared\Serializer.Shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>aeb86a21-7287-4a27-b467-1a0d1c66fa9f</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Interfaces.Shared</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)DasAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Delegates.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IAssemblyList.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IConverterProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IDynamicAccessor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IDynamicFacade.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IDynamicType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IDynamicTypes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IInstantiator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IObjectConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IObjectManipulator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dynamics\ITypeCore.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dynamics\ITypeInferrer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dynamics\ITypeManipulator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dynamics\ITypeStructure.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IBinarySerializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IByteArray.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IJsonSerializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IMultiSerializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ISerializationCore.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IXmlSerializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Nodes\IBinaryNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Nodes\IBinaryNodeProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Nodes\INode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Nodes\INodeManipulator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Nodes\INodeProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Nodes\INodeSealer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Nodes\INodeTypeProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Nodes\ITextNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Nodes\ITextNodeProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Nodes\NodeTypes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Objects\DasProperty.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Objects\INamedField.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Objects\NamedValueNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Objects\ObjectNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Objects\PrintNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Objects\ValueNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Scanners\IBinaryFeeder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Scanners\IBinaryPrimitiveScanner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Scanners\IBinaryScanner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Scanners\INumberExtractor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Scanners\IPrimitiveScanner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Scanners\IScannerBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Scanners\IStreamWrapper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Scanners\IStringPrimitiveScanner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Scanners\ITextParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Scanners\ITextScanner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Settings\CircularReference.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Settings\DasSettings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Settings\ISerializationDepth.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Settings\ISettingsUser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Settings\SerializationDepth.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Settings\TypeNotFound.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Settings\TypeSpecificity.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)State\IBinaryContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)State\IBinaryLoaner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)State\IBinaryState.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)State\IJsonLoaner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)State\ISerializationContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)State\ISerializationState.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)State\IStateLoaner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)State\IStateProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)State\ITextContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)State\ITextState.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)State\IXmlLoaner.cs" />
+  </ItemGroup>
+</Project>
