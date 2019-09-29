@@ -24,17 +24,12 @@ namespace Das.Printers
             IsTextPrinter = false;
         }
 
-        Boolean ISerializationDepth.IsOmitDefaultValues
-        {
-            get => false;
-            set => throw new NotSupportedException();
-        }
+        Boolean ISerializationDepth.IsOmitDefaultValues => false;
 
-        SerializationDepth ISerializationDepth.SerializationDepth
-        {
-            get => Settings.SerializationDepth;
-            set => throw new NotSupportedException();
-        }
+        SerializationDepth ISerializationDepth.SerializationDepth 
+            => Settings.SerializationDepth;
+
+        public override Boolean IsRespectXmlIgnore => false;
 
         private IBinaryWriter _bWriter;
         private readonly ISerializationState _stateProvider;
@@ -243,7 +238,7 @@ namespace Das.Printers
 
         protected override void PrintCollection(PrintNode node)
         {
-            var germane = GetGermaneType(node.Type);
+            var germane = TypeInferrer.GetGermaneType(node.Type);
 
             var list = node.Value as IEnumerable ?? throw new ArgumentException();
 
@@ -306,7 +301,7 @@ namespace Das.Printers
 
         private void WriteType(Type type)
         {
-            var typeName = ToClearName(type, false);
+            var typeName = TypeInferrer.ToClearName(type, false);
 
             Logger.Debug($"writing type. {typeName} forced: " +
                          (Settings.TypeSpecificity == TypeSpecificity.All));

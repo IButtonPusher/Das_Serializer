@@ -11,5 +11,7 @@ namespace Das.Serializer
         void SetTypeSurrogate(Type looksLike, Type isReally);
 
         Boolean TryDeleteSurrogate(Type lookedLike, Type wasReally);
+
+        IStateProvider StateProvider { get; }
     }
 }

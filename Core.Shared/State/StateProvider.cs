@@ -8,7 +8,7 @@ namespace Serializer.Core
 {
     public class StateProvider : CoreContext, IStateProvider
     {
-        public StateProvider(IDynamicFacade dynamicFacade, ITextContext xmlContext,
+        public StateProvider(ISerializationCore dynamicFacade, ITextContext xmlContext,
             ITextContext jsonContext, IBinaryContext binaryContext, ISerializerSettings settings)
             : base(dynamicFacade, settings)
         {
@@ -57,7 +57,7 @@ namespace Serializer.Core
             var state = buffer.Count > 0
                 ? buffer.Dequeue()
                 : new BinaryBorrawable(ReturnToLibrary, settings, this);
-            state.Settings = settings;
+            state.UpdateSettings(settings);
             return state;
         }
 
@@ -67,7 +67,7 @@ namespace Serializer.Core
             var state = buffer.Count > 0
                 ? buffer.Dequeue()
                 : new XmlBorrowable(ReturnToLibrary, this, settings);
-            state.Settings = settings;
+            state.UpdateSettings(settings);
             return state;
         }
 
@@ -77,7 +77,7 @@ namespace Serializer.Core
             var state = buffer.Count > 0
                 ? buffer.Dequeue()
                 : new JsonBorrowable(ReturnToLibrary, this, settings);
-            state.Settings = settings;
+            state.UpdateSettings(settings);
             return state;
         }
     }

@@ -5,11 +5,11 @@ namespace Serializer.Core.State
 {
     public class JsonContext : CoreContext, ITextContext
     {
-        public JsonContext(IDynamicFacade dynamicFacade, ISerializerSettings settings)
+        public JsonContext(ISerializationCore dynamicFacade, ISerializerSettings settings)
             : base(dynamicFacade, settings)
         {
             var manipulator = new JsonNodeTypeProvider(dynamicFacade, settings);
-            PrimitiveScanner = new JsonPrimitiveScanner();
+            PrimitiveScanner = new JsonPrimitiveScanner(this);
             _nodeProvider = new TextNodeProvider(dynamicFacade, manipulator, PrimitiveScanner,
                 settings);
 

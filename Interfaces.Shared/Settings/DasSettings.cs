@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 
 // ReSharper disable UnusedMember.Global
 // ReSharper disable UnusedMemberInSuper.Global
@@ -19,12 +18,6 @@ namespace Das.Serializer
         /// and having multiple properties with the "same" name will be problematic
         /// </summary>
         Boolean IsPropertyNamesCaseSensitive { get; set; }
-
-        /// <summary>
-        /// When getting data xml or json from a stream it may be needed to specify the
-        /// encoding to ensure proper deserialization
-        /// </summary>
-        Encoding TextEncoding { get; set; }
 
         /// <summary>
         /// Specifies under which circumstances the serializer will embed type information for

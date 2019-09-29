@@ -54,9 +54,11 @@ namespace Serializer.Core
             return true;
         }
 
-        public Boolean IsLeaf(Type t, Boolean isStringCounts)
+        public static Boolean IsLeaf(Type t, Boolean isStringCounts)
             => t != null && (t.IsValueType || isStringCounts && t == Const.StrType)
                          && Type.GetTypeCode(t) > TypeCode.DBNull;
+
+        Boolean ITypeCore.IsLeaf(Type t, Boolean isStringCounts) => IsLeaf(t, isStringCounts);
 
         public Boolean IsAbstract(PropertyInfo propInfo)
             => propInfo.GetGetMethod()?.IsAbstract == true ||
@@ -66,7 +68,7 @@ namespace Serializer.Core
             => type != null &&
                typeof(IEnumerable).IsAssignableFrom(type) && type != Const.StrType;
 
-        public Boolean IsUseless(Type t) => t == null || t == typeof(Object);
+        public Boolean IsUseless(Type t) => t == null || t == Const.ObjectType;
 
         public Boolean IsNumeric(Type myType) => NumericTypes.Contains(
             Nullable.GetUnderlyingType(myType) ?? myType);
@@ -181,10 +183,6 @@ namespace Serializer.Core
             foreach (var prop in res)
                 yield return prop;
         }
-
-        public PropertyInfo FindPublicProperty(Type type, String propertyName)
-            => GetPublicProperties(type, false).
-                FirstOrDefault(p => p.Name == propertyName);
         
     }
 }

@@ -21,7 +21,7 @@ namespace Das.Types
             _dynamicTypes = dynamicTypes;
             _assemblies = assemblyList;
             TypeNames = new ConcurrentDictionary<String, Type>();
-            TypeNames["object"] = typeof(Object);
+            TypeNames["object"] = Const.ObjectType;
             TypeNames["string"] = typeof(String);
             TypeNames["bool"] = typeof(Boolean);
             TypeNames["byte"]= typeof(Byte);
@@ -215,13 +215,6 @@ namespace Das.Types
             }
 
             return null;
-        }
-
-        public Type GetGermaneType(Object mustBeCollection)
-        {
-            if (mustBeCollection == null)
-                throw new ArgumentNullException();
-            return GetGermaneType(mustBeCollection.GetType());
         }
 
         private static Type GetKeyValuePair(Type dicType)

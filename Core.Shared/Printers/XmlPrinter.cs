@@ -52,7 +52,7 @@ namespace Das.Printers
                 //close parent tag or print as attribute
                 /////////////////////////
 
-                if (parent.IsTagOpen) //tag is open
+                if (parent.IsTagOpen) //try to print like inline attributes zb <tag val="5" ...
                 {
                     if (nodeType == NodeTypes.Primitive && !isWrapping)
                     {
@@ -138,12 +138,21 @@ namespace Das.Printers
                 }
                 else
                 {
-                    if (nodeType != NodeTypes.Primitive && nodeType != NodeTypes.Fallback)
+                    switch (nodeType)
                     {
-                        tabBlob = Enumerable.Repeat(_indenter, current.Tabs);
-                        Writer.Append(tabBlob);
+                        case NodeTypes.Primitive:
+                        case NodeTypes.Fallback:
+                            break;
+                        case NodeTypes.Collection:
+                            if (node.IsEmptyInitialized)
+                                return true;
+                            break;
+                        default:
+                            tabBlob = Enumerable.Repeat(_indenter, current.Tabs);
+                            Writer.Append(tabBlob);
+                            break;
                     }
-
+                   
                     Writer.Append($"</{node.Name}>\r\n");
                 }
 
@@ -169,18 +178,26 @@ namespace Das.Printers
             node.Type = node.Value.GetType();
 
             var parent = _formatStack.Pop();
+
+            var knownEmpty = node.IsEmptyInitialized;
+
             if (parent.IsTagOpen)
             {
-                Writer.Append(CloseTag);
+                Writer.Append(knownEmpty ? SelfClose : CloseTag);
                 parent.IsTagOpen = false;
             }
 
-            var germane = _stateProvider.TypeInferrer.GetGermaneType(node.Type);
-            PrintSeries(ExplodeList(node.Value as IEnumerable, germane),
-                PrintCollectionObject);
+            if (!knownEmpty)
+            {
+                var germane = _stateProvider.TypeInferrer.GetGermaneType(node.Type);
+                PrintSeries(ExplodeList(node.Value as IEnumerable, germane),
+                    PrintCollectionObject);
+            }
 
             _formatStack.Push(parent);
         }
+
+        public override Boolean IsRespectXmlIgnore => true;
 
         protected Boolean PrintCollectionObject(ObjectNode val)
         {

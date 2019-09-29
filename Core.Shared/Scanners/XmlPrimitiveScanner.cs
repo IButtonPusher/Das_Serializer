@@ -2,12 +2,19 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
+using System.Threading;
 using Das.Scanners;
+using Das.Serializer;
 
 namespace Serializer.Core
 {
     public class XmlPrimitiveScanner : StringPrimitiveScanner
     {
+        public XmlPrimitiveScanner(ISerializationContext state) : base(state)
+        {
+            
+        }
+
         static XmlPrimitiveScanner()
         {
             Entities = new Dictionary<String, String>
@@ -24,6 +31,15 @@ namespace Serializer.Core
 
         public override String Descape(String input) => HtmlDecode(input);
 
+        private static readonly ThreadLocal<StringBuilder> RawEntity
+            = new ThreadLocal<StringBuilder>(() => new StringBuilder());
+
+        private static readonly ThreadLocal<StringBuilder> Entity
+            = new ThreadLocal<StringBuilder>(() => new StringBuilder());
+
+        private static readonly ThreadLocal<StringBuilder> Output
+            = new ThreadLocal<StringBuilder>(() => new StringBuilder());
+
         //https://github.com/mono/mono/blob/master/mcs/class/System.Web/System.Web.Util/HttpEncoder.cs
         public static String HtmlDecode(String s)
         {
@@ -35,9 +51,14 @@ namespace Serializer.Core
 
             if (s.IndexOf('&') == -1)
                 return s;
-            var rawEntity = new StringBuilder();
-            var entity = new StringBuilder();
-            var output = new StringBuilder();
+            var rawEntity = RawEntity.Value;
+            var entity = Entity.Value;
+            var output = Output.Value;
+
+            rawEntity.Clear();
+            entity.Clear();
+            output.Clear();
+
             var len = s.Length;
             // 0 -> nothing,
             // 1 -> right after '&'

@@ -9,7 +9,7 @@ namespace Serializer.Core
         private readonly ITextParser _textParser;
         private readonly ITypeInferrer _typeInferrer;
 
-        public XmlNodeTypeProvider(IDynamicFacade dynamicFacade,
+        public XmlNodeTypeProvider(ISerializationCore dynamicFacade,
             IStringPrimitiveScanner scanner, ISerializerSettings settings)
             : base(dynamicFacade, settings)
         {

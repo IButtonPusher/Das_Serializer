@@ -238,6 +238,8 @@ namespace Das.Printers
             Writer.Append(Const.Quote);
         }
 
+        public override Boolean IsRespectXmlIgnore => false;
+
         #endregion
 
         #region private implementation helpers

@@ -22,6 +22,7 @@ namespace Das.Serializer
         Boolean SetFieldValue<T>(Type classType, String fieldName, Object targetObj,
             Object fieldVal);
 
+        // ReSharper disable once UnusedMember.Global
         void SetFieldValues<TObject>(TObject obj, Action<ITypeStructure, TObject> action);
 
         Boolean SetProperty(Type classType, String propName, ref Object targetObj,

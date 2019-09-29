@@ -2,8 +2,6 @@
 using System;
 using System.IO;
 using Serializer.Core;
-using System.Diagnostics;
-using Das.CoreExtensions;
 
 
 namespace Das
@@ -12,8 +10,6 @@ namespace Das
     {
         public T FromBytes<T>(Byte[] bytes)
         {
-            Trace.WriteLine($"________DESERIALIZING {bytes.ToString(',')}");
-
             using (var state = StateProvider.BorrowBinary(Settings))
             {
                 var bit = new BinaryIterator(bytes);

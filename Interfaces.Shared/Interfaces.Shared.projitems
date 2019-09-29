@@ -14,7 +14,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IAssemblyList.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IConverterProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IDynamicAccessor.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IDynamicFacade.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IDynamicType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IDynamicTypes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IInstantiator.cs" />
@@ -54,10 +53,12 @@
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IScannerBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IStreamWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IStringPrimitiveScanner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Scanners\ITextAccessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\ITextParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\ITextScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\CircularReference.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\DasSettings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Settings\DepthConstants.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\ISerializationDepth.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\ISettingsUser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\SerializationDepth.cs" />
@@ -67,9 +68,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)State\IBinaryLoaner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\IBinaryState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\IJsonLoaner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)State\IMutableState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\ISerializationContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\ISerializationState.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)State\IStateLoaner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\IStateProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\ITextContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\ITextState.cs" />

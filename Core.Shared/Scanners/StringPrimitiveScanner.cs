@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Globalization;
 using Das.Serializer;
 using Serializer;
@@ -9,6 +8,13 @@ namespace Das.Scanners
 {
     public abstract class StringPrimitiveScanner : IStringPrimitiveScanner
     {
+        public StringPrimitiveScanner(ISerializationContext state)
+        {
+            _state = state;
+        }
+
+        private readonly ISerializationContext _state;
+
         public Object GetValue(String input, Type type)
         {
             if (type == Const.ObjectType)
@@ -44,10 +50,10 @@ namespace Das.Scanners
                 }
             }
 
-            if (type == typeof(Object))
+            if (type == Const.ObjectType)
                 return input;
 
-            var conv = TypeDescriptor.GetConverter(type);
+            var conv = _state.GetTypeConverter(type);
             return conv.ConvertFromInvariantString(input);
         }
 

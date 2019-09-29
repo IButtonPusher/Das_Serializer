@@ -7,7 +7,7 @@ using Serializer.Core;
 
 namespace Das.Serializer
 {
-    internal class DynamicFacade : IDynamicFacade
+    internal class DynamicFacade : ISerializationCore
     {
         public ITextParser TextParser { get; }
         public IDynamicTypes DynamicTypes { get; }

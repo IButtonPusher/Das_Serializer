@@ -11,7 +11,7 @@ namespace Serializer.Core
 {
     public class NodeTypeProvider : TypeCore, INodeManipulator
     {
-        public NodeTypeProvider(IDynamicFacade dynamicFacade, ISerializerSettings settings)
+        public NodeTypeProvider(ISerializationCore dynamicFacade, ISerializerSettings settings)
             : base(settings)
         {
             _dynamicFacade = dynamicFacade;
@@ -20,7 +20,7 @@ namespace Serializer.Core
             _instantiator = dynamicFacade.ObjectInstantiator;
         }
 
-        private readonly IDynamicFacade _dynamicFacade;
+        private readonly ISerializationCore _dynamicFacade;
         private readonly ConcurrentDictionary<Type, NodeTypes> _cachedNodeTypes;
 
         private readonly ITypeInferrer _types;

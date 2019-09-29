@@ -11,7 +11,7 @@ namespace UnitTestProject1
         public void NewInterface()
         {
             var srl = new DasSerializer();
-            var thisIs = srl.BuildDefault<INiceAndEasy>(false);
+            var thisIs = srl.ObjectInstantiator.BuildDefault<INiceAndEasy>(false);
             thisIs.YouCan<Int32>(DoIt);
         }
 

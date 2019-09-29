@@ -49,11 +49,10 @@ namespace Das.Scanners
             BuildNext(ref _rootNode);
 
             if (_rootNode.Type != orgType)
-                return CastDynamic<T>(_rootNode.Value);
+                return ObjectManipulator.CastDynamic<T>(_rootNode.Value);
 
             if (_rootNode?.Value != null)
-                _state.ObjectInstantiator.OnDeserialized(_rootNode.Value,
-                    Settings.SerializationDepth);
+                _state.ObjectInstantiator.OnDeserialized(_rootNode.Value, Settings);
 
             return (T) _rootNode.Value;
         }
@@ -76,14 +75,14 @@ namespace Das.Scanners
             }
 
             var propVals = _state.TypeManipulator.GetPropertiesToSerialize(
-                node.Type, Settings.SerializationDepth);
+                node.Type, Settings);
 
             foreach (var prop in propVals)
             {
                 Debug("*PROP* [" + prop.Name + "] " + prop.MemberType +
                       " scanning " + _feeder.Index);
 
-                var propType = InstanceMemberType(prop);
+                var propType = TypeManipulator.InstanceMemberType(prop);
 
                 if (IsLeaf(propType, true))
                 {
@@ -111,7 +110,7 @@ namespace Das.Scanners
 
         private void BuildCollection(ref IBinaryNode node)
         {
-            var germane = GetGermaneType(node.Type);
+            var germane = TypeInferrer.GetGermaneType(node.Type);
 
             var index = 0;
             var blockEnd = node.BlockStart + node.BlockSize;
@@ -160,7 +159,7 @@ namespace Das.Scanners
             child.NodeType = NodeTypes.None;
 
             //substract the type wrapping from the effective size of the block
-            child.BlockSize -= (_feeder.Index - sizeStart);
+            child.BlockSize -= _feeder.Index - sizeStart;
             //adjust starting point to after the size/type decl the 
             child.BlockStart = _feeder.Index;
             _nodes.TypeProvider.EnsureNodeType(child);

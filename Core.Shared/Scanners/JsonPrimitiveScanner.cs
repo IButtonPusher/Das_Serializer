@@ -2,11 +2,16 @@
 using System.Text;
 using System.Threading;
 using Das.Scanners;
+using Das.Serializer;
 
 namespace Serializer.Core.Scanners
 {
     public class JsonPrimitiveScanner : StringPrimitiveScanner
     {
+        public JsonPrimitiveScanner(ISerializationContext state) : base(state)
+        {
+        }
+
         private static StringBuilder Builder => _buffer.Value;
 
         private static readonly ThreadLocal<StringBuilder> _buffer

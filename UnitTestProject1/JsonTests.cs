@@ -67,8 +67,10 @@ namespace UnitTestProject1
 		{
 			var sc = SimpleClass.GetNullPayload();
 			sc.ID = 0;
-			var srl = new DasSerializer();
-			srl.Settings.IsOmitDefaultValues = true;
+            var settings = DasSettings.Default;
+
+            var srl = new DasSerializer(settings);
+            settings.IsOmitDefaultValues = true;
 			var json = srl.ToJson(sc);
 
 			var sc2 = srl.FromJson<SimpleClass>(json);
@@ -82,9 +84,11 @@ namespace UnitTestProject1
 		{
 			var sc = new SimpleClass("to everyone");
 			sc.ID = 0;
-			var srl = new DasSerializer();
-			srl.Settings.IsOmitDefaultValues = true;
-			srl.Settings.SerializationDepth |= SerializationDepth.GetOnlyProperties;
+            var settings = DasSettings.Default;
+            settings.IsOmitDefaultValues = true;
+            settings.SerializationDepth |= SerializationDepth.GetOnlyProperties;
+            var srl = new DasSerializer(settings);
+			
 			var json = srl.ToJson(sc);
 
 			var sc2 = srl.FromJson<SimpleClass>(json);

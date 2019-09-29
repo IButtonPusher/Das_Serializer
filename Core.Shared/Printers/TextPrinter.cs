@@ -1,7 +1,6 @@
 ﻿using Das.Remunerators;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Text;
 using Das.Serializer;
 using Serializer;
@@ -12,9 +11,11 @@ namespace Das.Printers
     internal abstract class TextPrinter : PrinterBase<Char>
     {
         protected TextPrinter(ITextRemunerable writer, ISerializationState stateProvider,
-            ISerializerSettings settings) : base(stateProvider, settings)
+            ISerializerSettings settings) 
+            : base(stateProvider, settings)
         {
             Writer = writer;
+            _stateProvider = stateProvider;
             _tabs = new StringBuilder();
             _formatStack = new Stack<StackFormat>();
             _indenter = stateProvider.Settings.Indentation;
@@ -33,6 +34,7 @@ namespace Das.Printers
         protected readonly Stack<StackFormat> _formatStack;
 
         protected readonly ITextRemunerable Writer;
+        private readonly ISerializationState _stateProvider;
 
         protected readonly String _indenter;
         protected readonly String _newLine;
@@ -67,17 +69,18 @@ namespace Das.Printers
         protected override void PrintPrimitive(PrintNode node)
         {
             var o = node.Value;
-            var type = node.Type;
 
-            if (type == typeof(Boolean))
+            switch (o)
             {
-                Writer.Append((Boolean) o ? "true" : "false");
-            }
-            else
-            {
-                var isRequiresQuotes = IsRequiresQuotes(o);
-                PrintString(TypeDescriptor.GetConverter(type)
-                    .ConvertToInvariantString(o), isRequiresQuotes);
+                case Boolean b:
+                    Writer.Append(b ? "true" : "false");
+                    break;
+                default:
+                    var isRequiresQuotes = IsRequiresQuotes(o);
+                    var converter = _stateProvider.GetTypeConverter(node.Type);
+                    var str = converter.ConvertToInvariantString(o);
+                    PrintString(str, isRequiresQuotes);
+                    break;
             }
         }
 

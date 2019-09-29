@@ -8,7 +8,7 @@ namespace Das
 {
     public partial class DasCoreSerializer : BaseState, IMultiSerializer
     {
-        protected readonly IStateProvider StateProvider;
+        public IStateProvider StateProvider { get; }
         internal const String StrNull = "null";
         internal const String Val = "__val";
         internal const String RefTag = "__ref";

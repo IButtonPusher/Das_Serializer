@@ -23,8 +23,6 @@ namespace Das.Serializer
         /// </summary>
         Type GetGermaneType(Type ownerType);
 
-        Type GetGermaneType(Object mustBeCollection);
-
         void ClearCachedNames();
 
         Int32 BytesNeeded(Type typ);

@@ -31,14 +31,14 @@ namespace Das
                 if (nodeType == NodeTypes.PropertiesToConstructor)
                 {
                     doCopy = false;
-                    settings = Copy(settings, settings);
+                    settings = StateProvider.ObjectConverter.Copy(settings, settings);
                     settings.TypeSpecificity = TypeSpecificity.All;
                 }
 
                 if (amAnonymous)
                 {
                     if (doCopy)
-                        settings = Copy(settings, settings);
+                        settings = StateProvider.ObjectConverter.Copy(settings, settings);
 
                     settings.TypeSpecificity = TypeSpecificity.All;
                     settings.CacheTypeConstructors = false;
@@ -49,7 +49,7 @@ namespace Das
                     var printer = new XmlPrinter(writer, state, settings);
 
                     var rootText = !asType.IsGenericType && !IsCollection(asType) 
-                        ? ToClearName(asType, true) : Root;
+                        ? TypeInferrer.ToClearName(asType, true) : Root;
 
                     var node = new NamedValueNode(rootText, o, asType);
 
@@ -68,7 +68,7 @@ namespace Das
 
         public String ToXml<TTarget>(Object o)
         {
-            var obj = CastDynamic<TTarget>(o);
+            var obj = ObjectManipulator.CastDynamic<TTarget>(o);
             return ToXml(obj);
         }
 
@@ -82,7 +82,7 @@ namespace Das
 
         public async Task ToXml<TTarget>(Object o, FileInfo fi)
         {
-            var obj = CastDynamic<TTarget>(o);
+            var obj = ObjectManipulator.CastDynamic<TTarget>(o);
             await ToXml(obj, fi);
         }
     }

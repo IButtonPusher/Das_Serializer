@@ -7,7 +7,9 @@ namespace Das.Serializer
 {
     public interface ITypeManipulator : ITypeCore
     {
-        VoidMethod GetAdder(IEnumerable collection, Type type = null);
+        VoidMethod GetAdder(Type collectionType, Object exampleValue);
+
+        VoidMethod GetAdder(IEnumerable collection, Type collectionType = null);
 
         PropertySetter CreateSetMethod(MemberInfo memberInfo);
 
@@ -21,8 +23,6 @@ namespace Das.Serializer
 
         Action<Object, Object> CreateFieldSetter(FieldInfo fieldInfo);
 
-        VoidMethod CreateMethodCaller(MethodInfo method);
-
         Func<Object, Object[], Object> CreateFuncCaller(MethodInfo method);
 
         MethodInfo GetAddMethod<T>(IEnumerable<T> collection);
@@ -34,14 +34,15 @@ namespace Das.Serializer
         /// </summary>
         Int32 PropertyCount(Type type);
 
-        ITypeStructure GetStructure(Type type, SerializationDepth depth);
+        ITypeStructure GetStructure(Type type, ISerializationDepth depth);
 
-        ITypeStructure GetStructure<T>(SerializationDepth depth);
+        // ReSharper disable once UnusedMember.Global
+        ITypeStructure GetStructure<T>(ISerializationDepth depth);
 
         /// <summary>
         /// Recursive through base types without duplicates
         /// </summary>
-        IEnumerable<MemberInfo> GetPropertiesToSerialize(Type type, SerializationDepth depth);
+        IEnumerable<MemberInfo> GetPropertiesToSerialize(Type type, ISerializationDepth depth);
 
         Type InstanceMemberType(MemberInfo info);
 

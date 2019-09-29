@@ -6,9 +6,8 @@ namespace Das.Serializer
     /// A stateful, non threadsafe context that forms the basis of serialization/deserialization
     /// transactions
     /// </summary>
-    public interface ISerializationState : ISerializationContext,
-        IConverterProvider, IObjectConverter, IDisposable
+    public interface ISerializationState : ISerializationContext, IDisposable
     {
-        new ISerializerSettings Settings { get; set; }
+         
     }
 }

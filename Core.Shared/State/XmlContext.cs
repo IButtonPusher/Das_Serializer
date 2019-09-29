@@ -1,13 +1,16 @@
-﻿using Das.Serializer;
+﻿using System;
+using Das.Serializer;
 
 namespace Serializer.Core
 {
     public class XmlContext : CoreContext, ITextContext
     {
-        public XmlContext(IDynamicFacade dynamicFacade, ISerializerSettings settings)
+        public XmlContext(ISerializationCore dynamicFacade, ISerializerSettings settings)
             : base(dynamicFacade, settings)
         {
-            PrimitiveScanner = new XmlPrimitiveScanner();
+            
+
+            PrimitiveScanner = new XmlPrimitiveScanner(this);
             var manipulator = new XmlNodeTypeProvider(dynamicFacade, PrimitiveScanner, settings);
 
             _nodeProvider = new TextNodeProvider(dynamicFacade, manipulator, PrimitiveScanner,
@@ -17,6 +20,9 @@ namespace Serializer.Core
         }
 
         private readonly ITextNodeProvider _nodeProvider;
+
+        
+
         ITextNodeProvider ITextContext.NodeProvider => _nodeProvider;
         public override INodeProvider NodeProvider => _nodeProvider;
         public INodeSealer<ITextNode> Sealer { get; }

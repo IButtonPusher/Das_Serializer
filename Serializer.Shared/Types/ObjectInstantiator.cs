@@ -124,7 +124,7 @@ namespace Das.Serializer
         public Func<Object> GetConstructorDelegate(Type type)
             => (Func<Object>) GetConstructorDelegate(type, typeof(Func<Object>));
 
-        public void OnDeserialized(Object obj, SerializationDepth depth)
+        public void OnDeserialized(Object obj, ISerializationDepth depth)
         {
             if (obj == null)
                 return;

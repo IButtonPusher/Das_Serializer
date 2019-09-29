@@ -17,11 +17,7 @@ namespace Das.Serializer
         {
         }
 
-
-        public static IDynamicFacade GetDynamicFacade()
-            => GetDynamicFacade(DasSettings.Default);
-
-        public static IDynamicFacade GetDynamicFacade(ISerializerSettings settings)
+        public static ISerializationCore GetDynamicFacade(ISerializerSettings settings)
         {
             var dynamicFacade = new DynamicFacade(settings);
 

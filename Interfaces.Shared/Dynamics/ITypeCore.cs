@@ -24,11 +24,5 @@ namespace Das.Serializer
 
         IEnumerable<PropertyInfo> GetPublicProperties(Type type,
             Boolean numericFirst = true);
-
-        /// <summary>
-        /// Searches base classes/interfaces more easily than using Type.GetProperty with
-        /// a labyrinth of BindingFlags
-        /// </summary>
-        PropertyInfo FindPublicProperty(Type type, String propertyName);
     }
 }

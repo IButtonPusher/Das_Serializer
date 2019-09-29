@@ -9,6 +9,9 @@ namespace Serializer
         public static readonly Type IConvertible = typeof(IConvertible);
         public static readonly Type ObjectType = typeof(Object);
 
+        public static readonly Type[] SingleObjectTypeArray = {ObjectType};
+        public static readonly Type[] TwoObjectTypeArray = { ObjectType, ObjectType };
+
         public const String TypeWrap = "__type";
         public const String Equal = "=";
         public const String Tsystem = "System";

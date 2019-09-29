@@ -1,9 +1,10 @@
-﻿using Das.Extensions;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using Das.CoreExtensions;
+using Serializer.Core;
+
 // ReSharper disable All
 
 namespace UnitTestProject1
@@ -45,7 +46,7 @@ namespace UnitTestProject1
 				refl = left.GetType();
 			}
 			
-			if (refl.IsLeaf(true))
+			if (TypeCore.IsLeaf(refl, true))
 			{
 				if (!EqualityComparer<T>.Default.Equals(left, right))
 				{
@@ -111,6 +112,9 @@ namespace UnitTestProject1
 
 			return true;
 		}
+     
+        public static Boolean IsCollection(this Type type) =>
+        typeof(IEnumerable).IsAssignableFrom(type) && !type.IsString();
 
-	}
+    }
 }

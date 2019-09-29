@@ -1,0 +1,17 @@
+E:\src\Das\Serializer\Serializer.Benchmarks\bin\Release\Serializer.Benchmarks.exe.config
+E:\src\Das\Serializer\Serializer.Benchmarks\bin\Release\Serializer.Benchmarks.exe
+E:\src\Das\Serializer\Serializer.Benchmarks\bin\Release\Serializer.Benchmarks.pdb
+E:\src\Das\Serializer\Serializer.Benchmarks\bin\Release\Das.Serializer.dll
+E:\src\Das\Serializer\Serializer.Benchmarks\bin\Release\Serializer.Core.dll
+E:\src\Das\Serializer\Serializer.Benchmarks\bin\Release\Serializer.Interfaces.dll
+E:\src\Das\Serializer\Serializer.Benchmarks\bin\Release\UnitTestProject1.dll
+E:\src\Das\Serializer\Serializer.Benchmarks\bin\Release\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll
+E:\src\Das\Serializer\Serializer.Benchmarks\bin\Release\Das.Serializer.xml
+E:\src\Das\Serializer\Serializer.Benchmarks\bin\Release\Serializer.Core.pdb
+E:\src\Das\Serializer\Serializer.Benchmarks\bin\Release\Serializer.Interfaces.pdb
+E:\src\Das\Serializer\Serializer.Benchmarks\bin\Release\UnitTestProject1.pdb
+E:\src\Das\Serializer\Serializer.Benchmarks\obj\Release\Serializer.Benchmarks.csprojAssemblyReference.cache
+E:\src\Das\Serializer\Serializer.Benchmarks\obj\Release\Serializer.Benchmarks.csproj.CoreCompileInputs.cache
+E:\src\Das\Serializer\Serializer.Benchmarks\obj\Release\Serializer.Benchmarks.csproj.CopyComplete
+E:\src\Das\Serializer\Serializer.Benchmarks\obj\Release\Serializer.Benchmarks.exe
+E:\src\Das\Serializer\Serializer.Benchmarks\obj\Release\Serializer.Benchmarks.pdb

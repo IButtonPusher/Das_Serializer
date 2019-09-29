@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -45,12 +44,6 @@ namespace Das
             }
 
             return total;
-        }
-
-        public static IEnumerable<T> EnumValues<T>()
-        {
-            foreach (T val in Enum.GetValues(typeof(T)))
-                yield return val;
         }
     }
 }

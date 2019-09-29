@@ -2,6 +2,7 @@
 using Das.Serializer;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
@@ -280,6 +281,8 @@ namespace UnitTestProject1
 		{
 
 			var mc1 = ObjectDictionary.Get();
+            IDictionary idic = mc1.Dic;
+            
 			var xml = Serializer.ToXml(mc1);
 
 			var mc2 = Serializer.FromXml<ObjectDictionary>(xml);

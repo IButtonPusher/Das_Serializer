@@ -12,15 +12,17 @@ namespace Das.Scanners
         #region fields		
 
         private readonly BinaryFormatter _fallbackFormatter;
+        private readonly IInstantiator _instantiator;
 
         #endregion
 
         #region construction
 
-        public BinaryPrimitiveScanner(IDynamicFacade dynamicFacade, ISerializerSettings settings)
+        public BinaryPrimitiveScanner(ISerializationCore dynamicFacade, ISerializerSettings settings)
             : base(dynamicFacade, settings)
         {
             _fallbackFormatter = new BinaryFormatter();
+            _instantiator = ObjectInstantiator;
         }
 
         #endregion
@@ -44,17 +46,18 @@ namespace Das.Scanners
                     res = ToDecimal(input);
                     break;
                 case TypeCode.DateTime:
-                    var ticks = CreatePrimitiveObject<Int64>(input, typeof(Int64));
+                    var ticks = _instantiator.CreatePrimitiveObject<Int64>(input, typeof(Int64));
                     res = new DateTime(ticks);
                     break;
                 default:
                     if (type.IsEnum)
                     {
-                        res = CreatePrimitiveObject(input, Enum.GetUnderlyingType(type));
+                        res = _instantiator.CreatePrimitiveObject(input, 
+                            Enum.GetUnderlyingType(type));
                         res = Enum.ToObject(type, res);
                     }
                     else if (IsLeaf(type, false))
-                        res = CreatePrimitiveObject(input, type);
+                        res = _instantiator.CreatePrimitiveObject(input, type);
                     else if (TryGetNullableType(type, out type))
                     {
                         res = GetValue(input, type);
@@ -74,7 +77,7 @@ namespace Das.Scanners
         public unsafe Int32 GetInt32(Byte[] value)
         {
             fixed (Byte* pbyte = &value[0])
-                return *((Int32*) pbyte);
+                return *(Int32*) pbyte;
         }
 
         public unsafe String GetString(Byte[] tempByte)

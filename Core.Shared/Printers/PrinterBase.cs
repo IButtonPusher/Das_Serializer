@@ -143,7 +143,7 @@ namespace Das.Printers
         /// False if it's not a circular reference.  Handles the logic of what to do
         /// if it is
         /// </summary>        
-        protected Boolean TryHandleCircularReference(PrintNode node)
+        private Boolean TryHandleCircularReference(PrintNode node)
         {
             var o = node.Value;
 
@@ -269,7 +269,7 @@ namespace Das.Printers
                 //force deferred to run
             }
 
-            if (_isElideDefaultProperties && IsDefaultValue(prop.Value))
+            if (_isElideDefaultProperties && TypeInferrer.IsDefaultValue(prop.Value))
                 return false;
 
             var printed = PrintNode(prop);
@@ -290,16 +290,11 @@ namespace Das.Printers
 
         #endregion
 
-        Boolean ISerializationDepth.IsOmitDefaultValues
-        {
-            get => Settings.IsOmitDefaultValues;
-            set => throw new NotSupportedException();
-        }
+        Boolean ISerializationDepth.IsOmitDefaultValues => Settings.IsOmitDefaultValues;
 
-        SerializationDepth ISerializationDepth.SerializationDepth
-        {
-            get => Settings.SerializationDepth;
-            set => throw new NotSupportedException();
-        }
+        SerializationDepth ISerializationDepth.SerializationDepth 
+            => Settings.SerializationDepth;
+
+        public abstract Boolean IsRespectXmlIgnore { get; }
     }
 }

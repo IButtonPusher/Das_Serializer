@@ -11,13 +11,13 @@ namespace Serializer.Core
     {
         private readonly INodeManipulator _values;
         private readonly INodeManipulator _typeProvider;
-        private readonly IDynamicFacade _facade;
+        private readonly ISerializationCore _facade;
         private readonly IStringPrimitiveScanner _scanner;
         private readonly ITypeManipulator _typeManipulator;
         private readonly IObjectManipulator _objects;
 
         public TextNodeSealer(INodeManipulator nodeValues,
-            IStringPrimitiveScanner scanner, IDynamicFacade facade,
+            IStringPrimitiveScanner scanner, ISerializationCore facade,
             ISerializerSettings settings) : base(facade, nodeValues, settings)
         {
             _values = nodeValues;
@@ -31,6 +31,9 @@ namespace Serializer.Core
 
         public override void CloseNode(ITextNode node)
         {
+            if (node.Name == "GlobalPartitions")
+            { }
+
             _values.TryBuildValue(node);
 
             if (node.NodeType == NodeTypes.None)
@@ -106,7 +109,7 @@ namespace Serializer.Core
 
                     foreach (var attr in node.Attributes)
                     {
-                        var atVal = _scanner.GetValue(attr.Value, typeof(Object));
+                        var atVal = _scanner.GetValue(attr.Value, Const.ObjectType);
                         node.DynamicProperties.Add(attr.Key, atVal);
                     }
 

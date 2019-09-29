@@ -6,10 +6,10 @@ namespace Serializer.Core
     public class BinaryNodeSealer : BaseNodeSealer<IBinaryNode>
     {
         private readonly INodeManipulator _nodeManipulator;
-        private readonly IDynamicFacade _dynamicFacade;
+        private readonly ISerializationCore _dynamicFacade;
 
         public BinaryNodeSealer(INodeManipulator nodeManipulator,
-            IDynamicFacade dynamicFacade, ISerializerSettings settings)
+            ISerializationCore dynamicFacade, ISerializerSettings settings)
             : base(dynamicFacade, nodeManipulator, settings)
         {
             _nodeManipulator = nodeManipulator;
@@ -40,8 +40,7 @@ namespace Serializer.Core
                         node.Value = wal;
                     }
 
-                    _dynamicFacade.ObjectInstantiator.OnDeserialized(node.Value,
-                        Settings.SerializationDepth);
+                    _dynamicFacade.ObjectInstantiator.OnDeserialized(node.Value, Settings);
 
                     break;
             }

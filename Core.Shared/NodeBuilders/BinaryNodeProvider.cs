@@ -7,12 +7,12 @@ namespace Serializer.Core.NodeBuilders
 {
     public class BinaryNodeProvider : NodeProvider<IBinaryNode>, IBinaryNodeProvider
     {
-        public BinaryNodeProvider(IDynamicFacade dynamicFacade, ISerializerSettings settings)
+        public BinaryNodeProvider(ISerializationCore dynamicFacade, ISerializerSettings settings)
             : this(dynamicFacade, new NodeTypeProvider(dynamicFacade, settings), settings)
         {
         }
 
-        public BinaryNodeProvider(IDynamicFacade dynamicFacade, INodeManipulator nodeManipulator,
+        public BinaryNodeProvider(ISerializationCore dynamicFacade, INodeManipulator nodeManipulator,
             ISerializerSettings settings)
             : base(nodeManipulator, settings)
         {

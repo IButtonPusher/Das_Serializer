@@ -14,15 +14,17 @@ namespace Das.Serializer
 
         void OnDeserialized(Object obj, IObjectManipulator objectManipulator);
 
-        IEnumerable<NamedValueNode> GetPropertyValues(Object o, SerializationDepth depth);
+        IEnumerable<NamedValueNode> GetPropertyValues(Object o, ISerializationDepth depth);
 
         /// <summary>
         /// Returns properties and/or fields depending on specified depth
         /// </summary>
-        IEnumerable<MemberInfo> GetMembersToSerialize(SerializationDepth depth);
+        IEnumerable<MemberInfo> GetMembersToSerialize(ISerializationDepth depth);
 
         NamedValueNode GetPropertyValue(Object o, String propertyName);
+
         Boolean SetFieldValue(String fieldName, Object targetObj, Object fieldVal);
+
         Boolean SetFieldValue<T>(String fieldName, Object targetObj, Object fieldVal);
 
         Boolean SetValue(String propName, ref Object targetObj, Object propVal,

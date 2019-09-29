@@ -23,7 +23,7 @@ namespace Serializer.Core.Printers
 
         public Boolean IsWrapping { get; }
 
-        public override String ToString()
-            => NodeType.ToString() + "\\" + IsWrapping + "/ " + base.ToString();
+        public override String ToString() => NodeType + "\\" + 
+                                             IsWrapping + "/ " + base.ToString();
     }
 }

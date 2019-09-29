@@ -19,5 +19,7 @@ namespace Serializer.Core.State
             base.Dispose();
             _returnToLibrary(this);
         }
+
+       
     }
 }

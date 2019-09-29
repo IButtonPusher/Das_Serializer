@@ -1,0 +1,10 @@
+E:\src\Das\Serializer\Das.Serializer\bin\Release\Das.Serializer.XML
+E:\src\Das\Serializer\Das.Serializer\bin\Release\Das.Serializer.dll
+E:\src\Das\Serializer\Das.Serializer\bin\Release\Serializer.Core.dll
+E:\src\Das\Serializer\Das.Serializer\bin\Release\Serializer.Interfaces.dll
+E:\src\Das\Serializer\Das.Serializer\bin\Release\Serializer.Interfaces.pdb
+E:\src\Das\Serializer\Das.Serializer\bin\Release\Serializer.Core.pdb
+E:\src\Das\Serializer\Das.Serializer\obj\Release\Das.Serializer.csprojAssemblyReference.cache
+E:\src\Das\Serializer\Das.Serializer\obj\Release\Das.Serializer.csproj.CoreCompileInputs.cache
+E:\src\Das\Serializer\Das.Serializer\obj\Release\Das.Serializer.csproj.CopyComplete
+E:\src\Das\Serializer\Das.Serializer\obj\Release\Das.Serializer.dll

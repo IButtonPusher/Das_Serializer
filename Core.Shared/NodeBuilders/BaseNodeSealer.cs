@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Das.Serializer;
 
 namespace Serializer.Core
@@ -8,12 +9,12 @@ namespace Serializer.Core
     public abstract class BaseNodeSealer<TNode> : INodeSealer<TNode>
         where TNode : INode<TNode>
     {
-        private readonly IDynamicFacade _facade;
+        private readonly ISerializationCore _facade;
         private readonly INodeManipulator _values;
         private readonly IObjectManipulator _objects;
         private readonly ITypeInferrer _types;
 
-        protected BaseNodeSealer(IDynamicFacade facade, INodeManipulator values,
+        protected BaseNodeSealer(ISerializationCore facade, INodeManipulator values,
             ISerializerSettings settings)
         {
             _facade = facade;
@@ -23,7 +24,7 @@ namespace Serializer.Core
             Settings = settings;
         }
 
-        public ISerializerSettings Settings { get; set; }
+        public ISerializerSettings Settings { get; }
 
         public void Imbue(TNode node, String name, Object value)
         {
@@ -95,32 +96,51 @@ namespace Serializer.Core
         {
             if (node.Type == null)
                 return;
-
+            
             var childType = _types.GetGermaneType(node.Type);
+            
 
-            if (node.Type.IsArray || node.Type.GetConstructor(new[] {childType}) != null)
+            if (node.Type.IsArray)
             {
+                var arr2 = Array.CreateInstance(childType, node.DynamicProperties.Count);
+                var i = 0;
+
+                foreach (var child in node.DynamicProperties)
+                    arr2.SetValue(child.Value, i++);
+
+                node.Value = arr2;
+
+                return;
+            }
+
+            var ctorArg = typeof(IEnumerable<>).MakeGenericType(childType);
+            
+            var ctor = node.Type.GetConstructor(new[] { ctorArg });
+
+            if (ctor != null)
+            {
+                
                 //build via initializer if possible
                 var arr2 = Array.CreateInstance(childType, node.DynamicProperties.Count);
                 var i = 0;
 
                 foreach (var child in node.DynamicProperties)
-                {
                     arr2.SetValue(child.Value, i++);
-                }
 
-                if (node.Type.IsArray)
-                    node.Value = arr2;
-                else
-                    node.Value = Activator.CreateInstance(node.Type, arr2);
+                node.Value = Activator.CreateInstance(node.Type, arr2);
             }
             else
             {
                 node.Value = _facade.ObjectInstantiator.BuildDefault(node.Type,
                     Settings.CacheTypeConstructors);
 
-                var addDelegate = _facade.TypeManipulator.GetAdder(
-                    node.Value as IEnumerable);
+
+                if (node.DynamicProperties.Count == 0)
+                    return;
+
+                var addDelegate = _facade.TypeManipulator.GetAdder(node.Type, 
+                    node.DynamicProperties.Values.First()) 
+                    ?? _facade.TypeManipulator.GetAdder(node.Value as IEnumerable);
 
                 if (addDelegate == null)
                     return;

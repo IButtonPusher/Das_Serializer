@@ -19,7 +19,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)DasCoreSerializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DasSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Files\SafeFile.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ISaveToFile.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Json\DeserializeJson.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Json\SerializeJson.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NodeBuilders\BaseNodeSealer.cs" />
@@ -76,6 +75,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Streamers\StreamStreamer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TextCommon\CoreTextParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TextCommon\ITextParserProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TextCommon\StringAccessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TypeStructure.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\InstantiationTypes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\TypeCore.cs" />

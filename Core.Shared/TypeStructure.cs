@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Xml.Serialization;
 using Das.Serializer;
 using Serializer.Core;
 using Das.CoreExtensions;
@@ -17,6 +18,7 @@ namespace Das
         public SerializationDepth Depth { get; }
 
         private readonly ITypeManipulator _types;
+        private readonly HashSet<String> _xmlIgnores;
 
         private readonly Dictionary<String, Func<Object, Object>> _getOnly;
         private readonly Dictionary<String, Func<Object, Object>> _propGetters;
@@ -40,6 +42,9 @@ namespace Das
             SerializationDepth depth, ITypeManipulator state)
             : base(state.Settings)
         {
+
+            _xmlIgnores = new HashSet<String>();
+
             Depth = depth;
             _types = state;
 
@@ -47,6 +52,7 @@ namespace Das
             {
                 var serAs = type.GetCustomAttributes(typeof(SerializeAsTypeAttribute
                 ), false).First() as SerializeAsTypeAttribute;
+
                 if (serAs?.TargetType != null)
                     type = serAs.TargetType;
             }
@@ -92,7 +98,23 @@ namespace Das
                 if (!pi.CanRead)
                     continue;
 
-                if (!IsSerialize(pi))
+                var isSerialize = true;
+                var attrs = pi.GetCustomAttributes(true);
+
+                foreach (var attr in attrs)
+                {
+                    switch (attr)
+                    {
+                        case IgnoreDataMemberAttribute _:
+                            isSerialize = false;
+                            break;
+                        case XmlIgnoreAttribute _:
+                            _xmlIgnores.Add(pi.Name);
+                            break;
+                    }
+                }
+
+                if (!isSerialize)
                 {
                     SetPropertyForDynamicAccess(type, pi);
                     continue;
@@ -117,7 +139,6 @@ namespace Das
 
                 if (reallyWrite)
                     continue;
-
 
                 if (!_getOnly.ContainsKey(pi.Name))
                     _getOnly.Add(pi.Name, _types.CreatePropertyGetter(type, pi));
@@ -162,21 +183,7 @@ namespace Das
 
             MemberTypes.TryAdd(pi.Name, pi);
         }
-
-        private static Boolean IsSerialize(PropertyInfo pi)
-        {
-            var attrs = pi.GetCustomAttributes(true);
-
-            foreach (var attr in attrs)
-            {
-                if (attr is IgnoreDataMemberAttribute)
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
+      
 
         public void OnDeserialized(Object obj, IObjectManipulator objectManipulator)
         {
@@ -184,69 +191,53 @@ namespace Das
                 objectManipulator.Method(obj, _onDeserializedMethodName, new Object[0]);
         }
 
-        public IEnumerable<NamedValueNode> GetPropertyValues(Object o, SerializationDepth depth)
+        public IEnumerable<NamedValueNode> GetPropertyValues(Object o, ISerializationDepth depth)
         {
-            var isSet = false;
+            var isRespectXmlIgnoreAttribute = depth.IsRespectXmlIgnore;
 
-            foreach (var propInfo in GetMembersToSerialize(depth))
+            foreach (var kvp in GetValueGetters(depth))
             {
-                var strName = propInfo.Name;
-                if (!_propGetters.ContainsKey(strName))
+                if (isRespectXmlIgnoreAttribute && _xmlIgnores.Contains(kvp.Key))
                     continue;
+                var name = kvp.Key;
+                var val = kvp.Value(o);
+                var type = _types.InstanceMemberType(MemberTypes[name]);
 
-                isSet = true;
-
-                var type = _types.InstanceMemberType(MemberTypes[strName]);
-
-                yield return new NamedValueNode(strName,
-                    _propGetters[propInfo.Name](o), type);
-            }
-
-            if (!isSet || depth.ContainsFlag(SerializationDepth.GetOnlyProperties))
-            {
-                foreach (var kvp in _getOnly)
-                {
-                    var type = _types.InstanceMemberType(MemberTypes[kvp.Key]);
-
-                    yield return new NamedValueNode(kvp.Key, kvp.Value(o), type);
-                }
-            }
-
-            if (!depth.ContainsFlag(SerializationDepth.PrivateFields))
-                yield break;
-
-            foreach (var kvp in _fieldGetters)
-            {
-                var type = _types.InstanceMemberType(MemberTypes[kvp.Key]);
-                yield return new NamedValueNode(kvp.Key, kvp.Value(o), type);
+                yield return new NamedValueNode(name, val, type);
             }
         }
 
-        /// <summary>
-        /// Returns properties and/or fields depending on specified depth
-        /// </summary>
-        public IEnumerable<MemberInfo> GetMembersToSerialize(SerializationDepth depth)
+
+        private IEnumerable<KeyValuePair<String, Func<Object, Object>>> GetValueGetters(
+            ISerializationDepth depth)
         {
             var isSet = false;
 
             foreach (var kvp in _propGetters.OrderBy(p => p.Key))
             {
                 isSet = true;
-                yield return MemberTypes[kvp.Key];
+                yield return kvp;
             }
 
-            if (!isSet || depth.ContainsFlag(SerializationDepth.GetOnlyProperties))
+            if (!isSet || (depth.SerializationDepth & SerializationDepth.GetOnlyProperties) != 0)
             {
                 foreach (var kvp in _getOnly)
-                {
-                    yield return MemberTypes[kvp.Key];
-                }
+                    yield return kvp;
             }
 
-            if (!depth.ContainsFlag(SerializationDepth.PrivateFields))
+            if ((depth.SerializationDepth & SerializationDepth.PrivateFields) == 0)
                 yield break;
 
             foreach (var kvp in _fieldGetters)
+                yield return kvp;
+        }
+
+        /// <summary>
+        /// Returns properties and/or fields depending on specified depth
+        /// </summary>
+        public IEnumerable<MemberInfo> GetMembersToSerialize(ISerializationDepth depth)
+        {
+            foreach (var kvp in GetValueGetters(depth))
                 yield return MemberTypes[kvp.Key];
         }
 

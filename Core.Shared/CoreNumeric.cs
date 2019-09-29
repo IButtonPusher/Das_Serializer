@@ -59,7 +59,7 @@ namespace Serializer
                     {
                         isAnyValid = true;
                         _currentGroupLength++;
-                        _currentGroup += ((current & 15) * _multiple);
+                        _currentGroup += (current & 15) * _multiple;
                         _multiple *= 10;
                         continue;
                     }
@@ -113,7 +113,7 @@ namespace Serializer
                                 if (_commaGroup >= mult)
                                     continue;
 
-                                _commaGroup += (_currentGroup * mult);
+                                _commaGroup += _currentGroup * mult;
                                 break;
                             }
                         }
@@ -134,7 +134,7 @@ namespace Serializer
                             {
                                 if (_dotGroup >= mult)
                                     continue;
-                                _dotGroup += (_currentGroup * mult);
+                                _dotGroup += _currentGroup * mult;
                                 break;
                             }
                         }
@@ -221,9 +221,9 @@ namespace Serializer
 
             //right = baseline
             if (left > right)
-                return ((left / right) - 1) * 100;
+                return (left / right - 1) * 100;
             else
-                return (0 - (1 - (left / right))) * 100;
+                return (0 - (1 - left / right)) * 100;
         }
 
         public Boolean AreEqual(Double left, Double right) => Math.Abs(left - right) < TOLERANCE;

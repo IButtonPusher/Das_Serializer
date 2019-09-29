@@ -8,14 +8,16 @@ namespace Das.Serializer
     {
         /// <summary>
         /// In Xml/Json only.  0 for integers, false for booleans, and any
-        /// val == default(ValsType) will be ommitted from the markup		
+        /// val == default will be ommitted from the markup		
         /// </summary>
-        Boolean IsOmitDefaultValues { get; set; }
+        Boolean IsOmitDefaultValues { get; }
 
         /// <summary>
         /// Allows to set whether properties without setters and whether private fields 
         /// will be serialized.  Default is GetSetProperties
         /// </summary>
-        SerializationDepth SerializationDepth { get; set; }
+        SerializationDepth SerializationDepth { get; }
+
+        Boolean IsRespectXmlIgnore { get; }
     }
 }

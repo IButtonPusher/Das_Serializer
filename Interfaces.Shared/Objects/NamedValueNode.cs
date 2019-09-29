@@ -8,6 +8,26 @@ namespace Das.Serializer.Objects
     /// </summary>
     public class NamedValueNode : ValueNode, INamedField
     {
+        private Int32 _isEmptyInitialized = -1;
+
+        public Boolean IsEmptyInitialized
+        {
+            get
+            {
+                switch (_isEmptyInitialized)
+                {
+                    case -1:
+                        _isEmptyInitialized = Value is ICollection countable
+                            ? countable.Count
+                            : 1;
+                        goto default;
+                    default:
+                        return _isEmptyInitialized == 0;
+                }
+            }
+        }
+        
+
         public NamedValueNode(String name, Object value, Type type) : base(value, type)
         {
             Name = name;

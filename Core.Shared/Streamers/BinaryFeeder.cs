@@ -12,7 +12,7 @@ namespace Das.Streamers
     internal class BinaryFeeder : SerializerCore, IBinaryFeeder
     {
         public BinaryFeeder(IBinaryPrimitiveScanner primitiveScanner,
-            IDynamicFacade dynamicFacade, IByteArray bytes, ISerializerSettings settings,
+            ISerializationCore dynamicFacade, IByteArray bytes, ISerializerSettings settings,
             BinaryLogger logger)
             : base(dynamicFacade, settings)
         {
@@ -24,7 +24,7 @@ namespace Das.Streamers
         }
 
         public BinaryFeeder(IBinaryPrimitiveScanner primitiveScanner,
-            IDynamicFacade dynamicFacade, IEnumerable<Byte[]> source, ISerializerSettings settings,
+            ISerializationCore dynamicFacade, IEnumerable<Byte[]> source, ISerializerSettings settings,
             BinaryLogger logger)
             : this(primitiveScanner, dynamicFacade, Extract(source), settings, logger)
         {
@@ -126,7 +126,7 @@ namespace Das.Streamers
 
         private Byte[] GetBytesForValueTypeObject(Type type)
         {
-            var length = BytesNeeded(type);
+            var length = TypeInferrer.BytesNeeded(type);
             return GetBytes(length);
         }
 

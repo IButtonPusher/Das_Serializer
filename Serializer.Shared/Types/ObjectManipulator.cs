@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
 using Das.Serializer.Objects;
+using Interfaces.Shared.Settings;
 
 namespace Das.Types
 {
@@ -30,7 +31,7 @@ namespace Das.Types
         {
             if (propertyName == null)
                 return default;
-            var str = GetStructure(asType, SerializationDepth.AllProperties);
+            var str = GetStructure(asType, DepthConstants.AllProperties);
             return str.GetPropertyValue(o, propertyName);
         }
 
@@ -55,7 +56,7 @@ namespace Das.Types
 
         public Boolean TryGetPropertyValue<T>(Object obj, String propertyName, out T result)
         {
-            if (TryGetPropertyValue(obj, propertyName, out Object res))
+            if (TryGetPropertyValue(obj, propertyName, out var res))
             {
                 if (TryCastDynamic(res, out result))
                     return true;
@@ -75,9 +76,9 @@ namespace Das.Types
 
             var useType = _typeDelegates.IsUseless(value.Type) ? val.GetType() : value.Type;
             var isReturnNulls = !depth.IsOmitDefaultValues;
-            var typeStruct = GetStructure(useType, SerializationDepth.AllProperties);
+            var typeStruct = GetStructure(useType, DepthConstants.AllProperties);
 
-            foreach (var res in typeStruct.GetPropertyValues(val, depth.SerializationDepth))
+            foreach (var res in typeStruct.GetPropertyValues(val, depth))
             {
                 if (isReturnNulls || res.Value != null)
                     yield return res;
@@ -87,33 +88,21 @@ namespace Das.Types
         public Boolean SetFieldValue(Type classType, String fieldName,
             Object targetObj, Object propVal)
         {
-            var str = GetStructure(classType, SerializationDepth.Full);
+            var str = GetStructure(classType, DepthConstants.Full);
             return str.SetFieldValue(fieldName, targetObj, propVal);
         }
 
         public Boolean SetFieldValue<T>(Type classType, String fieldName, Object targetObj,
             Object fieldVal)
         {
-            var str = GetStructure(classType, SerializationDepth.Full);
+            var str = GetStructure(classType, DepthConstants.Full);
             return str.SetFieldValue<T>(fieldName, targetObj, fieldVal);
         }
 
         public void SetFieldValues<TObject>(TObject obj, Action<ITypeStructure, TObject> action)
         {
-            var s = GetStructure(typeof(TObject), SerializationDepth.Full);
+            var s = GetStructure(typeof(TObject), DepthConstants.Full);
             action(s, obj);
-        }
-
-        public void SetFieldValues<TObject>(TObject obj, Action<TypeStructure, TObject> action)
-        {
-            var s = GetStructure(typeof(TObject), SerializationDepth.Full);
-            action(s, obj);
-        }
-
-        public void SetFieldValues<TObject>(Object obj, Action<ITypeStructure> action)
-        {
-            var str = GetStructure(typeof(TObject), SerializationDepth.Full);
-            action(str);
         }
 
         /// <summary>
@@ -127,7 +116,7 @@ namespace Das.Types
         /// <returns></returns>
         public Boolean SetProperty(Type classType, String propName, ref Object targetObj, Object propVal)
         {
-            var str = GetStructure(classType, SerializationDepth.AllProperties);
+            var str = GetStructure(classType, DepthConstants.AllProperties);
             return str.SetValue(propName, ref targetObj, propVal, SerializationDepth.AllProperties);
         }
 
@@ -135,7 +124,8 @@ namespace Das.Types
             => SetProperty(targetObj.GetType(), propName, ref targetObj, propVal);
 
         public void Method(Object obj, String methodName, Object[] parameters,
-            BindingFlags flags = BindingFlags.Default | BindingFlags.Instance | BindingFlags.Public)
+            BindingFlags flags = BindingFlags.Default | BindingFlags.Instance | 
+                                 BindingFlags.Public)
         {
             var type = obj as Type ?? obj.GetType();
 
@@ -254,7 +244,7 @@ namespace Das.Types
             return false;
         }
 
-        private TypeStructure GetStructure(Type type, SerializationDepth depth)
+        private TypeStructure GetStructure(Type type, ISerializationDepth depth)
             => _typeDelegates.GetStructure(type, depth);
     }
 }

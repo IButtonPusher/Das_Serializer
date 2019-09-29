@@ -20,7 +20,7 @@ namespace Das
 
         public void ToJson<TTarget>(Object o, FileInfo fileName)
         {
-            var obj = CastDynamic<TTarget>(o);
+            var obj = ObjectManipulator.CastDynamic<TTarget>(o);
             ToJson(obj, fileName);
         }
 
@@ -53,7 +53,7 @@ namespace Das
 
         public String ToJson<TTarget>(Object o)
         {
-            var obj = CastDynamic<TTarget>(o);
+            var obj = ObjectManipulator.CastDynamic<TTarget>(o);
             var str = ToJson(obj);
 
             return str;

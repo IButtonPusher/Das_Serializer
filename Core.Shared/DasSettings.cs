@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 using Serializer;
 
 namespace Das.Serializer
@@ -17,12 +16,6 @@ namespace Das.Serializer
         /// and having multiple properties with the "same" name will be problematic
         /// </summary>
         public Boolean IsPropertyNamesCaseSensitive { get; set; }
-
-        /// <summary>
-        /// When getting data xml or json from a stream it may be needed to specify the
-        /// encoding to ensure proper deserialization
-        /// </summary>
-        public Encoding TextEncoding { get; set; }
 
         /// <summary>
         /// Specifies under which circumstances the serializer will embed type information for
@@ -46,6 +39,10 @@ namespace Das.Serializer
         /// </summary>
         public SerializationDepth SerializationDepth { get; set; }
 
+
+        
+        Boolean ISerializationDepth.IsRespectXmlIgnore => false;
+
         /// <summary>
         /// Types from xml/json that are not namespace or assembly qualified will be
         /// searched for in this collection of namespaces. Defaults to just System
@@ -65,7 +62,6 @@ namespace Das.Serializer
         public DasSettings()
         {
             IsPropertyNamesCaseSensitive = true;
-            TextEncoding = Encoding.ASCII;
             TypeSpecificity = TypeSpecificity.Discrepancy;
             SerializationDepth = SerializationDepth.GetSetProperties;
             TypeSearchNameSpaces = new[] {Const.Tsystem};
@@ -77,7 +73,7 @@ namespace Das.Serializer
         public static DasSettings Default
         {
             get => (DasSettings) _default.MemberwiseClone();
-            set => _default = value;
+            private set => _default = value;
         }
 
 

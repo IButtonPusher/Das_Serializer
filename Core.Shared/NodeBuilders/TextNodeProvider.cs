@@ -7,7 +7,7 @@ namespace Serializer.Core
 {
     public class TextNodeProvider : NodeProvider<ITextNode>, ITextNodeProvider
     {
-        public TextNodeProvider(IDynamicFacade facade, INodeManipulator nodeManipulator,
+        public TextNodeProvider(ISerializationCore facade, INodeManipulator nodeManipulator,
             IStringPrimitiveScanner scanner, ISerializerSettings settings)
             : base(nodeManipulator, settings)
         {

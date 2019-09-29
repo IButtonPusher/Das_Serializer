@@ -44,8 +44,6 @@ namespace Das
         private T ConvertEx<T>(Object obj, T newObject)
             => ConvertEx<T>(obj, _currentSettings);
 
-        public void Copy<T>(T from, ref T to) where T : class
-            => Copy(from, ref to, Settings);
 
         public T ConvertEx<T>(Object obj, ISerializerSettings settings)
         {
@@ -89,10 +87,10 @@ namespace Das
         private T FromType<T>(T example) where T : class
         {
             if (!IsInstantiable(typeof(T)))
-                return BuildDefault(example.GetType(), _currentSettings.
+                return ObjectInstantiator.BuildDefault(example.GetType(), _currentSettings.
                     CacheTypeConstructors) as T;
 
-            return BuildDefault<T>(_currentSettings.CacheTypeConstructors);
+            return ObjectInstantiator.BuildDefault<T>(_currentSettings.CacheTypeConstructors);
         }
 
         public void Copy<T>(T from, ref T to, ISerializerSettings settings) where T : class
@@ -181,20 +179,22 @@ namespace Das
         {
             var references = References.Value;
 
-            foreach (var propInfo in _dynamicFacade.GetPropertiesToSerialize(toType,
-                _currentSettings.SerializationDepth))
+            foreach (var propInfo in _dynamicFacade.TypeManipulator.GetPropertiesToSerialize(toType,
+                _currentSettings))
             {
                 if (!_objects.TryGetPropertyValue(from, propInfo.Name, out var nextFrom))
                     continue;
 
                 Object nextTo;
 
-                var pType = _dynamicFacade.InstanceMemberType(propInfo);
+                var pType = _dynamicFacade.TypeManipulator.InstanceMemberType(propInfo);
 
                 if (nextFrom == null)
                 {
-                    if (!_types.IsLeaf(pType, false))
-                        _objects.SetPropertyValue(ref to, propInfo.Name, null);
+                    //we are copying but if we don't have the property why null it out on the other object?
+                    //it's either already null or it has a value that may be useful...
+                    //if (!_types.IsLeaf(pType, false))
+                    //    _objects.SetPropertyValue(ref to, propInfo.Name, null);
                     continue;
                 }
 
@@ -203,23 +203,26 @@ namespace Das
                 if (references.ContainsKey(nextFrom))
                 {
                     nextTo = references[nextFrom];
-                    SetPropertyValue(ref to, propInfo.Name, nextTo);
+                    ObjectManipulator.SetPropertyValue(ref to, propInfo.Name, nextTo);
                     continue;
                 }
 
                 if (_currentNodeType == NodeTypes.Primitive)
                 {
                     if (pType.IsAssignableFrom(nextFrom.GetType()))
-                        SetPropertyValue(ref to, propInfo.Name, nextFrom);
+                        ObjectManipulator.SetPropertyValue(ref to, propInfo.Name, nextFrom);
                     continue;
                 }
-
-                nextTo = BuildDefault(pType, _currentSettings.CacheTypeConstructors);
+                
+                
+                nextTo = _instantiate.BuildDefault(nextFrom.GetType(),
+                    _currentSettings.CacheTypeConstructors);
+                
                 references.Add(nextFrom, nextTo);
                 nextTo = Copy(nextFrom, ref nextTo);
                 references[nextFrom] = nextTo;
 
-                SetPropertyValue(ref to, propInfo.Name, nextTo);
+                ObjectManipulator.SetPropertyValue(ref to, propInfo.Name, nextTo);
             }
 
             return to;
@@ -227,7 +230,7 @@ namespace Das
 
         private Object CopyLists(Object from, Object to, Type toType)
         {
-            var toListType = GetGermaneType(toType);
+            var toListType = TypeInferrer.GetGermaneType(toType);
             var fromList = from as IEnumerable;
             var tempTo = new List<Object>();
             _currentNodeType = _dynamicFacade.GetNodeType(toListType,
@@ -238,7 +241,8 @@ namespace Das
 
             foreach (var fromItem in fromList)
             {
-                var toItem = BuildDefault(toListType, _currentSettings.CacheTypeConstructors);
+                var toItem = _instantiate.BuildDefault(toListType, 
+                    _currentSettings.CacheTypeConstructors);
                 toItem = Copy(fromItem, ref toItem);
                 if (toItem != null)
                     tempTo.Add(toItem);
@@ -253,7 +257,7 @@ namespace Das
             ISerializerSettings settings, Type collectionGenericArgs = null)
         {
             _currentSettings = settings;
-            var itemType = collectionGenericArgs ?? GetGermaneType(collectionType);
+            var itemType = collectionGenericArgs ?? TypeInferrer.GetGermaneType(collectionType);
 
             if (collectionType.IsArray)
             {

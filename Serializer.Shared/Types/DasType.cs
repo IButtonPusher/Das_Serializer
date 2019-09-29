@@ -43,7 +43,7 @@ namespace Das.Serializer
         public Boolean TryGetPropertyValue(Object obj, String propertyName,
             out Object result)
         {
-            if (!(PublicGetters.TryGetValue(propertyName, out var getter)))
+            if (!PublicGetters.TryGetValue(propertyName, out var getter))
             {
                 result = default;
                 return false;

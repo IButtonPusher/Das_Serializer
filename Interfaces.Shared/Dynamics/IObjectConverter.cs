@@ -11,10 +11,9 @@ namespace Das
 
         void Copy<T>(T from, ref T to, ISerializerSettings settings) where T : class;
 
-        void Copy<T>(T from, ref T to) where T : class;
-
         T ConvertEx<T>(Object obj, ISerializerSettings settings);
 
+        // ReSharper disable once UnusedMember.Global
         T ConvertEx<T>(Object obj);
 
         Object ConvertEx(Object obj, Type newObjectType,

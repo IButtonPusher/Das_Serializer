@@ -502,7 +502,7 @@ namespace UnitTestProject1
 			var pt = new Point(1, 0);
             pt.Y = 1;
             pt.Y = 0;
-            pt.SetPropertyValue(nameof(Point.X), 2);
+            pt.TrySetPropertyValue(nameof(Point.X), 2);
 			
 			var srl = Serializer;
 

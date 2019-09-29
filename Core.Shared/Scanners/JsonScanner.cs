@@ -98,7 +98,8 @@ namespace Das.Scanners
 
                 if (CurrentNode.NodeType == NodeTypes.Collection)
                 {
-                    var val = PrimitiveScanner.GetValue(str, GetGermaneType(CurrentNode.Type));
+                    var val = PrimitiveScanner.GetValue(str, TypeInferrer.
+                        GetGermaneType(CurrentNode.Type));
                     Sealer.Imbue(CurrentNode, String.Empty, val);
                     CurrentValue.Clear();
                 }

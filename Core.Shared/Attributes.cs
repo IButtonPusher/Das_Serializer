@@ -4,7 +4,7 @@ namespace Das
 {
     public class SerializeAsTypeAttribute : Attribute
     {
-        public Type TargetType { get; set; }
+        public Type TargetType { get; }
 
         public SerializeAsTypeAttribute(Type type)
         {

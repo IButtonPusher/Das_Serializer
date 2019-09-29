@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using Das.Serializer;
+using Interfaces.Shared.Settings;
 using Serializer;
 using Serializer.Core;
 
@@ -39,9 +40,9 @@ namespace Das.Types
         public Func<Object, Object> CreatePropertyGetter(Type targetType,
             PropertyInfo propertyInfo)
         {
-            var setParamType = typeof(Object);
+            var setParamType = Const.ObjectType;
             Type[] setParamTypes = {setParamType};
-            var setReturnType = typeof(Object);
+            var setReturnType = Const.ObjectType; 
 
             var owner = typeof(DasType);
 
@@ -73,10 +74,12 @@ namespace Das.Types
             return del as Func<Object, Object>;
         }
 
-        private static readonly Type[] ParamTypes = new Type[]
+        private static readonly Type[] ParamTypes = new[]
         {
-            typeof(Object).MakeByRefType(), typeof(Object)
+            Const.ObjectType.MakeByRefType(), Const.ObjectType
         };
+
+       
 
         PropertySetter ITypeManipulator.CreateSetMethod(MemberInfo memberInfo)
             => CreateSetMethod(memberInfo);
@@ -170,7 +173,7 @@ namespace Das.Types
                 Const.NonPublic);
             if (backingField == null)
                 return null;
-            if (backingField.IsDefined(compGen, inherit: true))
+            if (backingField.IsDefined(compGen, true))
                 return backingField;
 
             var flds = GetRecursivePrivateFields(decType).ToArray();
@@ -205,7 +208,7 @@ namespace Das.Types
 
         public Func<Object, Object> CreateFieldGetter(FieldInfo fieldInfo)
         {
-            var dynam = new DynamicMethod("", typeof(Object), new[] {typeof(Object)}
+            var dynam = new DynamicMethod(String.Empty, Const.ObjectType, Const.SingleObjectTypeArray
                 , typeof(Func<Object, Object>), true);
 
             var il = dynam.GetILGenerator();
@@ -234,7 +237,7 @@ namespace Das.Types
             var dynam = new DynamicMethod(
                 ""
                 , typeof(void)
-                , new[] {typeof(Object), typeof(Object)}
+                , Const.TwoObjectTypeArray
                 , typeof(VoidMethod)
                 , true
             );
@@ -282,13 +285,13 @@ namespace Das.Types
             var dyn = CreateMethodCaller(method, false);
             return (Func<Object, Object[], Object>) dyn.CreateDelegate(typeof(Func<Object, Object[], Object>));
         }
-
-        public DynamicMethod CreateMethodCaller(MethodInfo method, Boolean isSuppressReturnValue)
+        
+        public static DynamicMethod CreateMethodCaller(MethodInfo method, Boolean isSuppressReturnValue)
         {
-            Type[] argTypes = {typeof(Object), typeof(Object[])};
+            Type[] argTypes = {Const.ObjectType, typeof(Object[])};
             var parms = method.GetParameters();
 
-            var retType = isSuppressReturnValue ? typeof(void) : typeof(Object);
+            var retType = isSuppressReturnValue ? typeof(void) : Const.ObjectType;
 
             var dynam = new DynamicMethod(String.Empty, retType, argTypes
                 , typeof(DasType), true);
@@ -352,6 +355,38 @@ namespace Das.Types
             return res;
         }
 
+        public VoidMethod GetAdder(Type collectionType, Object exampleValue)
+        {
+            if (CachedAdders.TryGetValue(collectionType, out var res))
+                return res;
+
+            var eType = exampleValue.GetType();
+
+            var addMethod = collectionType.GetMethod("Add", new[] { eType });
+
+            if (addMethod == null)
+            {
+
+                var interfaces = (from i in collectionType.GetInterfaces()
+                    let args = i.GetGenericArguments()
+                    where args.Length == 1
+                          && args[0] == eType
+                          select i).FirstOrDefault();
+
+                if (interfaces != null)
+                    addMethod = interfaces.GetMethod("Add", new[] { eType });
+
+            }
+
+
+            if (addMethod == null)
+                return default;
+
+            return CreateMethodCaller(addMethod);
+        }
+
+        
+
         /// <summary>
         /// Gets a delegate to add an object to a non-generic collection
         /// </summary>	
@@ -365,6 +400,7 @@ namespace Das.Types
 
             if (type.IsGenericType)
             {
+
                 dynamic dCollection = collection;
                 res = CreateAddDelegate(dCollection);
                 //no need to cache here since it will be added to the cache in the other method
@@ -417,7 +453,7 @@ namespace Das.Types
                 return typeof(IList).GetMethod("Add", new[] {typeof(T)});
 
             var prmType = cType.GetGenericArguments().FirstOrDefault()
-                          ?? typeof(Object);
+                          ?? Const.ObjectType;
 
 
             foreach (var meth in cType.GetMethods(BindingFlags.Instance | BindingFlags.Public))
@@ -439,19 +475,16 @@ namespace Das.Types
             if (propName == null)
                 return default;
 
-            var ts = GetStructure(classType, SerializationDepth.AllProperties);
+            var ts = GetStructure(classType, DepthConstants.AllProperties);
             return ts.MemberTypes.TryGetValue(propName, out var res) ? InstanceMemberType(res) : default;
         }
 
 
-        ITypeStructure ITypeManipulator.GetStructure(Type type, SerializationDepth depth)
+        ITypeStructure ITypeManipulator.GetStructure(Type type, ISerializationDepth depth)
             => GetStructure(type, depth);
 
-        public ITypeStructure GetStructure<T>(SerializationDepth depth)
-            => GetStructure(typeof(T), depth);
-
         public IEnumerable<MemberInfo> GetPropertiesToSerialize(Type type,
-            SerializationDepth depth)
+            ISerializationDepth depth)
         {
             var str = GetStructure(type, depth);
             foreach (var pi in str.GetMembersToSerialize(depth))
@@ -491,11 +524,14 @@ namespace Das.Types
 
         public Int32 PropertyCount(Type type)
         {
-            var str = ValidateCollection(type, Settings.SerializationDepth, true);
+            var str = ValidateCollection(type, Settings, true);
             return str.PropertyCount;
         }
 
-        internal TypeStructure GetStructure(Type type, SerializationDepth depth)
+        public ITypeStructure GetStructure<T>(ISerializationDepth depth)
+            => GetStructure(typeof(T), depth);
+
+        internal TypeStructure GetStructure(Type type, ISerializationDepth depth)
         {
             if (Settings.IsPropertyNamesCaseSensitive)
                 return ValidateCollection(type, depth, true);
@@ -503,17 +539,18 @@ namespace Das.Types
             return ValidateCollection(type, depth, false);
         }
 
-        private TypeStructure ValidateCollection(Type type, SerializationDepth depth,
+        private TypeStructure ValidateCollection(Type type, ISerializationDepth depth,
             Boolean caseSensitive)
         {
             var collection = caseSensitive ? _knownSensitive : _knownInsensitive;
 
             var doCache = Settings.CacheTypeConstructors;
 
-            if (doCache && collection.TryGetValue(type, out var result) && result.Depth >= depth)
+            if (doCache && collection.TryGetValue(type, out var result) && 
+                result.Depth >= depth.SerializationDepth)
                 return result;
 
-            result = new TypeStructure(type, caseSensitive, depth, this);
+            result = new TypeStructure(type, caseSensitive, depth.SerializationDepth, this);
             if (!doCache)
                 return result;
 

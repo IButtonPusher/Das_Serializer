@@ -29,19 +29,6 @@ namespace Das.Serializer
         private readonly AssemblyBuilderAccess _access;
         private readonly Object _lock;
 
-        public TypeBuilder GetTypeBuilder<TBase>(String typeName)
-        {
-            var builder = GetTypeBuilder(typeName);
-            var tType = typeof(TBase);
-
-            if (tType.IsInterface)
-                builder.AddInterfaceImplementation(tType);
-            else
-                builder.SetParent(tType);
-
-            return builder;
-        }
-
         public TypeBuilder GetTypeBuilder(String typeName)
         {
             var typeBuilder = ModuleBuilder.DefineType(typeName,
@@ -78,11 +65,6 @@ namespace Das.Serializer
 
                 return AssemblyBuilder.DefineDynamicModule(_moduleName);
             }
-        }
-
-        public void Save(String fileName)
-        {
-            _assemblyBuilder.Save(fileName);
         }
     }
 }
