@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Das.Scanners;
 using Das.Serializer;
+using Das.Serializer.Scanners;
 
 namespace Serializer.Core.NodeBuilders
 {
@@ -24,7 +25,7 @@ namespace Serializer.Core.NodeBuilders
         {
             var chain = new Stack<IBinaryNode>();
             var current = node.Parent;
-            while (current != null)
+            while (NullNode.Instance != current)
             {
                 chain.Push(current);
                 current = current.Parent;

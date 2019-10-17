@@ -95,19 +95,19 @@ namespace Serializer
 
         String FindValue(String json, String item, ref Int32 startIndex);
 
-        String AsUSString(Decimal amount, Int32 decimalPlaces);
-
         String AsUSString(Double amount, Int32 decimalPlaces);
 
-        String AsUSString(Decimal amount);
+        String AsUSString(Decimal amount, Int32 decimalPlaces);
 
         String AsUSString(Double amount);
+
+        String AsUSString(Decimal amount);
 
         /// <summary>
         /// Comma delimited
         /// </summary>
         /// <returns>true if any items were in the amountList</returns>
-        Boolean AppendAsUsCommaString(StringBuilder sb, IEnumerable<Decimal> amountList,
+        Boolean AppendAsUsCommaString(StringBuilder sb, IEnumerable<Double> amountList,
             Int32 multiple, Int32 decimalPlaces);
 
         /// <summary>

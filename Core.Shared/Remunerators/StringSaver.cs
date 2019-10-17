@@ -30,21 +30,12 @@ namespace Das.Remunerators
         [MethodImpl(256)]
         public void Append(String data)
         {
-            if (data.Contains("BackingField"))
-            { }
-
             _sb.Append(data);
         }
 
         [MethodImpl(256)]
         public void Append(String data1, String data2)
         {
-            if (data1.Contains("BackingField"))
-            { }
-
-            if (data2.Contains("BackingField"))
-            { }
-
             _sb.Append(data1);
             _sb.Append(data2);
         }
@@ -53,9 +44,6 @@ namespace Das.Remunerators
         [MethodImpl(256)]
         public void Append(Char data1, String data2)
         {
-            if (data2.Contains("BackingField"))
-            { }
-
             _sb.Append(data1);
             _sb.Append(data2);
         }
@@ -63,12 +51,7 @@ namespace Das.Remunerators
         public void Append(IEnumerable<String> datas)
         {
             foreach (var data in datas)
-            {
-                if (data.Contains("BackingField"))
-                { }
-
                 _sb.Append(data);
-            }
         }
 
         public override String ToString() => _sb.ToString();
@@ -79,6 +62,9 @@ namespace Das.Remunerators
         {
             _sb.Clear();
         }
+
+        [MethodImpl(256)]
+        public void Clear() => _sb.Clear();
 
 
         [MethodImpl(256)]

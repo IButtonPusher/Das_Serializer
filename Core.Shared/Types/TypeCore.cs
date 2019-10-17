@@ -6,7 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Das.CoreExtensions;
+using System.Threading;
 using Das.Serializer;
 
 namespace Serializer.Core
@@ -25,6 +25,9 @@ namespace Serializer.Core
         {
             _settings = settings;
         }
+
+        private static readonly ThreadLocal<Dictionary<Type, Int32>> CollectionTypes
+            = new ThreadLocal<Dictionary<Type, Int32>>(() => new Dictionary<Type, Int32>());
 
         private static readonly HashSet<Type> NumericTypes = new HashSet<Type>
         {
@@ -65,8 +68,22 @@ namespace Serializer.Core
                propInfo.GetSetMethod()?.IsAbstract == true;
 
         public Boolean IsCollection(Type type)
-            => type != null &&
-               typeof(IEnumerable).IsAssignableFrom(type) && type != Const.StrType;
+        {
+            if (type == null)
+                return false;
+
+            var cols = CollectionTypes.Value;
+
+            if (!cols.TryGetValue(type, out var val))
+            {
+                val = typeof(IEnumerable).IsAssignableFrom(type) && type != Const.StrType
+                    ? 1
+                    : 0;
+                cols[type] = val;
+            }
+
+            return val == 1;
+        }
 
         public Boolean IsUseless(Type t) => t == null || t == Const.ObjectType;
 
@@ -125,7 +142,7 @@ namespace Serializer.Core
                    Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false)
                    && type.Name.Contains("AnonymousType")
                    && (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))
-                   && type.Attributes.ContainsFlag(TypeAttributes.NotPublic);
+                   && (type.Attributes & TypeAttributes.Public) == TypeAttributes.NotPublic;
         }
 
         public IEnumerable<PropertyInfo> GetPublicProperties(Type type, Boolean numericFirst = true)

@@ -15,6 +15,8 @@ namespace Das.Serializer
         /// not specifying the assembly name</example>
         Type GetTypeFromClearName(String clearName);
 
+        Type GetTypeFromLoadedModules(String typeName);
+
         String ToClearName(Type type, Boolean isOmitAssemblyName);
 
         /// <summary>

@@ -9,6 +9,7 @@
     <Import_RootNamespace>Interfaces.Shared</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Annotations.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DasAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Delegates.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IAssemblyList.cs" />
@@ -57,10 +58,11 @@
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\ITextParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\ITextScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\CircularReference.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Settings\DasSettings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Settings\ISerializerSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\DepthConstants.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\ISerializationDepth.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\ISettingsUser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Settings\TextPropertySearchDepths.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\SerializationDepth.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\TypeNotFound.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\TypeSpecificity.cs" />

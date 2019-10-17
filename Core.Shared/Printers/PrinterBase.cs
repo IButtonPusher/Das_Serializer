@@ -5,7 +5,6 @@ using System.Linq;
 using Das.CoreExtensions;
 using Das.Serializer;
 using Das.Serializer.Objects;
-using Serializer;
 using Serializer.Core;
 using Serializer.Core.Printers;
 
@@ -94,7 +93,7 @@ namespace Das.Printers
             var checkCircs = IsCheckCircularRefs(nodeType);
 
             if (checkCircs && TryHandleCircularReference(node))
-                return false;
+                return true;
 
             switch (nodeType)
             {

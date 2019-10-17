@@ -6,7 +6,7 @@
     <SharedGUID>c6d160c0-8e1f-4387-8194-3f722e633a6b</SharedGUID>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
-    <Import_RootNamespace>Core.Shared</Import_RootNamespace>
+    <Import_RootNamespace>Das.Serializer</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Attributes.cs" />
@@ -50,6 +50,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\BinaryScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\JsonPrimitiveScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\JsonScanner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Scanners\NullNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\StringPrimitiveScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\TextNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\TextScanner.cs" />
@@ -78,6 +79,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)TextCommon\StringAccessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TypeStructure.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\InstantiationTypes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Types\InvalidCollection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\TypeCore.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\TypeInference.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Util.cs" />

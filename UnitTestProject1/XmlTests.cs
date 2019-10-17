@@ -17,7 +17,7 @@ namespace UnitTestProject1
 	{
 		[TestCategory("primitive"), TestCategory("xml"), TestMethod]
 		public void IntExplicitXml()
-		{
+        {
 			var someInt = 55;
 			var srl = new DasSerializer();
 			var xml = srl.ToXml(someInt);

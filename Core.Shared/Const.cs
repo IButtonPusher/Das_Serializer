@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace Serializer
+namespace Das.Serializer
 {
     internal static class Const
     {
@@ -17,6 +17,7 @@ namespace Serializer
         public const String Tsystem = "System";
         public const String WutXml = "?xml";
         public const String XmlType = "xsi:type";
+        public const String Empty = "";
 
         public const String StrQuote = "\"";
         public const String Root = "$";

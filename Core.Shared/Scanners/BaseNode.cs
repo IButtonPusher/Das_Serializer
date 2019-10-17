@@ -8,15 +8,24 @@ namespace Das.Scanners
     internal abstract class BaseNode<TNode> : TypeCore, INode<TNode>
         where TNode : INode<TNode>
     {
-        public BaseNode(ISerializerSettings settings) : base(settings)
+        protected BaseNode(ISerializerSettings settings) : base(settings)
         {
             DynamicProperties = new Dictionary<String, Object>();
             Attributes = new Dictionary<String, String>();
+            Name = Const.Empty;
         }
 
         public Boolean IsForceNullValue { get; set; }
-        public String Name { get; set; }
 
+        private String _name;
+
+        public String Name
+        {
+            get => _name;
+            set => _name = value ?? throw new InvalidOperationException();
+        }
+
+        
         TNode INode<TNode>.Parent
         {
             get => _parent;
@@ -24,7 +33,9 @@ namespace Das.Scanners
         }
 
         public Type Type { get; set; }
+
         public Object Value { get; set; }
+
         public IDictionary<String, String> Attributes { get; }
         public IDictionary<String, Object> DynamicProperties { get; }
 
@@ -38,7 +49,7 @@ namespace Das.Scanners
 
         public virtual void Clear()
         {
-            Name = default;
+            Name = Const.Empty;
             IsForceNullValue = false;
             Type = default;
             Value = default;

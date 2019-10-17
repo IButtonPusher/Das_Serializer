@@ -32,7 +32,7 @@ namespace Das.Serializer
         /// <summary>
         /// read/write properties. Read only don't count for this number
         /// </summary>
-        Int32 PropertyCount(Type type);
+        Boolean HasSettableProperties(Type type);
 
         ITypeStructure GetStructure(Type type, ISerializationDepth depth);
 

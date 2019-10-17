@@ -8,7 +8,6 @@ using Das.Serializer;
 using Serializer.Core;
 using Das.CoreExtensions;
 using Das.Serializer.Objects;
-using Serializer;
 
 
 namespace Das.Types
@@ -261,7 +260,7 @@ namespace Das.Types
 
         #region private implementation
 
-        private void CreateMethod(TypeBuilder tb, MethodInfo meth,
+        private static void CreateMethod(TypeBuilder tb, MethodInfo meth,
             MethodInfo replacing = null)
         {
             var returnType = meth.ReturnType;
@@ -290,7 +289,7 @@ namespace Das.Types
 
             var il = methodBuilder.GetILGenerator();
 
-            // If there's a return type, create a default value to return
+            // If there's a return type, create a default (preferably not null) value to return
             if (returnType != typeof(void))
             {
                 var isRetted = false;
@@ -324,7 +323,8 @@ namespace Das.Types
 
             var fieldBuilder = tb.DefineField("_" + propertyName, propertyType, FieldAttributes.Private);
 
-            var propBuilder = tb.DefineProperty(propertyName, PropertyAttributes.HasDefault, propertyType, null);
+            var propBuilder = tb.DefineProperty(propertyName, PropertyAttributes.HasDefault,
+                propertyType, null);
             var getPropMthdBldr = tb.DefineMethod("get_" + propertyName,
                 MethodAttributes.Public | MethodAttributes.SpecialName |
                 MethodAttributes.HideBySig | MethodAttributes.Virtual, propertyType, Type.EmptyTypes);
@@ -381,9 +381,8 @@ namespace Das.Types
                     return;
 
                 if (att.PropertyValues.Count == 0)
-                {
                     builder = new CustomAttributeBuilder(ctor, att.ConstructionValues);
-                }
+                
                 else
                 {
                     var props = new List<PropertyInfo>();

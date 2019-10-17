@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Das.CoreExtensions;
+
 // ReSharper disable UnusedMember.Global
 
 namespace Serializer
@@ -23,20 +25,20 @@ namespace Serializer
             return 0;
         }
 
-        public Decimal GetCurrency(String fromString)
+        public Double GetCurrency(String fromString)
         {
             var isAnyValid = false;
             return GetCurrencyImpl(fromString, ref isAnyValid);
         }
 
-        public Boolean TryGetCurrency(String fromString, out Decimal currency)
+        public Boolean TryGetCurrency(String fromString, out Double currency)
         {
             var isAnyValid = false;
             currency = GetCurrencyImpl(fromString, ref isAnyValid);
             return isAnyValid;
         }
 
-        private static Decimal GetCurrencyImpl(String fromString, ref Boolean isAnyValid)
+        private static Double GetCurrencyImpl(String fromString, ref Boolean isAnyValid)
         {
             var len = fromString.Length;
             _multiple = 1;
@@ -87,7 +89,7 @@ namespace Serializer
                             }
                         }
                         else
-                            current = _commaGroupLength == 0 ? COMMA : DOT;
+                            current = _commaGroupLength.IsZero() ? COMMA : DOT;
 
                         break;
                     case DOT:
@@ -103,7 +105,7 @@ namespace Serializer
                 {
                     case COMMA:
                         _commaGroupLength += _currentGroupLength;
-                        if (_dotGroupLength == 0)
+                        if (_dotGroupLength.IsZero())
                             _firstGroup = COMMA;
 
                         if (_commaGroup > 0)
@@ -125,7 +127,7 @@ namespace Serializer
                     case DOT:
                         _dotGroupLength += _currentGroupLength;
 
-                        if (_commaGroupLength == 0)
+                        if (_commaGroupLength.IsZero())
                             _firstGroup = DOT;
 
                         if (_dotGroup > 0)
@@ -157,30 +159,30 @@ namespace Serializer
             {
                 if (_dotGroup > 0 || _currentGroup > 0 || fromString[0] == ZERO)
                     _buildingResult = _commaGroup
-                                      / (Decimal) Math.Pow(10, _commaGroupLength);
+                                      / Math.Pow(10, _commaGroupLength);
                 else
                     _buildingResult = _commaGroup;
 
                 if (_dotGroupLength > 0)
                     _buildingResult += _dotGroup;
 
-                _buildingResult += (Decimal) (_currentGroup *
-                                              Math.Pow(10, _dotGroupLength));
+                _buildingResult += _currentGroup *
+                                   Math.Pow(10, _dotGroupLength);
             }
             else if (_firstGroup == DOT)
             {
                 if (_commaGroup > 0 || _commaGroupLength > 0 || _currentGroup > 0
                     || fromString[0] == ZERO)
                     _buildingResult = _dotGroup
-                                      / (Decimal) Math.Pow(10, _dotGroupLength);
+                                      / Math.Pow(10, _dotGroupLength);
                 else
                     _buildingResult = _dotGroup;
 
                 if (_commaGroupLength > 0)
                     _buildingResult += _commaGroup;
 
-                _buildingResult += (Decimal) (_currentGroup *
-                                              Math.Pow(10, _commaGroupLength));
+                _buildingResult += _currentGroup *
+                                   Math.Pow(10, _commaGroupLength);
             }
 
             return _isNegation ? 0 - _buildingResult : _buildingResult;
@@ -214,21 +216,21 @@ namespace Serializer
         public Int32 GetInt32(String fromString)
             => Convert.ToInt32(GetCurrency(fromString));
 
-        public Decimal GetNumericalDifference(Decimal left, Decimal right)
+        public Double GetNumericalDifference(Double left, Double right)
         {
-            if (right == 0)
+            if (right.IsZero())
                 return 0;
 
             //right = baseline
             if (left > right)
                 return (left / right - 1) * 100;
-            else
-                return (0 - (1 - left / right)) * 100;
+
+            return (0 - (1 - left / right)) * 100;
         }
 
         public Boolean AreEqual(Double left, Double right) => Math.Abs(left - right) < TOLERANCE;
 
-        [ThreadStatic] private static Decimal _buildingResult;
+        [ThreadStatic] private static Double _buildingResult;
 
         [ThreadStatic] private static Int64 _currentGroup;
 

@@ -12,11 +12,15 @@ namespace Serializer.Core
     public class AssemblyList : IAssemblyList
     {
         private static readonly ConcurrentDictionary<String, Assembly> _actualAssemblies;
+        private static readonly Object _loadLock;
+        private static readonly HashSet<AssemblyName> _failedToLoad;
 
         static AssemblyList()
         {
+            _loadLock = new Object();
             _actualAssemblies = new ConcurrentDictionary<String, Assembly>(
                 StringComparer.OrdinalIgnoreCase);
+            _failedToLoad = new HashSet<AssemblyName>();
         }
 
         public Boolean TryGetAssembly(String name, out Assembly assembly)
@@ -48,13 +52,11 @@ namespace Serializer.Core
         {
             var running = GetRunningAndDependencies();
             var foundName = running.FirstOrDefault(n => name.Equals(n.Name));
-            if (foundName == null)
-            {
-                assembly = default;
-                return false;
-            }
+            if (foundName != null)
+                return TryLoad(foundName, out assembly);
 
-            return TryLoad(foundName, out assembly);
+            assembly = default;
+            return false;
         }
 
         private static Boolean AreEqual(String name, Assembly assembly) =>
@@ -109,14 +111,24 @@ namespace Serializer.Core
         {
             try
             {
+                lock (_loadLock)
+                {
+                    if (_failedToLoad.Contains(name))
+                        goto fail;
+                }
+
                 realMcKoy = Assembly.Load(name);
                 return true;
             }
             catch
             {
-                realMcKoy = default;
-                return false;
+                lock (_loadLock)
+                    _failedToLoad.Add(name);
             }
+
+            fail:
+            realMcKoy = default;
+            return false;
         }
 
         private static Boolean TryFromBinFolder(String name, out Assembly found)

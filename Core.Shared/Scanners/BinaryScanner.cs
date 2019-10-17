@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Das.Serializer;
+using Das.Serializer.Annotations;
+using Das.Serializer.Scanners;
 using Serializer.Core;
 using Serializer.Core.Binary;
 
@@ -27,6 +29,8 @@ namespace Das.Scanners
         private readonly IBinaryNodeProvider _nodes;
         private BinaryLogger _logger;
 
+        private static readonly NullNode NullNode = NullNode.Instance;
+
         public TOutput Deserialize<TOutput>(IByteArray source)
         {
             _feeder = new BinaryFeeder(_state.PrimitiveScanner, _state, source, Settings, _logger);
@@ -44,7 +48,7 @@ namespace Das.Scanners
             var orgType = typeof(T);
             var retType = orgType;
 
-            _rootNode = NewNode(null, null, retType);
+            _rootNode = NewNode(Const.Empty, NullNode.Instance, retType);
 
             BuildNext(ref _rootNode);
 
@@ -63,7 +67,7 @@ namespace Das.Scanners
             switch (node.BlockSize)
             {
                 case 0:
-                    if (node.Parent != null)
+                    if (NullNode != node.Parent)
                         node.IsForceNullValue = true;
                     return;
                 case 1:
@@ -135,7 +139,7 @@ namespace Das.Scanners
             }
         }
 
-        private IBinaryNode NewNode(String name, IBinaryNode parent, Type type)
+        private IBinaryNode NewNode(String name, [NotNull]IBinaryNode parent, Type type)
         {
             var child = _nodes.Get(name, parent, type);
             child.BlockStart = _feeder.Index;

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using Das.Serializer;
-using Serializer;
 
 
 namespace Das.Scanners

@@ -38,9 +38,12 @@ namespace Das.Extensions
         public static String GetClearName(this Type type, Boolean isOmitAssemblyName)
             => SerializationCore.TypeInferrer.ToClearName(type, isOmitAssemblyName);
 
-        public static Boolean TryGetPropertyValue(this Object obj, String propertyName,
-            out Object result) 
+        public static Boolean TryGetPropertyValue<T>(this Object obj, String propertyName,
+            out T result) 
             => SerializationCore.ObjectManipulator.TryGetPropertyValue(obj, propertyName, out result);
+
+        public static T GetPropertyValue<T>(this Object obj, String propertyName)
+            => SerializationCore.ObjectManipulator.GetPropertyValue<T>(obj, propertyName);
 
 
         /// <summary>

@@ -85,8 +85,7 @@ namespace Serializer.Core.Remunerators
         private readonly IBinaryWriter _parent;
         private readonly Boolean _isWrapPossible;
         private Boolean _isPopped;
-
-        // void IBinaryWriter.WriteInt8(byte value) => _backingList.Add(value);
+        
 
         void IBinaryWriter.Write(Byte[] values) => _backingList.AddRange(values);
 

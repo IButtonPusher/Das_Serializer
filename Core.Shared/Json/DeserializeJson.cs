@@ -28,7 +28,7 @@ namespace Das
             return FromJsonCharArray<T>(streamWrap);
         }
 
-        protected T FromJsonCharArray<T>(IEnumerable<Char> json)
+        protected virtual T FromJsonCharArray<T>(IEnumerable<Char> json)
         {
             using (var state = StateProvider.BorrowJson(Settings))
             {

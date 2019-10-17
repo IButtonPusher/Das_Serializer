@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Das.Serializer;
 using Das.Serializer.Objects;
-using Serializer;
 using Serializer.Core.Printers;
 
 namespace Das.Printers

@@ -1,5 +1,4 @@
 ﻿using System;
-using Serializer;
 
 namespace Das.Serializer
 {
@@ -48,6 +47,12 @@ namespace Das.Serializer
         /// searched for in this collection of namespaces. Defaults to just System
         /// </summary>
         public String[] TypeSearchNameSpaces { get; set; }
+
+        /// <summary>
+        /// Defines the depth of the search to resolve elements to their types when
+        /// deserializing text as JSON or XML
+        /// </summary>
+        public TextPropertySearchDepths PropertySearchDepth { get; set; }
 
         /// <summary>
         /// Allows control over how much nested elements in json and xml are indented.

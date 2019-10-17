@@ -1,6 +1,6 @@
 ﻿using System;
 using Das.Serializer;
-using Serializer;
+using Das.Serializer.Scanners;
 
 namespace Das.Scanners
 {
@@ -11,7 +11,9 @@ namespace Das.Scanners
         {
         }
 
-        protected override Boolean IsQuote(Char c) => c == Const.Quote;
+        private static readonly NullNode NullNode = NullNode.Instance;
+
+        protected sealed override Boolean IsQuote(Char c) => c == Const.Quote;
 
         protected override void ProcessCharacter(Char c)
         {
@@ -23,11 +25,11 @@ namespace Das.Scanners
                     return;
                 case Const.OpenBracket:
                     CreateNode();
-                    CurrentTagName = null;
+                    CurrentTagName = Const.Empty;
                     break;
                 case Const.OpenBrace:
                     CreateNode();
-                    CurrentTagName = null;
+                    CurrentTagName = Const.Empty;
                     return;
                 case Const.CloseBracket:
                     AddAttribute();
@@ -44,7 +46,7 @@ namespace Das.Scanners
                     if (!WhiteSpaceChars.Contains(c))
                     {
                         //whitespace outside of quotes is immaterial
-                        CurrentNode?.Text?.Append(c);
+                        CurrentNode.Append(c);
                         CurrentValue.Append(c);
                     }
 
@@ -57,10 +59,11 @@ namespace Das.Scanners
             if (CurrentTagName == DasCoreSerializer.Val)
             {
                 //don't make another node just for the val block
-                CurrentTagName = null;
+                CurrentTagName = Const.Empty;
                 return;
             }
-            else if (RootNode == null && CurrentTagName == null)
+
+            if (NullNode == RootNode && CurrentTagName == Const.Empty)
                 CurrentTagName = Const.Root;
 
             OpenNode();
@@ -73,18 +76,18 @@ namespace Das.Scanners
 
             Sealer.CloseNode(CurrentNode);
 
-            if (CurrentNode.Parent != null)
+            if (NullNode != CurrentNode.Parent)
                 CurrentNode = CurrentNode.Parent;
         }
 
         private void AddAttribute()
         {
-            if (CurrentTagName != null && CurrentValue.Length > 0)
+            if (CurrentTagName != Const.Empty && CurrentValue.Length > 0)
             {
                 CurrentNode.Attributes.Add(CurrentTagName,
                     PrimitiveScanner.Descape(CurrentValue.ToString()));
 
-                CurrentTagName = null;
+                CurrentTagName = Const.Empty;
                 CurrentValue.Clear();
             }
             else if (CurrentValue.Length > 0)

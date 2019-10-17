@@ -9,7 +9,6 @@ using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using Das.Serializer;
 using Interfaces.Shared.Settings;
-using Serializer;
 using Serializer.Core;
 
 namespace Das.Types
@@ -19,10 +18,14 @@ namespace Das.Types
         public TypeManipulator(ISerializerSettings settings) : base(settings)
         {
             CachedAdders = new ConcurrentDictionary<Type, VoidMethod>();
+        }
 
+        static TypeManipulator()
+        {
             _knownSensitive = new ConcurrentDictionary<Type, TypeStructure>();
             _knownInsensitive = new ConcurrentDictionary<Type, TypeStructure>();
-        }
+
+        } 
 
         private const BindingFlags InterfaceMethodBindings = BindingFlags.Instance |
                                                              BindingFlags.Public | BindingFlags.NonPublic;
@@ -30,8 +33,8 @@ namespace Das.Types
         private readonly ConcurrentDictionary<Type, VoidMethod> CachedAdders;
 
 
-        private readonly ConcurrentDictionary<Type, TypeStructure> _knownSensitive;
-        private readonly ConcurrentDictionary<Type, TypeStructure> _knownInsensitive;
+        private static readonly ConcurrentDictionary<Type, TypeStructure> _knownSensitive;
+        private static readonly ConcurrentDictionary<Type, TypeStructure> _knownInsensitive;
 
         /// <summary>
         /// Returns a delegate that can be invoked to quickly get the value for an object
@@ -42,7 +45,7 @@ namespace Das.Types
         {
             var setParamType = Const.ObjectType;
             Type[] setParamTypes = {setParamType};
-            var setReturnType = Const.ObjectType; 
+            var setReturnType = Const.ObjectType;
 
             var owner = typeof(DasType);
 
@@ -79,7 +82,7 @@ namespace Das.Types
             Const.ObjectType.MakeByRefType(), Const.ObjectType
         };
 
-       
+
 
         PropertySetter ITypeManipulator.CreateSetMethod(MemberInfo memberInfo)
             => CreateSetMethod(memberInfo);
@@ -110,7 +113,7 @@ namespace Das.Types
                 throw new InvalidOperationException();
 
             var setter = new DynamicMethod(
-                "",
+                String.Empty,
                 typeof(void),
                 ParamTypes,
                 reflectedType.Module,
@@ -235,7 +238,7 @@ namespace Das.Types
         public Action<Object, Object> CreateFieldSetter(FieldInfo fieldInfo)
         {
             var dynam = new DynamicMethod(
-                ""
+                String.Empty
                 , typeof(void)
                 , Const.TwoObjectTypeArray
                 , typeof(VoidMethod)
@@ -285,7 +288,7 @@ namespace Das.Types
             var dyn = CreateMethodCaller(method, false);
             return (Func<Object, Object[], Object>) dyn.CreateDelegate(typeof(Func<Object, Object[], Object>));
         }
-        
+
         public static DynamicMethod CreateMethodCaller(MethodInfo method, Boolean isSuppressReturnValue)
         {
             Type[] argTypes = {Const.ObjectType, typeof(Object[])};
@@ -362,7 +365,7 @@ namespace Das.Types
 
             var eType = exampleValue.GetType();
 
-            var addMethod = collectionType.GetMethod("Add", new[] { eType });
+            var addMethod = collectionType.GetMethod("Add", new[] {eType});
 
             if (addMethod == null)
             {
@@ -371,10 +374,10 @@ namespace Das.Types
                     let args = i.GetGenericArguments()
                     where args.Length == 1
                           && args[0] == eType
-                          select i).FirstOrDefault();
+                    select i).FirstOrDefault();
 
                 if (interfaces != null)
-                    addMethod = interfaces.GetMethod("Add", new[] { eType });
+                    addMethod = interfaces.GetMethod("Add", new[] {eType});
 
             }
 
@@ -385,7 +388,7 @@ namespace Das.Types
             return CreateMethodCaller(addMethod);
         }
 
-        
+
 
         /// <summary>
         /// Gets a delegate to add an object to a non-generic collection
@@ -400,7 +403,6 @@ namespace Das.Types
 
             if (type.IsGenericType)
             {
-
                 dynamic dCollection = collection;
                 res = CreateAddDelegate(dCollection);
                 //no need to cache here since it will be added to the cache in the other method
@@ -454,7 +456,6 @@ namespace Das.Types
 
             var prmType = cType.GetGenericArguments().FirstOrDefault()
                           ?? Const.ObjectType;
-
 
             foreach (var meth in cType.GetMethods(BindingFlags.Instance | BindingFlags.Public))
             {
@@ -522,10 +523,13 @@ namespace Das.Types
             }
         }
 
-        public Int32 PropertyCount(Type type)
+        public Boolean HasSettableProperties(Type type)
         {
-            var str = ValidateCollection(type, Settings, true);
-            return str.PropertyCount;
+            if (_knownSensitive.TryGetValue(type, out var result) &&
+                result.Depth >= SerializationDepth.GetSetProperties)
+                return result.PropertyCount > 0;
+
+            return type.GetProperties().Any(p => p.CanWrite);
         }
 
         public ITypeStructure GetStructure<T>(ISerializationDepth depth)
@@ -539,6 +543,8 @@ namespace Das.Types
             return ValidateCollection(type, depth, false);
         }
 
+        private readonly Object _lockNewType = new Object();
+
         private TypeStructure ValidateCollection(Type type, ISerializationDepth depth,
             Boolean caseSensitive)
         {
@@ -546,15 +552,31 @@ namespace Das.Types
 
             var doCache = Settings.CacheTypeConstructors;
 
-            if (doCache && collection.TryGetValue(type, out var result) && 
-                result.Depth >= depth.SerializationDepth)
+            if (IsAlreadyExists(out var result))
                 return result;
 
-            result = new TypeStructure(type, caseSensitive, depth.SerializationDepth, this);
-            if (!doCache)
-                return result;
+            lock (_lockNewType)
+            {
+                if (IsAlreadyExists(out result))
+                    return result;
 
-            return collection.AddOrUpdate(type, result, (k, v) => v.Depth > result.Depth ? v : result);
+                result = new TypeStructure(type, caseSensitive, depth, this);
+                if (!doCache)
+                    return result;
+
+                return collection.AddOrUpdate(type, result, (k, v) => v.Depth > result.Depth ? v : result);
+            }
+
+
+            Boolean IsAlreadyExists(out TypeStructure res)
+            {
+                if (doCache && collection.TryGetValue(type, out res) &&
+                    result.Depth >= depth.SerializationDepth)
+                    return true;
+
+                res = default;
+                return false;
+            }
         }
     }
 }

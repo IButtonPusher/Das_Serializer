@@ -1,4 +1,5 @@
-﻿using Das.Scanners;
+﻿using System;
+using Das.Scanners;
 using Das.Serializer;
 
 namespace Serializer.Core
@@ -13,10 +14,10 @@ namespace Serializer.Core
 
             PrimitiveScanner = _context.PrimitiveScanner;
             _scanner = scanner;
-            Scanner = scanner;
         }
 
-        public ITextScanner Scanner { get; }
+        public ITextScanner Scanner => _scanner;
+        public IScannerBase<Char[]> ArrayScanner => _scanner;
 
         private readonly TextScanner _scanner;
 

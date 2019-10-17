@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Das;
 using Das.Serializer;
+using Das.Serializer.Scanners;
 
 namespace Serializer.Core
 {
@@ -15,6 +16,8 @@ namespace Serializer.Core
         private readonly IStringPrimitiveScanner _scanner;
         private readonly ITypeManipulator _typeManipulator;
         private readonly IObjectManipulator _objects;
+
+        private static readonly NullNode NullNode = NullNode.Instance;
 
         public TextNodeSealer(INodeManipulator nodeValues,
             IStringPrimitiveScanner scanner, ISerializationCore facade,
@@ -31,10 +34,8 @@ namespace Serializer.Core
 
         public override void CloseNode(ITextNode node)
         {
-            if (node.Name == "GlobalPartitions")
-            { }
-
-            _values.TryBuildValue(node);
+            if (node.Type == null)
+                _typeProvider.InferType(node);
 
             if (node.NodeType == NodeTypes.None)
                 node.NodeType = _typeProvider.GetNodeType(node, Settings.SerializationDepth);
@@ -44,6 +45,8 @@ namespace Serializer.Core
                 case NodeTypes.Object:
 
                     #region object = sum of attributes (primitives) and children (should already be imbued)
+
+                    _values.TryBuildValue(node);
 
                     foreach (var attr in node.Attributes)
                     {
@@ -64,7 +67,6 @@ namespace Serializer.Core
                         var val = _scanner.GetValue(str, type) ?? str;
                         var wal = node.Value;
                         _objects.SetProperty(node.Type, attr.Key, ref wal, val);
-                        node.Value = wal;
                     }
 
                     break;
@@ -79,7 +81,7 @@ namespace Serializer.Core
 
                     #region build primitive
 
-                    var nodeText = node.Text.ToString();
+                    var nodeText = node.Text;
                     if (!String.IsNullOrWhiteSpace(nodeText))
                         node.Value = _scanner.GetValue(nodeText, node.Type);
                     break;
@@ -156,28 +158,22 @@ namespace Serializer.Core
                 case NodeTypes.Fallback:
 
                     #region serialize/maybe takes string as a constructor
+                  
 
-                    if (node.Text == null)
-                        break;
-                    var txt = node.Text.ToString();
-
-                    if (txt.Length == 0)
+                    if (node.Text.Length == 0)
                     {
                         node.Value = null;
                         return;
                     }
 
+                    var txt = node.Text;
+
                     var isGoodReturnType = !_facade.TypeInferrer.IsUseless(node.Type);
 
-                    if (!isGoodReturnType)
-                    {
-                        node.Value = _scanner.GetValue(txt, node.Type);
-                    }
-                    else
-                    {
-                        node.Value = _scanner.GetValue(txt, node.Type);
+                    node.Value = _scanner.GetValue(txt, node.Type);
+                        
+                    if (isGoodReturnType)
                         Imbue(node.Parent, node.Name, node.Value);
-                    }
 
                     break;
 
@@ -186,7 +182,7 @@ namespace Serializer.Core
 
             var parent = node.Parent;
 
-            if (parent != null)
+            if (NullNode != parent && node.Value != null)
                 Imbue(parent, node.Name, node.Value);
         }
 
@@ -195,7 +191,7 @@ namespace Serializer.Core
             var refLength = refValue.Length;
             var chain = new Stack<ITextNode>();
             var current = node.Parent;
-            while (current != null)
+            while (NullNode != current)
             {
                 chain.Push(current);
                 current = current.Parent;
@@ -213,7 +209,7 @@ namespace Serializer.Core
                 _values.TryBuildValue(current);
 
             node.Value = current.Value;
-            if (node.Parent != null)
+            if (NullNode != node.Parent)
                 Imbue(node.Parent, node.Name, node.Value);
         }
 

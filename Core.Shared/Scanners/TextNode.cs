@@ -9,18 +9,37 @@ namespace Das.Scanners
     internal class TextNode : BaseNode<ITextNode>, ITextNode
     {
         public TextNode(String name, ISerializerSettings settings,
-            INodeManipulator nodeManipulator) : base(settings)
+            INodeManipulator nodeManipulator, ISerializationDepth depth) 
+            : base(settings)
         {
-            Text = new StringBuilder();
+            _text = new StringBuilder();
             _nodeManipulator = nodeManipulator;
+            _depth = depth;
             Name = name;
 
             Children = new Dictionary<String, ITextNode>(
                 StringComparer.InvariantCultureIgnoreCase);
         }
 
-        private readonly INodeManipulator _nodeManipulator;
-        public StringBuilder Text { get; }
+      
+
+        private INodeManipulator _nodeManipulator;
+        private ISerializationDepth _depth;
+
+        public void Set(String name, ISerializationDepth depth,
+            INodeManipulator nodeManipulator)
+        {
+            Name = name;
+            _depth = depth;
+            _nodeManipulator = nodeManipulator;
+        }
+
+        private readonly StringBuilder _text;
+        public String Text => _text.ToString();
+        public void Append(String str) => _text.Append(str);
+
+        public void Append(Char c) => _text.Append(c);
+        
 
         public IDictionary<String, ITextNode> Children { get; }
 
@@ -30,12 +49,13 @@ namespace Das.Scanners
                 child.Clear();
 
             Children.Clear();
+            _nodeManipulator = default;
 
             base.Clear();
-            Text.Clear();
+            _text.Clear();
         }
 
-        public override Boolean IsEmpty => Name == null && Type == null
+        public override Boolean IsEmpty => Name == Const.Empty && Type == null
                                                         && Children.Count == 0;
 
 
@@ -57,12 +77,21 @@ namespace Das.Scanners
         {
             if (NodeType == NodeTypes.None)
             {
-                _nodeManipulator.InferType(this);
+                if (Type == null)
+                    _nodeManipulator.InferType(this);
 
                 if (!IsUseless(Type))
+                {
                     NodeType = _nodeManipulator.GetNodeType(Type,
                         Settings.SerializationDepth);
 
+                    if (node.Type == null)
+                    {
+                        var someType = _nodeManipulator.GetChildType(this, node);
+                        if (!IsUseless(someType))
+                            node.Type = someType;
+                    }
+                }
 
                 if (NodeType == NodeTypes.PropertiesToConstructor)
                     Children.Clear();
@@ -71,16 +100,9 @@ namespace Das.Scanners
             if (NodeType == NodeTypes.Collection)
                 Children.Add($"{Children.Count}", node);
 
-            else if (node.Name != null)
+            else if (node.Name != Const.Empty)
             {
-                if (Children.ContainsKey(node.Name))
-                {
-                    //deduce that it's a collection
-                    NodeType = NodeTypes.Collection;
-                    Children.Add($"{Children.Count}", node);
-                }
-                else
-                    Children.Add(node.Name, node);
+                Children.Add(node.Name, node);
             }
             else
             {
@@ -91,8 +113,14 @@ namespace Das.Scanners
 
         public void SetText(Object value)
         {
-            Text.Clear();
-            Text.Append(value);
+            _text.Clear();
+            _text.Append(value);
         }
+
+        public Boolean IsOmitDefaultValues => _depth.IsOmitDefaultValues;
+
+        public SerializationDepth SerializationDepth => _depth.SerializationDepth;
+
+        public Boolean IsRespectXmlIgnore => _depth.IsRespectXmlIgnore;
     }
 }

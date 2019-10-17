@@ -59,5 +59,30 @@
 //}
 
 
+
+//    }
+//}
+
+//https://devblogs.microsoft.com/premier-developer/dissecting-new-generics-constraints-in-c-7-3/
+//using System;
+//using System.Reflection.Emit;
+//
+//public static class EnumConverter
+//{
+//    public static Func<T, long> CreateConvertToLong<T>() where T : struct, Enum
+//    {
+//        var method = new DynamicMethod(
+//            name: "ConvertToLong",
+//            returnType: typeof(long),
+//            parameterTypes: new[] { typeof(T) },
+//            m: typeof(EnumConverter).Module,
+//            skipVisibility: true);
+//
+//        ILGenerator ilGen = method.GetILGenerator();
+//
+//        ilGen.Emit(OpCodes.Ldarg_0);
+//        ilGen.Emit(OpCodes.Conv_I8);
+//        ilGen.Emit(OpCodes.Ret);
+//        return (Func<T, long>)method.CreateDelegate(typeof(Func<T, long>));
 //    }
 //}

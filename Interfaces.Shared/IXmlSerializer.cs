@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 // ReSharper disable UnusedMemberInSuper.Global
@@ -14,6 +15,8 @@ namespace Das.Serializer
         /////////////////////////////////////////////////////////////////
 
         T FromXml<T>(String xml);
+
+        T FromXml<T>(IEnumerable<Char> xml);
 
         Task<T> FromXml<T>(FileInfo file);
 

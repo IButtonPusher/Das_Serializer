@@ -47,7 +47,7 @@ namespace Das.CoreExtensions
             Char? excludeWhenFirst = null)
         {
             if (list == null)
-                return "";
+                return String.Empty;
 
             var sb = new StringBuilder();
             foreach (var i in list)
@@ -97,13 +97,41 @@ namespace Das.CoreExtensions
             return collection.Any(c => Equals(c, item));
         }
 
-        public static Boolean ContainsFlag<TEnum>(this Enum item, TEnum checking)
-            where TEnum : Enum, IConvertible
-        {
-            var l = Convert.ToInt64(item);
-            var r = Convert.ToInt64(checking);
-            return (l | r) == l;
-        }
+        private const Double MyEpsilon = 0.00001;
+
+        [MethodImpl(256)]
+        public static Boolean AreEqualEnough(this Double d1, Double d2)
+            => Math.Abs(d1 - d2) < MyEpsilon;
+
+        [MethodImpl(256)]
+        public static Boolean AreEqualEnough(this Double? d1, Double? d2)
+            => d1.HasValue && d2.HasValue && Math.Abs(d1.Value - d2.Value) < MyEpsilon;
+
+        [MethodImpl(256)]
+        public static Boolean IsZero(this Double d) => Math.Abs(d) < MyEpsilon;
+
+        [MethodImpl(256)]
+        public static Boolean IsZero(this Single d) => Math.Abs(d) < MyEpsilon;
+
+        [MethodImpl(256)]
+        public static Boolean IsNotZero(this Double d) => Math.Abs(d) >= MyEpsilon;
+
+        [MethodImpl(256)]
+        public static Boolean IsNotZero(this Int32 d) => d != 0;
+
+        public static Boolean IsZero(this Int32 d) => d == 0;
+
+        [MethodImpl(256)]
+        public static Boolean AreDifferent(this Double d1, Double d2)
+            => Math.Abs(d1 - d2) > MyEpsilon;
+
+        [MethodImpl(256)]
+        public static Boolean AreEqualEnough(this Single f1, Single f2)
+            => Math.Abs(f1 - f2) < 0.00001f;
+
+        [MethodImpl(256)]
+        public static Boolean AreEqualEnough(this Int32 i1, Double d1)
+            => Convert.ToInt32(d1) == i1;
 
         public static Boolean Congruent<T>(this IList<T> left, IList<T> right)
         {

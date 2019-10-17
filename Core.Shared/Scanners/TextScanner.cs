@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 using Das.Serializer;
-using Serializer;
+using Das.Serializer.Annotations;
+using Das.Serializer.Scanners;
 using Serializer.Core;
 
 namespace Das.Scanners
@@ -12,6 +13,8 @@ namespace Das.Scanners
         protected List<Char> EscapeChars;
         protected List<Char> WhiteSpaceChars;
 
+        private static readonly NullNode NullNode = NullNode.Instance;
+
         protected abstract Boolean IsQuote(Char c);
 
         private readonly ITextNodeProvider _nodes;
@@ -19,10 +22,15 @@ namespace Das.Scanners
         private Boolean _isQuoteOpen;
         private Boolean _isEscapeNext;
         protected readonly StringBuilder CurrentValue;
+        
         public ITextNode RootNode { get; protected set; }
+
+        [NotNull]
         protected ITextNode CurrentNode;
         protected readonly Dictionary<String, String> CurrentAttributes;
         protected readonly IStringPrimitiveScanner PrimitiveScanner;
+
+        [NotNull]
         protected String CurrentTagName;
 
         protected Boolean HasCurrentTag => !String.IsNullOrWhiteSpace(CurrentTagName);
@@ -37,6 +45,11 @@ namespace Das.Scanners
         protected TextScanner(IConverterProvider converterProvider, ITextContext state)
             : base(state, state.Settings)
         {
+            CurrentTagName = Const.Empty;
+            CurrentNode = NullNode;
+
+            SerializationDepth = state.Settings.SerializationDepth;
+            IsOmitDefaultValues = state.Settings.IsOmitDefaultValues;
             _converter = converterProvider.ObjectConverter;
             CurrentValue = new StringBuilder();
             CurrentAttributes = new Dictionary<String, String>();
@@ -51,6 +64,7 @@ namespace Das.Scanners
                 Const.CarriageReturn, '\n', '\t', Const.Space
             };
 
+            RootNode = NullNode;
 
             _nodes = state.NodeProvider;
         }
@@ -60,9 +74,9 @@ namespace Das.Scanners
         {
             var hold = CurrentNode;
 
-            CurrentNode = _nodes.Get(CurrentTagName, CurrentAttributes, hold);
+            CurrentNode = _nodes.Get(CurrentTagName, CurrentAttributes, hold, this);
 
-            if (hold != null)
+            if (NullNode != hold)
                 hold.AddChild(CurrentNode);
             else if (!CurrentNode.IsEmpty)
             {
@@ -75,11 +89,24 @@ namespace Das.Scanners
             }
             else
             {
-                CurrentNode = default; //discard
+                CurrentNode = NullNode; //discard
             }
         }
 
         protected abstract void ProcessCharacter(Char c);
+
+        public T Deserialize<T>(Char[] source)
+        {
+            _resultType = typeof(T);
+
+            for (var i = 0; i < source.Length; i++)
+            {
+                var c = source[i];
+                PreProcessCharacter(c);
+            }
+
+            return GetResult<T>();
+        }
 
         public T Deserialize<T>(IEnumerable<Char> source)
         {
@@ -103,54 +130,72 @@ namespace Das.Scanners
                 do
                 {
                     c = iterator.Current;
-
-                    if (_isQuoteOpen)
-                    {
-                        if (!_isEscapeNext && IsQuote(c))
-                        {
-                            _isQuoteOpen = false;
-                            continue;
-                        }
-
-                        //we can only escape one char and if we got here
-                        //we can't already specified the escape or aren't 
-                        //escaping at all_isQuoteOpen
-                        _isEscapeNext = EscapeChars.Contains(c);
-
-                        CurrentValue.Append(c);
-
-                        continue;
-                    }
-
-                    var isQuote = IsQuote(c);
-
-                    if (isQuote)
-                        _isQuoteOpen = !_isQuoteOpen;
-                    else
-                        switch (c)
-                        {
-                            case '\0':
-                                break;
-                            default:
-                                ProcessCharacter(c);
-                                break;
-                        }
-                } while (iterator.MoveNext());
+                    PreProcessCharacter(c);
+                }
+                while (iterator.MoveNext());
             }
 
-            return TextState.ObjectManipulator.CastDynamic<T>(RootNode.Value, _converter, Settings);
+            return GetResult<T>();
         }
+
+        private T GetResult<T>() => TextState.ObjectManipulator.
+            CastDynamic<T>(RootNode.Value, _converter, Settings);
+
+        private void PreProcessCharacter(Char c)
+        {
+            var iq = IsQuote(c);
+
+            if (_isQuoteOpen)
+            {
+                if (!_isEscapeNext && iq)
+                {
+                    _isQuoteOpen = false;
+                    return;
+                }
+
+                //we can only escape one char and if we got here
+                //we can't already specified the escape or aren't 
+                //escaping at all_isQuoteOpen
+                _isEscapeNext = EscapeChars.Contains(c);
+
+                CurrentValue.Append(c);
+
+                return;
+            }
+
+            if (iq)
+                _isQuoteOpen = !_isQuoteOpen;
+            else
+                switch (c)
+                {
+                    case '\0':
+                        break;
+                    default:
+                        ProcessCharacter(c);
+                        break;
+                }
+        }
+
+       
 
         public void Invalidate()
         {
             _isQuoteOpen = _isEscapeNext = false;
             CurrentValue.Clear();
-            _nodes.Put(RootNode);
-            RootNode = null;
-            CurrentNode = null;
+            if (NullNode != RootNode)
+            {
+                _nodes.Put(RootNode);
+                RootNode = NullNode;
+            }
+
+            CurrentNode = NullNode;
             CurrentAttributes.Clear();
-            CurrentTagName = null;
+            CurrentTagName = Const.Empty;
             _resultType = default;
         }
+
+        public Boolean IsOmitDefaultValues { get; }
+        public SerializationDepth SerializationDepth { get; }
+        public virtual Boolean IsRespectXmlIgnore => false;
     }
 }

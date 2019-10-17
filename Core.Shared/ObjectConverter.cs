@@ -200,9 +200,9 @@ namespace Das
 
                 _currentNodeType = _dynamicFacade.GetNodeType(pType, _currentSettings.SerializationDepth);
 
-                if (references.ContainsKey(nextFrom))
+                if (references.TryGetValue(nextFrom, out var found))
                 {
-                    nextTo = references[nextFrom];
+                    nextTo = found;
                     ObjectManipulator.SetPropertyValue(ref to, propInfo.Name, nextTo);
                     continue;
                 }

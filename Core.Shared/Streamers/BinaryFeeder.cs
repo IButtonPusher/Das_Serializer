@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using Das.CoreExtensions;
 using Das.Serializer;
-using Serializer;
 using Serializer.Core;
 using Serializer.Core.Binary;
 
@@ -54,10 +51,7 @@ namespace Das.Streamers
         private readonly ITypeInferrer _typeInferrer;
 
         #endregion
-
-        #region construction
-
-        #endregion
+       
 
         #region public interface
 
@@ -68,14 +62,10 @@ namespace Das.Streamers
         public Int32 GetNextBlockSize()
         {
             var forInt = _currentBytes[_byteIndex, 4];
-
-            var indexWas = _byteIndex;
+            
             var length = _scanner.GetInt32(forInt);
 
             _byteIndex += 4;
-
-            Trace.WriteLine("bLoCk size " + length + " from indeces " + indexWas + "-"
-                            + (_byteIndex - 1) + ": " + forInt.ToString(Const.Comma));
 
             return length;
         }

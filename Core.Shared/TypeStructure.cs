@@ -7,9 +7,7 @@ using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using Das.Serializer;
 using Serializer.Core;
-using Das.CoreExtensions;
 using Das.Serializer.Objects;
-using Serializer;
 
 namespace Das
 {
@@ -39,13 +37,12 @@ namespace Das
         public Int32 PropertyCount { get; }
 
         public TypeStructure(Type type, Boolean isPropertyNamesCaseSensitive,
-            SerializationDepth depth, ITypeManipulator state)
+            ISerializationDepth depth, ITypeManipulator state)
             : base(state.Settings)
         {
-
             _xmlIgnores = new HashSet<String>();
 
-            Depth = depth;
+            Depth = depth.SerializationDepth;
             _types = state;
 
             if (type.IsDefined(typeof(SerializeAsTypeAttribute), false))
@@ -91,7 +88,7 @@ namespace Das
             PropertyCount = _propertySetters.Count;
         }
 
-        private void CreatePropertyDelegates(Type type, SerializationDepth depth)
+        private void CreatePropertyDelegates(Type type, ISerializationDepth depth)
         {
             foreach (var pi in _types.GetPublicProperties(type))
             {
@@ -110,6 +107,8 @@ namespace Das
                             break;
                         case XmlIgnoreAttribute _:
                             _xmlIgnores.Add(pi.Name);
+                            if (depth.IsRespectXmlIgnore)
+                                isSerialize = false;
                             break;
                     }
                 }
@@ -143,7 +142,7 @@ namespace Das
                 if (!_getOnly.ContainsKey(pi.Name))
                     _getOnly.Add(pi.Name, _types.CreatePropertyGetter(type, pi));
 
-                if ((depth & SerializationDepth.GetOnlyProperties)
+                if ((depth.SerializationDepth & SerializationDepth.GetOnlyProperties)
                     != SerializationDepth.GetOnlyProperties)
                     continue;
 
@@ -152,9 +151,10 @@ namespace Das
             }
         }
 
-        private void CreateFieldDelegates(Type type, SerializationDepth depth)
+        private void CreateFieldDelegates(Type type, ISerializationDepth depth)
         {
-            if (!depth.ContainsFlag(SerializationDepth.PrivateFields))
+            if ((depth.SerializationDepth & SerializationDepth.PrivateFields) !=
+                SerializationDepth.PrivateFields)
                 return;
 
             foreach (var fld in type.GetFields(BindingFlags.Public | Const.NonPublic))
@@ -247,12 +247,12 @@ namespace Das
                 return null;
             var pType = _types.InstanceMemberType(mInfo);
 
-            if (_propGetters.ContainsKey(propertyName))
-                return new NamedValueNode(propertyName, _propGetters[propertyName](o), pType);
-            if (_getOnly.ContainsKey(propertyName))
-                return new NamedValueNode(propertyName, _getOnly[propertyName](o), pType);
-            if (_getDontSerialize.ContainsKey(propertyName))
-                return new NamedValueNode(propertyName, _getDontSerialize[propertyName](o), pType);
+            if (_propGetters.TryGetValue(propertyName, out var getter))
+                return new NamedValueNode(propertyName, getter(o), pType);
+            if (_getOnly.TryGetValue(propertyName,out var getOnly))
+                return new NamedValueNode(propertyName, getOnly(o), pType);
+            if (_getDontSerialize.TryGetValue(propertyName, out var notSerialized))
+                return new NamedValueNode(propertyName, notSerialized(o), pType);
 
             return null;
         }

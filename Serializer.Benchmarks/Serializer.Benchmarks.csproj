@@ -71,5 +71,10 @@
     <None Include="app.config" />
     <None Include="Serializer.Benchmarks.ruleset" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet">
+      <Version>0.11.5</Version>
+    </PackageReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

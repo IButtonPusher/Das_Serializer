@@ -20,7 +20,7 @@ namespace Serializer.Core
         public INodeSealer<ITextNode> Sealer { get; }
 
         public ITextNode Get(String name, Dictionary<String, String> attributes,
-            ITextNode parent)
+            ITextNode parent, ISerializationDepth depth)
         {
             ITextNode node;
             var buffer = Buffer;
@@ -28,10 +28,11 @@ namespace Serializer.Core
             if (buffer.Count > 0)
             {
                 node = buffer.Dequeue();
-                node.Name = name;
+                node.Set(name, depth, _nodeManipulator);
             }
-
-            node = new TextNode(name, Settings, _nodeManipulator);
+            else
+                node = new TextNode(name, Settings, _nodeManipulator, depth);
+            
 
             node.Parent = parent;
 

@@ -13,6 +13,9 @@ namespace Serializer.Core
             TypeProvider = typeProvider;
         }
 
+        private static readonly ThreadLocal<List<T>> LetsAdd
+            = new ThreadLocal<List<T>>(() => new List<T>());
+
         protected static Queue<T> Buffer => _buffer.Value;
 
         private static readonly ThreadLocal<Queue<T>> _buffer
@@ -27,8 +30,15 @@ namespace Serializer.Core
                 return;
 
             var buffer = Buffer;
+            var letsAdd = LetsAdd.Value;
+            
+            letsAdd.AddRange(node);
+
             node.Clear();
-            buffer.Enqueue(node);
+            foreach (var n in letsAdd)
+                buffer.Enqueue(n);
+
+            letsAdd.Clear();
         }
     }
 }

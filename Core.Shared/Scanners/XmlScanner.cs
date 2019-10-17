@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Das.Serializer;
-using Serializer;
+using Das.Serializer.Scanners;
 
 namespace Das.Scanners
 {
@@ -10,6 +10,7 @@ namespace Das.Scanners
     {
         private Boolean _isClosingTag;
         private Boolean _isOpeningTag;
+        private Boolean _isOpeningOrClosingTag;
         private String _currentAttributeName;
         private Boolean _isJustClosedTag;
         private Boolean _isInsideTag;
@@ -19,9 +20,11 @@ namespace Das.Scanners
         private Boolean _isNextTagPivot;
         private readonly ITextNodeProvider _nodes;
 
+        private static readonly NullNode NullNode = NullNode.Instance;
+
         [MethodImpl(256)]
         protected sealed override Boolean IsQuote(Char c)
-            => (_isOpeningTag || _isClosingTag) && (c == Const.Quote || c == Const.SingleQuote);
+            => _isOpeningOrClosingTag && (c == Const.Quote || c == Const.SingleQuote);
 
 
         public XmlScanner(IConverterProvider converterProvider, ITextContext state)
@@ -32,7 +35,7 @@ namespace Das.Scanners
             WhiteSpaceChars = new List<Char> {Const.CarriageReturn, '\n', '\t'};
         }
 
-        protected override void ProcessCharacter(Char c)
+        protected sealed override void ProcessCharacter(Char c)
         {
             //we should never get here if we are in quotes/escaping
             switch (c)
@@ -44,6 +47,7 @@ namespace Das.Scanners
 
                     _isOpeningTag = true;
                     _isClosingTag = false;
+                    _isOpeningOrClosingTag = true;
                     _isJustClosedTag = false;
                     break;
                 case '>':
@@ -57,17 +61,19 @@ namespace Das.Scanners
                     CurrentValue.Clear();
                     _isClosingTag = false;
                     _isOpeningTag = false;
+                    _isOpeningOrClosingTag = false;
                     break;
                 case '/':
                     if (!_isInsideTag)
                     {
                         CurrentValue.Append(c);
-                        CurrentNode.Text.Append(c);
+                        CurrentNode.Append(c);
                         break;
                     }
 
                     _isOpeningTag = false;
                     _isClosingTag = true;
+                    _isOpeningOrClosingTag = true;
                     break;
                 case '=':
                     if (_isOpeningTag)
@@ -78,7 +84,7 @@ namespace Das.Scanners
                     }
                     else
                     {
-                        CurrentNode.Text.Append(c);
+                        CurrentNode.Append(c);
                         CurrentValue.Append(c);
                     }
 
@@ -93,7 +99,7 @@ namespace Das.Scanners
                     else if (!_isJustClosedTag)
                     {
                         CurrentValue.Append(c);
-                        CurrentNode.Text.Append(c);
+                        CurrentNode.Append(c);
                     }
 
                     break;
@@ -105,7 +111,7 @@ namespace Das.Scanners
                     }
 
                     if (!_isInsideTag)
-                        CurrentNode?.Text.Append(c);
+                        CurrentNode.Append(c);
 
                     CurrentValue.Append(c);
 
@@ -113,12 +119,16 @@ namespace Das.Scanners
             }
         }
 
+        public sealed override Boolean IsRespectXmlIgnore => true;
+
         public void CollateCurrentValue()
         {
             var val = CurrentValue.ToString();
 
             if (!HasCurrentTag)
                 CurrentTagName = val;
+
+
             else if (String.IsNullOrWhiteSpace(_currentAttributeName))
                 _currentAttributeName = val;
             else if (!CurrentAttributes.ContainsKey(_currentAttributeName))
@@ -135,15 +145,16 @@ namespace Das.Scanners
 
             ClearCurrents();
 
-            if (CurrentNode.Parent != null)
+            if (NullNode != CurrentNode.Parent)
                 CurrentNode = CurrentNode.Parent;
         }
 
         private void ClearCurrents()
         {
             CurrentAttributes.Clear();
-            CurrentTagName = null;
+            CurrentTagName = Const.Empty;
             CurrentValue.Clear();
+            _currentAttributeName = null;
         }
 
 
@@ -159,12 +170,14 @@ namespace Das.Scanners
                 BuildNode();
 
             _isOpeningTag = false;
-            CurrentTagName = _currentAttributeName = null;
+            CurrentTagName = Const.Empty;
+            _currentAttributeName = null;
         }
 
         private void BuildNode()
         {
-            if (CurrentNode == null && CurrentTagName == Const.WutXml)
+            if (NullNode == CurrentNode && 
+                CurrentTagName == Const.WutXml)
                 ClearCurrents();
 
 

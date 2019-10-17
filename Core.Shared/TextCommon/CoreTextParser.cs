@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
+using Das.Serializer;
 
 // ReSharper disable UnusedMember.Global
 
@@ -259,7 +260,7 @@ namespace Serializer
         {
             var sb = new StringBuilder(input);
             foreach (var rip in toRemove)
-                sb.Replace(rip, "");
+                sb.Replace(rip, String.Empty);
 
             return sb.ToString();
         }
@@ -444,7 +445,7 @@ namespace Serializer
             }
 
             var beg = json.IndexOf(":", pos + 2, StringComparison.Ordinal);
-            if (beg == -1) return "";
+            if (beg == -1) return String.Empty;
 
             var end = -1;
 
@@ -480,10 +481,10 @@ namespace Serializer
                 {
                     end = json.IndexOf("}", beg, StringComparison.Ordinal);
                     if (end == -1)
-                        return "";
+                        return String.Empty;
                 }
                 else
-                    return "";
+                    return String.Empty;
             }
 
             if (beg >= end)
@@ -493,9 +494,9 @@ namespace Serializer
             return value;
         }
 
-        public String AsUSString(Decimal amount, Int32 decimalPlaces) => AsUSString((Double) amount, decimalPlaces);
+        public String AsUSString(Double amount, Int32 decimalPlaces) => AsUSString((Decimal)amount, decimalPlaces);
 
-        public String AsUSString(Double amount, Int32 decimalPlaces)
+        public String AsUSString(Decimal amount, Int32 decimalPlaces)
         {
             switch (decimalPlaces)
             {
@@ -506,7 +507,7 @@ namespace Serializer
                 case 0:
                     return amount.ToString("0", _enUs);
                 default:
-                    return amount.ToString("0." + "".PadLeft(decimalPlaces), _enUs);
+                    return amount.ToString("0." + String.Empty.PadLeft(decimalPlaces), _enUs);
             }
         }
 
@@ -514,7 +515,7 @@ namespace Serializer
 
         public String AsUSString(Double amount) => amount.ToString("0.00", _enUs);
 
-        public Boolean AppendAsUsCommaString(StringBuilder sb, IEnumerable<Decimal> amountList,
+        public Boolean AppendAsUsCommaString(StringBuilder sb, IEnumerable<Double> amountList,
             Int32 multiple, Int32 decimalPlaces)
         {
             using (var iter = amountList.GetEnumerator())

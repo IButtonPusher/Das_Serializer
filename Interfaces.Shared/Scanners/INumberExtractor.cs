@@ -11,12 +11,12 @@ namespace Serializer
         /// Tries to turn the whole string into the number using 0.00 formatting
         /// </summary>
         /// <returns>0 if it's a completely invalid input</returns>
-        Decimal GetCurrency(String fromString);
+        Double GetCurrency(String fromString);
 
         /// <summary>
         /// Tries to find some currency but if nothing found returns false
         /// </summary>
-        Boolean TryGetCurrency(String fromString, out Decimal currency);
+        Boolean TryGetCurrency(String fromString, out Double currency);
 
         /// <summary>
         /// tries to infer in which format the text is (e.g 1.23 | 1,234.56 etc)
@@ -27,7 +27,7 @@ namespace Serializer
 
         String GetCurrencyText(String fromString);
 
-        Decimal GetNumericalDifference(Decimal left, Decimal right);
+        Double GetNumericalDifference(Double left, Double right);
 
         Boolean AreEqual(Double left, Double right);
     }

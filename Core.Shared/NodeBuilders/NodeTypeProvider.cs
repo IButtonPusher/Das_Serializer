@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Das.Serializer;
+using Das.Serializer.Scanners;
 
 namespace Serializer.Core
 {
@@ -19,6 +20,8 @@ namespace Serializer.Core
             _types = dynamicFacade.TypeInferrer;
             _instantiator = dynamicFacade.ObjectInstantiator;
         }
+
+        protected static readonly NullNode NullNode = NullNode.Instance;
 
         private readonly ISerializationCore _dynamicFacade;
         private readonly ConcurrentDictionary<Type, NodeTypes> _cachedNodeTypes;
@@ -43,7 +46,7 @@ namespace Serializer.Core
             //we have to build a type here because we only now know all the properties						
             var typeName = new StringBuilder(node.Name);
             var current = node.Parent;
-            while (current != null)
+            while (NullNode != current)
             {
                 typeName.Insert(0, $"{current.Name}_");
                 current = current.Parent;
@@ -75,7 +78,7 @@ namespace Serializer.Core
 
             if (_types.IsUseless(typ))
             {
-                if (node.Parent == null)
+                if (NullNode == node.Parent)
                     return false;
 
                 typ = GetChildType(node.Parent, node);
@@ -98,12 +101,11 @@ namespace Serializer.Core
                     return null;
             }
 
-            TryBuildValue(parent);
             if (_types.IsCollection(parent.Type))
                 return _types.GetGermaneType(parent.Type);
 
             if (parent.Type.IsValueType && parent.Type.IsGenericType &&
-                parent.Parent != null && parent.Parent.Value
+                NullNode != parent.Parent && parent.Parent.Value
                     is IDictionary)
             {
                 if (child.Name.Equals("key", StringComparison.OrdinalIgnoreCase))
@@ -111,9 +113,9 @@ namespace Serializer.Core
 
                 if (child.Name.Equals("value", StringComparison.OrdinalIgnoreCase))
                     return parent.Type.GetGenericArguments()[1];
-
-
             }
+            else if (_types.IsLeaf(parent.Type, true))
+                return parent.Type;
 
             return _dynamicFacade.TypeManipulator.GetPropertyType(parent.Type,
                 child.Name);
@@ -124,18 +126,23 @@ namespace Serializer.Core
             if (!TryGetExplicitType(node, out var foundType) &&
                 !_types.IsInstantiable(node.Type))
             {
-                if (foundType == null && node.Parent != null)
+                if (foundType == null && NullNode != node.Parent)
                     foundType = GetChildType(node.Parent, node);
 
-                if (foundType == null && node.Name != null)
+                if (foundType == null && node.Name != Const.Empty
+                    && Settings.PropertySearchDepth > TextPropertySearchDepths.ResolveByPropertyName)
                 {
                     //type is null but we have a name. Try with the name as is
-                    foundType = _types.GetTypeFromClearName(node.Name);
-
-                    if (foundType == null)
+                    switch (Settings.PropertySearchDepth)
                     {
-                        var search = _types.ToPropertyStyle(node.Name);
-                        foundType = _types.GetTypeFromClearName(search);
+                        case TextPropertySearchDepths.AsTypeInLoadedModules:
+                            foundType = _types.GetTypeFromLoadedModules(node.Name)
+                                ?? _types.GetTypeFromLoadedModules(
+                                    _types.ToPropertyStyle(node.Name));
+                            break;
+                        case TextPropertySearchDepths.AsTypeInNamespacesAndSystem:
+                            foundType = _types.GetTypeFromClearName(node.Name);
+                            break;
                     }
                 }
             }
@@ -178,10 +185,11 @@ namespace Serializer.Core
                     ? NodeTypes.Fallback
                     : NodeTypes.Dynamic;
             }
-            else if (_dynamicFacade.TypeManipulator.PropertyCount(type) > 0)
-                output = NodeTypes.Object;
             else if (_types.IsCollection(type))
                 output = NodeTypes.Collection;
+            else if (_dynamicFacade.TypeManipulator.HasSettableProperties(type))
+                output = NodeTypes.Object;
+            
             else if (type.IsSerializable && !type.IsGenericType &&
                      !typeof(IStructuralEquatable).IsAssignableFrom(type))
                 output = NodeTypes.Fallback;

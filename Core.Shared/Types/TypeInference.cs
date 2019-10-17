@@ -7,7 +7,6 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using Das.Serializer;
-using Serializer;
 using Serializer.Core;
 using Das.CoreExtensions;
 
@@ -139,6 +138,8 @@ namespace Das.Types
 
         public String ToPropertyStyle(String name)
             => $"{Char.ToUpper(name[0])}{name.Substring(1)}";
+
+       
 
         public String ToClearName(Type type, Boolean isOmitAssemblyName)
         {
@@ -306,7 +307,6 @@ namespace Das.Types
                     return Convert.ToInt32(conv) == 0;
             }
 
-
             var t = o.GetType();
 
             if (!t.IsValueType || t == typeof(void))
@@ -329,7 +329,10 @@ namespace Das.Types
         }
 
         public Type GetTypeFromClearName(String clearName)
-            => FromClearName(clearName, true, true);
+            => FromClearName(clearName, true, false);
+
+        public Type GetTypeFromLoadedModules(String typeName)
+            => FromClearName(typeName, true, true);
 
         public Type FromClearName(String clearName, Boolean isRecurse,
             Boolean isTryGeneric)
@@ -540,15 +543,15 @@ namespace Das.Types
         private static Boolean TryFind(String clearName, IEnumerable<Assembly> assemblies,
             out Type type)
         {
-            foreach (var ass in assemblies)
+            foreach (var asm in assemblies)
             {
                 try
                 {
-                    type = ass.GetType(clearName);
+                    type = asm.GetType(clearName);
                     if (type != null)
                         return true;
 
-                    type = ass.GetTypes().FirstOrDefault(t => t.Name == clearName);
+                    type = asm.GetTypes().FirstOrDefault(t => t.Name == clearName);
                     if (type != null)
                         return true;
                 }

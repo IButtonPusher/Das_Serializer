@@ -1,16 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Das.Serializer
 {
-    public interface ITextNode : INode<ITextNode>, IEnumerable<ITextNode>
+    public interface ITextNode : INode<ITextNode>, IEnumerable<ITextNode>, ISerializationDepth
     {
-        StringBuilder Text { get; }
+        void Set(String name, ISerializationDepth depth, INodeManipulator nodeManipulator);
+
+        String Text { get; }
+
+        void Append(String str);
+
+        void Append(Char c);
 
         void SetText(Object value);
-
-        new String Name { get; set; }
 
         void AddChild(ITextNode node);
 

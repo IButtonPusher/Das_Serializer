@@ -3,11 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Das.Serializer;
+using Das.Serializer.Scanners;
 
 namespace Serializer.Core
 {
     public abstract class BaseNodeSealer<TNode> : INodeSealer<TNode>
-        where TNode : INode<TNode>
+        where TNode : INode<TNode>, INode
     {
         private readonly ISerializationCore _facade;
         private readonly INodeManipulator _values;
@@ -28,7 +29,7 @@ namespace Serializer.Core
 
         public void Imbue(TNode node, String name, Object value)
         {
-            if (node == null)
+            if (NullNode.Instance == node)
                 return;
 
             var dynProps = node.DynamicProperties;
@@ -64,7 +65,7 @@ namespace Serializer.Core
             if (_objects.SetProperty(t, name,
                 ref wal, value))
             {
-                node.Value = wal;
+                //node.Value = wal;
                 return;
             }
 

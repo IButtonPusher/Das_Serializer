@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using Das.Serializer.Annotations;
 
 namespace Das.Serializer
 {
     public interface INode<TNode> : INode where TNode : INode<TNode>
     {
+        [NotNull]
         new TNode Parent { get; set; }
     }
 
     public interface INode
     {
+        [NotNull]
         INode Parent { get; }
 
         Type Type { get; set; }
@@ -18,6 +21,7 @@ namespace Das.Serializer
 
         Boolean IsForceNullValue { get; set; }
 
+        [NotNull]
         String Name { get; }
 
         Boolean IsEmpty { get; }

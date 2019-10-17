@@ -1,9 +1,9 @@
 ﻿using Das.Printers;
 using System;
 using System.IO;
+using Das.Serializer;
 using Serializer.Core.Files;
 using Das.Serializer.Objects;
-using Serializer;
 using Serializer.Core.Remunerators;
 
 namespace Das

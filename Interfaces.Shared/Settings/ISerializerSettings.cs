@@ -37,6 +37,12 @@ namespace Das.Serializer
         String[] TypeSearchNameSpaces { get; set; }
 
         /// <summary>
+        /// Defines the depth of the search to resolve elements to their types when
+        /// deserializing text as JSON or XML
+        /// </summary>
+        TextPropertySearchDepths PropertySearchDepth { get; }
+
+        /// <summary>
         /// Allows control over how much nested elements in json and xml are indented.
         /// Use whitespace like spaces and tabs only
         /// </summary>
