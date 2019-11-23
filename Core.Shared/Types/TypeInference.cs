@@ -79,7 +79,7 @@ namespace Das.Types
                 //for the case of, zb, dictionary[string, list<int>] where we're at 
                 //list<int> so it's a generic argument that has a generic argument(s)
                 //but we have to avoid omitting the non-generic part
-                yield return GetTypeFromClearName(type);
+                yield return GetTypeFromClearName(type, true);
                 yield break;
             }
 
@@ -100,7 +100,7 @@ namespace Das.Types
             } while (startIndex >= 0);
         }
 
-        private static String ExtractGenericMeat(String clearName, out Int32 startIndex,
+        private String ExtractGenericMeat(String clearName, out Int32 startIndex,
             out Int32 endIndex)
         {
             startIndex = clearName.IndexOf('[');
@@ -328,11 +328,8 @@ namespace Das.Types
             return def.Equals(o);
         }
 
-        public Type GetTypeFromClearName(String clearName)
-            => FromClearName(clearName, true, false);
-
-        public Type GetTypeFromLoadedModules(String typeName)
-            => FromClearName(typeName, true, true);
+        public Type GetTypeFromClearName(String clearName,Boolean isTryGeneric = false)
+            => FromClearName(clearName, true, isTryGeneric);
 
         public Type FromClearName(String clearName, Boolean isRecurse,
             Boolean isTryGeneric)
@@ -349,7 +346,7 @@ namespace Das.Types
             if (isTryGeneric)
             {
                 var genericArgs = DeriveGeneric(clearName, out var genericName);
-                if (genericArgs.Count > 0)
+                if (genericArgs.Length > 0)
                 {
                     if (genericName == null)
                     {
@@ -360,7 +357,7 @@ namespace Das.Types
                     var genericType = FromClearName(genericName, true, true);
                     if (genericType != null)
                     {
-                        type = genericType.MakeGenericType(genericArgs.ToArray());
+                        type = genericType.MakeGenericType(genericArgs);
                         EnsureCached(clearName, type);
                         return type;
                     }
@@ -391,14 +388,22 @@ namespace Das.Types
                 TypeNames.TryAdd(clearName, type);
         }
 
-        private List<Type> DeriveGeneric(String clearName, out String generic)
+        private Type[] DeriveGeneric(String clearName, out String generic)
         {
-            var genericTypes = new List<Type>();
             var isSomeGeneric = false;
 
             var search = clearName;
             var genericMeat = ExtractGenericMeat(search, out var startIndex, out var endIndex);
             var firstStart = startIndex;
+
+            if (startIndex < 0)
+            {
+                generic = default;
+                return Type.EmptyTypes;
+            }
+
+            var genericTypes = new List<Type>();
+
             while (startIndex >= 0)
             {
                 //could be List[string], dictionary[int][string]				
@@ -412,7 +417,7 @@ namespace Das.Types
                         if (meat == null)
                         {
                             generic = default;
-                            return new List<Type> {null};
+                            return new Type[] {null};
                         }
 
                         genericTypes.Add(meat);
@@ -443,7 +448,7 @@ namespace Das.Types
             }
             else generic = default;
 
-            return genericTypes;
+            return genericTypes.ToArray();
         }
 
         private Type GetNotAssemblyQualified(String clearName, Boolean isRecurse)

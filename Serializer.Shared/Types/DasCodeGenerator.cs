@@ -55,20 +55,23 @@ namespace Das.Serializer
 
                 return AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, _access);
 
-                #endif
-
+                #else
                 return AssemblyBuilder.DefineDynamicAssembly(asmName, access);
+
+                #endif
             }
         }
 
         [Pure]
         private ModuleBuilder GetModuleBuilder()
         {
-            var canSave = GetCanSave();
+            
 
             lock (_lock)
             {
 #if NET45 || NET40
+
+                var canSave = GetCanSave();
                 //if we will be saving to disk, create the module to be saved as well.
                 if (canSave)
                     return AssemblyBuilder.DefineDynamicModule(_moduleName, _moduleName + ".netmodule");
@@ -78,17 +81,17 @@ namespace Das.Serializer
 
             }
         }
-
+        
+        // ReSharper disable once UnusedMember.Local
         private Boolean GetCanSave()
         {
             #if NET45
 
             return _access == AssemblyBuilderAccess.Save ||
                     _access == AssemblyBuilderAccess.RunAndSave;
-
-            #endif
-
+            #else
             return false;
+            #endif
         }
     }
 }

@@ -13,9 +13,7 @@ namespace Das.Serializer
         /// <example>MyProduct.MyNamespace.MyTypeName</example>
         /// <example>MyAssembly.dll, MyProduct.MyNamespace.MyTypeName which would be faster than
         /// not specifying the assembly name</example>
-        Type GetTypeFromClearName(String clearName);
-
-        Type GetTypeFromLoadedModules(String typeName);
+        Type GetTypeFromClearName(String clearName, Boolean isTryGeneric = false);
 
         String ToClearName(Type type, Boolean isOmitAssemblyName);
 

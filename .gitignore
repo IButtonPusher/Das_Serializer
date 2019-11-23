@@ -39,3 +39,4 @@
 /Serializer.Benchmarks/bin/Debug
 *.pdb
 /Test
+/Das.Serializer/obj

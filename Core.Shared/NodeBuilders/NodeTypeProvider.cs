@@ -136,9 +136,9 @@ namespace Serializer.Core
                     switch (Settings.PropertySearchDepth)
                     {
                         case TextPropertySearchDepths.AsTypeInLoadedModules:
-                            foundType = _types.GetTypeFromLoadedModules(node.Name)
-                                ?? _types.GetTypeFromLoadedModules(
-                                    _types.ToPropertyStyle(node.Name));
+                            foundType = _types.GetTypeFromClearName(node.Name, true)
+                                ?? _types.GetTypeFromClearName(
+                                    _types.ToPropertyStyle(node.Name), true);
                             break;
                         case TextPropertySearchDepths.AsTypeInNamespacesAndSystem:
                             foundType = _types.GetTypeFromClearName(node.Name);

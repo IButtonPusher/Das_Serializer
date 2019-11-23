@@ -90,14 +90,6 @@
       <Project>{a9d2ef65-4059-4c0a-b513-d49ac3d66cf2}</Project>
       <Name>Das.Serializer</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Serializer.Interfaces\Serializer.Interfaces.csproj">
-      <Project>{c6e56268-9045-4dbb-b83a-f14c009a5944}</Project>
-      <Name>Serializer.Interfaces</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Serializer.Core\Serializer.Core.csproj">
-      <Project>{aa0fcdf8-5bfa-4eb5-8590-b153f6ee0fec}</Project>
-      <Name>Serializer.Core</Name>
-    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

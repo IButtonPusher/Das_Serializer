@@ -63,18 +63,18 @@ namespace UnitTestProject1
 			var type = typeof(List<String>);
 			var str = type.GetClearName(false);
 			Serializer.TypeInferrer.ClearCachedNames();
-			var type2 = Serializer.TypeInferrer.GetTypeFromClearName(str);
+			var type2 = Serializer.TypeInferrer.GetTypeFromClearName(str, true);
 			Assert.AreEqual(type, type2);
 
 
 			type = typeof(Dictionary<String, Random>);
 			str = type.GetClearName(false);
 			Serializer.TypeInferrer.ClearCachedNames();
-			type2 = Serializer.TypeInferrer.GetTypeFromClearName(str);
+			type2 = Serializer.TypeInferrer.GetTypeFromClearName(str, true);
 			Assert.AreEqual(type, type2);
 
 			var fullName = type.FullName;
-			type2 = Serializer.TypeInferrer.GetTypeFromClearName(fullName);
+			type2 = Serializer.TypeInferrer.GetTypeFromClearName(fullName, true);
 			Assert.AreEqual(type, type2);
 
 			type = typeof(Dictionary<String, SimpleClass>);
@@ -93,13 +93,13 @@ namespace UnitTestProject1
 			type = typeof(GenericClass<SimpleClass>);
 			str = type.GetClearName(false);
 			Serializer.TypeInferrer.ClearCachedNames();
-			type2 = Serializer.TypeInferrer.GetTypeFromClearName(str);
+			type2 = Serializer.TypeInferrer.GetTypeFromClearName(str, true);
 			Assert.AreEqual(type, type2);
 
 			type = typeof(Dictionary<string, List<decimal>>);
 			str = type.GetClearName(false);
 			Serializer.TypeInferrer.ClearCachedNames();
-			type2 = Serializer.TypeInferrer.GetTypeFromClearName(str);
+			type2 = Serializer.TypeInferrer.GetTypeFromClearName(str, true);
 			Assert.AreEqual(type, type2);
 		}
 	}
