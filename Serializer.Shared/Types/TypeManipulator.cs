@@ -401,21 +401,26 @@ namespace Das.Types
             if (CachedAdders.TryGetValue(type, out var res))
                 return res;
 
+
+#if NET40 || NET45
             if (type.IsGenericType)
             {
                 dynamic dCollection = collection;
                 res = CreateAddDelegate(dCollection);
+                return res;
                 //no need to cache here since it will be added to the cache in the other method
             }
-            else if (collection is ICollection icol)
+#endif
+
+            if (collection is ICollection icol)
             {
                 res = CreateAddDelegate(icol, type);
+                return res;
             }
-            else
-            {
-                var boxList = new List<Object>(collection.OfType<Object>());
-                res = CreateAddDelegate(boxList, type);
-            }
+
+            var boxList = new List<Object>(collection.OfType<Object>());
+            res = CreateAddDelegate(boxList, type);
+
 
             return res;
         }
@@ -428,7 +433,7 @@ namespace Das.Types
                 return res;
 
             //super sophisticated
-            var method = type.GetMethod("Add");
+            var method = type.GetMethod(nameof(IList.Add));
             if (method != null)
             {
                 var dynam = CreateMethodCaller(method, true);
