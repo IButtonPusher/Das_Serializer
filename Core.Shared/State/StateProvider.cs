@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using Das;
+using Das.Scanners;
 using Das.Serializer;
+using Das.Serializer.Scanners;
 using Serializer.Core.State;
 
 namespace Serializer.Core
@@ -31,6 +34,10 @@ namespace Serializer.Core
         protected static readonly ThreadLocal<Queue<IBinaryLoaner>> _binaryBuffer
             = new ThreadLocal<Queue<IBinaryLoaner>>(() => new Queue<IBinaryLoaner>());
 
+        private static Queue<IBinaryLoaner> ProtoBuffer => _protoBuffer.Value;
+        protected static readonly ThreadLocal<Queue<IBinaryLoaner>> _protoBuffer
+            = new ThreadLocal<Queue<IBinaryLoaner>>(() => new Queue<IBinaryLoaner>());
+
         private static Queue<IXmlLoaner> XmlBuffer => _xmlBuffer.Value;
 
         protected static readonly ThreadLocal<Queue<IXmlLoaner>> _xmlBuffer
@@ -56,7 +63,22 @@ namespace Serializer.Core
             var buffer = BinaryBuffer;
             var state = buffer.Count > 0
                 ? buffer.Dequeue()
-                : new BinaryBorrawable(ReturnToLibrary, settings, this);
+                : new BinaryBorrawable(ReturnToLibrary, settings, this, 
+                    s => new BinaryScanner(s), 
+                    (c, s) => new BinaryPrimitiveScanner(c,s), BinaryContext.Logger);
+            state.UpdateSettings(settings);
+            return state;
+        }
+
+        public IBinaryLoaner BorrowProto<T>(ISerializerSettings settings,
+            ProtoBufOptions<T> options) where T : Attribute
+        {
+            var buffer = ProtoBuffer;
+            var state = buffer.Count > 0
+                ? buffer.Dequeue()
+                : new BinaryBorrawable(ReturnToLibrary, settings, this, 
+                    s => new ProtoScanner<T>(s, options),
+                    (c, s) => new ProtoPrimitiveScanner(c, s), BinaryContext.Logger);
             state.UpdateSettings(settings);
             return state;
         }

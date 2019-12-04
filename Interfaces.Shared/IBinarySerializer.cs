@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+
 // ReSharper disable UnusedMemberInSuper.Global
 
 // ReSharper disable UnusedMember.Global
@@ -33,5 +34,13 @@ namespace Das.Serializer
         void ToBytes(Object o, FileInfo fileName);
 
         void ToBytes<TTarget>(Object o, FileInfo fileName);
+
+        void ToProtoStream<TObject, TPropertyAttribute>(Stream stream, TObject o,
+            ProtoBufOptions<TPropertyAttribute> options)
+            where TPropertyAttribute : Attribute;
+
+        TObject FromProtoStream<TObject, TPropertyAttribute>(Stream stream,
+            ProtoBufOptions<TPropertyAttribute> options)
+            where TPropertyAttribute : Attribute;
     }
 }

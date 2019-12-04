@@ -6,7 +6,6 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using Das.CoreExtensions;
 using Das.Serializer.Objects;
-using Serializer.Core.Binary;
 using Serializer.Core.Printers;
 using Serializer.Core.Remunerators;
 
@@ -14,7 +13,7 @@ namespace Das.Printers
 {
     internal class BinaryPrinter : PrinterBase<Byte>, IDisposable, ISerializationDepth
     {
-        public BinaryPrinter(IBinaryWriter writer, ISerializationState stateProvider)
+        public BinaryPrinter(IBinaryWriter writer, IBinaryState stateProvider)
             : base(stateProvider)
         {
             IsPrintNullProperties = true;
@@ -22,6 +21,7 @@ namespace Das.Printers
             _stateProvider = stateProvider;
             _fallbackFormatter = null;
             IsTextPrinter = false;
+            _logger = stateProvider.Logger;
         }
 
         Boolean ISerializationDepth.IsOmitDefaultValues => false;
@@ -31,11 +31,10 @@ namespace Das.Printers
 
         public override Boolean IsRespectXmlIgnore => false;
 
-        private IBinaryWriter _bWriter;
-        private readonly ISerializationState _stateProvider;
+        protected IBinaryWriter _bWriter;
+        protected readonly ISerializationState _stateProvider;
         private BinaryFormatter _fallbackFormatter;
         private BinaryLogger _logger;
-        private BinaryLogger Logger => _logger ?? (_logger = new BinaryLogger());
 
 
         #region public interface
@@ -51,7 +50,7 @@ namespace Das.Printers
                 PushStack(name);
 
             if (node.Name != String.Empty)
-                Logger.Debug("*PROP* " + " [" + node.Name + "]");
+                _logger.Debug("*PROP* " + " [" + node.Name + "]");
 
             try
             {
@@ -74,30 +73,49 @@ namespace Das.Printers
                 }
 
                 var res = _stateProvider.GetNodeType(useType, Settings.SerializationDepth);
-
                 var print = new PrintNode(name, val, useType, res, isWrapping);
 
-                if (!isLeaf || isWrapping)
-                {
-                    Push(print);
-                    PrintObject(print);
-                    var popping = _bWriter;
-                    var wroten = _bWriter.SumLength;
-                    _bWriter = _bWriter.Pop();
-
-                    Logger.TabMinus();
-                    Logger.Debug("<- POP! TO Index  " + wroten + " " + popping);
-                }
-                else
-                    PrintObject(print);
-
-                return val != null;
+                return PrintBinaryNode(print, !isLeaf || isWrapping);
+//                if (!isLeaf || isWrapping)
+//                {
+//                    Push(print);
+//                    PrintObject(print);
+//                    var popping = _bWriter;
+//                    var wroten = _bWriter.SumLength;
+//                    _bWriter = _bWriter.Pop();
+//
+//                    Logger.TabMinus();
+//                    Logger.Debug("<- POP! TO Index  " + wroten + " " + popping);
+//                }
+//                else
+//                    PrintObject(print);
+//
+//                return val != null;
             }
             finally
             {
                 if (!_isIgnoreCircularDependencies)
                     PopStack();
             }
+        }
+
+        protected Boolean PrintBinaryNode(PrintNode print, Boolean isPush)
+        { 
+            if (isPush)
+            {
+                Push(print);
+                PrintObject(print);
+                var popping = _bWriter;
+                var wroten = _bWriter.SumLength;
+                _bWriter = _bWriter.Pop();
+
+                _logger.TabMinus();
+                _logger.Debug("<- POP! TO Index  " + wroten + " " + popping);
+            }
+            else
+                return PrintObject(print);
+
+            return print.Value != null;
         }
 
         private Boolean TryWrap(Type propType, ref Object val, ref Type valType)
@@ -128,16 +146,16 @@ namespace Das.Printers
 
         protected override void PrintReferenceType(PrintNode node)
         {
-            Logger.Debug("*REFERENCE* " + node.Value);
+            _logger.Debug("*REFERENCE* " + node.Value);
             base.PrintReferenceType(node);
         }
 
         private void Push(PrintNode node)
         {
-            Logger.Debug("->PUSH to index " + _bWriter.Length + " " + node);
+            _logger.Debug("->PUSH to index " + _bWriter.Length + " " + node);
 
             _bWriter = _bWriter.Push(node);
-            Logger.TabPlus();
+            _logger.TabPlus();
 
             if (node.IsWrapping)
                 WriteType(node.Value.GetType());
@@ -157,7 +175,7 @@ namespace Das.Printers
                 var o = node.Value;
                 var type = node.Type;
 
-                Logger.Debug("@PRIMITIVE " + type.Name + " = " + o);
+                _logger.Debug("@PRIMITIVE " + type.Name + " = " + o);
 
 
                 Byte[] bytes;
@@ -229,7 +247,7 @@ namespace Das.Printers
                         return;
                 }
 
-                Logger.Debug($"Printing primitive [{o}] length {bytes.Length} {bytes.ToString(',')}");
+                _logger.Debug($"Printing primitive [{o}] length {bytes.Length} {bytes.ToString(',')}");
 
                 _bWriter.Write(bytes);
                 break;
@@ -281,7 +299,7 @@ namespace Das.Printers
                     var buff = stream.GetBuffer();
                     _bWriter.Append(buff, length);
 
-                    Logger.Debug("*FALLBACK* " + o + " type: " + node.Type.Name + " length: " +
+                    _logger.Debug("*FALLBACK* " + o + " type: " + node.Type.Name + " length: " +
                                  length + " data: " + buff.Take(0, length).ToString(','));
                 }
             }
@@ -303,13 +321,13 @@ namespace Das.Printers
         {
             var typeName = TypeInferrer.ToClearName(type, false);
 
-            Logger.Debug($"writing type. {typeName} forced: " +
+            _logger.Debug($"writing type. {typeName} forced: " +
                          (Settings.TypeSpecificity == TypeSpecificity.All));
 
             WriteString(typeName);
         }
 
-        private void WriteString(String str)
+        protected virtual void WriteString(String str)
         {
             if (str == null)
             {
@@ -321,7 +339,7 @@ namespace Das.Printers
             var bytes = GetBytes(str);
 
             var len = bytes.Length;
-            Logger.Debug($"[String] {str}  {len} bytes: {bytes.ToString(',')}");
+            _logger.Debug($"[String] {str}  {len} bytes: {bytes.ToString(',')}");
             _bWriter.WriteInt32(len);
             _bWriter.Append(bytes);
         }

@@ -245,10 +245,10 @@ namespace Das.Printers
             }
         }
 
-        protected virtual void PrintSeries<T>(IEnumerable<T> values, Func<T, Boolean> meth)
+        protected virtual void PrintSeries<T>(IEnumerable<T> values, Func<T, Boolean> exe)
         {
             foreach (var val in values)
-                meth(val);
+                exe(val);
         }
 
         protected IEnumerable<ObjectNode> ExplodeList(IEnumerable list, Type itemType)

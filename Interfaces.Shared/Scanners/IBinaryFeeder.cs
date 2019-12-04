@@ -16,7 +16,11 @@ namespace Das.Streamers
 
         T GetPrimitive<T>();
 
+        Int32 GetInt32();
+
         Int32 Index { get; }
+
+        Boolean HasMoreBytes { get; }
 
         /// <summary>
         /// takes the next 4 bytes for length then the next N bytes and turns them into a Type

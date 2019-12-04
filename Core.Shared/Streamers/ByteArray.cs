@@ -24,6 +24,9 @@ namespace Serializer.Core
             }
         }
 
+        public static implicit operator ByteArray(Byte[] array) 
+            => new ByteArray(array);
+
         public Int64 Length => _array.LongLength;
     }
 }

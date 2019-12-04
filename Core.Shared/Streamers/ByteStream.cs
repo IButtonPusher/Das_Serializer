@@ -8,6 +8,7 @@ namespace Serializer.Core
     {
         private readonly Stream _stream;
 
+
         public ByteStream(Stream stream)
         {
             _stream = stream;
@@ -17,9 +18,8 @@ namespace Serializer.Core
         {
             get
             {
-                var res = new Byte[1];
-                _stream.Read(res, bytes, 1);
-                return res[0];
+                _stream.Position = bytes;
+                return (Byte)_stream.ReadByte();
             }
         }
 
@@ -28,8 +28,8 @@ namespace Serializer.Core
             get
             {
                 var res = new Byte[length];
-
-                _stream.Read(res, start, length);
+                _stream.Position = start;
+                _stream.Read(res, 0, length);
                 return res;
             }
         }

@@ -4,6 +4,7 @@ using System.IO;
 using Das.Serializer;
 using Serializer.Core.Files;
 using Das.Serializer.Objects;
+using Das.Serializer.Remunerators;
 using Serializer.Core.Remunerators;
 
 namespace Das
@@ -16,9 +17,10 @@ namespace Das
         {
             using (var ms = new MemoryStream())
             {
-                using (var writer = new BinaryWriterWrapper(ms))
+                var bWriter = new BinaryWriterWrapper(ms);
+
                 using (var state = StateProvider.BorrowBinary(Settings))
-                using (var bp = new BinaryPrinter(writer, state))
+                using (var bp = new BinaryPrinter(bWriter, state))
                 {
                     var node = new NamedValueNode(Const.Root, o, asType);
                     bp.PrintNode(node);
@@ -55,5 +57,22 @@ namespace Das
             var obj = (TTarget) o;
             ToBytes(obj, fileName);
         }
+
+        public void ToProtoStream<TObject, TPropertyAttribute>(Stream stream, TObject o,
+            ProtoBufOptions<TPropertyAttribute> options)
+            where TPropertyAttribute : Attribute
+        {
+            var pWriter = new ProtoBufWriter(stream);
+            using (var state = StateProvider.BorrowBinary(Settings))
+            using (var printer = new ProtoPrinter<TPropertyAttribute>(pWriter, 
+                state, TypeManipulator, options))
+            {
+                
+                var node = new NamedValueNode(Const.Root, o, typeof(TObject));
+                printer.PrintNode(node);
+            }
+        }
+
+      
     }
 }

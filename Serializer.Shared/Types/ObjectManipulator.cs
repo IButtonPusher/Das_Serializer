@@ -66,7 +66,7 @@ namespace Das.Types
             return false;
         }
 
-        public IEnumerable<NamedValueNode> GetPropertyResults(ValueNode value,
+        public IEnumerable<PropertyValueNode> GetPropertyResults(ValueNode value,
             ISerializationDepth depth)
         {
             var val = value?.Value;
@@ -244,7 +244,7 @@ namespace Das.Types
             return false;
         }
 
-        private TypeStructure GetStructure(Type type, ISerializationDepth depth)
-            => _typeDelegates.GetStructure(type, depth);
+        private ITypeStructure GetStructure(Type type, ISerializationDepth depth)
+            => _typeDelegates.GetTypeStructure(type, depth);
     }
 }

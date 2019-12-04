@@ -1,4 +1,5 @@
 ﻿using System;
+using Interfaces.Shared.Settings;
 
 namespace Das.Serializer
 {
@@ -37,8 +38,6 @@ namespace Das.Serializer
         /// will be serialized.  Default is GetSetProperties
         /// </summary>
         public SerializationDepth SerializationDepth { get; set; }
-
-
         
         Boolean ISerializationDepth.IsRespectXmlIgnore => false;
 
@@ -63,6 +62,18 @@ namespace Das.Serializer
         public String NewLine { get; set; } = "\r\n";
 
         public Boolean CacheTypeConstructors { get; set; }
+        public void SetProtoBufOptions<TPropertyAttribute>(ProtoBufOptions<TPropertyAttribute> options) 
+            where TPropertyAttribute : Attribute
+        {
+            if (options == null)
+                BinaryFormat = BinaryFormats.Default;
+            else
+            {
+                BinaryFormat = BinaryFormats.ProtoBuf;
+            }
+        }
+
+        public BinaryFormats BinaryFormat { get; private set; } = BinaryFormats.Default;
 
         public DasSettings()
         {

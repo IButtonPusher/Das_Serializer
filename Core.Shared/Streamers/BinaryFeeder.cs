@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using Das.Serializer;
 using Serializer.Core;
-using Serializer.Core.Binary;
 
 namespace Das.Streamers
 {
@@ -20,32 +18,19 @@ namespace Das.Streamers
             _logger = logger;
         }
 
-        public BinaryFeeder(IBinaryPrimitiveScanner primitiveScanner,
-            ISerializationCore dynamicFacade, IEnumerable<Byte[]> source, ISerializerSettings settings,
-            BinaryLogger logger)
-            : this(primitiveScanner, dynamicFacade, Extract(source), settings, logger)
-        {
-        }
-
-
-        private static IByteArray Extract(IEnumerable<Byte[]> source)
-        {
-            using (var enumerator = source.GetEnumerator())
-            {
-                enumerator.MoveNext();
-                return new ByteArray(enumerator.Current);
-            }
-        }
-
         #region fields
 
-        private readonly IByteArray _currentBytes;
+        protected readonly IByteArray _currentBytes;
 
         private readonly BinaryLogger _logger;
 
-        public Int32 Index => _byteIndex;
+        public virtual Int32 GetInt32() => (Int32) GetPrimitive(typeof(Int32));
+        
 
-        private Int32 _byteIndex;
+        public Int32 Index => _byteIndex;
+        public Boolean HasMoreBytes => _byteIndex < _currentBytes.Length - 1;
+
+        protected Int32 _byteIndex;
 
         private readonly IBinaryPrimitiveScanner _scanner;
         private readonly ITypeInferrer _typeInferrer;
@@ -59,7 +44,7 @@ namespace Das.Streamers
         /// Returns the amount of bytes that the next object will use.  Advances
         /// the byte index forward by 4 bytes
         /// </summary>
-        public Int32 GetNextBlockSize()
+        public virtual Int32 GetNextBlockSize()
         {
             var forInt = _currentBytes[_byteIndex, 4];
             

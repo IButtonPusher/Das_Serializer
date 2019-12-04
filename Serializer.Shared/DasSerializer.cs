@@ -16,7 +16,7 @@ namespace Das
         }
 
         public DasSerializer(ISerializerSettings settings)
-            : base(new DefaultStateProvider(settings), WriteAsync, ReadToEndAsync)
+            : base(new DefaultStateProvider(settings, new BinaryLogger()), WriteAsync, ReadToEndAsync)
         {
         }
 

@@ -6,10 +6,11 @@
     <SharedGUID>aeb86a21-7287-4a27-b467-1a0d1c66fa9f</SharedGUID>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
-    <Import_RootNamespace>Interfaces.Shared</Import_RootNamespace>
+    <Import_RootNamespace>Das.Serializer</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Annotations.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BinaryLogger.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DasAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Delegates.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IAssemblyList.cs" />
@@ -20,6 +21,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IInstantiator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IObjectConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IObjectManipulator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IProtoStructure.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\ITypeCore.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\ITypeInferrer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\ITypeManipulator.cs" />
@@ -40,11 +42,13 @@
     <Compile Include="$(MSBuildThisFileDirectory)Nodes\ITextNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Nodes\ITextNodeProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Nodes\NodeTypes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Objects\DasMember.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\DasProperty.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\INamedField.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\NamedValueNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\ObjectNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\PrintNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Objects\PropertyValueNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\ValueNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IBinaryFeeder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IBinaryPrimitiveScanner.cs" />
@@ -57,11 +61,13 @@
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\ITextAccessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\ITextParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\ITextScanner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Settings\BinaryFormats.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\CircularReference.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\ISerializerSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\DepthConstants.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\ISerializationDepth.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\ISettingsUser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Settings\ProtoBufOptions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\TextPropertySearchDepths.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\SerializationDepth.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\TypeNotFound.cs" />

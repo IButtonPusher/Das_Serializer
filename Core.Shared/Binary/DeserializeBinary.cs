@@ -1,8 +1,8 @@
 ﻿using Das.Streamers;
 using System;
 using System.IO;
+using Das.Serializer;
 using Serializer.Core;
-
 
 namespace Das
 {
@@ -12,10 +12,17 @@ namespace Das
         {
             using (var state = StateProvider.BorrowBinary(Settings))
             {
-                var bit = new BinaryIterator(bytes);
-                var res = state.Scanner.Deserialize<T>(bit);
+                var arr = new ByteArray(bytes);
+
+                var f = GetFeeder(state, arr);
+                var res = state.Scanner.Deserialize<T>(f);
                 return res;
             }
+        }
+
+        public Object FromBytes(Byte[] bytes)
+        {
+            return FromBytes<Object>(bytes);
         }
 
         public T FromBytes<T>(FileInfo file)
@@ -29,14 +36,28 @@ namespace Das
             using (var state = StateProvider.BorrowBinary(Settings))
             {
                 var arr = new ByteStream(stream);
-                return state.Scanner.Deserialize<T>(arr);
+                var f = GetFeeder(state, arr);
+                return state.Scanner.Deserialize<T>(f);
             }
         }
 
-        public Object FromBytes(Byte[] bytes)
+        private IBinaryFeeder GetFeeder(IBinaryContext state, IByteArray arr)
         {
-            using (var state = StateProvider.BorrowBinary(Settings))
-                return state.Scanner.Deserialize<Object>(new BinaryIterator(bytes));
+            return new BinaryFeeder(state.PrimitiveScanner, state, arr, Settings, 
+                state.Logger);
+        }
+
+        public TObject FromProtoStream<TObject, TPropertyAttribute>(Stream stream,
+            ProtoBufOptions<TPropertyAttribute> options)
+            where TPropertyAttribute : Attribute
+        {
+            using (var state = StateProvider.BorrowProto(Settings, options))
+            {
+                var arr = new ByteStream(stream);
+                var f = new ProtoFeeder(state.PrimitiveScanner, state, arr, Settings,
+                    state.Logger);
+                return state.Scanner.Deserialize<TObject>(f);
+            }
         }
     }
 }

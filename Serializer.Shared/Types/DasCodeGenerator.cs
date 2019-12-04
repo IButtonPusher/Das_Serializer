@@ -53,7 +53,7 @@ namespace Das.Serializer
 
                 #if NET40
 
-                return AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, _access);
+                return AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, access);
 
                 #else
                 return AssemblyBuilder.DefineDynamicAssembly(asmName, access);

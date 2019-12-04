@@ -22,8 +22,9 @@ namespace Das.Types
 
         static TypeManipulator()
         {
-            _knownSensitive = new ConcurrentDictionary<Type, TypeStructure>();
-            _knownInsensitive = new ConcurrentDictionary<Type, TypeStructure>();
+            _knownSensitive = new ConcurrentDictionary<Type, ITypeStructure>();
+            _knownInsensitive = new ConcurrentDictionary<Type, ITypeStructure>();
+            _knownProto = new ConcurrentDictionary<Type, IProtoStructure>();
 
         } 
 
@@ -33,8 +34,9 @@ namespace Das.Types
         private readonly ConcurrentDictionary<Type, VoidMethod> CachedAdders;
 
 
-        private static readonly ConcurrentDictionary<Type, TypeStructure> _knownSensitive;
-        private static readonly ConcurrentDictionary<Type, TypeStructure> _knownInsensitive;
+        private static readonly ConcurrentDictionary<Type, ITypeStructure> _knownSensitive;
+        private static readonly ConcurrentDictionary<Type, IProtoStructure> _knownProto;
+        private static readonly ConcurrentDictionary<Type, ITypeStructure> _knownInsensitive;
 
         /// <summary>
         /// Returns a delegate that can be invoked to quickly get the value for an object
@@ -246,16 +248,11 @@ namespace Das.Types
             );
 
             var il = dynam.GetILGenerator();
-
-            // If method isn't static push target instance on top
-            // of stack.
+            
             if (!fieldInfo.IsStatic)
-            {
-                // Argument 0 of dynamic method is target instance.
                 il.Emit(OpCodes.Ldarg_0);
-            }
 
-            il.Emit(OpCodes.Ldarg_1); // load value
+            il.Emit(OpCodes.Ldarg_1);
 
             if (fieldInfo.FieldType.IsValueType)
             {
@@ -263,13 +260,9 @@ namespace Das.Types
             }
 
             if (!fieldInfo.IsStatic)
-            {
-                il.Emit(OpCodes.Stfld, fieldInfo); // store into field
-            }
+                il.Emit(OpCodes.Stfld, fieldInfo);
             else
-            {
-                il.Emit(OpCodes.Stsfld, fieldInfo); // static store into field
-            }
+                il.Emit(OpCodes.Stsfld, fieldInfo);
 
 
             il.Emit(OpCodes.Ret);
@@ -481,18 +474,19 @@ namespace Das.Types
             if (propName == null)
                 return default;
 
-            var ts = GetStructure(classType, DepthConstants.AllProperties);
-            return ts.MemberTypes.TryGetValue(propName, out var res) ? InstanceMemberType(res) : default;
+            var ts = GetTypeStructure(classType, DepthConstants.AllProperties);
+            return ts.MemberTypes.TryGetValue(propName, out var res) ? res.Type : default;
+                //InstanceMemberType(res) : default;
         }
 
 
         ITypeStructure ITypeManipulator.GetStructure(Type type, ISerializationDepth depth)
-            => GetStructure(type, depth);
+            => GetTypeStructure(type, depth);
 
-        public IEnumerable<MemberInfo> GetPropertiesToSerialize(Type type,
+        public IEnumerable<INamedField> GetPropertiesToSerialize(Type type,
             ISerializationDepth depth)
         {
-            var str = GetStructure(type, depth);
+            var str = GetTypeStructure(type, depth);
             foreach (var pi in str.GetMembersToSerialize(depth))
                 yield return pi;
         }
@@ -538,9 +532,9 @@ namespace Das.Types
         }
 
         public ITypeStructure GetStructure<T>(ISerializationDepth depth)
-            => GetStructure(typeof(T), depth);
+            => GetTypeStructure(typeof(T), depth);
 
-        internal TypeStructure GetStructure(Type type, ISerializationDepth depth)
+        public ITypeStructure GetTypeStructure(Type type, ISerializationDepth depth)
         {
             if (Settings.IsPropertyNamesCaseSensitive)
                 return ValidateCollection(type, depth, true);
@@ -548,9 +542,36 @@ namespace Das.Types
             return ValidateCollection(type, depth, false);
         }
 
+        public IProtoStructure GetProtoStructure<TPropertyAttribute>(Type type,
+            ProtoBufOptions<TPropertyAttribute> options) 
+            where TPropertyAttribute : Attribute
+        {
+            if (TryGetTypeStructure(type, Settings, _knownProto, out var found))
+                return found;
+
+            found = new ProtoStructure<TPropertyAttribute>(type, Settings, this, options);
+            _knownProto.TryAdd(type, found);
+            _knownSensitive.TryAdd(type, found);
+
+            return found;
+        }
+
         private readonly Object _lockNewType = new Object();
 
-        private TypeStructure ValidateCollection(Type type, ISerializationDepth depth,
+        private Boolean TryGetTypeStructure<TStructure>(Type type, ISerializationDepth depth,
+            IDictionary<Type, TStructure> collection, out TStructure found)
+            where TStructure : ITypeStructure
+        {
+            var doCache = Settings.CacheTypeConstructors;
+            if (doCache && collection.TryGetValue(type, out found) &&
+                found.Depth >= depth.SerializationDepth)
+                return true;
+
+            found = default;
+            return false;
+        }
+
+        private ITypeStructure ValidateCollection(Type type, ISerializationDepth depth,
             Boolean caseSensitive)
         {
             var collection = caseSensitive ? _knownSensitive : _knownInsensitive;
@@ -573,7 +594,7 @@ namespace Das.Types
             }
 
 
-            Boolean IsAlreadyExists(out TypeStructure res)
+            Boolean IsAlreadyExists(out ITypeStructure res)
             {
                 if (doCache && collection.TryGetValue(type, out res) &&
                     result.Depth >= depth.SerializationDepth)

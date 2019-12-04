@@ -14,7 +14,7 @@ namespace Das.Serializer
 
         Boolean TryGetPropertyValue<T>(Object obj, String propertyName, out T result);
 
-        IEnumerable<NamedValueNode> GetPropertyResults(ValueNode obj, ISerializationDepth depth);
+        IEnumerable<PropertyValueNode> GetPropertyResults(ValueNode obj, ISerializationDepth depth);
 
         Boolean SetFieldValue(Type classType, String fieldName, Object targetObj,
             Object propVal);

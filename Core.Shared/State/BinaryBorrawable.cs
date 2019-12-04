@@ -1,4 +1,5 @@
 ﻿using System;
+using Das.Scanners;
 using Das.Serializer;
 
 namespace Serializer.Core.State
@@ -7,9 +8,12 @@ namespace Serializer.Core.State
     {
         private readonly Action<IBinaryLoaner> _returnToLibrary;
 
-        public BinaryBorrawable(Action<IBinaryLoaner> returnToLibrary,
-            ISerializerSettings settings, IStateProvider dynamicFacade)
-            : base(dynamicFacade, settings)
+        internal BinaryBorrawable(Action<IBinaryLoaner> returnToLibrary,
+            ISerializerSettings settings, IStateProvider dynamicFacade,
+            Func<IBinaryState, BinaryScanner> getScanner,
+            Func<ISerializationCore, ISerializerSettings, IBinaryPrimitiveScanner> getPrimitiveScanner,
+            BinaryLogger logger)
+            : base(dynamicFacade, settings, getScanner, getPrimitiveScanner, logger)
         {
             _returnToLibrary = returnToLibrary;
         }

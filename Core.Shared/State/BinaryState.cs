@@ -1,18 +1,23 @@
-﻿using Das.Scanners;
+﻿using System;
+using Das.Scanners;
 using Das.Serializer;
 
 namespace Serializer.Core
 {
     public class BinaryState : BaseState, IBinaryState
     {
-        public BinaryState(IStateProvider stateProvider, ISerializerSettings settings)
+        internal BinaryState(IStateProvider stateProvider, ISerializerSettings settings, 
+            Func<IBinaryState, BinaryScanner> getScanner,
+            Func<ISerializationCore, ISerializerSettings, IBinaryPrimitiveScanner> getPrimitiveScanner,
+            BinaryLogger logger)
             : base(stateProvider, settings)
         {
             _settings = settings;
+            Logger = logger;
             _context = stateProvider.BinaryContext;
-            PrimitiveScanner = new BinaryPrimitiveScanner(stateProvider, settings);
+            PrimitiveScanner = getPrimitiveScanner(stateProvider, settings);
 
-            _scanner = new BinaryScanner(this);
+            _scanner = getScanner(this);
             Scanner = _scanner;
         }
 
@@ -22,6 +27,7 @@ namespace Serializer.Core
         IBinaryNodeProvider IBinaryContext.NodeProvider => _context.NodeProvider;
 
         public IBinaryPrimitiveScanner PrimitiveScanner { get; }
+        public BinaryLogger Logger { get; }
 
         public override INodeProvider NodeProvider => _context.NodeProvider;
 

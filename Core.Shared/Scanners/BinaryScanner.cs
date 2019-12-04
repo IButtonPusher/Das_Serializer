@@ -1,45 +1,33 @@
 ﻿using Das.Streamers;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using Das.Serializer;
 using Das.Serializer.Annotations;
 using Das.Serializer.Scanners;
 using Serializer.Core;
-using Serializer.Core.Binary;
 
 namespace Das.Scanners
 {
     internal class BinaryScanner : SerializerCore, IBinaryScanner
     {
-        #region construction
-
         public BinaryScanner(IBinaryContext state) : base(state, state.Settings)
         {
-            _logger = new BinaryLogger();
+            _logger = state.Logger;
             _state = state;
             _nodes = state.NodeProvider;
         }
 
-        #endregion
-
-        private IBinaryFeeder _feeder;
+        protected IBinaryFeeder _feeder;
         private IBinaryNode _rootNode;
-        private readonly IBinaryContext _state;
-        private readonly IBinaryNodeProvider _nodes;
+        protected readonly IBinaryContext _state;
+        protected readonly IBinaryNodeProvider _nodes;
         private BinaryLogger _logger;
 
         private static readonly NullNode NullNode = NullNode.Instance;
 
-        public TOutput Deserialize<TOutput>(IByteArray source)
+        public virtual T Deserialize<T>(IBinaryFeeder source)
         {
-            _feeder = new BinaryFeeder(_state.PrimitiveScanner, _state, source, Settings, _logger);
-            return Deserialize<TOutput>();
-        }
-
-        public T Deserialize<T>(IEnumerable<Byte[]> source)
-        {
-            _feeder = new BinaryFeeder(_state.PrimitiveScanner, _state, source, Settings, _logger);
+            _feeder = source;
             return Deserialize<T>();
         }
 
@@ -55,14 +43,14 @@ namespace Das.Scanners
             if (_rootNode.Type != orgType)
                 return ObjectManipulator.CastDynamic<T>(_rootNode.Value);
 
-            if (_rootNode?.Value != null)
+            if (_rootNode.Value != null)
                 _state.ObjectInstantiator.OnDeserialized(_rootNode.Value, Settings);
 
             return (T) _rootNode.Value;
         }
 
 
-        private void BuildReferenceObject(ref IBinaryNode node)
+        protected virtual void BuildReferenceObject(ref IBinaryNode node)
         {
             switch (node.BlockSize)
             {
@@ -71,7 +59,7 @@ namespace Das.Scanners
                         node.IsForceNullValue = true;
                     return;
                 case 1:
-                    //a reference object with a size of 1 byte is a circular dependency pointer
+                    //a reference object with a size of 1 byte is
                     //a circular reference pointer
                     var distanceFromRoot = _feeder.GetCircularReferenceIndex();
                     _nodes.ResolveCircularReference(node, ref distanceFromRoot);
@@ -83,10 +71,10 @@ namespace Das.Scanners
 
             foreach (var prop in propVals)
             {
-                Debug("*PROP* [" + prop.Name + "] " + prop.MemberType +
+                Debug("*PROP* [" + prop.Name + "] " + prop.Type +
                       " scanning " + _feeder.Index);
 
-                var propType = TypeManipulator.InstanceMemberType(prop);
+                var propType = prop.Type;
 
                 if (IsLeaf(propType, true))
                 {
@@ -171,7 +159,7 @@ namespace Das.Scanners
             return child;
         }
 
-        private void BuildNext(ref IBinaryNode node)
+        protected void BuildNext(ref IBinaryNode node)
         {
             switch (node.NodeType)
             {
@@ -206,9 +194,10 @@ namespace Das.Scanners
         [Conditional("DEBUG")]
         public void Debug(String val)
         {
-            _logger = _logger ?? (_logger = new BinaryLogger());
             _logger.Debug(val);
         }
+
+     
 
         public void Invalidate()
         {

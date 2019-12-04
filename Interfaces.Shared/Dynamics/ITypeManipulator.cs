@@ -42,12 +42,18 @@ namespace Das.Serializer
         /// <summary>
         /// Recursive through base types without duplicates
         /// </summary>
-        IEnumerable<MemberInfo> GetPropertiesToSerialize(Type type, ISerializationDepth depth);
+        IEnumerable<INamedField> GetPropertiesToSerialize(Type type, ISerializationDepth depth);
 
         Type InstanceMemberType(MemberInfo info);
 
         IEnumerable<MethodInfo> GetInterfaceMethods(Type type);
 
         IEnumerable<FieldInfo> GetRecursivePrivateFields(Type type);
+
+        ITypeStructure GetTypeStructure(Type type, ISerializationDepth depth);
+
+        IProtoStructure GetProtoStructure<TPropertyAttribute>(Type type, 
+            ProtoBufOptions<TPropertyAttribute> options)
+            where TPropertyAttribute : Attribute;
     }
 }

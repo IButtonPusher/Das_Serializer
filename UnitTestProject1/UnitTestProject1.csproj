@@ -74,6 +74,8 @@
     <Compile Include="INiceAndEasy.cs" />
     <Compile Include="InstantiationTests.cs" />
     <Compile Include="JsonTests.cs" />
+    <Compile Include="ProtocolBuffers\ProtoBufTests.cs" />
+    <Compile Include="ProtocolBuffers\SimpleMessage.cs" />
     <Compile Include="SlowEquality.cs" />
     <Compile Include="TestBase.cs" />
     <Compile Include="TestClasses.cs" />
@@ -84,6 +86,11 @@
   <ItemGroup>
     <None Include="ClassDiagram1.cd" />
     <None Include="UnitTestProject1.ruleset" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="protobuf-net">
+      <Version>2.4.4</Version>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Das.Serializer\Das.Serializer.csproj">

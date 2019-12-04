@@ -6,11 +6,12 @@ namespace Serializer.Core
 {
     public class BinaryContext : CoreContext, IBinaryContext
     {
-        public BinaryContext(ISerializationCore dynamicFacade, ISerializerSettings settings)
+        public BinaryContext(ISerializationCore dynamicFacade, ISerializerSettings settings, BinaryLogger logger)
             : base(dynamicFacade, settings)
         {
             _nodeProvider = new BinaryNodeProvider(dynamicFacade, settings);
             PrimitiveScanner = new BinaryPrimitiveScanner(dynamicFacade, settings);
+            Logger = logger;
         }
 
         private readonly IBinaryNodeProvider _nodeProvider;
@@ -18,6 +19,7 @@ namespace Serializer.Core
         IBinaryNodeProvider IBinaryContext.NodeProvider => _nodeProvider;
 
         public IBinaryPrimitiveScanner PrimitiveScanner { get; }
+        public BinaryLogger Logger { get; }
 
         public override INodeProvider NodeProvider => _nodeProvider;
     }

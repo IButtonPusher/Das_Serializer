@@ -50,7 +50,7 @@ namespace Das.Extensions
         /// Gets property name/type/values including nulls.
         /// Specify a base class or interface for the generic parameter to get a subset
         /// </summary>
-        public static Dictionary<String, NamedValueNode> GetPropertyValues<T>(this T obj)
+        public static Dictionary<String, PropertyValueNode> GetPropertyValues<T>(this T obj)
         {
             var node = new ValueNode(obj, typeof(T));
             var walues = SerializationCore.ObjectManipulator.GetPropertyResults(node, Settings);

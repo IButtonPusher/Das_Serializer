@@ -187,7 +187,7 @@ namespace Das
 
                 Object nextTo;
 
-                var pType = _dynamicFacade.TypeManipulator.InstanceMemberType(propInfo);
+                var pType = propInfo.Type; //_dynamicFacade.TypeManipulator.InstanceMemberType(propInfo);
 
                 if (nextFrom == null)
                 {

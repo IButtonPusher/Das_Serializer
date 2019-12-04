@@ -2,19 +2,25 @@
 using System.Diagnostics;
 using System.Linq;
 
-namespace Serializer.Core.Binary
+namespace Das.Serializer
 {
-    internal class BinaryLogger
+    public class BinaryLogger
     {
         private Int32 _tabIndex;
 
         public String Tabs => String.Concat(Enumerable.Repeat('\t', _tabIndex));
 
         [Conditional("DEBUG")]
-        public void TabPlus() => _tabIndex++;
+        public void TabPlus()
+        {
+            _tabIndex++;
+        }
 
         [Conditional("DEBUG")]
-        public void TabMinus() => _tabIndex--;
+        public void TabMinus()
+        {
+            _tabIndex--;
+        }
 
         [Conditional("DEBUG")]
         public void Debug(String val)

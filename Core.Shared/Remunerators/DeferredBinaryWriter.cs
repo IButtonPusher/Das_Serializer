@@ -1,20 +1,24 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Das.Remunerators;
 using Das.Serializer;
+using Das.Serializer.Remunerators;
 using Serializer.Core.Printers;
 
 namespace Serializer.Core.Remunerators
 {
-    public unsafe class BinaryListWriter : BinaryWriterWrapper, IBinaryWriter
+    /// <summary>
+    /// Writes to a temporary collection that is eventually merged back into the main stream (or parent deferred)
+    /// along with the length of the data for fixed length deserialization
+    /// </summary>
+    public unsafe class DeferredBinaryWriter : BinaryWriterWrapper, IBinaryWriter
     {
-        public BinaryListWriter(PrintNode node, BinaryWriterWrapper parent, Int32 index)
+        public DeferredBinaryWriter(PrintNode node, IBinaryWriter parent)
             : base(parent)
         {
-            ParentIndex = index;
-            _backingList = new List<Byte>();
+            //ParentIndex = index;
+            _backingList = new ByteBuilder();
             _node = node;
             _parent = parent;
 
@@ -27,72 +31,53 @@ namespace Serializer.Core.Remunerators
             WriteInt32(0);
 
             if (_node.IsWrapping)
-                _backingList.Add(1);
+                _backingList.Append(1);
             else
-                _backingList.Add(0);
+                _backingList.Append(0);
         }
+
+        private readonly ByteBuilder _backingList;
+        
+        private readonly PrintNode _node;
+        private readonly IBinaryWriter _parent;
+        private readonly Boolean _isWrapPossible;
+        private Boolean _isPopped;
 
         [MethodImpl(256)]
-        protected override void Write(Byte* bytes, Int32 count)
-        {
-            for (var c = 0; c < count; c++)
-                _backingList.Add(bytes[c]);
-        }
+        protected sealed override void Write(Byte* bytes, Int32 count) => _backingList.Append(bytes, count);
 
-        public override void Write(Byte[] buffer)
-        {
-            var count = buffer.Length;
-            for (var c = 0; c < count; c++)
-                _backingList.Add(buffer[c]);
-        }
+        [MethodImpl(256)]
+        public override void Write(Byte[] buffer) => _backingList.Append(buffer);
+
+        void IRemunerable<Byte[]>.Append(Byte[] data, Int32 limit) => _backingList.Append(data, limit);
+
 
         public override IBinaryWriter Pop()
         {
             _isPopped = true;
 
             if (_isWrapPossible)
-            {
                 SetLength(_backingList.Count);
-            }
 
             _parent.Imbue(this);
             return _parent;
         }
 
         public override void Imbue(IBinaryWriter writer)
-            => _backingList.AddRange(writer);
-
-        void IRemunerable<Byte[]>.Append(Byte[] data, Int32 limit)
-        {
-            for (var c = 0; c < limit; c++)
-                _backingList.Add(data[c]);
-        }
-
-        public Int32 ParentIndex { get; }
+            => _backingList.Append(writer);
 
         public override IEnumerator<Byte> GetEnumerator() => _backingList.GetEnumerator();
 
-        public override String ToString() => _node + ".  Index " + ParentIndex +
+        public override String ToString() => _node + //".  Index " + ParentIndex +
                                              " Byte Count: " + _backingList.Count + " Length: " +
                                              Length + " Nodes: " + Children.Count;
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-        private readonly List<Byte> _backingList;
-
-        // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
-        private readonly PrintNode _node;
-        private readonly IBinaryWriter _parent;
-        private readonly Boolean _isWrapPossible;
-        private Boolean _isPopped;
         
-
-        void IBinaryWriter.Write(Byte[] values) => _backingList.AddRange(values);
 
         [MethodImpl(256)]
         private void SetLength(Int64 val)
         {
             var pi = (Byte*) &val;
+            
             for (var c = 0; c < 4; c++)
                 _backingList[c] = pi[c];
         }
@@ -118,7 +103,7 @@ namespace Serializer.Core.Remunerators
             }
         }
 
-        protected override Int32 GetLengthImpl() => _backingList.Count;
+        public override Int32 GetDataLength() => _backingList.Count;
 
         void IDisposable.Dispose()
         {

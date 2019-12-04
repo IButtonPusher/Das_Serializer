@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Reflection;
 using Das.Serializer.Objects;
 // ReSharper disable UnusedMemberInSuper.Global
 
@@ -9,19 +8,22 @@ namespace Das.Serializer
 {
     public interface ITypeStructure
     {
-        ConcurrentDictionary<String, MemberInfo> MemberTypes { get; }
+        ConcurrentDictionary<String, INamedField> MemberTypes { get; }
+
         Int32 PropertyCount { get; }
+
+        SerializationDepth Depth { get; }
 
         void OnDeserialized(Object obj, IObjectManipulator objectManipulator);
 
-        IEnumerable<NamedValueNode> GetPropertyValues(Object o, ISerializationDepth depth);
+        IEnumerable<PropertyValueNode> GetPropertyValues(Object o, ISerializationDepth depth);
 
         /// <summary>
         /// Returns properties and/or fields depending on specified depth
         /// </summary>
-        IEnumerable<MemberInfo> GetMembersToSerialize(ISerializationDepth depth);
+        IEnumerable<INamedField> GetMembersToSerialize(ISerializationDepth depth);
 
-        NamedValueNode GetPropertyValue(Object o, String propertyName);
+        PropertyValueNode GetPropertyValue(Object o, String propertyName);
 
         Boolean SetFieldValue(String fieldName, Object targetObj, Object fieldVal);
 
@@ -29,5 +31,8 @@ namespace Das.Serializer
 
         Boolean SetValue(String propName, ref Object targetObj, Object propVal,
             SerializationDepth depth);
+
+        Boolean TryGetAttribute<TAttribute>(String propertyName, out TAttribute[] values)
+            where TAttribute : Attribute;
     }
 }

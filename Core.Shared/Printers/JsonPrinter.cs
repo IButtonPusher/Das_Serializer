@@ -109,21 +109,21 @@ namespace Das.Printers
             }
         }
 
-        protected override void PrintSeries<T>(IEnumerable<T> values, Func<T, Boolean> meth)
+        protected override void PrintSeries<T>(IEnumerable<T> values, Func<T, Boolean> exe)
         {
             using (var itar = values.GetEnumerator())
             {
                 if (!itar.MoveNext())
                     return;
 
-                var printSep = meth(itar.Current);
+                var printSep = exe(itar.Current);
 
                 while (itar.MoveNext())
                 {
                     if (printSep)
                         Writer.Append(SequenceSeparator);
 
-                    printSep = meth(itar.Current);
+                    printSep = exe(itar.Current);
                 }
             }
         }

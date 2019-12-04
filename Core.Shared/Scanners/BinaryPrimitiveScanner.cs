@@ -80,7 +80,7 @@ namespace Das.Scanners
                 return *(Int32*) pbyte;
         }
 
-        public unsafe String GetString(Byte[] tempByte)
+        public virtual unsafe String GetString(Byte[] tempByte)
         {
             if (tempByte == null)
                 return null;

@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using Das.Scanners;
+using Das.Streamers;
 
 namespace Das.Serializer
 {
-    public interface IBinaryScanner : IScannerBase<IEnumerable<Byte[]>>,
-        IScannerBase<IByteArray>
+    public interface IBinaryScanner : IScannerBase<IBinaryFeeder>
     {
     }
 }

@@ -8,5 +8,7 @@
         IBinaryNodeProvider NodeProvider { get; }
 
         IBinaryPrimitiveScanner PrimitiveScanner { get; }
+
+        BinaryLogger Logger { get; }
     }
 }
