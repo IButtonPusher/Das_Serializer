@@ -11,7 +11,7 @@ namespace Das.Serializer
 
         Delegate GetConstructorDelegate(Type type, Type delegateType);
 
-        void OnDeserialized(Object obj, ISerializationDepth depth);
+        void OnDeserialized(IValueNode node, ISerializationDepth depth);
 
         Boolean TryGetPropertiesConstructor(Type type, out ConstructorInfo constr);
 

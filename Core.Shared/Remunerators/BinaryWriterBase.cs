@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using Das.Remunerators;
-using Serializer.Core.Printers;
+using Das.Serializer;
 
 namespace Serializer.Core.Remunerators
 {
@@ -24,6 +24,8 @@ namespace Serializer.Core.Remunerators
             
         }
 
+        protected BinaryWriterBase(){}
+
         public override IEnumerator<Byte> GetEnumerator()
         {
             foreach (var node in Children)
@@ -31,14 +33,14 @@ namespace Serializer.Core.Remunerators
                 yield return b;
         }
 
-        public override IBinaryWriter Push(PrintNode node)
+        public override IBinaryWriter Push(IPrintNode node)
         {
             var list = GetChildWriter(node, this, Length);
             Children.Add(list);
             return list;
         }
 
-        protected abstract TChildWriter GetChildWriter(PrintNode node, IBinaryWriter parent,
+        protected abstract TChildWriter GetChildWriter(IPrintNode node, IBinaryWriter parent,
             Int32 index);
     }
 
@@ -79,9 +81,9 @@ namespace Serializer.Core.Remunerators
             }
         }
 
-        public IBinaryWriter Parent { get; }
+        public IBinaryWriter Parent { get; protected set; }
 
-        public abstract IBinaryWriter Push(PrintNode node);
+        public abstract IBinaryWriter Push(IPrintNode node);
 
         public virtual Int32 GetDataLength() => (Int32) OutStream.Length;
 
@@ -94,6 +96,8 @@ namespace Serializer.Core.Remunerators
         {
             Parent = parent;
         }
+
+        protected BinaryWriterBase() {}
 
         public virtual void Imbue(IBinaryWriter writer)
         {

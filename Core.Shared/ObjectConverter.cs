@@ -14,6 +14,7 @@ namespace Das
     internal class ObjectConverter : SerializerCore, IObjectConverter
     {
         private readonly IStateProvider _dynamicFacade;
+        private readonly INodeTypeProvider _nodeTypes;
         private readonly IInstantiator _instantiate;
         private readonly ITypeInferrer _types;
         private readonly IObjectManipulator _objects;
@@ -34,6 +35,7 @@ namespace Das
             : base(dynamicFacade, settings)
         {
             _dynamicFacade = dynamicFacade;
+            _nodeTypes = dynamicFacade.ScanNodeProvider.TypeProvider;
             _instantiate = dynamicFacade.ObjectInstantiator;
             _types = dynamicFacade.TypeInferrer;
             _objects = dynamicFacade.ObjectManipulator;
@@ -55,7 +57,7 @@ namespace Das
             var outType = typeof(T);
 
             var outObj = _instantiate.BuildDefault(outType, settings.CacheTypeConstructors);
-            _currentNodeType = _dynamicFacade.GetNodeType(outType, settings.SerializationDepth);
+            _currentNodeType = _nodeTypes.GetNodeType(outType, settings.SerializationDepth);
             References.Value.Clear();
             
             outObj = Copy(obj, ref outObj);
@@ -98,7 +100,7 @@ namespace Das
             _currentSettings = settings;
             to = to ?? FromType(from);
             const SerializationDepth depth = SerializationDepth.Full;
-            _currentNodeType = _dynamicFacade.GetNodeType(typeof(T), depth);
+            _currentNodeType = _nodeTypes.GetNodeType(typeof(T), depth);
             var o = (Object)to;
 
             References.Value.Clear();
@@ -143,7 +145,7 @@ namespace Das
                         if (!_objects.TryGetPropertyValue(from, prop.Name, out var fromProp))
                             continue;
 
-                        _currentNodeType = _dynamicFacade.GetNodeType(prop.PropertyType,
+                        _currentNodeType = _nodeTypes.GetNodeType(prop.PropertyType,
                             settings.SerializationDepth);
                         var toProp = _instantiate.BuildDefault(prop.PropertyType,
                             settings.CacheTypeConstructors);
@@ -187,7 +189,7 @@ namespace Das
 
                 Object nextTo;
 
-                var pType = propInfo.Type; //_dynamicFacade.TypeManipulator.InstanceMemberType(propInfo);
+                var pType = propInfo.Type;
 
                 if (nextFrom == null)
                 {
@@ -198,7 +200,7 @@ namespace Das
                     continue;
                 }
 
-                _currentNodeType = _dynamicFacade.GetNodeType(pType, _currentSettings.SerializationDepth);
+                _currentNodeType = _nodeTypes.GetNodeType(pType, _currentSettings.SerializationDepth);
 
                 if (references.TryGetValue(nextFrom, out var found))
                 {
@@ -233,7 +235,7 @@ namespace Das
             var toListType = TypeInferrer.GetGermaneType(toType);
             var fromList = from as IEnumerable;
             var tempTo = new List<Object>();
-            _currentNodeType = _dynamicFacade.GetNodeType(toListType,
+            _currentNodeType = _nodeTypes.GetNodeType(toListType,
                 _currentSettings.SerializationDepth);
 
             if (fromList == null)

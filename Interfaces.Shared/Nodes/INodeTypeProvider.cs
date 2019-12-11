@@ -7,5 +7,6 @@ namespace Das.Serializer
         NodeTypes GetNodeType(INode node, SerializationDepth depth);
 
         NodeTypes GetNodeType(Type type, SerializationDepth depth);
+
     }
 }

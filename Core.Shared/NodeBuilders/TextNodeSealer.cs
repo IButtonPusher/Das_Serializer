@@ -11,7 +11,7 @@ namespace Serializer.Core
     public class TextNodeSealer : BaseNodeSealer<ITextNode>
     {
         private readonly INodeManipulator _values;
-        private readonly INodeManipulator _typeProvider;
+        private readonly INodeTypeProvider _typeProvider;
         private readonly ISerializationCore _facade;
         private readonly IStringPrimitiveScanner _scanner;
         private readonly ITypeManipulator _typeManipulator;
@@ -24,7 +24,7 @@ namespace Serializer.Core
             ISerializerSettings settings) : base(facade, nodeValues, settings)
         {
             _values = nodeValues;
-            _typeProvider = nodeValues;
+            _typeProvider = facade.NodeTypeProvider;
             _facade = facade;
 
             _typeManipulator = facade.TypeManipulator;
@@ -35,7 +35,7 @@ namespace Serializer.Core
         public override void CloseNode(ITextNode node)
         {
             if (node.Type == null)
-                _typeProvider.InferType(node);
+                _values.InferType(node);
 
             if (node.NodeType == NodeTypes.None)
                 node.NodeType = _typeProvider.GetNodeType(node, Settings.SerializationDepth);

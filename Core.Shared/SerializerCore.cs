@@ -17,6 +17,9 @@ namespace Serializer.Core
             TypeManipulator = dynamicFacade.TypeManipulator;
             AssemblyList = dynamicFacade.AssemblyList;
             ObjectManipulator = dynamicFacade.ObjectManipulator;
+            NodeTypeProvider = dynamicFacade.NodeTypeProvider;
+            PrintNodePool = dynamicFacade.PrintNodePool;
+            ScanNodeManipulator = dynamicFacade.ScanNodeManipulator;
 
             Surrogates = dynamicFacade.Surrogates is ConcurrentDictionary<Type, Type> conc
                 ? conc
@@ -40,7 +43,9 @@ namespace Serializer.Core
         protected readonly ConcurrentDictionary<Type, Type> Surrogates;
 
         IDictionary<Type, Type> ISerializationCore.Surrogates => Surrogates;
+        public INodeTypeProvider NodeTypeProvider { get; }
 
-
+        public INodePool PrintNodePool { get; }
+        public INodeManipulator ScanNodeManipulator { get; }
     }
 }

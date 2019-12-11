@@ -9,15 +9,16 @@ namespace Serializer.Core.NodeBuilders
     public class BinaryNodeProvider : NodeProvider<IBinaryNode>, IBinaryNodeProvider
     {
         public BinaryNodeProvider(ISerializationCore dynamicFacade, ISerializerSettings settings)
-            : this(dynamicFacade, new NodeTypeProvider(dynamicFacade, settings), settings)
+            : this(dynamicFacade, new NodeManipulator(dynamicFacade, settings), 
+                dynamicFacade.NodeTypeProvider, settings)
         {
         }
 
         public BinaryNodeProvider(ISerializationCore dynamicFacade, INodeManipulator nodeManipulator,
-            ISerializerSettings settings)
-            : base(nodeManipulator, settings)
+            INodeTypeProvider nodeTypes, ISerializerSettings settings)
+            : base(nodeTypes, settings)
         {
-            Sealer = new BinaryNodeSealer(TypeProvider, dynamicFacade, settings);
+            Sealer = new BinaryNodeSealer(nodeManipulator, dynamicFacade, settings);
             _nodes = nodeManipulator;
         }
 
@@ -40,7 +41,7 @@ namespace Serializer.Core.NodeBuilders
                 index++;
             }
 
-            TypeProvider.TryBuildValue(current);
+            _nodes.TryBuildValue(current);
             node.Value = current.Value;
             current.PendingReferences.Add(node);
         }

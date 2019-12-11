@@ -3,7 +3,6 @@ using Das.Remunerators;
 using System;
 using System.IO;
 using System.Runtime.CompilerServices;
-using Das.Serializer.Objects;
 using Serializer.Core.Files;
 
 namespace Das
@@ -41,8 +40,10 @@ namespace Das
                 using (var state = StateProvider.BorrowJson(Settings))
                 {
                     var jp = new JsonPrinter(sp, state);
-                    var node = new NamedValueNode(String.Empty, obj, asType);
-                    jp.PrintNode(node);
+                    using (var node = PrintNodePool.GetNamedValue(String.Empty, obj, asType))
+                        jp.PrintNode(node);
+                    //var node = new NamedValueNode(String.Empty, obj, asType);
+                    
                     var str = sp.ToString();
 
                     return str;

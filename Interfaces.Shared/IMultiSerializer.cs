@@ -13,5 +13,9 @@ namespace Das.Serializer
         Boolean TryDeleteSurrogate(Type lookedLike, Type wasReally);
 
         IStateProvider StateProvider { get; }
+
+        IProtoSerializer GetProtoSerializer<TPropertyAttribute>(
+            ProtoBufOptions<TPropertyAttribute> options)
+            where  TPropertyAttribute : Attribute;
     }
 }

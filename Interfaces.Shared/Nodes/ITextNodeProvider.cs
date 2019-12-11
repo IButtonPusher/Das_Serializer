@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Das.Serializer
 {
-    public interface ITextNodeProvider : INodeProvider<ITextNode>
+    public interface ITextNodeProvider : IScanNodeProvider<ITextNode>
     {
         INodeSealer<ITextNode> Sealer { get; }
 

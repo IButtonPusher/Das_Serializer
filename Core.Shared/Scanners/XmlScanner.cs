@@ -30,7 +30,7 @@ namespace Das.Scanners
         public XmlScanner(IConverterProvider converterProvider, ITextContext state)
             : base(converterProvider, state)
         {
-            _nodes = state.NodeProvider;
+            _nodes = state.ScanNodeProvider;
             EscapeChars = new List<Char>();
             WhiteSpaceChars = new List<Char> {Const.CarriageReturn, '\n', '\t'};
         }

@@ -21,8 +21,8 @@ namespace Serializer.Core
 
         private readonly TextScanner _scanner;
 
-        ITextNodeProvider ITextContext.NodeProvider => _context.NodeProvider;
-        public override INodeProvider NodeProvider => _context.NodeProvider;
+        ITextNodeProvider ITextContext.ScanNodeProvider => _context.ScanNodeProvider;
+        public override IScanNodeProvider ScanNodeProvider => _context.ScanNodeProvider;
 
         public INodeSealer<ITextNode> Sealer => _context.Sealer;
 

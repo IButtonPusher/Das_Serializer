@@ -15,12 +15,13 @@ namespace Das.Serializer
     {
         private readonly ConcurrentDictionary<Type, InstantiationTypes> InstantionTypes;
         private readonly ConcurrentDictionary<Type, Func<Object>> Constructors;
+        private readonly ConcurrentDictionary<Type, Boolean> KnownOnDeserialize;
         private readonly ITypeInferrer _typeInferrer;
         private readonly ITypeManipulator _typeManipulator;
         private readonly IDictionary<Type, Type> _typeSurrogates;
         private readonly IObjectManipulator _objectManipulator;
         private readonly IDynamicTypes _dynamicTypes;
-        private readonly ConcurrentDictionary<Type, ConstructorInfo> CachedConstructors;
+        
 
         public ObjectInstantiator(ITypeInferrer typeInferrer, ITypeManipulator typeManipulator,
             IDictionary<Type, Type> typeSurrogates, IObjectManipulator objectManipulator,
@@ -34,7 +35,7 @@ namespace Das.Serializer
             _dynamicTypes = dynamicTypes;
             InstantionTypes = new ConcurrentDictionary<Type, InstantiationTypes>();
             Constructors = new ConcurrentDictionary<Type, Func<Object>>();
-            CachedConstructors = new ConcurrentDictionary<Type, ConstructorInfo>();
+            KnownOnDeserialize = new ConcurrentDictionary<Type, Boolean>();
         }
 
         public Object BuildDefault(Type type, Boolean isCacheConstructors)
@@ -121,50 +122,23 @@ namespace Das.Serializer
             return dynamicMethod.CreateDelegate(delegateType);
         }
 
+      
         public Func<Object> GetConstructorDelegate(Type type)
             => (Func<Object>) GetConstructorDelegate(type, typeof(Func<Object>));
 
-        public void OnDeserialized(Object obj, ISerializationDepth depth)
+        public void OnDeserialized(IValueNode node, ISerializationDepth depth)
         {
-            if (obj == null)
-                return;
-            var str = _typeManipulator.GetStructure(obj.GetType(), depth);
-            str.OnDeserialized(obj, _objectManipulator);
+            var wasKnown = KnownOnDeserialize.TryGetValue(node.Type, out var dothProceed);
+
+            if (wasKnown && !dothProceed)
+                    return;
+            
+            var str = _typeManipulator.GetTypeStructure(node.Type, depth);
+            dothProceed = str.OnDeserialized(node.Value, _objectManipulator);
+            if (!wasKnown)
+                KnownOnDeserialize.TryAdd(node.Type, dothProceed);
         }
 
-        public Boolean TryGetPropertiesConstructor(Type type, out ConstructorInfo constr)
-        {
-            constr = null;
-            var isAnomymous = IsAnonymousType(type);
-
-            if (!isAnomymous && CachedConstructors.TryGetValue(type, out constr))
-                return constr != null;
-
-            var rProps = new Dictionary<String, Type>(
-                StringComparer.OrdinalIgnoreCase);
-
-            foreach (var p in type.GetProperties().Where(p => !p.CanWrite && p.CanRead))
-                rProps.Add(p.Name, p.PropertyType);
-            foreach (var con in type.GetConstructors())
-            {
-                if (con.GetParameters().Length <= 0 || !con.GetParameters().All(p =>
-                        rProps.ContainsKey(p.Name) && rProps[p.Name] == p.ParameterType))
-                    continue;
-
-                constr = con;
-                break;
-            }
-
-            if (constr == null)
-                return false;
-
-            if (isAnomymous)
-                return true;
-
-
-            CachedConstructors.TryAdd(type, constr);
-            return true;
-        }
 
         public T CreatePrimitiveObject<T>(Byte[] rawValue, Type objType)
         {

@@ -8,6 +8,7 @@ using System.Xml.Serialization;
 using Das.Serializer;
 using Serializer.Core;
 using Das.Serializer.Objects;
+using Das.Serializer.Types;
 
 namespace Das
 {
@@ -17,11 +18,16 @@ namespace Das
         public SerializationDepth Depth { get; }
 
         private readonly ITypeManipulator _types;
+        private readonly INodePool _nodePool;
         private readonly HashSet<String> _xmlIgnores;
 
         private readonly Dictionary<String, Func<Object, Object>> _getOnly;
+
         private readonly Dictionary<String, Func<Object, Object>> _propGetters;
-        private readonly Dictionary<String, Object[]> _propertyAttributes;
+        private readonly List<KeyValuePair<String, Func<Object, Object>>> _propGetterList;
+
+        //private readonly Dictionary<String, Object[]> _propertyAttributes;
+        private readonly DoubleDictionary<String, Type, Object> _propertyAttributes;
 
         private readonly Dictionary<String, Func<Object, Object>> _fieldGetters;
 
@@ -39,7 +45,7 @@ namespace Das
         public Int32 PropertyCount { get; }
 
         public TypeStructure(Type type, Boolean isPropertyNamesCaseSensitive,
-            ISerializationDepth depth, ITypeManipulator state)
+            ISerializationDepth depth, ITypeManipulator state, INodePool nodePool)
             : base(state.Settings)
         {
             Type = type;
@@ -47,6 +53,7 @@ namespace Das
 
             Depth = depth.SerializationDepth;
             _types = state;
+            _nodePool = nodePool;
 
             if (type.IsDefined(typeof(SerializeAsTypeAttribute), false))
             {
@@ -59,9 +66,10 @@ namespace Das
 
             _getOnly = new Dictionary<String, Func<Object, Object>>();
             _propGetters = new Dictionary<String, Func<Object, Object>>();
+            _propGetterList = new List<KeyValuePair<String, Func<Object, Object>>>();
             _getDontSerialize = new Dictionary<String, Func<Object, Object>>();
             _fieldGetters = new Dictionary<String, Func<Object, Object>>();
-            _propertyAttributes = new Dictionary<String, Object[]>();
+            _propertyAttributes = new DoubleDictionary<String, Type, Object>();
 
             _fieldSetters = new SortedList<String, Action<Object, Object>>();
 
@@ -102,12 +110,13 @@ namespace Das
                 var isSerialize = true;
                 var attrs = pi.GetCustomAttributes(true);
 
-                _propertyAttributes[pi.Name] = attrs;
+                foreach (var attr in attrs)
+                {
+                    _propertyAttributes.Add(pi.Name, attr.GetType(), attr);
+                }
 
                 foreach (var attr in attrs)
                 {
-
-
                     switch (attr)
                     {
                         case IgnoreDataMemberAttribute _:
@@ -126,6 +135,7 @@ namespace Das
                     SetPropertyForDynamicAccess(type, pi);
                     continue;
                 }
+
                 var member = new DasMember(pi.Name, pi.PropertyType);
 
                 MemberTypes.TryAdd(pi.Name, member);
@@ -158,6 +168,10 @@ namespace Das
                 if (_types.TryCreateReadOnlyPropertySetter(pi, out var del))
                     _readOnlySetters.Add(pi.Name, del);
             }
+            if (_propGetters.Count > 0)
+                _propGetterList.AddRange(_propGetters.OrderBy(p => p.Key));
+            else if (_getOnly.Count > 0)
+                _propGetterList.AddRange(_getOnly.OrderBy(p => p.Key));
         }
 
         private void CreateFieldDelegates(Type type, ISerializationDepth depth)
@@ -196,26 +210,36 @@ namespace Das
         }
 
 
-        public void OnDeserialized(Object obj, IObjectManipulator objectManipulator)
+        public Boolean OnDeserialized(Object obj, IObjectManipulator objectManipulator)
         {
-            if (_onDeserializedMethodName != null)
-                objectManipulator.Method(obj, _onDeserializedMethodName, new Object[0]);
+            if (_onDeserializedMethodName == null)
+                return false;
+
+            objectManipulator.Method(obj, _onDeserializedMethodName, new Object[0]);
+            return true;
         }
 
-        public IEnumerable<PropertyValueNode> GetPropertyValues(Object o, ISerializationDepth depth)
+        public IList<IProperty> GetPropertyValues(Object o, ISerializationDepth depth)
         {
             var isRespectXmlIgnoreAttribute = depth.IsRespectXmlIgnore;
-
-            foreach (var kvp in GetValueGetters(depth))
+            var cnt = _propGetterList.Count;
+            var res = new List<IProperty>(cnt);
+            
+            for (var c = 0; c < cnt; c++)
             {
+                var kvp = _propGetterList[c];
                 if (isRespectXmlIgnoreAttribute && _xmlIgnores.Contains(kvp.Key))
                     continue;
                 var name = kvp.Key;
                 var val = kvp.Value(o);
-                var type = MemberTypes[name].Type; //_types.InstanceMemberType(MemberTypes[name]);
+                var type = MemberTypes[name].Type;
 
-                yield return new PropertyValueNode(name, val, type, Type);
+                var n0 = _nodePool.GetProperty(name, val, type, Type);
+
+                res.Add(n0);
             }
+
+            return res;
         }
 
 
@@ -252,11 +276,11 @@ namespace Das
                 yield return MemberTypes[kvp.Key];
         }
 
-        public PropertyValueNode GetPropertyValue(Object o, String propertyName)
+        public IProperty GetPropertyValue(Object o, String propertyName)
         {
             if (!MemberTypes.TryGetValue(propertyName, out var mInfo))
                 return null;
-            var pType = mInfo.Type;//  _types.InstanceMemberType(mInfo);
+            var pType = mInfo.Type;
 
             Object val;
 
@@ -268,7 +292,9 @@ namespace Das
                 val = notSerialized(o);
             else return null;
 
-            return new PropertyValueNode(propertyName, val, pType, Type);
+            var res = _nodePool.GetProperty(propertyName, val, pType, Type);
+
+            return res;
         }
 
         public Boolean SetFieldValue(String fieldName, Object targetObj, Object fieldVal)
@@ -317,18 +343,21 @@ namespace Das
             pDel(targetObj, propVal);
             return true;
         }
-       
 
-        public Boolean TryGetAttribute<TAttribute>(String memberName, out TAttribute[] values)
+
+        public Boolean TryGetAttribute<TAttribute>(String memberName, out TAttribute value)
             where TAttribute : Attribute
         {
-            if (_propertyAttributes.TryGetValue(memberName, out var items))
+            if (_propertyAttributes.TryGetValue(memberName, typeof(TAttribute), out var items)
+                && items is TAttribute attr)
             {
-                values = items.OfType<TAttribute>().ToArray();
-                return values.Length > 0;
+                value = attr;
+                return true;
+                //value = items.OfType<TAttribute>().FirstOrDefault();
+                //return value != null;
             }
 
-            values = default;
+            value = default;
             return false;
         }
     }

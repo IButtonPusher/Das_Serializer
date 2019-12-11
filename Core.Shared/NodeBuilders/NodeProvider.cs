@@ -1,13 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using Das.Serializer;
 
 namespace Serializer.Core
 {
     public abstract class NodeProvider<T> : TypeCore,
-        INodeProvider<T> where T : INode, IEnumerable<T>
+        IScanNodeProvider<T> where T : INode, IEnumerable<T>
     {
-        protected NodeProvider(INodeManipulator typeProvider, ISerializerSettings settings)
+        public INodeTypeProvider TypeProvider { get; }
+
+        protected NodeProvider(INodeTypeProvider typeProvider, ISerializerSettings settings)
             : base(settings)
         {
             TypeProvider = typeProvider;
@@ -20,9 +23,7 @@ namespace Serializer.Core
 
         private static readonly ThreadLocal<Queue<T>> _buffer
             = new ThreadLocal<Queue<T>>(() => new Queue<T>());
-
-
-        public INodeManipulator TypeProvider { get; }
+        
 
         public void Put(T node)
         {
@@ -40,5 +41,9 @@ namespace Serializer.Core
 
             letsAdd.Clear();
         }
+
+        
     }
+
+  
 }

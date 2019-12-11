@@ -1,9 +1,11 @@
 ﻿using System;
-
 using System.Collections.Generic;
+using System.Diagnostics;
 using BenchmarkDotNet.Attributes;
+// ReSharper disable once RedundantUsingDirective
 using BenchmarkDotNet.Running;
 using UnitTestProject1;
+
 // ReSharper disable All
 
 namespace Serializer.Benchmarks
@@ -12,15 +14,37 @@ namespace Serializer.Benchmarks
     {
         public static void Main()
         {
-            var summary = BenchmarkRunner.Run<Benchies>();
+            //RunManyTimes();
+           BenchmarkRunner.Run<ProtoBufBenchmarks>();
+           
+        }
 
-            //var methods = typeof(XmlTests).GetMethods().
-            //                Where(m => m.CustomAttributes.Count() > 1).ToArray();
-            //            var test = new XmlTests();
-            //            var empty = new Object[0];
-            //
-            //            foreach (var method in methods)
-            //                method.Invoke(test, empty);
+        private static void RunManyTimes()
+        {
+            var buff = new ProtoBufBenchmarks();
+            var swo = new Stopwatch();
+            swo.Start();
+            
+
+            for (var i = 0; i < 1000; i++)
+            {
+                {
+                    var sw = new Stopwatch();
+                    sw.Start();
+
+
+                    for (var c = 0; c < 10000; c++)
+                    {
+                        buff.DasSimpleMessage();
+                    }
+
+
+                    Debug.WriteLine(" das elapsed: " + sw.ElapsedMilliseconds);
+                }
+            }
+
+
+            Debug.WriteLine(" das TOTAL: " + swo.ElapsedMilliseconds);
         }
 
         public class Benchies : TestBase

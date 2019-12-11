@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Serializer.Interfaces", "Se
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Serializer.Core", "Serializer.Core\Serializer.Core.csproj", "{AA0FCDF8-5BFA-4EB5-8590-B153F6EE0FEC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTestProject1", "UnitTestProject1\UnitTestProject1.csproj", "{C929D40C-3295-4D56-922B-0CEEE34DADA6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serializer.Tests", "UnitTestProject1\Serializer.Tests.csproj", "{C929D40C-3295-4D56-922B-0CEEE34DADA6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Das.Serializer", "Das.Serializer\Das.Serializer.csproj", "{A9D2EF65-4059-4C0A-B513-D49AC3D66CF2}"
 EndProject

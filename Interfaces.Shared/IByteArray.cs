@@ -2,6 +2,9 @@
 
 namespace Das.Serializer
 {
+    /// <summary>
+    /// Allows for different types like a Stream or an actual array to be accessed the same way
+    /// </summary>
     public interface IByteArray
     {
         // ReSharper disable once UnusedMember.Global

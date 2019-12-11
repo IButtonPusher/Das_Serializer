@@ -2,7 +2,7 @@
 
 namespace Das.Serializer
 {
-    public interface INodeManipulator : INodeTypeProvider
+    public interface INodeManipulator
     {
         void InferType(INode node);
 

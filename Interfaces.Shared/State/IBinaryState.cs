@@ -1,7 +1,19 @@
 ﻿namespace Das.Serializer
 {
-    public interface IBinaryState : ISerializationState, IBinaryContext
+    public interface IBinaryState: ISerializationState, IBinaryContext
     {
         IBinaryScanner Scanner { get; }
     }
 }
+
+
+//using Das.Scanners;
+//
+//namespace Das.Serializer
+//{
+//    public interface IBinaryState<TScanner, TInput> : ISerializationState, IBinaryContext
+//        where TScanner : IBinaryScanner, IScannerBase<TInput>
+//    {
+//        TScanner Scanner { get; }
+//    }
+//}

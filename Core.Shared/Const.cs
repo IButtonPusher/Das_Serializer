@@ -6,6 +6,7 @@ namespace Das.Serializer
     internal static class Const
     {
         public static readonly Type StrType = typeof(String);
+        public static Type DbNull = typeof(DBNull);
         public static readonly Type IConvertible = typeof(IConvertible);
         public static readonly Type ObjectType = typeof(Object);
 
@@ -36,6 +37,12 @@ namespace Das.Serializer
        public const Char CloseBracket = ']';
 
         public const Int32 BACKSLASH = 92;
+
+        public const Int32 VarInt = 0;
+
+        public const Int32 Int64 = 1;
+
+        public const Int32 LengthDelimited = 2;
 
         public const BindingFlags NonPublic = BindingFlags.Instance | BindingFlags.NonPublic;
     }

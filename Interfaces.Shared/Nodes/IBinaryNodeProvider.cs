@@ -3,7 +3,7 @@ using Das.Serializer.Annotations;
 
 namespace Das.Serializer
 {
-    public interface IBinaryNodeProvider : INodeProvider<IBinaryNode>
+    public interface IBinaryNodeProvider : IScanNodeProvider<IBinaryNode>
     {
         INodeSealer<IBinaryNode> Sealer { get; }
 

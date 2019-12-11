@@ -16,11 +16,11 @@ namespace Serializer.Core
 
         private readonly IBinaryNodeProvider _nodeProvider;
 
-        IBinaryNodeProvider IBinaryContext.NodeProvider => _nodeProvider;
+        IBinaryNodeProvider IBinaryContext.ScanNodeProvider => _nodeProvider;
 
         public IBinaryPrimitiveScanner PrimitiveScanner { get; }
         public BinaryLogger Logger { get; }
 
-        public override INodeProvider NodeProvider => _nodeProvider;
+        public override IScanNodeProvider ScanNodeProvider => _nodeProvider;
     }
 }

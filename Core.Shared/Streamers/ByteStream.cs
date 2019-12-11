@@ -6,20 +6,39 @@ namespace Serializer.Core
 {
     public class ByteStream : IByteArray
     {
-        private readonly Stream _stream;
+        private Stream _stream;
+
+        public Stream Stream
+        {
+            get => _stream;
+            set => SetStream(value);
+        }
+
+        private void SetStream(Stream value)
+        {
+            _stream = value;
+            if (value != null)
+                Length = value.Length;
+            else Length = 0;
+        }
 
 
         public ByteStream(Stream stream)
         {
-            _stream = stream;
+            Stream = stream;
+        }
+
+        public ByteStream()
+        {
+            
         }
 
         public Byte this[Int32 bytes]
         {
             get
             {
-                _stream.Position = bytes;
-                return (Byte)_stream.ReadByte();
+                Stream.Position = bytes;
+                return (Byte)Stream.ReadByte();
             }
         }
 
@@ -28,12 +47,12 @@ namespace Serializer.Core
             get
             {
                 var res = new Byte[length];
-                _stream.Position = start;
-                _stream.Read(res, 0, length);
+                Stream.Position = start;
+                Stream.Read(res, 0, length);
                 return res;
             }
         }
 
-        public Int64 Length => _stream.Length;
+        public Int64 Length { get; private set; }
     }
 }

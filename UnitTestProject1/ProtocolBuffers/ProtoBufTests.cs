@@ -43,18 +43,17 @@ namespace UnitTestProject1.ProtocolBuffers
                 outMsg = ProtoBuf.Serializer.Deserialize<SimpleMessage>(ms);
             }
 
-            var srl = Serializer;
+            var srl = Serializer.GetProtoSerializer(_options);
 
             Byte[] dArr;
             SimpleMessage outMsg2;
             using (var ms = new MemoryStream())
             {
-                srl.ToProtoStream(ms, msg, _options);
+                srl.ToProtoStream(ms, msg);
                 dArr = ms.ToArray();
 
                 ms.Position = 0;
-                outMsg2 = srl.FromProtoStream<SimpleMessage,
-                    ProtoMemberAttribute>(ms,_options);
+                outMsg2 = srl.FromProtoStream<SimpleMessage>(ms);
             }
 
 
@@ -80,16 +79,15 @@ namespace UnitTestProject1.ProtocolBuffers
                 protoArr = ms.ToArray();
             }
 
-            var srl = Serializer;
+            var srl = Serializer.GetProtoSerializer(_options);
 
             Byte[] dArr;
             using (var ms = new MemoryStream())
             {
-                srl.ToProtoStream(ms, msg, _options);
+                srl.ToProtoStream(ms, msg);
                 dArr = ms.ToArray();
                 ms.Position = 0;
-                outMsg2 = srl.FromProtoStream<DoubleMessage,
-                    ProtoMemberAttribute>(ms,_options);
+                outMsg2 = srl.FromProtoStream<DoubleMessage>(ms);
             }
 
             Assert.IsTrue(protoArr.SequenceEqual(dArr));
@@ -111,16 +109,15 @@ namespace UnitTestProject1.ProtocolBuffers
                 protoArr = ms.ToArray();
             }
 
-            var srl = Serializer;
+            var srl = Serializer.GetProtoSerializer(_options);
 
             Byte[] dArr;
             using (var ms = new MemoryStream())
             {
-                srl.ToProtoStream(ms, msg, _options);
+                srl.ToProtoStream(ms, msg);
                 dArr = ms.ToArray();
                 ms.Position = 0;
-                msg2 = srl.FromProtoStream<StringMessage,
-                    ProtoMemberAttribute>(ms,_options);
+                msg2 = srl.FromProtoStream<StringMessage>(ms);
             }
 
 
@@ -152,18 +149,17 @@ namespace UnitTestProject1.ProtocolBuffers
                 outMsg = ProtoBuf.Serializer.Deserialize<SimpleMessage>(ms);
             }
 
-            var srl = Serializer;
+            var srl = Serializer.GetProtoSerializer(_options);
 
             Byte[] dArr;
             SimpleMessage outMsg2;
             using (var ms = new MemoryStream())
             {
-                srl.ToProtoStream(ms, msg, _options);
+                srl.ToProtoStream(ms, msg);
                 dArr = ms.ToArray();
 
                 ms.Position = 0;
-                outMsg2 = srl.FromProtoStream<SimpleMessage,
-                    ProtoMemberAttribute>(ms,_options);
+                outMsg2 = srl.FromProtoStream<SimpleMessage>(ms);
 
                 ms.Position = 0;
                 outMsg3 = ProtoBuf.Serializer.Deserialize<SimpleMessage>(ms);
@@ -200,23 +196,24 @@ namespace UnitTestProject1.ProtocolBuffers
                 outMsg = ProtoBuf.Serializer.Deserialize<MultiPropMessage>(ms);
             }
 
-            var srl = Serializer;
+            var srl = Serializer.GetProtoSerializer(_options);
 
             Byte[] dArr;
             MultiPropMessage outMsg2;
             using (var ms = new MemoryStream())
             {
-                srl.ToProtoStream(ms, msg, _options);
+                srl.ToProtoStream(ms, msg);
                 dArr = ms.ToArray();
 
                 ms.Position = 0;
-                outMsg2 = srl.FromProtoStream<MultiPropMessage,
-                    ProtoMemberAttribute>(ms,_options);
+                outMsg2 = srl.FromProtoStream<MultiPropMessage>(ms);
 
                 ms.Position = 0;
                 outMsg3 = ProtoBuf.Serializer.Deserialize<MultiPropMessage>(ms);
             }
            
+            Assert.AreEqual(protoArr.Length, dArr.Length);
+
             var equal = SlowEquality.AreEqual(outMsg2, msg);
             Assert.IsTrue(equal);
 
@@ -248,23 +245,24 @@ namespace UnitTestProject1.ProtocolBuffers
                 outMsg = ProtoBuf.Serializer.Deserialize<ComposedMessage>(ms);
             }
 
-            var srl = Serializer;
+            var srl = Serializer.GetProtoSerializer(_options);
 
             Byte[] dArr;
             ComposedMessage outMsg2;
             using (var ms = new MemoryStream())
             {
-                srl.ToProtoStream(ms, msg, _options);
+                srl.ToProtoStream(ms, msg);
                 dArr = ms.ToArray();
 
                 ms.Position = 0;
-                outMsg2 = srl.FromProtoStream<ComposedMessage,
-                    ProtoMemberAttribute>(ms,_options);
+                outMsg2 = srl.FromProtoStream<ComposedMessage>(ms);
 
                 ms.Position = 0;
                 outMsg3 = ProtoBuf.Serializer.Deserialize<ComposedMessage>(ms);
             }
            
+            Assert.AreEqual(protoArr.Length, dArr.Length);
+
             var equal = SlowEquality.AreEqual(outMsg2, msg);
             Assert.IsTrue(equal);
 

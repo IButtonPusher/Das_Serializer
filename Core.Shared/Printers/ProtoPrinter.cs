@@ -1,71 +1,76 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using Das.Serializer;
 using Das.Serializer.Objects;
-using Serializer.Core.Printers;
-using Serializer.Core.Remunerators;
+using Das.Serializer.Remunerators;
 
 namespace Das.Printers
 {
     internal class ProtoPrinter<TPropertyAttribute> : BinaryPrinter
         where  TPropertyAttribute : Attribute
     {
-        private readonly ITypeManipulator _typeManipulator;
+        private readonly ProtoBufWriter _writer;
+        private readonly ITypeManipulator _types;
         private readonly ProtoBufOptions<TPropertyAttribute> _protoSettings;
 
-        // ReSharper disable once StaticMemberInGenericType
-        private static readonly ConcurrentDictionary<Type, Int32> _wireTypes;
-
-        static ProtoPrinter()
-        {
-            var wireTypes = new Dictionary<Type, Int32>
-            {
-                {typeof(Int32), 0},
-                {typeof(Int64), 0},
-                {typeof(UInt32), 0},
-                {typeof(UInt64), 0},
-                {typeof(Boolean), 0},
-                {typeof(Enum), 0},
-                {typeof(Double), 1},
-                {typeof(String), 2},
-                {typeof(Byte[]), 2},
-                {typeof(Single), 5}
-            };
-
-            _wireTypes = new ConcurrentDictionary<Type, Int32>(wireTypes);
-        }
-
-        public ProtoPrinter(IBinaryWriter writer, IBinaryState stateProvider,
+        public ProtoPrinter(ProtoBufWriter writer, IBinaryState stateProvider,
             ITypeManipulator typeManipulator, ProtoBufOptions<TPropertyAttribute> protoSettings)
             : base(writer, stateProvider)
         {
-            _typeManipulator = typeManipulator;
+            _writer = writer;
+            _types = typeManipulator;
             _protoSettings = protoSettings;
         }
 
-        public override Boolean PrintNode(NamedValueNode node)
+        public void Print<TObject>(TObject o)
         {
-            var res = _stateProvider.GetNodeType(node.Type, Settings.SerializationDepth);
-            var print = new PrintNode(node, res);
-
-            switch (node)
+            var typeO = typeof(TObject);
+            var typeStructure = _types.GetProtoStructure(typeO, _protoSettings);
+            var properyValues = typeStructure.GetPropertyValues(o, this);
+            for (var c = 0; c < properyValues.Count; c++)
             {
-                case PropertyValueNode prop:
-                    var typeStructure = _typeManipulator.GetTypeStructure(prop.DeclaringType, Settings);
+                //header
+                var pv = properyValues[c];
+                if (!typeStructure.TryGetHeader(pv, out var header))
+                    continue;
 
-                    if (!typeStructure.TryGetAttribute<TPropertyAttribute>(node.Name, out var attributes))
-                        return false;
-                    PrintWireType(node, attributes[0]);
-                    var isLeaf = IsLeaf(node.Type, true);
+                _bWriter.WriteInt32(header);
+                /////
 
-                    return PrintBinaryNode(print, !isLeaf);
-                default:
-                    return PrintObject(print);
+                var code = Type.GetTypeCode(pv.Type);
+                if (Print(pv.Value, code))
+                    continue;
+
+                using (var print = _printNodePool.GetPrintNode(pv))
+                    PrintBinaryNode(print, true);
             }
-           
-            //return PrintObject(print);
+        }
+
+        public Stream Stream
+        {
+            // ReSharper disable once UnusedMember.Global
+            get => _writer.OutStream;
+            set => _writer.OutStream = value;
+        }
+
+        public override Boolean PrintNode(INamedValue node)
+        {
+            using (var print = _printNodePool.GetPrintNode(node))
+            {
+                switch (node)
+                {
+                    case IProperty prop:
+                        if (!TryPrintHeader(prop))
+                            return false;
+
+                        var isLeaf = _typeInferrer.IsLeaf(node.Type, true);
+
+                        return PrintBinaryNode(print, !isLeaf);
+                    default:
+                        return PrintObject(print);
+                }
+            }
         }
 
         protected sealed override void WriteString(String str)
@@ -77,21 +82,19 @@ namespace Das.Printers
             _bWriter.Append(bytes);
         }
 
-        private void PrintWireType(ValueNode node, TPropertyAttribute attribute)
+        private Boolean TryPrintHeader(INamedField prop, IProtoStructure typeStructure)
         {
-            if (!_wireTypes.TryGetValue(node.Type, out var wire))
-            {
-                if (node.Value is Enum)
-                    wire = 0;
-                else wire = 2;
+            if (!typeStructure.TryGetHeader(prop, out var header))
+                return false;
+            
+            _bWriter.WriteInt32(header);
+            return true;
+        }
 
-                _wireTypes[node.Type] = wire;
-            }
-
-            var index = _protoSettings.GetIndex(attribute);
-            wire += (index << 3);
-            _bWriter.WriteInt32(wire);
-
+        private Boolean TryPrintHeader(IProperty prop)
+        {
+            var typeStructure = _types.GetProtoStructure(prop.DeclaringType, _protoSettings);
+            return TryPrintHeader(prop, typeStructure);
         }
     }
 }

@@ -4,18 +4,19 @@ using System.Collections;
 using System.Linq;
 using Das.CoreExtensions;
 using Das.Serializer;
-using Das.Serializer.Objects;
-using Serializer.Core;
-using Serializer.Core.Printers;
 
 
 namespace Das.Printers
 {
-    internal abstract class PrinterBase<TEFormat> : SerializerCore, ISerializationDepth
+    internal abstract class PrinterBase<TEFormat> : //SerializerCore, 
+        ISerializationDepth
     {
+        public ISerializerSettings Settings { get; }
+
         #region fields
 
         private readonly ISerializationState _stateProvider;
+        protected readonly INodeTypeProvider _nodeTypes;
         protected readonly Boolean _isIgnoreCircularDependencies;
         private readonly Boolean _isElideDefaultProperties;
 
@@ -36,15 +37,23 @@ namespace Das.Printers
         protected TEFormat SequenceSeparator;
 
         protected Boolean IsTextPrinter;
+        protected IScanNodeProvider _nodeProvider;
+        protected INodePool _printNodePool;
+        protected ITypeInferrer _typeInferrer;
 
         #endregion
 
         #region construction
 
         protected PrinterBase(ISerializationState stateProvider,
-            ISerializerSettings settings) : base(stateProvider, settings)
+            ISerializerSettings settings) //: base(stateProvider, settings)
         {
+            Settings = settings;
             _stateProvider = stateProvider;
+            _typeInferrer = stateProvider.TypeInferrer;
+            _nodeTypes = stateProvider.ScanNodeProvider.TypeProvider;
+            _nodeProvider = stateProvider.ScanNodeProvider;
+            _printNodePool = stateProvider.PrintNodePool;
             _pathReferences = new HashSet<Object>();
             _pathStack = new List<String>();
             PathSeparator = '.';
@@ -77,7 +86,7 @@ namespace Das.Printers
         /// { "__type": "System.Int16", "__val": *Object's Json* }
         /// -Binary can just put the type name/length bytes beforehand
         /// </summary>
-        public abstract Boolean PrintNode(NamedValueNode node);
+        public abstract Boolean PrintNode(INamedValue node);
 
         /// <summary>
         /// Every object passes through here.  Once we've gotten here we assume that any 
@@ -85,7 +94,7 @@ namespace Das.Printers
         /// 1. Determine the right way to print this (as reference object, primitive etc)
         /// 2. Route to proper method
         /// </summary>
-        protected Boolean PrintObject(PrintNode node)
+        protected Boolean PrintObject(IPrintNode node)
         {
             var o = node.Value;
             var nodeType = node.NodeType;
@@ -142,7 +151,7 @@ namespace Das.Printers
         /// False if it's not a circular reference.  Handles the logic of what to do
         /// if it is
         /// </summary>        
-        private Boolean TryHandleCircularReference(PrintNode node)
+        private Boolean TryHandleCircularReference(IPrintNode node)
         {
             var o = node.Value;
 
@@ -158,8 +167,9 @@ namespace Das.Printers
                 case CircularReference.IgnoreObject:
                     if (IsPrintNullProperties)
                     {
-                        var nullRef = new PrintNode(node.Name, null, node.Type, node.NodeType);
-                        PrintObject(nullRef);
+                        //var nullRef = new PrintNode(node.Name, null, node.Type, node.NodeType);
+                        using (var nullRef = _printNodePool.GetPrintNode(node, null))
+                            PrintObject(nullRef);
                     }
 
                     break;
@@ -184,23 +194,24 @@ namespace Das.Printers
             //have to assume that we don't have a tag open for xml
             //since attribute properties are only for primitives
             var reference = _pathStack.Take(index + 1).ToString(PathSeparator, '[');
-            PrintProperty(new NamedValueNode(PathAttribute, reference, Const.StrType));
+            using (var node = _printNodePool.GetNamedValue(PathAttribute, reference, Const.StrType))
+                PrintProperty(node);
         }
 
         /// <summary>
         /// prints most objects as series of properties
         /// </summary>
-        protected virtual void PrintReferenceType(PrintNode node)
+        protected virtual void PrintReferenceType(IPrintNode node)
         {
             var properyValues = _stateProvider.ObjectManipulator.GetPropertyResults(node, this);
-            PrintSeries(properyValues, PrintProperty);
+            PrintProperties(properyValues, PrintProperty);
         }
 
         protected void PushStack(String str) => _pathStack.Add(str);
 
         protected void PopStack() => _pathStack.RemoveAt(_pathStack.Count - 1);
 
-        protected abstract void PrintCollection(PrintNode node);
+        protected abstract void PrintCollection(IPrintNode node);
 
         #endregion
 
@@ -221,21 +232,22 @@ namespace Das.Printers
                     if (declaredType == objectType)
                         return false;
 
-                    if (IsUseless(declaredType))
+                    if (_typeInferrer.IsUseless(declaredType))
                         return true;
-
-                    var res = _stateProvider.GetNodeType(objectType, Settings.SerializationDepth);
+                    
+                    var res = _nodeTypes.GetNodeType(objectType, Settings.SerializationDepth);
 
                     if (res == NodeTypes.Fallback)
                         return false;
-
-                    if (IsCollection(declaredType) && IsInstantiable(declaredType))
+                    
+                    if (_typeInferrer.IsCollection(declaredType) && 
+                        _typeInferrer.IsInstantiable(declaredType))
                     {
                         //a List<IInterface> or IInterface[] does not need to be wrapped
                         //but IEnumerable<Int32> does need to be wrapped
                         //and also if declaredType is a collection but the objectType isn't a collection
                         //then this came from an iterator block which is awkward enough so wrap it up
-                        return !IsCollection(objectType);
+                        return !_typeInferrer.IsCollection(objectType);
                     }
 
                     return true;
@@ -245,10 +257,16 @@ namespace Das.Printers
             }
         }
 
+        protected virtual void PrintProperties<T>(IList<T> values, Func<T, Boolean> exe)
+        {
+            for (var c = 0; c < values.Count; c++)
+                exe(values[c]);
+        }
+
         protected virtual void PrintSeries<T>(IEnumerable<T> values, Func<T, Boolean> exe)
         {
             foreach (var val in values)
-                exe(val);
+               exe(val);
         }
 
         protected IEnumerable<ObjectNode> ExplodeList(IEnumerable list, Type itemType)
@@ -261,17 +279,19 @@ namespace Das.Printers
                 yield return new ObjectNode(o, itemType, index++);
         }
 
-        protected Boolean PrintProperty(NamedValueNode prop)
+        protected Boolean PrintProperty(INamedValue prop)
         {
-            if (prop.Type.IsNestedPrivate && IsCollection(prop.Type))
+            if (prop.Type.IsNestedPrivate && _typeInferrer.IsCollection(prop.Type))
             {
                 //force deferred to run
             }
 
-            if (_isElideDefaultProperties && TypeInferrer.IsDefaultValue(prop.Value))
+            if (_isElideDefaultProperties && _typeInferrer.IsDefaultValue(prop.Value))
                 return false;
 
             var printed = PrintNode(prop);
+
+            prop.Dispose();
 
             return printed;
         }
@@ -283,9 +303,9 @@ namespace Das.Printers
         /// <summary>
         /// By the time we get here any wrapping should have happened already
         /// </summary>
-        protected abstract void PrintPrimitive(PrintNode node);
+        protected abstract void PrintPrimitive(IPrintNode node);
 
-        protected abstract void PrintFallback(PrintNode node);
+        protected abstract void PrintFallback(IPrintNode node);
 
         #endregion
 

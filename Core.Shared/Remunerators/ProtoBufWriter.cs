@@ -1,25 +1,38 @@
 ﻿using System;
 using System.IO;
-using Serializer.Core.Printers;
 using Serializer.Core.Remunerators;
 
 namespace Das.Serializer.Remunerators
 {
     public class ProtoBufWriter: BinaryWriterBase<DeferredProtoWriter>
     {
-        private static readonly Byte[] _negative32Fill = new Byte[] { Byte.MaxValue, Byte.MaxValue, 
+        private readonly IDataLender<DeferredProtoWriter, ProtoBufWriter> _protoPool;
+
+        public new Stream OutStream
+        {
+            get => base.OutStream;
+            set => base.OutStream = value;
+        }
+
+        private static readonly Byte[] _negative32Fill = { Byte.MaxValue, Byte.MaxValue, 
             Byte.MaxValue, Byte.MaxValue, 1};
 
-        public ProtoBufWriter(Stream stream) : base(stream)
+        public ProtoBufWriter(Stream stream,
+            IDataLender<DeferredProtoWriter, ProtoBufWriter> protoPool) 
+            : base(stream)
         {
+            _protoPool = protoPool;
+        }
+
+        public ProtoBufWriter(IDataLender<DeferredProtoWriter, ProtoBufWriter> protoPool)
+        {
+            _protoPool = protoPool;
         }
 
         protected ProtoBufWriter(ProtoBufWriter parent) : base(parent)
         {
             
         }
-        
-
 
         public override void WriteInt8(Byte value)
         {
@@ -96,10 +109,10 @@ namespace Das.Serializer.Remunerators
             throw new NotImplementedException();
         }
 
-        protected override DeferredProtoWriter GetChildWriter(PrintNode node, IBinaryWriter parent, 
+        protected override DeferredProtoWriter GetChildWriter(IPrintNode node, IBinaryWriter parent, 
             Int32 index)
         {
-            var w = new DeferredProtoWriter(this);
+            var w = _protoPool.Get(this);
             return w;
         }
         

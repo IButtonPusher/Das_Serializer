@@ -2,7 +2,7 @@
 using System.Collections;
 using System.IO;
 using System.Runtime.CompilerServices;
-using Serializer.Core.Printers;
+using Das.Serializer;
 
 namespace Serializer.Core.Remunerators
 {
@@ -19,7 +19,7 @@ namespace Serializer.Core.Remunerators
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        protected override DeferredBinaryWriter GetChildWriter(PrintNode node, IBinaryWriter parent, 
+        protected override DeferredBinaryWriter GetChildWriter(IPrintNode node, IBinaryWriter parent, 
             Int32 index)
         {
             var list = new DeferredBinaryWriter(node, this);

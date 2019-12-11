@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using Das.Serializer;
+using Das.Serializer.ProtoBuf;
 using Serializer.Core;
 
 namespace Das
@@ -9,14 +10,16 @@ namespace Das
     public partial class DasCoreSerializer : BaseState, IMultiSerializer
     {
         public IStateProvider StateProvider { get; }
+       
+
         internal const String StrNull = "null";
         internal const String Val = "__val";
         internal const String RefTag = "__ref";
         internal const String RefAttr = "$ref";
         internal const String Root = "Root";
 
-        public override INodeProvider NodeProvider
-            => StateProvider.BinaryContext.NodeProvider;
+        public override IScanNodeProvider ScanNodeProvider
+            => StateProvider.BinaryContext.ScanNodeProvider;
 
         public DasCoreSerializer(IStateProvider stateProvider, ISerializerSettings settings,
             Func<TextWriter, String, Task> writeAsync,
@@ -24,6 +27,7 @@ namespace Das
             : base(stateProvider, settings)
         {
             StateProvider = stateProvider;
+            
             _settings = settings;
             _writeAsync = writeAsync;
             _readToEndAsync = readToEndAsync;
@@ -58,5 +62,13 @@ namespace Das
                 base.Settings = value;
             }
         }
+
+        public IProtoSerializer GetProtoSerializer<TPropertyAttribute>(
+            ProtoBufOptions<TPropertyAttribute> options) 
+            where TPropertyAttribute : Attribute
+        {
+            return new ProtoBufSerializer<TPropertyAttribute>(StateProvider, Settings, options);
+        }
+
     }
 }

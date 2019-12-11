@@ -25,7 +25,7 @@ namespace Serializer.Core
         public ITextContext JsonContext { get; }
         public IBinaryContext BinaryContext { get; }
 
-        public override INodeProvider NodeProvider => BinaryContext.NodeProvider;
+        public override IScanNodeProvider ScanNodeProvider => BinaryContext.ScanNodeProvider;
 
         public IObjectConverter ObjectConverter { get; }
 
@@ -50,6 +50,9 @@ namespace Serializer.Core
 
         private static void ReturnToLibrary(IBinaryLoaner loaned)
             => BinaryBuffer.Enqueue(loaned);
+
+        private static void ReturnProtoToLibrary(IBinaryLoaner loaned)
+            => ProtoBuffer.Enqueue(loaned);
 
 
         private static void ReturnToLibrary(IXmlLoaner loaned)
@@ -76,7 +79,7 @@ namespace Serializer.Core
             var buffer = ProtoBuffer;
             var state = buffer.Count > 0
                 ? buffer.Dequeue()
-                : new BinaryBorrawable(ReturnToLibrary, settings, this, 
+                : new BinaryBorrawable(ReturnProtoToLibrary, settings, this, 
                     s => new ProtoScanner<T>(s, options),
                     (c, s) => new ProtoPrimitiveScanner(c, s), BinaryContext.Logger);
             state.UpdateSettings(settings);

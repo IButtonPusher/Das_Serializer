@@ -14,16 +14,18 @@ namespace Das.Serializer
 
         SerializationDepth Depth { get; }
 
-        void OnDeserialized(Object obj, IObjectManipulator objectManipulator);
+        Boolean OnDeserialized(Object obj, IObjectManipulator objectManipulator);
 
-        IEnumerable<PropertyValueNode> GetPropertyValues(Object o, ISerializationDepth depth);
+        //IEnumerable<IProperty> GetPropertyValues(Object o, ISerializationDepth depth);
+
+        IList<IProperty> GetPropertyValues(Object o, ISerializationDepth depth);
 
         /// <summary>
         /// Returns properties and/or fields depending on specified depth
         /// </summary>
         IEnumerable<INamedField> GetMembersToSerialize(ISerializationDepth depth);
 
-        PropertyValueNode GetPropertyValue(Object o, String propertyName);
+        IProperty GetPropertyValue(Object o, String propertyName);
 
         Boolean SetFieldValue(String fieldName, Object targetObj, Object fieldVal);
 
@@ -32,7 +34,7 @@ namespace Das.Serializer
         Boolean SetValue(String propName, ref Object targetObj, Object propVal,
             SerializationDepth depth);
 
-        Boolean TryGetAttribute<TAttribute>(String propertyName, out TAttribute[] values)
+        Boolean TryGetAttribute<TAttribute>(String propertyName, out TAttribute value)
             where TAttribute : Attribute;
     }
 }

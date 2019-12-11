@@ -8,13 +8,13 @@ namespace Das.Serializer
 {
     public interface IObjectManipulator : IDynamicAccessor
     {
-        NamedValueNode GetPropertyResult(Object o, Type asType, String propertyName);
+        IProperty GetPropertyResult(Object o, Type asType, String propertyName);
 
         T GetPropertyValue<T>(Object obj, String propertyName);
 
         Boolean TryGetPropertyValue<T>(Object obj, String propertyName, out T result);
 
-        IEnumerable<PropertyValueNode> GetPropertyResults(ValueNode obj, ISerializationDepth depth);
+        IList<IProperty> GetPropertyResults(IValueNode obj, ISerializationDepth depth);
 
         Boolean SetFieldValue(Type classType, String fieldName, Object targetObj,
             Object propVal);

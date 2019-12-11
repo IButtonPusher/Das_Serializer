@@ -11,13 +11,21 @@ namespace Das.Serializer.Remunerators
     /// Writes to a temporary collection that is eventually merged back into the main stream (or parent deferred)
     /// along with the length of the data for fixed length deserialization
     /// </summary>
-    public class DeferredProtoWriter : ProtoBufWriter, IBinaryWriter
+    public class DeferredProtoWriter : ProtoBufWriter, IBinaryWriter, ILendable<DeferredProtoWriter,ProtoBufWriter>
     {
+        
         public DeferredProtoWriter(ProtoBufWriter parent) : base(parent)
         {
             _parent = parent;
             _backingList = new ByteBuilder();
         }
+
+        public void Construct(ProtoBufWriter input)
+        {
+            Parent = input;
+        }
+
+        public Action<DeferredProtoWriter> ReturnToSender { get; set; }
 
         private readonly ProtoBufWriter _parent;
         private readonly ByteBuilder _backingList;
@@ -79,6 +87,8 @@ namespace Das.Serializer.Remunerators
 
         Boolean IRemunerable.IsEmpty => _backingList.Count == 0 && Children.Count == 0;
 
+       
+
         void IDisposable.Dispose()
         {
             _backingList.Clear();
@@ -88,11 +98,11 @@ namespace Das.Serializer.Remunerators
         {
             _isPopped = true;
 
-//            if (_isWrapPossible)
-//                SetLength(_backingList.Count);
-
             _parent.WriteInt32(Length);
             _parent.Imbue(this);
+
+            ReturnToSender(this);
+
             return _parent;
         }
     }

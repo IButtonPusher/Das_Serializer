@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Das.Remunerators;
-using Serializer.Core.Printers;
+using Das.Serializer;
 
 namespace Serializer.Core.Remunerators
 {
@@ -38,7 +38,7 @@ namespace Serializer.Core.Remunerators
 
         IBinaryWriter Pop();
 
-        IBinaryWriter Push(PrintNode node);
+        IBinaryWriter Push(IPrintNode node);
 
         void Imbue(IBinaryWriter writer);
     }

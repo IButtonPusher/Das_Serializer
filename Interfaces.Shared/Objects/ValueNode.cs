@@ -2,14 +2,18 @@
 
 namespace Das.Serializer.Objects
 {
+  
+
     /// <summary>
     /// A type/value association
     /// </summary>
-    public class ValueNode
+    public class ValueNode : IValueNode
     {
         public ValueNode(Object value) : this(value, value?.GetType())
         {
         }
+
+        protected ValueNode(){}
 
         public ValueNode(Object value, Type type)
         {
@@ -17,7 +21,13 @@ namespace Das.Serializer.Objects
             Type = type;
         }
 
-        public Object Value { get; }
+        protected void Set(Object value, Type type)
+        {
+            Value = value;
+            Type = type;
+        }
+
+        public Object Value { get; set; }
 
         public Type Type { get; set; }
 

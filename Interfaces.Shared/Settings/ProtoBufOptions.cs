@@ -2,7 +2,8 @@
 
 namespace Das.Serializer
 {
-    public class ProtoBufOptions<TPropertyAttribute> where  TPropertyAttribute : Attribute
+    public class ProtoBufOptions<TPropertyAttribute> 
+        where  TPropertyAttribute : Attribute
     {
         public Func<TPropertyAttribute, Int32> GetIndex { get; }
 

@@ -3,7 +3,7 @@ using Das.Serializer;
 
 namespace Serializer.Core
 {
-    public class JsonNodeTypeProvider : NodeTypeProvider
+    public class JsonNodeTypeProvider : NodeManipulator
     {
         public JsonNodeTypeProvider(ISerializationCore dynamicFacade, ISerializerSettings settings)
             : base(dynamicFacade, settings)

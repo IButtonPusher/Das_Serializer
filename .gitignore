@@ -40,3 +40,6 @@
 *.pdb
 /Test
 /Das.Serializer/obj
+/Serializer.Benchmarks/bin/Release/BenchmarkDotNet.Artifacts
+/Serializer.Benchmarks/bin/Release
+/UnitTestProject1/obj

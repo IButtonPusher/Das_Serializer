@@ -13,15 +13,9 @@ namespace Serializer.Core
             _typeConverters = new ConcurrentDictionary<Type, TypeConverter>();
         }
 
-        public abstract INodeProvider NodeProvider { get; }
+        public abstract IScanNodeProvider ScanNodeProvider { get; }
 
         private readonly ConcurrentDictionary<Type, TypeConverter> _typeConverters;
-
-        public NodeTypes GetNodeType(INode node, SerializationDepth depth)
-            => NodeProvider.TypeProvider.GetNodeType(node, depth);
-
-        public NodeTypes GetNodeType(Type type, SerializationDepth depth)
-            => NodeProvider.TypeProvider.GetNodeType(type, depth);
 
         public TypeConverter GetTypeConverter(Type type)
             => _typeConverters.TryGetValue(type, out var found) ? found :

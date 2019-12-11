@@ -14,8 +14,8 @@ namespace Serializer.Core
         {
             _settings = settings;
             Logger = logger;
-            _context = stateProvider.BinaryContext;
             PrimitiveScanner = getPrimitiveScanner(stateProvider, settings);
+            _nodeProvider = stateProvider.ScanNodeProvider as IBinaryNodeProvider;
 
             _scanner = getScanner(this);
             Scanner = _scanner;
@@ -24,16 +24,16 @@ namespace Serializer.Core
 
         public IBinaryScanner Scanner { get; }
 
-        IBinaryNodeProvider IBinaryContext.NodeProvider => _context.NodeProvider;
-
         public IBinaryPrimitiveScanner PrimitiveScanner { get; }
         public BinaryLogger Logger { get; }
 
-        public override INodeProvider NodeProvider => _context.NodeProvider;
+        IBinaryNodeProvider IBinaryContext.ScanNodeProvider => _nodeProvider;
 
-        private readonly IBinaryContext _context;
+        public override IScanNodeProvider ScanNodeProvider => _nodeProvider;
+
         private readonly BinaryScanner _scanner;
         private ISerializerSettings _settings;
+        private readonly IBinaryNodeProvider _nodeProvider;
 
         public override ISerializerSettings Settings
         {

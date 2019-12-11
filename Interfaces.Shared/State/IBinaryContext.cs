@@ -5,7 +5,7 @@
     /// </summary>
     public interface IBinaryContext : ISerializationContext
     {
-        IBinaryNodeProvider NodeProvider { get; }
+        new IBinaryNodeProvider ScanNodeProvider { get; }
 
         IBinaryPrimitiveScanner PrimitiveScanner { get; }
 

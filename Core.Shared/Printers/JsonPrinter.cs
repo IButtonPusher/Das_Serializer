@@ -4,8 +4,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Das.Serializer;
-using Das.Serializer.Objects;
-using Serializer.Core.Printers;
 
 namespace Das.Printers
 {
@@ -28,7 +26,7 @@ namespace Das.Printers
 
         #region public interface
 
-        public override Boolean PrintNode(NamedValueNode node)
+        public override Boolean PrintNode(INamedValue node)
         {
             var name = node.Name;
             var propType = node.Type;
@@ -60,7 +58,7 @@ namespace Das.Printers
                 }
                 else if (!isWrapping)
                 {
-                    var res = _stateProvider.GetNodeType(valType, Settings.SerializationDepth);
+                    var res = _nodeTypes.GetNodeType(valType, Settings.SerializationDepth);
                     //root node, we have to wrap primitives
                     if (res == NodeTypes.Primitive || res == NodeTypes.Fallback)
                     {
@@ -88,11 +86,12 @@ namespace Das.Printers
                     Writer.Append(Const.Quote, ": ");
                     TabIn();
                     isCloseBlock = true;
+
+                    node.Type = valType;
                 }
                 
-                var nodeType = _stateProvider.GetNodeType(valType, Settings.SerializationDepth);
-                var print = new PrintNode(node, nodeType);
-                PrintObject(print);
+                using (var print = _printNodePool.GetPrintNode(node))
+                    PrintObject(print);
 
                 if (!isCloseBlock)
                     return true;
@@ -128,11 +127,28 @@ namespace Das.Printers
             }
         }
 
+        protected override void PrintProperties<T>(IList<T> values, Func<T, Boolean> exe)
+        {
+            var cnt = values.Count;
+            if (cnt == 0)
+                return;
+
+            var printSep = exe(values[0]);
+
+            for (var c = 1; c < values.Count; c++)
+            {
+                if (printSep)
+                    Writer.Append(SequenceSeparator);
+
+                printSep = exe(values[c]);
+            }
+        }
+
         #endregion
 
         #region private implementation primary
 
-        protected override void PrintReferenceType(PrintNode node)
+        protected override void PrintReferenceType(IPrintNode node)
         {
             if (node.Value == null)
             {
@@ -176,22 +192,25 @@ namespace Das.Printers
             if (!enumerator.MoveNext())
                 return;
 
-            var kvp = enumerator.Entry;
-
-            PrintNode(kvp);
+            using (var kvp = _printNodePool.GetNamedValue(enumerator.Entry))
+            {
+                PrintNode(kvp);
+            }
 
             while (enumerator.MoveNext())
             {
-                kvp = enumerator.Entry;
-                Writer.Append(SequenceSeparator);
-                PrintNode(kvp);
+                using (var kvp = _printNodePool.GetNamedValue(enumerator.Entry))
+                {
+                    Writer.Append(SequenceSeparator);
+                    PrintNode(kvp);
+                }
             }
 
             TabIn();
             Writer.Append(Const.CloseBrace);
         }
 
-        protected override void PrintCollection(PrintNode node)
+        protected override void PrintCollection(IPrintNode node)
         {
             var serializeAs = node.Value.GetType();
 
@@ -221,14 +240,16 @@ namespace Das.Printers
 
         protected Boolean PrintCollectionObject(ObjectNode val)
         {
-            var res = _stateProvider.GetNodeType(val.Type, Settings.SerializationDepth);
-            var print = new PrintNode(val, res);
-            PrintObject(print);
+            //var print = new PrintNode(val, res);
+            using (var print = _printNodePool.GetPrintNode(val))
+            {
+                PrintObject(print);
+            }
 
             return true;
         }
 
-        protected override void PrintFallback(PrintNode node)
+        protected override void PrintFallback(IPrintNode node)
         {
             Writer.Append(Const.Quote);
             node.Type = node.Value.GetType();

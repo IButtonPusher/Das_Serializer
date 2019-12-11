@@ -54,8 +54,8 @@ namespace Das.Scanners
             CurrentValue = new StringBuilder();
             CurrentAttributes = new Dictionary<String, String>();
             TextState = state;
-            Sealer = state.NodeProvider.Sealer;
-            Types = state.NodeProvider.TypeProvider;
+            Sealer = state.ScanNodeProvider.Sealer;
+            Types = state.ScanNodeManipulator;
 
             PrimitiveScanner = state.PrimitiveScanner;
             EscapeChars = new List<Char> {Const.BackSlash};
@@ -66,7 +66,7 @@ namespace Das.Scanners
 
             RootNode = NullNode;
 
-            _nodes = state.NodeProvider;
+            _nodes = state.ScanNodeProvider;
         }
 
 

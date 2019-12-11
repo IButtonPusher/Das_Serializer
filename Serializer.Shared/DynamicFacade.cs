@@ -18,6 +18,10 @@ namespace Das.Serializer
         public IAssemblyList AssemblyList { get; }
         public IObjectManipulator ObjectManipulator { get; }
         public IDictionary<Type, Type> Surrogates { get; }
+        public INodeTypeProvider NodeTypeProvider { get; }
+
+        public INodePool PrintNodePool { get; }
+        public INodeManipulator ScanNodeManipulator { get; }
 
         public DynamicFacade(ISerializerSettings settings)
             : this(settings, new ConcurrentDictionary<Type, Type>())
@@ -30,9 +34,14 @@ namespace Das.Serializer
             var assemblyList = new AssemblyList();
             AssemblyList = assemblyList;
 
+            var typeCore = new TypeCore(settings);
+            var nodeTypeProvider = new NodeTypeProvider(typeCore, settings);
+
+            PrintNodePool = new NodePool(settings, nodeTypeProvider);
+
             TextParser = new CoreTextParser();
 
-            var typeManipulator = new TypeManipulator(settings);
+            var typeManipulator = new TypeManipulator(settings, PrintNodePool);
             TypeManipulator = typeManipulator;
 
             var manipulator = new ObjectManipulator(typeManipulator);
@@ -49,6 +58,12 @@ namespace Das.Serializer
             Surrogates = typeSurrogates is ConcurrentDictionary<Type, Type> conc
                 ? conc
                 : new ConcurrentDictionary<Type, Type>(typeSurrogates);
+
+            
+            NodeTypeProvider = nodeTypeProvider;
+
+            ScanNodeManipulator = new NodeManipulator(this, settings);
+            
         }
     }
 }

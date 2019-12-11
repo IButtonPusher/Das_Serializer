@@ -5,7 +5,7 @@
     /// </summary>
     public interface ITextContext : ISerializationContext
     {
-        ITextNodeProvider NodeProvider { get; }
+        new ITextNodeProvider ScanNodeProvider { get; }
 
         INodeSealer<ITextNode> Sealer { get; }
 

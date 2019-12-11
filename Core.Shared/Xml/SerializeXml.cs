@@ -4,7 +4,6 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Das.Serializer;
-using Das.Serializer.Objects;
 
 // ReSharper disable UnusedMember.Global
 
@@ -20,7 +19,7 @@ namespace Das
 
         private String ToXml(Object o, Type asType)
         {
-            var nodeType = StateProvider.GetNodeType(asType, Settings.SerializationDepth);
+            var nodeType = NodeTypeProvider.GetNodeType(asType, Settings.SerializationDepth);
 
             using (var writer = new StringSaver())
             {
@@ -51,9 +50,10 @@ namespace Das
                     var rootText = !asType.IsGenericType && !IsCollection(asType) 
                         ? TypeInferrer.ToClearName(asType, true) : Root;
 
-                    var node = new NamedValueNode(rootText, o, asType);
-
-                    printer.PrintNode(node);
+                    
+                    //var node = new NamedValueNode(rootText, o, asType);
+                    using (var node = PrintNodePool.GetNamedValue(rootText, o, asType))
+                        printer.PrintNode(node);
 
                     return writer.ToString();
                 }

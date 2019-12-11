@@ -10,14 +10,12 @@ namespace Das.Serializer
         new TNode Parent { get; set; }
     }
 
-    public interface INode
+    public interface INode : IValueNode
     {
         [NotNull]
         INode Parent { get; }
 
-        Type Type { get; set; }
-
-        Object Value { get; set; }
+        new Object Value { get; set; }
 
         Boolean IsForceNullValue { get; set; }
 

@@ -3,14 +3,14 @@ using System;
 using System.IO;
 using Das.Serializer;
 using Serializer.Core.Files;
-using Das.Serializer.Objects;
-using Das.Serializer.Remunerators;
 using Serializer.Core.Remunerators;
 
 namespace Das
 {
     public partial class DasCoreSerializer
     {
+        
+
         public Byte[] ToBytes(Object o) => ToBytes(o, Const.ObjectType);
 
         public Byte[] ToBytes(Object o, Type asType)
@@ -22,8 +22,9 @@ namespace Das
                 using (var state = StateProvider.BorrowBinary(Settings))
                 using (var bp = new BinaryPrinter(bWriter, state))
                 {
-                    var node = new NamedValueNode(Const.Root, o, asType);
-                    bp.PrintNode(node);
+                    //var node = new NamedValueNode(Const.Root, o, asType);
+                    using (var node = PrintNodePool.GetNamedValue(Const.Root, o, asType))
+                        bp.PrintNode(node);
                 }
 
                 return ms.ToArray();
@@ -58,20 +59,7 @@ namespace Das
             ToBytes(obj, fileName);
         }
 
-        public void ToProtoStream<TObject, TPropertyAttribute>(Stream stream, TObject o,
-            ProtoBufOptions<TPropertyAttribute> options)
-            where TPropertyAttribute : Attribute
-        {
-            var pWriter = new ProtoBufWriter(stream);
-            using (var state = StateProvider.BorrowBinary(Settings))
-            using (var printer = new ProtoPrinter<TPropertyAttribute>(pWriter, 
-                state, TypeManipulator, options))
-            {
-                
-                var node = new NamedValueNode(Const.Root, o, typeof(TObject));
-                printer.PrintNode(node);
-            }
-        }
+     
 
       
     }

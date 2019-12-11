@@ -1,11 +1,10 @@
 ﻿using System;
+using Das.Serializer.Objects;
 
 namespace Das.Serializer
 {
-    public interface INamedField
+    public interface INamedField : IEquatable<INamedField>, IStronglyTyped
     {
         String Name { get; }
-
-        Type Type { get; }
     }
 }

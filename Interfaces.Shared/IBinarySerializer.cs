@@ -35,12 +35,6 @@ namespace Das.Serializer
 
         void ToBytes<TTarget>(Object o, FileInfo fileName);
 
-        void ToProtoStream<TObject, TPropertyAttribute>(Stream stream, TObject o,
-            ProtoBufOptions<TPropertyAttribute> options)
-            where TPropertyAttribute : Attribute;
-
-        TObject FromProtoStream<TObject, TPropertyAttribute>(Stream stream,
-            ProtoBufOptions<TPropertyAttribute> options)
-            where TPropertyAttribute : Attribute;
+       
     }
 }

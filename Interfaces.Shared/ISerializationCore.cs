@@ -4,11 +4,7 @@ using Serializer;
 
 namespace Das.Serializer
 {
-    public interface ISerializationCore //: IDynamicFacade
-        //, ITypeInferrer
-        //, ITypeManipulator
-        //, IInstantiator
-        //, IObjectManipulator
+    public interface ISerializationCore
     {
         ITextParser TextParser { get; }
 
@@ -25,5 +21,11 @@ namespace Das.Serializer
         IObjectManipulator ObjectManipulator { get; }
 
         IDictionary<Type, Type> Surrogates { get; }
+
+        INodeTypeProvider NodeTypeProvider { get; }
+
+        INodePool PrintNodePool { get; }
+
+        INodeManipulator ScanNodeManipulator { get; }
     }
 }

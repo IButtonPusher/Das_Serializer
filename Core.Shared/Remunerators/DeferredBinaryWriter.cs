@@ -4,7 +4,6 @@ using System.Runtime.CompilerServices;
 using Das.Remunerators;
 using Das.Serializer;
 using Das.Serializer.Remunerators;
-using Serializer.Core.Printers;
 
 namespace Serializer.Core.Remunerators
 {
@@ -14,10 +13,9 @@ namespace Serializer.Core.Remunerators
     /// </summary>
     public unsafe class DeferredBinaryWriter : BinaryWriterWrapper, IBinaryWriter
     {
-        public DeferredBinaryWriter(PrintNode node, IBinaryWriter parent)
+        public DeferredBinaryWriter(IPrintNode node, IBinaryWriter parent)
             : base(parent)
         {
-            //ParentIndex = index;
             _backingList = new ByteBuilder();
             _node = node;
             _parent = parent;
@@ -38,7 +36,7 @@ namespace Serializer.Core.Remunerators
 
         private readonly ByteBuilder _backingList;
         
-        private readonly PrintNode _node;
+        private readonly IPrintNode _node;
         private readonly IBinaryWriter _parent;
         private readonly Boolean _isWrapPossible;
         private Boolean _isPopped;
@@ -68,7 +66,7 @@ namespace Serializer.Core.Remunerators
 
         public override IEnumerator<Byte> GetEnumerator() => _backingList.GetEnumerator();
 
-        public override String ToString() => _node + //".  Index " + ParentIndex +
+        public override String ToString() => _node + 
                                              " Byte Count: " + _backingList.Count + " Length: " +
                                              Length + " Nodes: " + Children.Count;
         

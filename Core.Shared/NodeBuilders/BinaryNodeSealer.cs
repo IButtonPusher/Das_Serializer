@@ -40,7 +40,7 @@ namespace Serializer.Core
                         node.Value = wal;
                     }
 
-                    _dynamicFacade.ObjectInstantiator.OnDeserialized(node.Value, Settings);
+                    _dynamicFacade.ObjectInstantiator.OnDeserialized(node, Settings);
 
                     break;
             }

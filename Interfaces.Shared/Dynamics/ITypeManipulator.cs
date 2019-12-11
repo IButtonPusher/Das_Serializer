@@ -29,13 +29,6 @@ namespace Das.Serializer
 
         Type GetPropertyType(Type classType, String propName);
 
-        /// <summary>
-        /// read/write properties. Read only don't count for this number
-        /// </summary>
-        Boolean HasSettableProperties(Type type);
-
-        ITypeStructure GetStructure(Type type, ISerializationDepth depth);
-
         // ReSharper disable once UnusedMember.Global
         ITypeStructure GetStructure<T>(ISerializationDepth depth);
 

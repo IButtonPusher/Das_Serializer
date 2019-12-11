@@ -3,7 +3,7 @@ using Das.Serializer;
 
 namespace Serializer.Core
 {
-    public class XmlNodeTypeProvider : NodeTypeProvider
+    public class XmlNodeTypeProvider : NodeManipulator
     {
         private readonly IStringPrimitiveScanner _scanner;
         private readonly ITextParser _textParser;

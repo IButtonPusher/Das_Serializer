@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Das.Serializer;
-using Serializer.Core.Printers;
 
 namespace Das.Printers
 {
@@ -55,7 +54,7 @@ namespace Das.Printers
         protected void NewLine() => Writer.Append(_newLine + Tabs);
 
 
-        protected override void PrintFallback(PrintNode node)
+        protected override void PrintFallback(IPrintNode node)
         {
             node.Type = node.Value.GetType();
             PrintPrimitive(node);
@@ -65,7 +64,7 @@ namespace Das.Printers
         /// xml puts all primitives as attributes and in quotes. Json does not put
         /// numeric types in quotes
         /// </summary>
-        protected override void PrintPrimitive(PrintNode node)
+        protected override void PrintPrimitive(IPrintNode node)
         {
             var o = node.Value;
 

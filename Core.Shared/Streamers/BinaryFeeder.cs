@@ -15,20 +15,27 @@ namespace Das.Streamers
             _typeInferrer = dynamicFacade.TypeInferrer;
 
             _currentBytes = bytes;
+            _currentEndIndex = (Int32)_currentBytes.Length - 1;
             _logger = logger;
         }
 
         #region fields
 
-        protected readonly IByteArray _currentBytes;
+        protected IByteArray _currentBytes;
+        protected Int32 _currentEndIndex;
 
         private readonly BinaryLogger _logger;
 
         public virtual Int32 GetInt32() => (Int32) GetPrimitive(typeof(Int32));
-        
 
-        public Int32 Index => _byteIndex;
-        public Boolean HasMoreBytes => _byteIndex < _currentBytes.Length - 1;
+
+        public Int32 Index
+        {
+            get => _byteIndex;
+            protected set => _byteIndex = value;
+        }
+
+        public Boolean HasMoreBytes => _byteIndex < _currentEndIndex; //_currentBytes.Length - 1;
 
         protected Int32 _byteIndex;
 

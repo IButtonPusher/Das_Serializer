@@ -15,8 +15,11 @@ namespace Das.Types
 {
     public class TypeManipulator : TypeCore, ITypeManipulator
     {
-        public TypeManipulator(ISerializerSettings settings) : base(settings)
+        private readonly INodePool _nodePool;
+
+        public TypeManipulator(ISerializerSettings settings, INodePool nodePool) : base(settings)
         {
+            _nodePool = nodePool;
             CachedAdders = new ConcurrentDictionary<Type, VoidMethod>();
         }
 
@@ -476,12 +479,7 @@ namespace Das.Types
 
             var ts = GetTypeStructure(classType, DepthConstants.AllProperties);
             return ts.MemberTypes.TryGetValue(propName, out var res) ? res.Type : default;
-                //InstanceMemberType(res) : default;
         }
-
-
-        ITypeStructure ITypeManipulator.GetStructure(Type type, ISerializationDepth depth)
-            => GetTypeStructure(type, depth);
 
         public IEnumerable<INamedField> GetPropertiesToSerialize(Type type,
             ISerializationDepth depth)
@@ -522,13 +520,14 @@ namespace Das.Types
             }
         }
 
-        public Boolean HasSettableProperties(Type type)
+        public override Boolean HasSettableProperties(Type type)
         {
             if (_knownSensitive.TryGetValue(type, out var result) &&
                 result.Depth >= SerializationDepth.GetSetProperties)
                 return result.PropertyCount > 0;
 
-            return type.GetProperties().Any(p => p.CanWrite);
+            return base.HasSettableProperties(type);
+            //return type.GetProperties().Any(p => p.CanWrite);
         }
 
         public ITypeStructure GetStructure<T>(ISerializationDepth depth)
@@ -546,14 +545,17 @@ namespace Das.Types
             ProtoBufOptions<TPropertyAttribute> options) 
             where TPropertyAttribute : Attribute
         {
-            if (TryGetTypeStructure(type, Settings, _knownProto, out var found))
-                return found;
+            if (TryGetTypeStructure(type, Settings, _knownProto, out var structure))
+                return structure;
 
-            found = new ProtoStructure<TPropertyAttribute>(type, Settings, this, options);
-            _knownProto.TryAdd(type, found);
-            _knownSensitive.TryAdd(type, found);
+            structure = new ProtoStructure<TPropertyAttribute>(type, 
+                Settings, this, options, _nodePool);
+            
 
-            return found;
+            _knownProto.TryAdd(type, structure);
+            _knownSensitive.TryAdd(type, structure);
+
+            return structure;
         }
 
         private readonly Object _lockNewType = new Object();
@@ -581,12 +583,14 @@ namespace Das.Types
             if (IsAlreadyExists(out var result))
                 return result;
 
+            var pool = _nodePool;
+
             lock (_lockNewType)
             {
                 if (IsAlreadyExists(out result))
                     return result;
 
-                result = new TypeStructure(type, caseSensitive, depth, this);
+                result = new TypeStructure(type, caseSensitive, depth, this, pool);
                 if (!doCache)
                     return result;
 

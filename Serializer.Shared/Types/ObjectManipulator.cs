@@ -27,11 +27,11 @@ namespace Das.Types
                 ConcurrentDictionary<String, Func<Object, Object[], Object>>>();
         }
 
-        public NamedValueNode GetPropertyResult(Object o, Type asType, String propertyName)
+        public IProperty GetPropertyResult(Object o, Type asType, String propertyName)
         {
             if (propertyName == null)
                 return default;
-            var str = GetStructure(asType, DepthConstants.AllProperties);
+            var str =  _typeDelegates.GetTypeStructure(asType, DepthConstants.AllProperties);
             return str.GetPropertyValue(o, propertyName);
         }
 
@@ -66,42 +66,43 @@ namespace Das.Types
             return false;
         }
 
-        public IEnumerable<PropertyValueNode> GetPropertyResults(ValueNode value,
+        public IList<IProperty> GetPropertyResults(IValueNode value,
             ISerializationDepth depth)
         {
-            var val = value?.Value;
+            var val = value.Value;
 
             if (val == null)
-                yield break;
+                return new List<IProperty>(0);
 
             var useType = _typeDelegates.IsUseless(value.Type) ? val.GetType() : value.Type;
-            var isReturnNulls = !depth.IsOmitDefaultValues;
-            var typeStruct = GetStructure(useType, DepthConstants.AllProperties);
-
-            foreach (var res in typeStruct.GetPropertyValues(val, depth))
-            {
-                if (isReturnNulls || res.Value != null)
-                    yield return res;
-            }
+            //var isReturnNulls = !depth.IsOmitDefaultValues;
+            var typeStruct =  _typeDelegates.GetTypeStructure(useType, DepthConstants.AllProperties);
+            var found = typeStruct.GetPropertyValues(val, depth);
+            return found;
+//            foreach (var res in typeStruct.GetPropertyValues(val, depth))
+//            {
+//                if (isReturnNulls || res.Value != null)
+//                    yield return res;
+//            }
         }
 
         public Boolean SetFieldValue(Type classType, String fieldName,
             Object targetObj, Object propVal)
         {
-            var str = GetStructure(classType, DepthConstants.Full);
+            var str =  _typeDelegates.GetTypeStructure(classType, DepthConstants.Full);
             return str.SetFieldValue(fieldName, targetObj, propVal);
         }
 
         public Boolean SetFieldValue<T>(Type classType, String fieldName, Object targetObj,
             Object fieldVal)
         {
-            var str = GetStructure(classType, DepthConstants.Full);
+            var str = _typeDelegates.GetTypeStructure(classType, DepthConstants.Full);
             return str.SetFieldValue<T>(fieldName, targetObj, fieldVal);
         }
 
         public void SetFieldValues<TObject>(TObject obj, Action<ITypeStructure, TObject> action)
         {
-            var s = GetStructure(typeof(TObject), DepthConstants.Full);
+            var s =  _typeDelegates.GetTypeStructure(typeof(TObject), DepthConstants.Full);
             action(s, obj);
         }
 
@@ -116,7 +117,7 @@ namespace Das.Types
         /// <returns></returns>
         public Boolean SetProperty(Type classType, String propName, ref Object targetObj, Object propVal)
         {
-            var str = GetStructure(classType, DepthConstants.AllProperties);
+            var str =  _typeDelegates.GetTypeStructure(classType, DepthConstants.AllProperties);
             return str.SetValue(propName, ref targetObj, propVal, SerializationDepth.AllProperties);
         }
 
@@ -243,8 +244,5 @@ namespace Das.Types
             casted = default;
             return false;
         }
-
-        private ITypeStructure GetStructure(Type type, ISerializationDepth depth)
-            => _typeDelegates.GetTypeStructure(type, depth);
     }
 }

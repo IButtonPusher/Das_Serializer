@@ -14,7 +14,8 @@ namespace Das.Scanners
         {
             _logger = state.Logger;
             _state = state;
-            _nodes = state.NodeProvider;
+            _nodes = state.ScanNodeProvider;
+            _nodeManipulator = state.ScanNodeManipulator;
         }
 
         protected IBinaryFeeder _feeder;
@@ -24,6 +25,9 @@ namespace Das.Scanners
         private BinaryLogger _logger;
 
         private static readonly NullNode NullNode = NullNode.Instance;
+        private readonly INodeManipulator _nodeManipulator;
+
+       
 
         public virtual T Deserialize<T>(IBinaryFeeder source)
         {
@@ -44,7 +48,7 @@ namespace Das.Scanners
                 return ObjectManipulator.CastDynamic<T>(_rootNode.Value);
 
             if (_rootNode.Value != null)
-                _state.ObjectInstantiator.OnDeserialized(_rootNode.Value, Settings);
+                _state.ObjectInstantiator.OnDeserialized(_rootNode, Settings);
 
             return (T) _rootNode.Value;
         }
@@ -71,15 +75,11 @@ namespace Das.Scanners
 
             foreach (var prop in propVals)
             {
-                Debug("*PROP* [" + prop.Name + "] " + prop.Type +
-                      " scanning " + _feeder.Index);
-
                 var propType = prop.Type;
 
                 if (IsLeaf(propType, true))
                 {
                     var val = _feeder.GetPrimitive(propType);
-                    Debug("@PRIMITIVE val is " + val + " for [" + prop.Name + "]");
 
                     _nodes.Sealer.Imbue(node, prop.Name, val);
                 }
@@ -154,7 +154,7 @@ namespace Das.Scanners
             child.BlockSize -= _feeder.Index - sizeStart;
             //adjust starting point to after the size/type decl the 
             child.BlockStart = _feeder.Index;
-            _nodes.TypeProvider.EnsureNodeType(child);
+            _nodeManipulator.EnsureNodeType(child);
 
             return child;
         }

@@ -10,8 +10,6 @@ namespace Das.Serializer
 
         void Imbue(TNode childNode);
 
-        //Boolean TryGetPropertyValue(TNode node, String key, Type propertyType, out Object val);
-
         void CloseNode(TNode node);
     }
 }

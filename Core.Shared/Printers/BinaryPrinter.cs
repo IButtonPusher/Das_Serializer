@@ -1,12 +1,13 @@
 ﻿using Das.Serializer;
 using System;
 using System.Collections;
-using System.Diagnostics;
+using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using Das.CoreExtensions;
 using Das.Serializer.Objects;
-using Serializer.Core.Printers;
 using Serializer.Core.Remunerators;
 
 namespace Das.Printers
@@ -39,7 +40,7 @@ namespace Das.Printers
 
         #region public interface
 
-        public override Boolean PrintNode(NamedValueNode node)
+        public override Boolean PrintNode(INamedValue node)
         {
             var name = node.Name;
             var propType = node.Type;
@@ -49,48 +50,30 @@ namespace Das.Printers
             if (!_isIgnoreCircularDependencies)
                 PushStack(name);
 
-            if (node.Name != String.Empty)
-                _logger.Debug("*PROP* " + " [" + node.Name + "]");
-
             try
             {
                 var isWrapping = TryWrap(propType, ref val, ref valType);
-                var isLeaf = IsLeaf(valType, true);
-
-                Type useType;
+                var isLeaf = _typeInferrer.IsLeaf(valType, true);
 
                 switch (isWrapping)
                 {
                     case false when !isLeaf:
-                        useType = valType;
+                        node.Type = valType;
                         break;
-                    case false when true:
-                        useType = propType;
+                    case false:
+                        //  node.Type = propType;
                         break;
                     default:
-                        useType = valType;
+                        node.Type = valType;
                         break;
                 }
+                
+                using (var print = _printNodePool.GetPrintNode(node))
+                {
+                    print.IsWrapping = isWrapping;
 
-                var res = _stateProvider.GetNodeType(useType, Settings.SerializationDepth);
-                var print = new PrintNode(name, val, useType, res, isWrapping);
-
-                return PrintBinaryNode(print, !isLeaf || isWrapping);
-//                if (!isLeaf || isWrapping)
-//                {
-//                    Push(print);
-//                    PrintObject(print);
-//                    var popping = _bWriter;
-//                    var wroten = _bWriter.SumLength;
-//                    _bWriter = _bWriter.Pop();
-//
-//                    Logger.TabMinus();
-//                    Logger.Debug("<- POP! TO Index  " + wroten + " " + popping);
-//                }
-//                else
-//                    PrintObject(print);
-//
-//                return val != null;
+                    return PrintBinaryNode(print, !isLeaf || isWrapping);
+                }
             }
             finally
             {
@@ -99,18 +82,14 @@ namespace Das.Printers
             }
         }
 
-        protected Boolean PrintBinaryNode(PrintNode print, Boolean isPush)
+        protected Boolean PrintBinaryNode(IPrintNode print, Boolean isPush)
         { 
             if (isPush)
             {
                 Push(print);
                 PrintObject(print);
-                var popping = _bWriter;
-                var wroten = _bWriter.SumLength;
+                
                 _bWriter = _bWriter.Pop();
-
-                _logger.TabMinus();
-                _logger.Debug("<- POP! TO Index  " + wroten + " " + popping);
             }
             else
                 return PrintObject(print);
@@ -125,7 +104,7 @@ namespace Das.Printers
             if (!isWrapping)
                 return false;
 
-            if (!TryGetNullableType(propType, out _))
+            if (!_typeInferrer.TryGetNullableType(propType, out _))
                 return true;
 
             val = Activator.CreateInstance(propType, val);
@@ -144,16 +123,8 @@ namespace Das.Printers
 
         #region private implementation primary
 
-        protected override void PrintReferenceType(PrintNode node)
+        private void Push(IPrintNode node)
         {
-            _logger.Debug("*REFERENCE* " + node.Value);
-            base.PrintReferenceType(node);
-        }
-
-        private void Push(PrintNode node)
-        {
-            _logger.Debug("->PUSH to index " + _bWriter.Length + " " + node);
-
             _bWriter = _bWriter.Push(node);
             _logger.TabPlus();
 
@@ -163,106 +134,114 @@ namespace Das.Printers
 
         private Boolean PrintPrimitiveItem(NamedValueNode node)
         {
-            var print = new PrintNode(node, NodeTypes.Primitive);
-            PrintPrimitive(print);
+            using (var print = _printNodePool.GetPrintNode(node))
+                PrintPrimitive(print);
+
             return false;
         }
 
-        protected override void PrintPrimitive(PrintNode node)
+        [MethodImpl(256)]
+        protected Boolean Print(Object o, TypeCode code)
+        {
+            Byte[] bytes;
+
+            switch (code)
+            {
+                case TypeCode.String:
+                    WriteString(o?.ToString());
+                    return true;
+                case TypeCode.Boolean:
+                    bytes = BitConverter.GetBytes((Boolean) o);
+                    break;
+                case TypeCode.Char:
+                    bytes = BitConverter.GetBytes((Char) o);
+                    break;
+                case TypeCode.SByte:
+                    _bWriter.WriteInt8((SByte) o);
+                    return true;
+                case TypeCode.Byte:
+                    _bWriter.WriteInt8((Byte) o);
+                    return true;
+                case TypeCode.Int16:
+                    _bWriter.WriteInt16((Int16) o);
+                    return true;
+                case TypeCode.UInt16:
+                    _bWriter.WriteInt16((UInt16) o);
+                    return true;
+                case TypeCode.Int32:
+                    _bWriter.WriteInt32((Int32) o);
+                    return true;
+                case TypeCode.UInt32:
+                    _bWriter.WriteInt32((UInt32) o);
+                    return true;
+                case TypeCode.Int64:
+                    _bWriter.WriteInt64((Int64) o);
+                    return true;
+                case TypeCode.UInt64:
+                    _bWriter.WriteInt64((UInt64) o);
+                    return true;
+                case TypeCode.Single:
+                    bytes = BitConverter.GetBytes((Single) o);
+                    break;
+                case TypeCode.Double:
+                    bytes = BitConverter.GetBytes((Double) o);
+                    break;
+                case TypeCode.Decimal:
+                    bytes = GetBytes((Decimal) o);
+                    break;
+                case TypeCode.DateTime:
+                    _bWriter.WriteInt64(((DateTime) o).Ticks);
+                    return true;
+                default:
+                    return false;
+            }
+
+            _bWriter.Write(bytes);
+            return true;
+        }
+
+        protected override void PrintPrimitive(IPrintNode node)
         {
             while (true)
             {
                 var o = node.Value;
                 var type = node.Type;
 
-                _logger.Debug("@PRIMITIVE " + type.Name + " = " + o);
-
-
                 Byte[] bytes;
+                var code = Type.GetTypeCode(type);
 
-                switch (Type.GetTypeCode(type))
+                if (Print(o, code))
+                    return;
+
+                if (!_typeInferrer.TryGetNullableType(type, out var primType))
+                    throw new NotSupportedException($"Type {type} cannot be printed as a primitive");
+
+                if (o == null)
                 {
-                    case TypeCode.String:
-                        WriteString(o?.ToString());
-                        return;
-                    case TypeCode.Boolean:
-                        bytes = BitConverter.GetBytes((Boolean) o);
-                        break;
-                    case TypeCode.Char:
-                        bytes = BitConverter.GetBytes((Char) o);
-                        break;
-                    case TypeCode.SByte:
-                        _bWriter.WriteInt8((SByte) o);
-                        return;
-                    case TypeCode.Byte:
-                        _bWriter.WriteInt8((Byte) o);
-                        return;
-                    case TypeCode.Int16:
-                        _bWriter.WriteInt16((Int16) o);
-                        return;
-                    case TypeCode.UInt16:
-                        _bWriter.WriteInt16((UInt16) o);
-                        return;
-                    case TypeCode.Int32:
-                        _bWriter.WriteInt32((Int32) o);
-                        return;
-                    case TypeCode.UInt32:
-                        _bWriter.WriteInt32((UInt32) o);
-                        return;
-                    case TypeCode.Int64:
-                        _bWriter.WriteInt64((Int64) o);
-                        return;
-                    case TypeCode.UInt64:
-                        _bWriter.WriteInt64((UInt64) o);
-                        return;
-                    case TypeCode.Single:
-                        bytes = BitConverter.GetBytes((Single) o);
-                        break;
-                    case TypeCode.Double:
-                        bytes = BitConverter.GetBytes((Double) o);
-                        break;
-                    case TypeCode.Decimal:
-                        bytes = GetBytes((Decimal) o);
-                        break;
-                    case TypeCode.DateTime:
-                        _bWriter.WriteInt64(((DateTime) o).Ticks);
-                        return;
-                    default:
-                        if (!TryGetNullableType(type, out var primType))
-                            throw new NotSupportedException($"Type {type} cannot be printed as a primitive");
-
-                        if (o == null)
-                        {
-                            Trace.WriteLine("Writing NULL!");
-                            _bWriter.WriteInt8(0);
-                        }
-                        else
-                        {
-                            //flag that there is a value
-                            _bWriter.WriteInt8(1);
-                            node.Type = primType;
-                            continue;
-                        }
-
-                        return;
+                    //null
+                    _bWriter.WriteInt8(0);
+                }
+                else
+                {
+                    //flag that there is a value
+                    _bWriter.WriteInt8(1);
+                    node.Type = primType;
+                    continue;
                 }
 
-                _logger.Debug($"Printing primitive [{o}] length {bytes.Length} {bytes.ToString(',')}");
-
-                _bWriter.Write(bytes);
-                break;
+                return;
             }
         }
 
-        protected override void PrintCollection(PrintNode node)
+        protected override void PrintCollection(IPrintNode node)
         {
-            var germane = TypeInferrer.GetGermaneType(node.Type);
+            var germane = _typeInferrer.GetGermaneType(node.Type);
 
             var list = node.Value as IEnumerable ?? throw new ArgumentException();
 
             var boom = ExplodeList(list, germane);
 
-            var isLeaf = IsLeaf(germane, true);
+            var isLeaf = _typeInferrer.IsLeaf(germane, true);
 
             if (isLeaf)
                 PrintSeries(boom, PrintPrimitiveItem);
@@ -270,12 +249,37 @@ namespace Das.Printers
                 PrintSeries(boom, PrintNode);
         }
 
-        protected override void PrintFallback(PrintNode node)
+
+        public static unsafe Byte[] GetBytes(String str)
+        {
+            var len = str.Length * 2;
+            var bytes = new Byte[len];
+            fixed (void* ptr = str)
+            {
+                Marshal.Copy(new IntPtr(ptr), bytes, 0, len);
+            }
+
+            return bytes;
+        }
+
+        public static Byte[] GetBytes(Decimal dec)
+        {
+            var bits = Decimal.GetBits(dec);
+            var bytes = new List<Byte>();
+
+            foreach (var i in bits)
+                bytes.AddRange(BitConverter.GetBytes(i));
+
+
+            return bytes.ToArray();
+        }
+
+        protected override void PrintFallback(IPrintNode node)
         {
             //we have to assume primistring otherwise the node type would have been more specific
             var useType = node.Type;
             var o = node.Value;
-            if (o != null && IsUseless(useType))
+            if (o != null && _typeInferrer.IsUseless(useType))
                 useType = o.GetType();
 
             if (o == null)
@@ -283,7 +287,7 @@ namespace Das.Printers
                 //specify that the actual object is 0 bytes
                 _bWriter.WriteInt32(0);
             }
-            else if (IsLeaf(useType, true))
+            else if (_typeInferrer.IsLeaf(useType, true))
             {
                 node.Type = useType;
                 PrintPrimitive(node);
@@ -319,7 +323,7 @@ namespace Das.Printers
 
         private void WriteType(Type type)
         {
-            var typeName = TypeInferrer.ToClearName(type, false);
+            var typeName = _typeInferrer.ToClearName(type, false);
 
             _logger.Debug($"writing type. {typeName} forced: " +
                          (Settings.TypeSpecificity == TypeSpecificity.All));
