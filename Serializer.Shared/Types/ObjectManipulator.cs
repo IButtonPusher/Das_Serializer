@@ -1,7 +1,6 @@
 ﻿using Das.Serializer;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Reflection;
 using Das.Serializer.Objects;
 using Interfaces.Shared.Settings;
@@ -66,13 +65,13 @@ namespace Das.Types
             return false;
         }
 
-        public IList<IProperty> GetPropertyResults(IValueNode value,
+        public IPropertyValueIterator<IProperty> GetPropertyResults(IValueNode value,
             ISerializationDepth depth)
         {
             var val = value.Value;
 
             if (val == null)
-                return new List<IProperty>(0);
+                return new PropertyValueIterator<IProperty>();
 
             var useType = _typeDelegates.IsUseless(value.Type) ? val.GetType() : value.Type;
             //var isReturnNulls = !depth.IsOmitDefaultValues;

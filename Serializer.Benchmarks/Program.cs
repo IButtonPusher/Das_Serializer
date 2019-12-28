@@ -5,6 +5,7 @@ using BenchmarkDotNet.Attributes;
 // ReSharper disable once RedundantUsingDirective
 using BenchmarkDotNet.Running;
 using UnitTestProject1;
+using UnitTestProject1.ProtocolBuffers;
 
 // ReSharper disable All
 
@@ -14,16 +15,21 @@ namespace Serializer.Benchmarks
     {
         public static void Main()
         {
-            //RunManyTimes();
-           BenchmarkRunner.Run<ProtoBufBenchmarks>();
-           
+#if DEBUG
+            RunManyTimes();
+#endif
+#if !DEBUG
+           BenchmarkRunner.Run<ProtoBufTests>();
+#endif
+
         }
 
         private static void RunManyTimes()
         {
-            var buff = new ProtoBufBenchmarks();
+            var buff = new ProtoBufTests();
             var swo = new Stopwatch();
             swo.Start();
+            ByteArrayMessage msg;
             
 
             for (var i = 0; i < 1000; i++)
@@ -35,12 +41,41 @@ namespace Serializer.Benchmarks
 
                     for (var c = 0; c < 10000; c++)
                     {
+                        buff.DasByteArray();
                         buff.DasSimpleMessage();
+
+                      //  buff.DasByteArray();
+                        buff.DasComposedMessage();
+                        buff.DasDoubleMeessage();
+                        buff.DasMultiProperties();
+                        buff.DasStringMessage();
+//                        msg = buff.DasByteArray();
                     }
 
 
                     Debug.WriteLine(" das elapsed: " + sw.ElapsedMilliseconds);
                 }
+
+//                {
+//                    var sw = new Stopwatch();
+//                    sw.Start();
+//
+//
+//                    for (var c = 0; c < 10000; c++)
+//                    {
+//                        //buff.ProtoNetByteArray();
+//                        //buff.ProtoNetSimpleMessage();
+//                        msg = buff.ProtoNetByteArray();
+//                    }
+//
+//
+//                    Debug.WriteLine(" proto elapsed: " + sw.ElapsedMilliseconds);
+//                }
+            }
+
+            for (var i = 0; i < 1000; i++)
+            {
+               
             }
 
 

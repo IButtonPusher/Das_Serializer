@@ -12,7 +12,6 @@ namespace Serializer.Core
     public class TypeCore : ITypeCore
     {
         private ISerializerSettings _settings;
-        
 
         public virtual ISerializerSettings Settings
         {
@@ -27,11 +26,14 @@ namespace Serializer.Core
 
 
 
-        private static readonly ConcurrentDictionary<Type, Int32> CollectionTypes;
+        private static readonly ConcurrentDictionary<Type, Boolean> CollectionTypes;
 
         private static readonly ConcurrentDictionary<Type, Boolean> _typesKnownSettableProperties;
+        private static readonly ConcurrentDictionary<Type, Type> _cachedGermane;
 
         private static readonly ConcurrentDictionary<Type, ConstructorInfo> CachedConstructors;
+
+        private static readonly ConcurrentDictionary<Type, Boolean> Leaves;
 
         private static readonly HashSet<Type> NumericTypes = new HashSet<Type>
         {
@@ -43,11 +45,13 @@ namespace Serializer.Core
 
         static TypeCore()
         {
+            _cachedGermane = new ConcurrentDictionary<Type, Type>();
             CachedProperties = new ConcurrentDictionary<Type,
                 IEnumerable<PropertyInfo>>();
             _typesKnownSettableProperties = new ConcurrentDictionary<Type, Boolean>();
             CachedConstructors = new ConcurrentDictionary<Type, ConstructorInfo>();
-            CollectionTypes = new ConcurrentDictionary<Type, Int32>();
+            CollectionTypes = new ConcurrentDictionary<Type, Boolean>();
+            Leaves = new ConcurrentDictionary<Type, Boolean>();
         }
 
         private static readonly ConcurrentDictionary<Type, IEnumerable<PropertyInfo>>
@@ -64,6 +68,76 @@ namespace Serializer.Core
             return true;
         }
 
+        public Type GetGermaneType(Type ownerType)
+        {
+            if (_cachedGermane.TryGetValue(ownerType, out var typ))
+                return typ;
+
+            try
+            {
+                if (!typeof(IEnumerable).IsAssignableFrom(ownerType))
+                    return ownerType;
+
+                if (ownerType.IsArray)
+                {
+                    typ = ownerType.GetElementType();
+                    return typ;
+                }
+
+                if (typeof(IDictionary).IsAssignableFrom(ownerType))
+                {
+                    typ = GetKeyValuePair(ownerType);
+                    if (typ != null)
+                        return typ;
+                }
+
+                var gargs = ownerType.GetGenericArguments();
+
+                switch (gargs.Length)
+                {
+                    case 1 when ownerType.IsGenericType:
+                        typ = gargs[0];
+                        return typ;
+                    case 2:
+                        var lastChanceDictionary = typeof(IDictionary<,>).MakeGenericType(gargs);
+                        typ = lastChanceDictionary.IsAssignableFrom(ownerType)
+                            ? GetKeyValuePair(lastChanceDictionary)
+                            : ownerType;
+                        return typ;
+                    case 0:
+                        var gen0 = ownerType.GetInterfaces().FirstOrDefault(i =>
+                            i.IsGenericType);
+                        return GetGermaneType(gen0);
+                }
+            }
+            finally
+            {
+                if (typ != null)
+                    _cachedGermane.TryAdd(ownerType, typ);
+            }
+
+            return null;
+        }
+
+        private static Type GetKeyValuePair(Type dicType)
+        {
+            var akas = dicType.GetInterfaces();
+            for (var c = 0; c < akas.Length; c++)
+            {
+                var interf = akas[c];
+                if (!interf.IsGenericType)
+                    continue;
+
+                var genericArgs = interf.GetGenericArguments();
+                if (genericArgs.Length != 1 || !genericArgs[0].IsValueType)
+                    continue;
+
+                return genericArgs[0];
+            }
+
+            return null;
+        }
+
         public virtual Boolean HasSettableProperties(Type type)
         {
             if (_typesKnownSettableProperties.TryGetValue(type, out var yesOrNo))
@@ -76,29 +150,28 @@ namespace Serializer.Core
         }
 
         public static Boolean IsLeaf(Type t, Boolean isStringCounts)
-            => (t.IsValueType || isStringCounts && t == Const.StrType)
-                         && Type.GetTypeCode(t) > TypeCode.DBNull;
+            => Leaves.GetOrAdd(t, l => AmIALeaf(l, isStringCounts));
 
-        Boolean ITypeCore.IsLeaf(Type t, Boolean isStringCounts) => IsLeaf(t, isStringCounts);
+        Boolean ITypeCore.IsLeaf(Type t, Boolean isStringCounts) 
+            => Leaves.GetOrAdd(t, l => AmIALeaf(l, isStringCounts));
+
+        private static Boolean AmIALeaf(Type t, Boolean isStringCounts) 
+            => (t.IsValueType || isStringCounts &&
+            t == Const.StrType)
+            && Type.GetTypeCode(t) > TypeCode.DBNull;
+            
 
         public Boolean IsAbstract(PropertyInfo propInfo)
             => propInfo.GetGetMethod()?.IsAbstract == true ||
                propInfo.GetSetMethod()?.IsAbstract == true;
 
+        [MethodImpl(256)]
         public Boolean IsCollection(Type type)
         {
-            if (type == null)
-                return false;
+            var val = CollectionTypes.GetOrAdd(type, (t) => 
+                t != Const.StrType && typeof(IEnumerable).IsAssignableFrom(type));
 
-            if (!CollectionTypes.TryGetValue(type, out var val))
-            {
-                val = typeof(IEnumerable).IsAssignableFrom(type) && type != Const.StrType
-                    ? 1
-                    : 0;
-                CollectionTypes[type] = val;
-            }
-
-            return val == 1;
+            return val;
         }
        
 
@@ -124,37 +197,14 @@ namespace Serializer.Core
             return new Decimal(bits);
         }
 
-//        public static unsafe Byte[] GetBytes(String str)
-//        {
-//            var len = str.Length * 2;
-//            var bytes = new Byte[len];
-//            fixed (void* ptr = str)
-//            {
-//                Marshal.Copy(new IntPtr(ptr), bytes, 0, len);
-//            }
-//
-//            return bytes;
-//        }
-//
-//        public static Byte[] GetBytes(Decimal dec)
-//        {
-//            var bits = Decimal.GetBits(dec);
-//            var bytes = new List<Byte>();
-//
-//            foreach (var i in bits)
-//                bytes.AddRange(BitConverter.GetBytes(i));
-//
-//
-//            return bytes.ToArray();
-//        }
 
         protected static Boolean IsAnonymousType(Type type)
         {
-            if (type == null)
-                throw new ArgumentNullException(nameof(type));
+//            if (type == null)
+//                throw new ArgumentNullException(nameof(type));
 
-            return type.IsGenericType &&
-                   type.Namespace == null &&
+            return type.Namespace == null &&
+                   type.IsGenericType &&
                    type.IsSealed && type.BaseType == Const.ObjectType &&
                    Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false)
                    && type.Name.Contains("AnonymousType")

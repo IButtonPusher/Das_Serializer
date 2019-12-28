@@ -6,7 +6,6 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
-using Das.CoreExtensions;
 using Das.Serializer.Objects;
 using Serializer.Core.Remunerators;
 
@@ -22,7 +21,6 @@ namespace Das.Printers
             _stateProvider = stateProvider;
             _fallbackFormatter = null;
             IsTextPrinter = false;
-            _logger = stateProvider.Logger;
         }
 
         Boolean ISerializationDepth.IsOmitDefaultValues => false;
@@ -35,7 +33,6 @@ namespace Das.Printers
         protected IBinaryWriter _bWriter;
         protected readonly ISerializationState _stateProvider;
         private BinaryFormatter _fallbackFormatter;
-        private BinaryLogger _logger;
 
 
         #region public interface
@@ -126,7 +123,6 @@ namespace Das.Printers
         private void Push(IPrintNode node)
         {
             _bWriter = _bWriter.Push(node);
-            _logger.TabPlus();
 
             if (node.IsWrapping)
                 WriteType(node.Value.GetType());
@@ -206,8 +202,7 @@ namespace Das.Printers
             {
                 var o = node.Value;
                 var type = node.Type;
-
-                Byte[] bytes;
+                
                 var code = Type.GetTypeCode(type);
 
                 if (Print(o, code))
@@ -302,9 +297,6 @@ namespace Das.Printers
                     var length = (Int32) stream.Length;
                     var buff = stream.GetBuffer();
                     _bWriter.Append(buff, length);
-
-                    _logger.Debug("*FALLBACK* " + o + " type: " + node.Type.Name + " length: " +
-                                 length + " data: " + buff.Take(0, length).ToString(','));
                 }
             }
         }
@@ -325,9 +317,6 @@ namespace Das.Printers
         {
             var typeName = _typeInferrer.ToClearName(type, false);
 
-            _logger.Debug($"writing type. {typeName} forced: " +
-                         (Settings.TypeSpecificity == TypeSpecificity.All));
-
             WriteString(typeName);
         }
 
@@ -343,7 +332,6 @@ namespace Das.Printers
             var bytes = GetBytes(str);
 
             var len = bytes.Length;
-            _logger.Debug($"[String] {str}  {len} bytes: {bytes.ToString(',')}");
             _bWriter.WriteInt32(len);
             _bWriter.Append(bytes);
         }

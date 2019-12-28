@@ -74,7 +74,7 @@ namespace Serializer.Core
             var propType = _facade.TypeManipulator.GetPropertyType(node.Type, name);
             _objects.TryGetPropertyValue(wal, name, out var propValue);
 
-            if (!_types.IsCollection(propType) || propValue == null ||
+            if (propType == null || !_types.IsCollection(propType) || propValue == null ||
                 !(value is IEnumerable enumerable))
                 return;
 

@@ -2,9 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using Das.Serializer;
 
-namespace Das.Scanners
+namespace Das.Serializer.Scanners
 {
     internal class TextNode : BaseNode<ITextNode>, ITextNode
     {

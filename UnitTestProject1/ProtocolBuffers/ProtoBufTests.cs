@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
+using BenchmarkDotNet.Attributes;
 using Das.Serializer;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ProtoBuf;
@@ -18,6 +18,40 @@ namespace UnitTestProject1.ProtocolBuffers
                 protoMember => protoMember.Tag);
         }
 
+
+        [Benchmark]
+        public SimpleMessage DasSimpleMessage()
+        {
+            var msg = new SimpleMessage();
+            msg.A = 150;
+            //Byte[] dArr;
+            SimpleMessage outMsg2;
+            using (var ms = new MemoryStream())
+            {
+                ProtoSerializer.ToProtoStream(ms, msg);
+
+                ms.Position = 0;
+                outMsg2 = ProtoSerializer.FromProtoStream<SimpleMessage>(ms);
+            }
+
+            return outMsg2;
+        }
+
+        [Benchmark]
+        public SimpleMessage ProtoNetSimpleMessage()
+        {
+            var msg = new SimpleMessage();
+            msg.A = 150;
+
+            using (var ms = new MemoryStream())
+            {
+                ProtoBuf.Serializer.Serialize(ms, msg);
+                ms.Position = 0;
+                var outMsg = ProtoBuf.Serializer.Deserialize<SimpleMessage>(ms);
+                return outMsg;
+            }
+        }
+
         [TestMethod]
         public void SimpleIntegerTest()
         {
@@ -28,249 +62,267 @@ namespace UnitTestProject1.ProtocolBuffers
             //1: 00000001 = T0000001 where T = TERMINATOR and 1 << 7 = 128
             //128 + 22 = 150 a PropAVal
 
+            var fromNet = ProtoNetSimpleMessage();
+            var fromDas = DasSimpleMessage();
+            
 
-            var msg = new SimpleMessage();
-            msg.A = 150;
-            Byte[] protoArr;
-            SimpleMessage outMsg;
+            var equal = SlowEquality.AreEqual(fromDas, fromNet);
+            Assert.IsTrue(equal);
+        }
 
+        [Benchmark]
+        public DoubleMessage DasDoubleMeessage()
+        {
+            var msg = new DoubleMessage {D = 3.14};
+            using (var ms = new MemoryStream())
+            {
+                ProtoSerializer.ToProtoStream(ms, msg);
 
+                ms.Position = 0;
+                return ProtoSerializer.FromProtoStream<DoubleMessage>(ms);
+            }
+        }
+
+        [Benchmark]
+        public DoubleMessage ProtoNetDoubleMeessage()
+        {
+            var msg = new DoubleMessage {D = 3.14};
             using (var ms = new MemoryStream())
             {
                 ProtoBuf.Serializer.Serialize(ms, msg);
-                protoArr = ms.ToArray();
-                ms.Position = 0;
-                outMsg = ProtoBuf.Serializer.Deserialize<SimpleMessage>(ms);
-            }
-
-            var srl = Serializer.GetProtoSerializer(_options);
-
-            Byte[] dArr;
-            SimpleMessage outMsg2;
-            using (var ms = new MemoryStream())
-            {
-                srl.ToProtoStream(ms, msg);
-                dArr = ms.ToArray();
 
                 ms.Position = 0;
-                outMsg2 = srl.FromProtoStream<SimpleMessage>(ms);
+                return ProtoBuf.Serializer.Deserialize<DoubleMessage>(ms);
             }
-
-
-            Assert.IsTrue(protoArr.SequenceEqual(dArr));
-            var equal = SlowEquality.AreEqual(outMsg2, msg);
-            Assert.IsTrue(equal);
-
-            equal = SlowEquality.AreEqual(outMsg, outMsg2);
-            Assert.IsTrue(equal);
         }
+
 
         [TestMethod]
         public void SimpleDoubleTest()
         {
-            var msg = new DoubleMessage();
-            DoubleMessage  outMsg2;
-            msg.D = 3.14;
-            Byte[] protoArr;
+            var fromDas = DasDoubleMeessage();
+            var fromNet = ProtoNetDoubleMeessage();
 
+            var equal = SlowEquality.AreEqual(fromDas, fromNet);
+            Assert.IsTrue(equal);
+        }
+
+
+
+        [Benchmark]
+        public StringMessage DasStringMessage()
+        {
+            var msg = new StringMessage {S = "hello world"};
+            using (var ms = new MemoryStream())
+            {
+                ProtoSerializer.ToProtoStream(ms, msg);
+                ms.Position = 0;
+                return ProtoSerializer.FromProtoStream<StringMessage>(ms);
+            }
+        }
+
+        [Benchmark]
+        public StringMessage ProtoNetStringMessage()
+        {
+            var msg = new StringMessage {S = "hello world"};
             using (var ms = new MemoryStream())
             {
                 ProtoBuf.Serializer.Serialize(ms, msg);
-                protoArr = ms.ToArray();
-            }
-
-            var srl = Serializer.GetProtoSerializer(_options);
-
-            Byte[] dArr;
-            using (var ms = new MemoryStream())
-            {
-                srl.ToProtoStream(ms, msg);
-                dArr = ms.ToArray();
                 ms.Position = 0;
-                outMsg2 = srl.FromProtoStream<DoubleMessage>(ms);
+                return ProtoBuf.Serializer.Deserialize<StringMessage>(ms);
             }
-
-            Assert.IsTrue(protoArr.SequenceEqual(dArr));
-            var equal = SlowEquality.AreEqual(outMsg2, msg);
-            Assert.IsTrue(equal);
         }
+
 
         [TestMethod]
         public void SimpleStringTest()
         {
-            var msg = new StringMessage();
-            StringMessage msg2;
-            msg.S = "hello wärld";
-            Byte[] protoArr;
+            var fromDas = DasStringMessage();
+            var fromNet = ProtoNetStringMessage();
 
-            using (var ms = new MemoryStream())
-            {
-                ProtoBuf.Serializer.Serialize(ms, msg);
-                protoArr = ms.ToArray();
-            }
-
-            var srl = Serializer.GetProtoSerializer(_options);
-
-            Byte[] dArr;
-            using (var ms = new MemoryStream())
-            {
-                srl.ToProtoStream(ms, msg);
-                dArr = ms.ToArray();
-                ms.Position = 0;
-                msg2 = srl.FromProtoStream<StringMessage>(ms);
-            }
-
-
-            Assert.IsTrue(protoArr.SequenceEqual(dArr));
-            
-            var equal = SlowEquality.AreEqual(msg2, msg);
+            var equal = SlowEquality.AreEqual(fromDas, fromNet);
             Assert.IsTrue(equal);
         }
 
-        [TestMethod]
-        public void NegativeIntegerTest()
+//        [Benchmark]
+//        public SimpleMessage DasNegativeIntegerMessage()
+//        {
+//            var msg = new SimpleMessage {A = -150};
+//            using (var ms = new MemoryStream())
+//            {
+//                ProtoSerializer.ToProtoStream(ms, msg);
+//                ms.Position = 0;
+//                return ProtoSerializer.FromProtoStream<SimpleMessage>(ms);
+//            }
+//        }
+//
+//        [Benchmark]
+//        public SimpleMessage ProtoNetNegativeIntegerMessage()
+//        {
+//            var msg = new SimpleMessage {A = -150};
+//            using (var ms = new MemoryStream())
+//            {
+//                ProtoBuf.Serializer.Serialize(ms, msg);
+//                ms.Position = 0;
+//                return ProtoBuf.Serializer.Deserialize<SimpleMessage>(ms);
+//            }
+//        }
+//
+//
+//        [TestMethod]
+//        public void NegativeIntegerTest()
+//        {
+//            //prop A: index = 2, wire type = varint = 0, val = -150
+//            //output: 16 234 254 255 255 255 255 255 255 255 1
+//            //16: indexA(2) << 3 = 10 ### + wire type(0) => ### = 000 so 10000 = 16
+//
+//            var fromDas = DasNegativeIntegerMessage();
+//            var fromNet = ProtoNetNegativeIntegerMessage();
+//
+//            var equal = SlowEquality.AreEqual(fromDas, fromNet);
+//            Assert.IsTrue(equal);
+//        }
+//
+
+
+
+        [Benchmark]
+        public MultiPropMessage DasMultiProperties()
         {
-            //prop A: index = 2, wire type = varint = 0, val = -150
-            //output: 16 234 254 255 255 255 255 255 255 255 1
-            //16: indexA(2) << 3 = 10 ### + wire type(0) => ### = 000 so 10000 = 16
+            var msg = new MultiPropMessage
+            {
+                A = 150,
+                S = "hello world"
+            };
+            using (var ms = new MemoryStream())
+            {
+                ProtoSerializer.ToProtoStream(ms, msg);
+                ms.Position = 0;
+                return ProtoSerializer.FromProtoStream<MultiPropMessage>(ms);
+            }
+        }
 
-            var msg = new SimpleMessage();
-            msg.A = -150;
-            Byte[] protoArr;
-            SimpleMessage outMsg;
-            SimpleMessage outMsg3;
-
-
+        [Benchmark]
+        public MultiPropMessage ProtoNetMultiProperties()
+        {
+            var msg = new MultiPropMessage
+            {
+                A = 150,
+                S = "hello world"
+            };
             using (var ms = new MemoryStream())
             {
                 ProtoBuf.Serializer.Serialize(ms, msg);
-                protoArr = ms.ToArray();
                 ms.Position = 0;
-                outMsg = ProtoBuf.Serializer.Deserialize<SimpleMessage>(ms);
+                return ProtoBuf.Serializer.Deserialize<MultiPropMessage>(ms);
             }
-
-            var srl = Serializer.GetProtoSerializer(_options);
-
-            Byte[] dArr;
-            SimpleMessage outMsg2;
-            using (var ms = new MemoryStream())
-            {
-                srl.ToProtoStream(ms, msg);
-                dArr = ms.ToArray();
-
-                ms.Position = 0;
-                outMsg2 = srl.FromProtoStream<SimpleMessage>(ms);
-
-                ms.Position = 0;
-                outMsg3 = ProtoBuf.Serializer.Deserialize<SimpleMessage>(ms);
-            }
-
-
-            Assert.IsTrue(protoArr.SequenceEqual(dArr));
-            var equal = SlowEquality.AreEqual(outMsg2, msg);
-            Assert.IsTrue(equal);
-
-            equal = SlowEquality.AreEqual(outMsg, msg);
-            Assert.IsTrue(equal);
-
-            equal = SlowEquality.AreEqual(outMsg3, msg);
-            Assert.IsTrue(equal);
         }
+
 
         [TestMethod]
         public void MultiPropTest()
         {
-            var msg = new MultiPropMessage();
-            msg.A = 150;
-            msg.S = "hello world";
-            Byte[] protoArr;
-            MultiPropMessage outMsg;
-            MultiPropMessage outMsg3;
+            var fromDas = DasMultiProperties();
+            var fromNet = ProtoNetMultiProperties();
 
-
-            using (var ms = new MemoryStream())
-            {
-                ProtoBuf.Serializer.Serialize(ms, msg);
-                protoArr = ms.ToArray();
-                ms.Position = 0;
-                outMsg = ProtoBuf.Serializer.Deserialize<MultiPropMessage>(ms);
-            }
-
-            var srl = Serializer.GetProtoSerializer(_options);
-
-            Byte[] dArr;
-            MultiPropMessage outMsg2;
-            using (var ms = new MemoryStream())
-            {
-                srl.ToProtoStream(ms, msg);
-                dArr = ms.ToArray();
-
-                ms.Position = 0;
-                outMsg2 = srl.FromProtoStream<MultiPropMessage>(ms);
-
-                ms.Position = 0;
-                outMsg3 = ProtoBuf.Serializer.Deserialize<MultiPropMessage>(ms);
-            }
-           
-            Assert.AreEqual(protoArr.Length, dArr.Length);
-
-            var equal = SlowEquality.AreEqual(outMsg2, msg);
-            Assert.IsTrue(equal);
-
-            equal = SlowEquality.AreEqual(outMsg, msg);
-            Assert.IsTrue(equal);
-
-            equal = SlowEquality.AreEqual(outMsg3, msg);
+            var equal = SlowEquality.AreEqual(fromDas, fromNet);
             Assert.IsTrue(equal);
         }
 
-        [TestMethod]
-        public void ComposedTest()
+        [Benchmark]
+        public ComposedMessage DasComposedMessage()
         {
             var msg = new ComposedMessage();
             msg.MultiPropMessage = new MultiPropMessage();
             msg.A = 150;
             msg.MultiPropMessage.S = "hello world";
             msg.MultiPropMessage.A = 5;
-            Byte[] protoArr;
-            ComposedMessage outMsg;
-            ComposedMessage outMsg3;
+            using (var ms = new MemoryStream())
+            {
+                ProtoSerializer.ToProtoStream(ms, msg);
+                ms.Position = 0;
+                
+                return ProtoSerializer.FromProtoStream<ComposedMessage>(ms);
+            }
+        }
 
+
+        [Benchmark]
+        public ComposedMessage ProtoNetComposedMessage()
+        {
+            var msg = new ComposedMessage();
+            msg.MultiPropMessage = new MultiPropMessage();
+            msg.A = 150;
+            msg.MultiPropMessage.S = "hello world";
+            msg.MultiPropMessage.A = 5;
+            using (var ms = new MemoryStream())
+            {
+                ProtoBuf.Serializer.Serialize(ms, msg);
+                ms.Position = 0;
+                
+                return ProtoBuf.Serializer.Deserialize<ComposedMessage>(ms);
+            }
+        }
+
+        [TestMethod]
+        public void ComposedTest()
+        {
+            var fromNet = ProtoNetComposedMessage();
+            var fromDas = DasComposedMessage();
+            
+
+            var equal = SlowEquality.AreEqual(fromDas, fromNet);
+            Assert.IsTrue(equal);
+        }
+
+
+        [Benchmark]
+        public ByteArrayMessage ProtoNetByteArray()
+        {
+            var msg = new ByteArrayMessage
+            {
+                ByteArray = new Byte[] {127, 0, 0, 1, 255, 123}
+            };
 
             using (var ms = new MemoryStream())
             {
                 ProtoBuf.Serializer.Serialize(ms, msg);
-                protoArr = ms.ToArray();
+                //var rdrr = ms.ToArray();
                 ms.Position = 0;
-                outMsg = ProtoBuf.Serializer.Deserialize<ComposedMessage>(ms);
+                return ProtoBuf.Serializer.Deserialize<ByteArrayMessage>(ms);
             }
+        }
 
-            var srl = Serializer.GetProtoSerializer(_options);
+        [Benchmark]
+        public ByteArrayMessage DasByteArray()
+        {
+            var msg = new ByteArrayMessage
+            {
+                ByteArray = new Byte[] {127, 0, 0, 1, 255, 123}
+            };
 
-            Byte[] dArr;
-            ComposedMessage outMsg2;
             using (var ms = new MemoryStream())
             {
-                srl.ToProtoStream(ms, msg);
-                dArr = ms.ToArray();
-
+                ProtoSerializer.ToProtoStream(ms, msg);
+                //var rdrr = ms.ToArray();
                 ms.Position = 0;
-                outMsg2 = srl.FromProtoStream<ComposedMessage>(ms);
-
-                ms.Position = 0;
-                outMsg3 = ProtoBuf.Serializer.Deserialize<ComposedMessage>(ms);
+                return ProtoSerializer.FromProtoStream<ByteArrayMessage>(ms);
             }
-           
-            Assert.AreEqual(protoArr.Length, dArr.Length);
+        }
 
-            var equal = SlowEquality.AreEqual(outMsg2, msg);
-            Assert.IsTrue(equal);
+        [TestMethod]
+        public void ByteArrayTest()
+        {
+            var fromNet = ProtoNetByteArray();
+            
+            var fromDas = DasByteArray();
+            fromDas = DasByteArray();
+            fromDas = DasByteArray();
 
-            equal = SlowEquality.AreEqual(outMsg, msg);
-            Assert.IsTrue(equal);
-
-            equal = SlowEquality.AreEqual(outMsg3, msg);
+            var equal = SlowEquality.AreEqual(fromDas, fromNet);
             Assert.IsTrue(equal);
         }
+
     }
 }
+

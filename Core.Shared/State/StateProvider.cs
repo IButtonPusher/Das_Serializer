@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Threading;
 using Das;
-using Das.Scanners;
-using Das.Serializer;
 using Das.Serializer.Scanners;
+using Das.Serializer;
 using Serializer.Core.State;
 
 namespace Serializer.Core
@@ -68,7 +67,7 @@ namespace Serializer.Core
                 ? buffer.Dequeue()
                 : new BinaryBorrawable(ReturnToLibrary, settings, this, 
                     s => new BinaryScanner(s), 
-                    (c, s) => new BinaryPrimitiveScanner(c,s), BinaryContext.Logger);
+                    (c, s) => new BinaryPrimitiveScanner(c,s));
             state.UpdateSettings(settings);
             return state;
         }
@@ -81,7 +80,7 @@ namespace Serializer.Core
                 ? buffer.Dequeue()
                 : new BinaryBorrawable(ReturnProtoToLibrary, settings, this, 
                     s => new ProtoScanner<T>(s, options),
-                    (c, s) => new ProtoPrimitiveScanner(c, s), BinaryContext.Logger);
+                    (c, s) => new ProtoPrimitiveScanner(c, s));
             state.UpdateSettings(settings);
             return state;
         }

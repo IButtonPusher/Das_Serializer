@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using Das.Serializer;
+using Das.Serializer.ProtoBuf;
 using Interfaces.Shared.Settings;
 using Serializer.Core;
 
@@ -527,7 +528,6 @@ namespace Das.Types
                 return result.PropertyCount > 0;
 
             return base.HasSettableProperties(type);
-            //return type.GetProperties().Any(p => p.CanWrite);
         }
 
         public ITypeStructure GetStructure<T>(ISerializationDepth depth)
@@ -541,27 +541,47 @@ namespace Das.Types
             return ValidateCollection(type, depth, false);
         }
 
-        public IProtoStructure GetProtoStructure<TPropertyAttribute>(Type type,
-            ProtoBufOptions<TPropertyAttribute> options) 
+        public IProtoStructure GetPrintProtoStructure<TPropertyAttribute>(Type type,
+            ProtoBufOptions<TPropertyAttribute> options)
             where TPropertyAttribute : Attribute
         {
-            if (TryGetTypeStructure(type, Settings, _knownProto, out var structure))
-                return structure;
+            if (!TryGetTypeStructure(type, Settings, _knownProto, out var structure))
+            {
+                if (IsCollection(type))
+                    structure = new ProtoCollectionPrinter(type,
+                        Settings, this, _nodePool);
+                else
+                    structure = new ProtoStructure<TPropertyAttribute>(type,
+                        Settings, this, options, _nodePool);
+                
 
-            structure = new ProtoStructure<TPropertyAttribute>(type, 
-                Settings, this, options, _nodePool);
-            
-
-            _knownProto.TryAdd(type, structure);
-            _knownSensitive.TryAdd(type, structure);
+                _knownProto.TryAdd(type, structure);
+                _knownSensitive.TryAdd(type, structure);
+            }
 
             return structure;
+        }
+
+        public IProtoStructure GetScanProtoStructure<TPropertyAttribute>(Type type, 
+            ProtoBufOptions<TPropertyAttribute> options, Int32 byteLength) 
+            where TPropertyAttribute : Attribute
+        {
+            var seekingCollection = IsCollection(type);
+            var itemStruct = GetPrintProtoStructure(type, options);
+            if (!seekingCollection)
+                return itemStruct;
+
+            if (type.IsArray)
+                return new ProtoArrayScanner(itemStruct, byteLength, this);
+
+            return new ProtoCollectionStructure(itemStruct, this);
+
         }
 
         private readonly Object _lockNewType = new Object();
 
         private Boolean TryGetTypeStructure<TStructure>(Type type, ISerializationDepth depth,
-            IDictionary<Type, TStructure> collection, out TStructure found)
+            ConcurrentDictionary<Type, TStructure> collection, out TStructure found)
             where TStructure : ITypeStructure
         {
             var doCache = Settings.CacheTypeConstructors;

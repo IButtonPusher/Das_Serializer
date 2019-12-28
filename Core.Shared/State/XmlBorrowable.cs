@@ -1,5 +1,5 @@
 ﻿using System;
-using Das.Scanners;
+using Das.Serializer.Scanners;
 using Das.Serializer;
 
 namespace Serializer.Core

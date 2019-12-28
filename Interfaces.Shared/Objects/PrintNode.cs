@@ -28,10 +28,15 @@ namespace Serializer.Core.Printers
         {
             NodeType = nodeType;
             IsWrapping = false;
-            Name = valu.Name;
-            Value = valu.Value;
-            Type = valu.Type;
+            _name = valu.Name;
+            _value = valu.Value;
+            _type = valu.Type;
             _isEmptyInitialized = -1;
+        }
+
+        public void SetValue(Object value)
+        {
+            _value = value;
         }
 
         public NodeTypes NodeType { get; set; }

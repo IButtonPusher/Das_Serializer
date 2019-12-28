@@ -10,7 +10,7 @@ namespace Das.Serializer.Objects
     {
         private readonly Action<NamedValueNode> _returnToSender;
         protected Int32 _isEmptyInitialized;
-        private Int32 _hash;
+        protected String _name;
 
         public Boolean IsEmptyInitialized
         {
@@ -30,10 +30,13 @@ namespace Das.Serializer.Objects
         }
         
         public NamedValueNode(Action<NamedValueNode> returnToSender, 
-            String name, Object value, Type type) : this(name, value, type)
+            String name, Object value, Type type) 
+            : this(name, value, type)
         {
             _returnToSender = returnToSender;
         }
+
+        protected NamedValueNode(){}
 
         protected NamedValueNode(String name, Object value, Type type) : base(value, type)
         {
@@ -42,11 +45,10 @@ namespace Das.Serializer.Objects
 
         public void Set(String name, Object value, Type type)
         {
-            name = String.Intern(name);
-            Name = name;
-            _hash = name.GetHashCode() + (type.GetHashCode() ^ 3);
+            _name = name;
             _isEmptyInitialized = -1;
-            base.Set(value, type);
+            _type = type;
+            _value = value;
         }
 
         public Boolean Equals(INamedField other)
@@ -57,18 +59,13 @@ namespace Das.Serializer.Objects
             return other.Type == Type && other.Name == Name;
         }
 
-        public override Int32 GetHashCode() => _hash;
-
         public override String ToString() => "[" + Name + "]  " + base.ToString();
         public virtual void Dispose()
         {
             _returnToSender(this);
         }
 
-        public String Name { get; set; }
+        public String Name => _name;
 
-//        public static implicit operator NamedValueNode(DictionaryEntry kvp) =>
-//            new NamedValueNode(kvp.Key.ToString(), kvp.Value,
-//                kvp.Value?.GetType() ?? typeof(Object));
     }
 }

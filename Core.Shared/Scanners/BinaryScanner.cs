@@ -1,28 +1,22 @@
 ﻿using Das.Streamers;
 using System;
-using System.Diagnostics;
-using Das.Serializer;
-using Das.Serializer.Annotations;
-using Das.Serializer.Scanners;
 using Serializer.Core;
 
-namespace Das.Scanners
+namespace Das.Serializer.Scanners
 {
     internal class BinaryScanner : SerializerCore, IBinaryScanner
     {
         public BinaryScanner(IBinaryContext state) : base(state, state.Settings)
         {
-            _logger = state.Logger;
             _state = state;
             _nodes = state.ScanNodeProvider;
             _nodeManipulator = state.ScanNodeManipulator;
         }
 
-        protected IBinaryFeeder _feeder;
+        private IBinaryFeeder _feeder;
         private IBinaryNode _rootNode;
         protected readonly IBinaryContext _state;
         protected readonly IBinaryNodeProvider _nodes;
-        private BinaryLogger _logger;
 
         private static readonly NullNode NullNode = NullNode.Instance;
         private readonly INodeManipulator _nodeManipulator;
@@ -182,7 +176,6 @@ namespace Das.Scanners
 
                 case NodeTypes.Primitive:
                     node.Value = _feeder.GetPrimitive(node.Type);
-                    _logger.Debug("Extracted primitive value " + node.Value);
 
                     break;
             }
@@ -190,14 +183,6 @@ namespace Das.Scanners
             _nodes.Sealer.CloseNode(node);
             _nodes.Sealer.Imbue(node);
         }
-
-        [Conditional("DEBUG")]
-        public void Debug(String val)
-        {
-            _logger.Debug(val);
-        }
-
-     
 
         public void Invalidate()
         {

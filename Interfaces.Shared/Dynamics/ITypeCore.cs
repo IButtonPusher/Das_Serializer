@@ -21,6 +21,12 @@ namespace Das.Serializer
         Boolean HasEmptyConstructor(Type t);
 
         /// <summary>
+        /// if this is a generic collection of T or T[] it will return typeof(T)
+        /// otherwise returns the same type
+        /// </summary>
+        Type GetGermaneType(Type ownerType);
+
+        /// <summary>
         /// Attempts to find a constructor that has parameters that match the name and type of
         /// all properties with public get methods
         /// </summary>

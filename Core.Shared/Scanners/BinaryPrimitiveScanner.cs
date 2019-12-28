@@ -1,11 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-using Das.Serializer;
 using Serializer.Core;
 
 
-namespace Das.Scanners
+namespace Das.Serializer.Scanners
 {
     internal class BinaryPrimitiveScanner : SerializerCore, IBinaryPrimitiveScanner
     {
@@ -48,6 +47,9 @@ namespace Das.Scanners
                 case TypeCode.DateTime:
                     var ticks = _instantiator.CreatePrimitiveObject<Int64>(input, typeof(Int64));
                     res = new DateTime(ticks);
+                    break;
+                case TypeCode.Double:
+                    res = BitConverter.ToDouble(input, 0);
                     break;
                 default:
                     if (type.IsEnum)

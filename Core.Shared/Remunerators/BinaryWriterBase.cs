@@ -121,7 +121,7 @@ namespace Serializer.Core.Remunerators
 
         public virtual IBinaryWriter Pop() => this;
 
-        public void Append(Byte[] data) => Write(data);
+        public virtual void Append(Byte[] data) => Write(data);
 
 
         public void Append(Byte[] data, Int32 limit)

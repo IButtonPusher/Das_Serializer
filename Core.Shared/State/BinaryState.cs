@@ -1,5 +1,5 @@
 ﻿using System;
-using Das.Scanners;
+using Das.Serializer.Scanners;
 using Das.Serializer;
 
 namespace Serializer.Core
@@ -8,12 +8,10 @@ namespace Serializer.Core
     {
         internal BinaryState(IStateProvider stateProvider, ISerializerSettings settings, 
             Func<IBinaryState, BinaryScanner> getScanner,
-            Func<ISerializationCore, ISerializerSettings, IBinaryPrimitiveScanner> getPrimitiveScanner,
-            BinaryLogger logger)
+            Func<ISerializationCore, ISerializerSettings, IBinaryPrimitiveScanner> getPrimitiveScanner)
             : base(stateProvider, settings)
         {
             _settings = settings;
-            Logger = logger;
             PrimitiveScanner = getPrimitiveScanner(stateProvider, settings);
             _nodeProvider = stateProvider.ScanNodeProvider as IBinaryNodeProvider;
 
@@ -25,8 +23,6 @@ namespace Serializer.Core
         public IBinaryScanner Scanner { get; }
 
         public IBinaryPrimitiveScanner PrimitiveScanner { get; }
-        public BinaryLogger Logger { get; }
-
         IBinaryNodeProvider IBinaryContext.ScanNodeProvider => _nodeProvider;
 
         public override IScanNodeProvider ScanNodeProvider => _nodeProvider;

@@ -10,7 +10,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Annotations.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)BinaryLogger.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DasAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Delegates.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IAssemblyList.cs" />
@@ -21,6 +20,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IInstantiator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IObjectConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IObjectManipulator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Objects\IPropertyValueIterator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IProtoStructure.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\ITypeCore.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\ITypeInferrer.cs" />
@@ -53,12 +53,17 @@
     <Compile Include="$(MSBuildThisFileDirectory)Objects\INamedField.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\IPrintNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\IProperty.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Objects\IProtoField.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Objects\IProtoFieldAccessor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Objects\IProtoProperty.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Objects\IProtoPropertyIterator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\IStronglyTyped.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\IValueNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\NamedValueNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\ObjectNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\PrintNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\PropertyValueNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Objects\ProtoWireTypes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\ValueNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IBinaryFeeder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IBinaryPrimitiveScanner.cs" />

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 using System.Threading;
-using Das.Scanners;
+using Das.Serializer.Scanners;
 using Das.Serializer;
 
 namespace Serializer.Core.Scanners

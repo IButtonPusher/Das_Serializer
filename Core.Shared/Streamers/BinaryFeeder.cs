@@ -7,8 +7,9 @@ namespace Das.Streamers
     internal class BinaryFeeder : SerializerCore, IBinaryFeeder
     {
         public BinaryFeeder(IBinaryPrimitiveScanner primitiveScanner,
-            ISerializationCore dynamicFacade, IByteArray bytes, ISerializerSettings settings,
-            BinaryLogger logger)
+            ISerializationCore dynamicFacade, IByteArray bytes, ISerializerSettings settings
+            //, BinaryLogger logger
+            )
             : base(dynamicFacade, settings)
         {
             _scanner = primitiveScanner;
@@ -16,7 +17,7 @@ namespace Das.Streamers
 
             _currentBytes = bytes;
             _currentEndIndex = (Int32)_currentBytes.Length - 1;
-            _logger = logger;
+         //   _logger = logger;
         }
 
         #region fields
@@ -24,7 +25,7 @@ namespace Das.Streamers
         protected IByteArray _currentBytes;
         protected Int32 _currentEndIndex;
 
-        private readonly BinaryLogger _logger;
+       // private readonly BinaryLogger _logger;
 
         public virtual Int32 GetInt32() => (Int32) GetPrimitive(typeof(Int32));
 
@@ -165,7 +166,7 @@ namespace Das.Streamers
                 bytes = GetBytesForValueTypeObject(dataType);
 
             var res = _scanner.GetValue(bytes, dataType);
-            _logger.Debug("fallback to " + res);
+            //_logger.Debug("fallback to " + res);
             return res;
         }
 

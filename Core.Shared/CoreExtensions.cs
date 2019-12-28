@@ -7,7 +7,7 @@ using Das.Serializer;
 
 // ReSharper disable UnusedMember.Global
 
-namespace Das.CoreExtensions
+namespace Das.Extensions
 {
     public static class CoreExtensionMethods
     {

@@ -1,82 +1,136 @@
-﻿using System;
+// Das.Streamers.ProtoFeeder
+using Das.Serializer;
+using Das.Streamers;
+using Serializer.Core;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using Das.Serializer;
-using Serializer.Core;
+using System.Runtime.CompilerServices;
 
-namespace Das.Streamers
+internal class ProtoFeeder : BinaryFeeder
 {
-    internal class ProtoFeeder : BinaryFeeder
-    {
-        private Stack<Int32> _arrayIndeces;
+	private Stack<Int32> _arrayIndeces;
 
-        public ProtoFeeder(IBinaryPrimitiveScanner primitiveScanner, ISerializationCore dynamicFacade, 
-            IByteArray bytes, ISerializerSettings settings, BinaryLogger logger) 
-            : base(primitiveScanner, dynamicFacade, bytes, settings, logger)
-        {
-            ByteStream = bytes as ByteStream;
-            _arrayIndeces = new Stack<Int32>();
-        }
+	private ByteStream _byteStream;
 
-        private ByteStream _byteStream;
+	[ThreadStatic]
+	private static Int32 _currentByte;
 
+	[ThreadStatic]
+	private static Int32 _push;
 
-        public ByteStream ByteStream
-        {
-            get => _byteStream;
-            set => SetByteStream(value);
-        }
+	public ByteStream ByteStream
+	{
+		get
+		{
+			return _byteStream;
+		}
+		set
+		{
+			SetByteStream(value);
+		}
+	}
 
-        public void SetStream(Stream stream)
-        {
-            ByteStream.Stream = stream;
-            _currentEndIndex = (Int32)ByteStream.Length - 1;
-        }
+	public ProtoFeeder(IBinaryPrimitiveScanner primitiveScanner, ISerializationCore dynamicFacade, IByteArray bytes, ISerializerSettings settings)
+		: base(primitiveScanner, dynamicFacade, bytes, settings)
+	{
+		ByteStream = (bytes as ByteStream);
+		_arrayIndeces = new Stack<Int32>();
+	}
 
-        public void Push(Int32 length)
-        {
-            _arrayIndeces.Push(_currentEndIndex);
-            _currentEndIndex = Index + length - 1;
-        }
+	public void SetStream(Stream stream)
+	{
+		ByteStream.Stream = stream;
+		_currentEndIndex = (Int32)ByteStream.Length - 1;
+		base.Index = 0;
+	}
 
-        public void Pop()
-        {
-            _currentEndIndex = _arrayIndeces.Pop();
-        }
+	public void Push(Int32 length)
+	{
+		_arrayIndeces.Push(_currentEndIndex);
+		_currentEndIndex = Index + length - 1;
+	}
 
-        private void SetByteStream(ByteStream stream)
-        {
-            _byteStream = stream;
-        }
+	[MethodImpl(256)]
+	public Byte GetByte()
+	{
+		return _currentBytes[_byteIndex++];
+	}
 
-        public sealed override Int32 GetInt32()
-        {
-            Int32 currentByte;
-            var result = 0;
-            var push = 0;
-            
-            do
-            {
-                currentByte = _currentBytes[_byteIndex++];
-                
-                result += (currentByte & 127) << push;
+	public void Pop()
+	{
+		_currentEndIndex = _arrayIndeces.Pop();
+	}
 
-                if (push == 28 && result < 0)
-                {
-                    //read 4 bytes, value is negative
-                    _byteIndex += 5;
-                    break;
-                }
-                push += 7;
-            }
-            //when the 8th bit is 0 we are done.  8th bit = 1, read another byte
-            while ((currentByte & 128) != 0);
+	private void SetByteStream(ByteStream stream)
+	{
+		_byteStream = stream;
+	}
 
-            
-            return result;
-        }
+	public Object GetVarInt(Type type)
+	{
+		Int64 result = 0L;
+		Int32 push = 0;
+		Int32 currentByte;
+		do
+		{
+			currentByte = _currentBytes[_byteIndex++];
+			result += (currentByte & 0x7F) << push;
+			if (push == 28 && result < 0)
+			{
+				_byteIndex += 5;
+				break;
+			}
+			push += 7;
+		}
+		while ((currentByte & 0x80) != 0);
+		return Convert.ChangeType(result, type);
+	}
 
-        public override Int32 GetNextBlockSize() => GetInt32();
+	public void GetInt32(ref Int32 result)
+	{
+		_currentByte = 0;
+		result = 0;
+		_push = 0;
+		while (true)
+		{
+			_currentByte = _currentBytes[_byteIndex++];
+			result += (_currentByte & 0x7F) << _push;
+			if (_push == 28 && result < 0)
+			{
+				break;
+			}
+			_push += 7;
+			if ((_currentByte & 0x80) == 0)
+			{
+				return;
+			}
+		}
+		_byteIndex += 5;
+	}
 
-    }
+	public sealed override Int32 GetInt32()
+	{
+		Int32 result = 0;
+		Int32 push = 0;
+		Int32 currentByte;
+		do
+		{
+			currentByte = _currentBytes[_byteIndex++];
+			result += (currentByte & 0x7F) << push;
+			if (push == 28 && result < 0)
+			{
+				_byteIndex += 5;
+				break;
+			}
+			push += 7;
+		}
+		while ((currentByte & 0x80) != 0);
+		return result;
+	}
+
+	public override Int32 GetNextBlockSize()
+	{
+		return GetInt32();
+	}
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Das.Remunerators;
@@ -16,20 +17,25 @@ namespace Das.Serializer.Remunerators
         
         public DeferredProtoWriter(ProtoBufWriter parent) : base(parent)
         {
-            _parent = parent;
+            Parent = parent;
             _backingList = new ByteBuilder();
+            OutStream = Stream.Null;
+            
         }
 
         public void Construct(ProtoBufWriter input)
         {
             Parent = input;
+            _parent = input;
+            _backingList.Clear();
         }
 
         public Action<DeferredProtoWriter> ReturnToSender { get; set; }
 
-        private readonly ProtoBufWriter _parent;
+       
+
+        private ProtoBufWriter _parent;
         private readonly ByteBuilder _backingList;
-        private Boolean _isPopped;
 
         [MethodImpl(256)]
         protected sealed override unsafe void Write(Byte* bytes, Int32 count) => _backingList.Append(bytes, count);
@@ -64,24 +70,24 @@ namespace Das.Serializer.Remunerators
 
         public override IEnumerator<Byte> GetEnumerator() => _backingList.GetEnumerator();
 
-        public override Int32 Length
-        {
-            get
-            {
-                var cnt = _backingList.Count;
-                if (_isPopped)
-                    return cnt;
-
-                foreach (var node in Children)
-                {
-                    if (node._isPopped)
-                        continue;
-                    cnt += node.Length;
-                }
-
-                return cnt;
-            }
-        }
+//        public override Int32 Length
+//        {
+//            get
+//            {
+//                var cnt = _backingList.Count;
+//                if (_isPopped)
+//                    return cnt;
+//
+//                foreach (var node in Children)
+//                {
+//                    if (node._isPopped)
+//                        continue;
+//                    cnt += node.Length;
+//                }
+//
+//                return cnt;
+//            }
+//        }
 
         public override Int32 GetDataLength() => _backingList.Count;
 
@@ -96,8 +102,6 @@ namespace Das.Serializer.Remunerators
 
         public override IBinaryWriter Pop()
         {
-            _isPopped = true;
-
             _parent.WriteInt32(Length);
             _parent.Imbue(this);
 

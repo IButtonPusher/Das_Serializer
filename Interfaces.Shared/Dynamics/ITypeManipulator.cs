@@ -45,8 +45,12 @@ namespace Das.Serializer
 
         ITypeStructure GetTypeStructure(Type type, ISerializationDepth depth);
 
-        IProtoStructure GetProtoStructure<TPropertyAttribute>(Type type, 
+        IProtoStructure GetPrintProtoStructure<TPropertyAttribute>(Type type, 
             ProtoBufOptions<TPropertyAttribute> options)
+            where TPropertyAttribute : Attribute;
+
+        IProtoStructure GetScanProtoStructure<TPropertyAttribute>(Type type, 
+            ProtoBufOptions<TPropertyAttribute> options, Int32 byteLength)
             where TPropertyAttribute : Attribute;
     }
 }

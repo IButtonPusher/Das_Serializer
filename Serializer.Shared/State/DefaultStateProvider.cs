@@ -5,21 +5,19 @@ namespace Das.Serializer
 {
     public class DefaultStateProvider : StateProvider
     {
-        public DefaultStateProvider(ISerializerSettings settings, BinaryLogger binaryLogger)
-            : base(GetDynamicFacade(settings, binaryLogger),
+        public DefaultStateProvider(ISerializerSettings settings)
+            : base(GetDynamicFacade(settings),
                 _xmlContext, _jsonContext, _binaryContext, settings) { }
 
-        public DefaultStateProvider(ISerializerSettings settings) : this(settings, new BinaryLogger()) { }
+        public DefaultStateProvider() : this(DasSettings.Default) { }
 
-        public DefaultStateProvider() : this(DasSettings.Default, new BinaryLogger()) { }
-
-        public static ISerializationCore GetDynamicFacade(ISerializerSettings settings, BinaryLogger logger)
+        public static ISerializationCore GetDynamicFacade(ISerializerSettings settings)
         {
             var dynamicFacade = new DynamicFacade(settings);
 
             _xmlContext = new XmlContext(dynamicFacade, settings);
             _jsonContext = new JsonContext(dynamicFacade, settings);
-            _binaryContext = new BinaryContext(dynamicFacade, settings,logger);
+            _binaryContext = new BinaryContext(dynamicFacade, settings);
 
             return dynamicFacade;
         }

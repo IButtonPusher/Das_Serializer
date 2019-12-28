@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Globalization;
-using Das.Serializer;
 
 
-namespace Das.Scanners
+namespace Das.Serializer.Scanners
 {
     public abstract class StringPrimitiveScanner : IStringPrimitiveScanner
     {

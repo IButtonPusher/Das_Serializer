@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using Das.Extensions;
 using Das.Serializer;
 using Serializer.Core;
-using Das.CoreExtensions;
 
 namespace Das.Types
 {
@@ -19,6 +18,39 @@ namespace Das.Types
         {
             _dynamicTypes = dynamicTypes;
             _assemblies = assemblyList;
+        }
+
+      
+
+        private readonly IDynamicTypes _dynamicTypes;
+        
+        private readonly IAssemblyList _assemblies;
+        private static readonly ConcurrentDictionary<Type, Object> CachedDefaults;
+        private static readonly ConcurrentDictionary<Type, Int32> CachedSizes;
+
+
+        static TypeInference()
+        {
+            
+            CachedSizes = new ConcurrentDictionary<Type, Int32>();
+            
+            //bitconverter gives 1 byte.  SizeOf gives 4
+            CachedSizes.TryAdd(typeof(Boolean), 1);
+            CachedSizes.TryAdd(typeof(DateTime), 8);
+
+            CachedDefaults = new ConcurrentDictionary<Type, Object>();
+
+            CachedDefaults.TryAdd(typeof(Byte), 0);
+            CachedDefaults.TryAdd(typeof(Int16), 0);
+            CachedDefaults.TryAdd(Const.IntType, 0);
+            CachedDefaults.TryAdd(typeof(Int64), 0);
+            CachedDefaults.TryAdd(typeof(Single), 0f);
+            CachedDefaults.TryAdd(typeof(Double), 0.0);
+            CachedDefaults.TryAdd(typeof(Decimal), 0M);
+            CachedDefaults.TryAdd(typeof(DateTime), DateTime.MinValue);
+            CachedDefaults.TryAdd(typeof(Boolean), false);
+
+
             TypeNames = new ConcurrentDictionary<String, Type>();
             TypeNames["object"] = Const.ObjectType;
             TypeNames["string"] = typeof(String);
@@ -28,7 +60,7 @@ namespace Das.Types
             TypeNames["decimal"]= typeof(Decimal);
             TypeNames["double"]= typeof(Double);
             TypeNames["short"]= typeof(Int16);
-            TypeNames["int"]= typeof(Int32);
+            TypeNames["int"]= Const.IntType;
             TypeNames["long"]= typeof(Int64);
             TypeNames["sbyte"]= typeof(SByte);
             TypeNames["float"]= typeof(Single);
@@ -37,38 +69,10 @@ namespace Das.Types
             TypeNames["ulong"]= typeof(UInt64);
 
             _cachedTypeNames = new ConcurrentDictionary<Type, String>();
-            _cachedGermane = new ConcurrentDictionary<Type, Type>();
         }
 
-        private readonly IDynamicTypes _dynamicTypes;
-        private readonly ConcurrentDictionary<Type, Type> _cachedGermane;
-        private readonly IAssemblyList _assemblies;
-        private static readonly ConcurrentDictionary<Type, Object> CachedDefaults;
-        private static readonly ConcurrentDictionary<Type, Int32> CachedSizes;
-
-
-        static TypeInference()
-        {
-            CachedSizes = new ConcurrentDictionary<Type, Int32>();
-            //bitconverter gives 1 byte.  SizeOf gives 4
-            CachedSizes.TryAdd(typeof(Boolean), 1);
-            CachedSizes.TryAdd(typeof(DateTime), 8);
-
-            CachedDefaults = new ConcurrentDictionary<Type, Object>();
-
-            CachedDefaults.TryAdd(typeof(Byte), 0);
-            CachedDefaults.TryAdd(typeof(Int16), 0);
-            CachedDefaults.TryAdd(typeof(Int32), 0);
-            CachedDefaults.TryAdd(typeof(Int64), 0);
-            CachedDefaults.TryAdd(typeof(Single), 0f);
-            CachedDefaults.TryAdd(typeof(Double), 0.0);
-            CachedDefaults.TryAdd(typeof(Decimal), 0M);
-            CachedDefaults.TryAdd(typeof(DateTime), DateTime.MinValue);
-            CachedDefaults.TryAdd(typeof(Boolean), false);
-        }
-
-        internal readonly ConcurrentDictionary<String, Type> TypeNames;
-        private readonly ConcurrentDictionary<Type, String> _cachedTypeNames;
+        private static readonly ConcurrentDictionary<String, Type> TypeNames;
+        private static readonly ConcurrentDictionary<Type, String> _cachedTypeNames;
 
         private IEnumerable<Type> GetGenericTypes(String type)
         {
@@ -167,75 +171,7 @@ namespace Das.Types
             return name;
         }
 
-        public Type GetGermaneType(Type ownerType)
-        {
-            if (_cachedGermane.TryGetValue(ownerType, out var typ))
-                return typ;
-
-            try
-            {
-                if (!typeof(IEnumerable).IsAssignableFrom(ownerType))
-                    return ownerType;
-
-                if (ownerType.IsArray)
-                {
-                    typ = ownerType.GetElementType();
-                    return typ;
-                }
-
-                if (typeof(IDictionary).IsAssignableFrom(ownerType))
-                {
-                    typ = GetKeyValuePair(ownerType);
-                    if (typ != null)
-                        return typ;
-                }
-
-                var gargs = ownerType.GetGenericArguments();
-
-                switch (gargs.Length)
-                {
-                    case 1 when ownerType.IsGenericType:
-                        typ = gargs[0];
-                        return typ;
-                    case 2:
-                        var lastChanceDictionary = typeof(IDictionary<,>).MakeGenericType(gargs);
-                        typ = lastChanceDictionary.IsAssignableFrom(ownerType)
-                            ? GetKeyValuePair(lastChanceDictionary)
-                            : ownerType;
-                        return typ;
-                    case 0:
-                        var gen0 = ownerType.GetInterfaces().FirstOrDefault(i =>
-                            i.IsGenericType);
-                        return GetGermaneType(gen0);
-                }
-            }
-            finally
-            {
-                if (typ != null)
-                    _cachedGermane.TryAdd(ownerType, typ);
-            }
-
-            return null;
-        }
-
-        private static Type GetKeyValuePair(Type dicType)
-        {
-            var akas = dicType.GetInterfaces();
-            for (var c = 0; c < akas.Length; c++)
-            {
-                var interf = akas[c];
-                if (!interf.IsGenericType)
-                    continue;
-
-                var genericArgs = interf.GetGenericArguments();
-                if (genericArgs.Length != 1 || !genericArgs[0].IsValueType)
-                    continue;
-
-                return genericArgs[0];
-            }
-
-            return null;
-        }
+     
 
         private String GetClearGeneric(Type type, Boolean isOmitAssemblyName)
         {

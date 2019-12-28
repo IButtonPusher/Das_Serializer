@@ -42,6 +42,10 @@ namespace Das.Serializer
 
         public const Int32 Int64 = 1;
 
+        public static readonly Type IntType = typeof(Int32);
+        public static readonly Type ByteType = typeof(Byte);
+        public static readonly Type ByteArrayType = typeof(Byte[]);
+
         public const Int32 LengthDelimited = 2;
 
         public const BindingFlags NonPublic = BindingFlags.Instance | BindingFlags.NonPublic;

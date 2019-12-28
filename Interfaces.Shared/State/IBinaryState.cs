@@ -7,7 +7,7 @@
 }
 
 
-//using Das.Scanners;
+//using Das.Serializer.Scanners;
 //
 //namespace Das.Serializer
 //{

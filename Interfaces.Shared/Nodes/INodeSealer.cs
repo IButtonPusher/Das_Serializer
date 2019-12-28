@@ -1,5 +1,4 @@
 ﻿using System;
-using Das.Serializer.Annotations;
 
 namespace Das.Serializer
 {

@@ -72,7 +72,7 @@ namespace Das.Serializer
         public IPrintNode GetPrintNode(INamedValue namedValue, Object overrideValue)
         {
             var node = GetPrintNodeImpl(namedValue);
-            node.Value = overrideValue;
+            node.SetValue(overrideValue);
             return node;
         }
 
@@ -94,7 +94,8 @@ namespace Das.Serializer
             => GetNamedValue(kvp.Key.ToString(), kvp.Value,
                 kvp.Value?.GetType() ?? typeof(Object));
 
-        public IProperty GetProperty(String propertyName, Object propertyValue, Type propertyType, Type declaringType)
+        public IProperty GetProperty(String propertyName, Object propertyValue, Type propertyType,
+            Type declaringType)
         {
             var buffer = PropertyBuffer.Value;
 
@@ -104,11 +105,10 @@ namespace Das.Serializer
                 print.Set(propertyName, propertyValue, propertyType, declaringType);
                 return print;
             }
-            else
-            {
-                return new PropertyValueNode(ReturnToSender, propertyName, propertyValue,
-                    propertyType, declaringType);
-            }
+
+            return new PropertyValueNode(ReturnToSender, propertyName, propertyValue,
+                propertyType, declaringType);
+
         }
     }
 }

@@ -86,9 +86,9 @@ namespace Das.Printers
                     Writer.Append(Const.Quote, ": ");
                     TabIn();
                     isCloseBlock = true;
-
-                    node.Type = valType;
                 }
+
+                node.Type = valType;
                 
                 using (var print = _printNodePool.GetPrintNode(node))
                     PrintObject(print);
@@ -127,7 +127,8 @@ namespace Das.Printers
             }
         }
 
-        protected override void PrintProperties<T>(IList<T> values, Func<T, Boolean> exe)
+        protected override void PrintProperties<T>(IPropertyValueIterator<T> values, 
+            Func<T, Boolean> exe) 
         {
             var cnt = values.Count;
             if (cnt == 0)
@@ -240,7 +241,6 @@ namespace Das.Printers
 
         protected Boolean PrintCollectionObject(ObjectNode val)
         {
-            //var print = new PrintNode(val, res);
             using (var print = _printNodePool.GetPrintNode(val))
             {
                 PrintObject(print);

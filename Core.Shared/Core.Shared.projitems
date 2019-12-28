@@ -40,9 +40,14 @@
     <Compile Include="$(MSBuildThisFileDirectory)Printers\StackFormat.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Printers\TextPrinter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Printers\XmlPrinter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PropertyValueIterator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\ProtoArrayScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\ProtoBufSerializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\ProtoCollectionPrinter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\ProtoCollectionScanner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\ProtoField.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\ProtoPropertyIterator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\ProtoStructure.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\ProtoWireTypes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\ByteBuilder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\DeferredBinaryWriter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\BinaryWriterBase.cs" />

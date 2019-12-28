@@ -7,7 +7,7 @@ namespace UnitTestProject1.ProtocolBuffers
     public class SimpleMessage
     {
         [ProtoMember(2)]
-        public Int32 A {get; set; }
+        public Byte A {get; set; }
     }
 
     [ProtoContract]
@@ -42,6 +42,12 @@ namespace UnitTestProject1.ProtocolBuffers
 
         [ProtoMember(1)]
         public Int32 A {get; set; }
+    }
 
+    [ProtoContract]
+    public class ByteArrayMessage
+    {
+        [ProtoMember(1)]
+        public Byte[] ByteArray {get; set; }
     }
 }

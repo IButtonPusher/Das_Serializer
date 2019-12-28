@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Das.Serializer;
-using Das.Serializer.Annotations;
-using Das.Serializer.Scanners;
 using Serializer.Core;
 
-namespace Das.Scanners
+namespace Das.Serializer.Scanners
 {
     public abstract class TextScanner : SerializerCore, ITextScanner
     {

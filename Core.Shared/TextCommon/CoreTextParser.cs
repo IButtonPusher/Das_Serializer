@@ -462,7 +462,8 @@ namespace Serializer
                         return res;
                     case '[':
                         //array
-                        end = json.IndexOf(']', current) + 1;
+                        //end = json.IndexOf(']', current) + 1;
+                        end = json.IndexOf(']', c) + 1;
                         beg = c - 1;
                         goto afterLoop;
                     default:

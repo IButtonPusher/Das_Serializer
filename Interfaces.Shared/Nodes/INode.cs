@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Das.Serializer.Annotations;
 
 namespace Das.Serializer
 {

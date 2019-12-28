@@ -43,8 +43,7 @@ namespace Das
 
         private IBinaryFeeder GetFeeder(IBinaryContext state, IByteArray arr)
         {
-            return new BinaryFeeder(state.PrimitiveScanner, state, arr, Settings, 
-                state.Logger);
+            return new BinaryFeeder(state.PrimitiveScanner, state, arr, Settings);
         }
 
         public TObject FromProtoStream<TObject, TPropertyAttribute>(Stream stream,
@@ -54,8 +53,7 @@ namespace Das
             using (var state = StateProvider.BorrowProto(Settings, options))
             {
                 var arr = new ByteStream(stream);
-                var f = new ProtoFeeder(state.PrimitiveScanner, state, arr, Settings,
-                    state.Logger);
+                var f = new ProtoFeeder(state.PrimitiveScanner, state, arr, Settings);
                 return state.Scanner.Deserialize<TObject>(f);
             }
         }

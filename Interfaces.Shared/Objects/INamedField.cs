@@ -3,7 +3,7 @@ using Das.Serializer.Objects;
 
 namespace Das.Serializer
 {
-    public interface INamedField : IEquatable<INamedField>, IStronglyTyped
+    public interface INamedField :  IStronglyTyped
     {
         String Name { get; }
     }

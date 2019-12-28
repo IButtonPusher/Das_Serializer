@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using Das.Serializer;
 using Das.Serializer.Objects;
+using Das.Serializer.ProtoBuf;
 using Das.Serializer.Remunerators;
 
 namespace Das.Printers
@@ -26,30 +27,84 @@ namespace Das.Printers
         public void Print<TObject>(TObject o)
         {
             var typeO = typeof(TObject);
-            var typeStructure = _types.GetProtoStructure(typeO, _protoSettings);
-            var properyValues = typeStructure.GetPropertyValues(o, this);
-            for (var c = 0; c < properyValues.Count; c++)
+
+            Object currentVal = o;
+
+            var typeStructure = _types.GetPrintProtoStructure(typeO, _protoSettings);
+            var properyValues = typeStructure.GetPropertyValues(currentVal);
+            
+            do //nested object loop
             {
-                //header
-                var pv = properyValues[c];
-                if (!typeStructure.TryGetHeader(pv, out var header))
-                    continue;
+                while (properyValues.MoveNext())
+                {
+                    var pv = properyValues;
 
-                _bWriter.WriteInt32(header);
-                /////
+                    var pvType = pv.Type;
+                    var pvValue = pv.Value;
+                    var wireType = pv.WireType;
 
-                var code = Type.GetTypeCode(pv.Type);
-                if (Print(pv.Value, code))
-                    continue;
+                    //header
+                    if (!properyValues.IsCollection) //todo: test different collections
+                    {
+                        _bWriter.WriteInt32(pv.Header); //wire type | field index << 3
+                    }
+                    /////
 
-                using (var print = _printNodePool.GetPrintNode(pv))
-                    PrintBinaryNode(print, true);
-            }
+                    var code = pv.TypeCode;
+
+                    switch (wireType)
+                    {
+                        case ProtoWireTypes.Varint:
+                        case ProtoWireTypes.Int64:
+                            if (!Print(pvValue, code))
+                                throw new InvalidOperationException();
+                            break;
+                        case ProtoWireTypes.LengthDelimited:
+                            currentVal = pvValue;
+                            switch (code)
+                            {
+                                case TypeCode.String:
+                                    WriteString((String)currentVal);
+                                    break;
+                                case TypeCode.Object:
+
+                                    //byte array - special case
+                                    if (pvType == Const.ByteArrayType)
+                                    {
+                                        var arr = (Byte[]) pvValue;
+                                        _bWriter.WriteInt32(arr.Length);
+                                        _bWriter.Append(arr);
+                                        break;
+                                    }
+
+                                    properyValues.Push();
+
+                                    _bWriter = _writer.GetChildWriter();
+
+                                    break;
+                            }
+
+                            break;
+                        default:
+                            throw new NotImplementedException();
+                    }
+
+                    pv.Dispose();
+                }
+
+                if (properyValues.Pop())
+                {
+                    _bWriter = _bWriter.Pop();
+                    //continue;
+                }
+                else break;
+            } 
+            while (true);
         }
 
         public Stream Stream
         {
-            // ReSharper disable once UnusedMember.Global
+            // ReSharper disable once UnusedMember.GlobalQueue
             get => _writer.OutStream;
             set => _writer.OutStream = value;
         }
@@ -93,7 +148,7 @@ namespace Das.Printers
 
         private Boolean TryPrintHeader(IProperty prop)
         {
-            var typeStructure = _types.GetProtoStructure(prop.DeclaringType, _protoSettings);
+            var typeStructure = _types.GetPrintProtoStructure(prop.DeclaringType, _protoSettings);
             return TryPrintHeader(prop, typeStructure);
         }
     }

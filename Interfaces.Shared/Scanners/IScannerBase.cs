@@ -1,4 +1,4 @@
-﻿namespace Das.Scanners
+﻿namespace Das.Serializer.Scanners
 {
     public interface IScannerBase<in TInput> : IScannerBase
     {

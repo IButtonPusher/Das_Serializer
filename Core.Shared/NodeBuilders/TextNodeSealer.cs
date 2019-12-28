@@ -95,7 +95,8 @@ namespace Serializer.Core
 
                     #region collate property types, generate type, set prop values
 
-                    if (_facade.TypeInferrer.IsCollection(node.Type))
+                    if (node.Type != null && 
+                        _facade.TypeInferrer.IsCollection(node.Type))
                     {
                         var gt = _facade.TypeInferrer.GetGermaneType(node.Type);
                         var arr = Array.CreateInstance(gt, node.DynamicProperties.Count);

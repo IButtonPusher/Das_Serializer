@@ -1,4 +1,4 @@
-﻿using Das.Scanners;
+﻿using Das.Serializer.Scanners;
 using System;
 
 namespace Das.Serializer

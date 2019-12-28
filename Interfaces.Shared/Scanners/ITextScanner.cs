@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Das.Scanners;
-using Das.Serializer.Annotations;
+using Das.Serializer.Scanners;
 
 namespace Das.Serializer
 {

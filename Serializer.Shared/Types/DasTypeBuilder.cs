@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using Das.Serializer;
 using Serializer.Core;
-using Das.CoreExtensions;
+using Das.Extensions;
 using Das.Serializer.Objects;
 
 

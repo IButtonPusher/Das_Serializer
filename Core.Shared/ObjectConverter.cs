@@ -270,8 +270,7 @@ namespace Das
                 foreach (var child in objects)
                     arr2.SetValue(child, i++);
 
-                if (collectionType.IsArray)
-                    return arr2;
+                return arr2;
             }
 
             if (collectionType.GetConstructor(new[] {itemType}) != null)

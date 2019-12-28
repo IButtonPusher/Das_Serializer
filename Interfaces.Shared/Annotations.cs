@@ -24,7 +24,7 @@ using System;
 
 #pragma warning disable 1591
 
-namespace Das.Serializer.Annotations
+namespace Das.Serializer
 {
 
     /// <summary>

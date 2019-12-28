@@ -13,15 +13,22 @@ namespace Das.Serializer
 {
     public class ObjectInstantiator : TypeCore, IInstantiator
     {
-        private readonly ConcurrentDictionary<Type, InstantiationTypes> InstantionTypes;
-        private readonly ConcurrentDictionary<Type, Func<Object>> Constructors;
-        private readonly ConcurrentDictionary<Type, Boolean> KnownOnDeserialize;
+        private static readonly ConcurrentDictionary<Type, InstantiationTypes> InstantionTypes;
+        private static readonly ConcurrentDictionary<Type, Func<Object>> Constructors;
+        private static readonly ConcurrentDictionary<Type, Boolean> KnownOnDeserialize;
         private readonly ITypeInferrer _typeInferrer;
         private readonly ITypeManipulator _typeManipulator;
         private readonly IDictionary<Type, Type> _typeSurrogates;
         private readonly IObjectManipulator _objectManipulator;
         private readonly IDynamicTypes _dynamicTypes;
-        
+
+        static ObjectInstantiator()
+        {
+            InstantionTypes = new ConcurrentDictionary<Type, InstantiationTypes>();
+            Constructors = new ConcurrentDictionary<Type, Func<Object>>();
+            KnownOnDeserialize = new ConcurrentDictionary<Type, Boolean>();
+        }
+
 
         public ObjectInstantiator(ITypeInferrer typeInferrer, ITypeManipulator typeManipulator,
             IDictionary<Type, Type> typeSurrogates, IObjectManipulator objectManipulator,
@@ -33,9 +40,7 @@ namespace Das.Serializer
             _typeSurrogates = typeSurrogates;
             _objectManipulator = objectManipulator;
             _dynamicTypes = dynamicTypes;
-            InstantionTypes = new ConcurrentDictionary<Type, InstantiationTypes>();
-            Constructors = new ConcurrentDictionary<Type, Func<Object>>();
-            KnownOnDeserialize = new ConcurrentDictionary<Type, Boolean>();
+            
         }
 
         public Object BuildDefault(Type type, Boolean isCacheConstructors)
@@ -52,7 +57,11 @@ namespace Das.Serializer
                 case InstantiationTypes.DefaultConstructor:
                     return Activator.CreateInstance(typ);
                 case InstantiationTypes.Emit:
-                    return CreateInstance(typ, isCacheConstructors);
+                    if (isCacheConstructors)
+                        return CreateInstanceCacheConstructor(typ);
+                    else
+                        return CreateInstanceDetectConstructor(typ);
+                    
                 case InstantiationTypes.EmptyArray:
                     var germane = _typeInferrer.GetGermaneType(typ);
                     return Array.CreateInstance(germane, 0);
@@ -184,21 +193,24 @@ namespace Das.Serializer
             return res;
         }
 
-        private Object CreateInstance(Type type, Boolean isCacheTypeConstructors)
+        private Object CreateInstanceCacheConstructor(Type type)
         {
-            if (!isCacheTypeConstructors || IsAnonymousType(type))
-            {
-                var ctor = GetConstructor(type, new List<Type>(), out _);
-                var ctored = ctor.Invoke(new Object[0]);
-                return ctored;
-            }
-
             if (Constructors.TryGetValue(type, out var constructor))
                 return constructor();
+
+            if (IsAnonymousType(type))
+                return CreateInstanceDetectConstructor(type);
 
             constructor = GetConstructorDelegate(type);
             Constructors.TryAdd(type, constructor);
             return constructor();
+        }
+
+        private Object CreateInstanceDetectConstructor(Type type)
+        {
+            var ctor = GetConstructor(type, new List<Type>(), out _);
+            var ctored = ctor.Invoke(new Object[0]);
+            return ctored;
         }
     }
 }

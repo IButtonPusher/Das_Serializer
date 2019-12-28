@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 
-namespace Das.Serializer.ObjectPools
+namespace Das.Serializer
 {
     public abstract class ObjectLender<TObject, TCtorParam> : IDataLender<TObject,TCtorParam>
         where TObject : ILendable<TObject,TCtorParam>

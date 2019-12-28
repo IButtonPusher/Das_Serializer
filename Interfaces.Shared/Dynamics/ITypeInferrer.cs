@@ -17,11 +17,7 @@ namespace Das.Serializer
 
         String ToClearName(Type type, Boolean isOmitAssemblyName);
 
-        /// <summary>
-        /// if this is a generic collection of T or T[] it will return typeof(T)
-        /// otherwise returns the same type
-        /// </summary>
-        Type GetGermaneType(Type ownerType);
+
 
         void ClearCachedNames();
 

@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
-using Das.CoreExtensions;
 using Das.Serializer;
-
+using Das.Extensions;
 
 namespace Das.Printers
 {
-    internal abstract class PrinterBase<TEFormat> : //SerializerCore, 
+    internal abstract class PrinterBase<TEFormat> : 
         ISerializationDepth
     {
         public ISerializerSettings Settings { get; }
@@ -38,8 +37,8 @@ namespace Das.Printers
 
         protected Boolean IsTextPrinter;
         protected IScanNodeProvider _nodeProvider;
-        protected INodePool _printNodePool;
-        protected ITypeInferrer _typeInferrer;
+        protected readonly INodePool _printNodePool;
+        protected readonly ITypeInferrer _typeInferrer;
 
         #endregion
 
@@ -204,7 +203,7 @@ namespace Das.Printers
         protected virtual void PrintReferenceType(IPrintNode node)
         {
             var properyValues = _stateProvider.ObjectManipulator.GetPropertyResults(node, this);
-            PrintProperties(properyValues, PrintProperty);
+            PrintProperties<INamedValue>(properyValues, PrintProperty);
         }
 
         protected void PushStack(String str) => _pathStack.Add(str);
@@ -257,10 +256,15 @@ namespace Das.Printers
             }
         }
 
-        protected virtual void PrintProperties<T>(IList<T> values, Func<T, Boolean> exe)
+        protected virtual void PrintProperties<T>(IPropertyValueIterator<T> values, 
+            Func<T, Boolean> exe) where T : class, INamedValue
+
         {
             for (var c = 0; c < values.Count; c++)
-                exe(values[c]);
+            {
+                var current = values[c];
+                exe(current);
+            }
         }
 
         protected virtual void PrintSeries<T>(IEnumerable<T> values, Func<T, Boolean> exe)

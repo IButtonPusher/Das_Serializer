@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
 using Das.Serializer.Objects;
 
@@ -14,7 +13,8 @@ namespace Das.Serializer
 
         Boolean TryGetPropertyValue<T>(Object obj, String propertyName, out T result);
 
-        IList<IProperty> GetPropertyResults(IValueNode obj, ISerializationDepth depth);
+        IPropertyValueIterator<IProperty> GetPropertyResults(IValueNode obj,
+            ISerializationDepth depth);
 
         Boolean SetFieldValue(Type classType, String fieldName, Object targetObj,
             Object propVal);

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Threading;
 using System.Xml.Serialization;
 using Das.Serializer;
 using Serializer.Core;
@@ -18,15 +18,20 @@ namespace Das
         public SerializationDepth Depth { get; }
 
         private readonly ITypeManipulator _types;
-        private readonly INodePool _nodePool;
+        protected readonly INodePool _nodePool;
         private readonly HashSet<String> _xmlIgnores;
 
         private readonly Dictionary<String, Func<Object, Object>> _getOnly;
 
         private readonly Dictionary<String, Func<Object, Object>> _propGetters;
-        private readonly List<KeyValuePair<String, Func<Object, Object>>> _propGetterList;
+        protected readonly List<KeyValuePair<String, Func<Object, Object>>> _propGetterList;
 
-        //private readonly Dictionary<String, Object[]> _propertyAttributes;
+
+        protected virtual PropertyValueIterator<IProperty> PropertyValues
+            => _propertyValues.Value;
+
+        private readonly ThreadLocal<PropertyValueIterator<IProperty>> _propertyValues;
+
         private readonly DoubleDictionary<String, Type, Object> _propertyAttributes;
 
         private readonly Dictionary<String, Func<Object, Object>> _fieldGetters;
@@ -37,12 +42,23 @@ namespace Das
         private readonly SortedList<String, Action<Object, Object>> _readOnlySetters;
         private readonly SortedList<String, Action<Object, Object>> _fieldSetters;
 
-        public ConcurrentDictionary<String, INamedField> MemberTypes { get; }
+        public Dictionary<String, INamedField> MemberTypes { get; }
+
+        
+
+        
 
         private readonly String _onDeserializedMethodName;
 
 
         public Int32 PropertyCount { get; }
+
+        protected TypeStructure(Type type, ISerializerSettings settings, INodePool nodePool) 
+            : base(settings)
+        {
+            Type = type;
+            _nodePool = nodePool;
+        }
 
         public TypeStructure(Type type, Boolean isPropertyNamesCaseSensitive,
             ISerializationDepth depth, ITypeManipulator state, INodePool nodePool)
@@ -50,6 +66,8 @@ namespace Das
         {
             Type = type;
             _xmlIgnores = new HashSet<String>();
+            _propertyValues = new ThreadLocal<PropertyValueIterator<IProperty>>(() 
+                => new PropertyValueIterator<IProperty>());
 
             Depth = depth.SerializationDepth;
             _types = state;
@@ -79,7 +97,8 @@ namespace Das
 
             _propertySetters = new SortedList<String, PropertySetter>(cmp);
             _readOnlySetters = new SortedList<String, Action<Object, Object>>(cmp);
-            MemberTypes = new ConcurrentDictionary<String, INamedField>(cmp);
+            MemberTypes = new Dictionary<String, INamedField>(cmp);
+            
 
 
             if (_types.IsLeaf(type, true) || IsCollection(type))
@@ -138,7 +157,7 @@ namespace Das
 
                 var member = new DasMember(pi.Name, pi.PropertyType);
 
-                MemberTypes.TryAdd(pi.Name, member);
+                MemberTypes[pi.Name] = member;
 
                 var reallyWrite = false;
 
@@ -189,7 +208,7 @@ namespace Das
                 _fieldSetters.Add(fld.Name, delSet);
 
                 var member = new DasMember(fld.Name, fld.FieldType);
-                MemberTypes.TryAdd(fld.Name, member);
+                MemberTypes[fld.Name] = member;
             }
         }
 
@@ -206,7 +225,7 @@ namespace Das
             }
 
             var member = new DasMember(pi.Name, pi.PropertyType);
-            MemberTypes.TryAdd(pi.Name, member);
+            MemberTypes[pi.Name] = member;
         }
 
 
@@ -219,11 +238,13 @@ namespace Das
             return true;
         }
 
-        public IList<IProperty> GetPropertyValues(Object o, ISerializationDepth depth)
+        public virtual IPropertyValueIterator<IProperty> GetPropertyValues(Object o, 
+            ISerializationDepth depth)
         {
             var isRespectXmlIgnoreAttribute = depth.IsRespectXmlIgnore;
             var cnt = _propGetterList.Count;
-            var res = new List<IProperty>(cnt);
+            var res = PropertyValues;
+            res.Clear();
             
             for (var c = 0; c < cnt; c++)
             {
@@ -234,14 +255,13 @@ namespace Das
                 var val = kvp.Value(o);
                 var type = MemberTypes[name].Type;
 
-                var n0 = _nodePool.GetProperty(name, val, type, Type);
+                var pooledProp = _nodePool.GetProperty(name, val, type, Type);
 
-                res.Add(n0);
+                res.Add(pooledProp);
             }
 
             return res;
         }
-
 
         private IEnumerable<KeyValuePair<String, Func<Object, Object>>> GetValueGetters(
             ISerializationDepth depth)
@@ -362,3 +382,6 @@ namespace Das
         }
     }
 }
+
+
+           

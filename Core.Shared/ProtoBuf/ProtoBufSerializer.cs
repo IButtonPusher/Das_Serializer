@@ -17,11 +17,10 @@ namespace Das.Serializer.ProtoBuf
         {
             var options1 = options;
             StateProvider = stateProvider;
-            var protoPool = new DeferredProtoWriterPool();
 
             Printer = new ThreadLocal<ProtoPrinter<TPropertyAttribute>>(() =>
                 {
-                    var pWriter = new ProtoBufWriter(protoPool);
+                    var pWriter = new ProtoBufWriter(100);
                     var state = StateProvider.BorrowBinary(Settings);
                     var printer = new ProtoPrinter<TPropertyAttribute>(pWriter,
                         state, TypeManipulator, options1);
@@ -32,8 +31,7 @@ namespace Das.Serializer.ProtoBuf
             {
                 var state = StateProvider.BorrowProto(Settings, options1);
                 var arr = new ByteStream();
-                var f = new ProtoFeeder(state.PrimitiveScanner, state, arr, Settings,
-                    state.Logger);
+                var f = new ProtoFeeder(state.PrimitiveScanner, state, arr, Settings);
                 var s = (ProtoScanner<TPropertyAttribute>)state.Scanner;
                 s.Feeder = f;
                 return s;

@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
-using Das.CoreExtensions;
+using Das.Extensions;
 using Serializer.Core;
 
 // ReSharper disable All

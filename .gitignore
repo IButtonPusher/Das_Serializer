@@ -43,3 +43,5 @@
 /Serializer.Benchmarks/bin/Release/BenchmarkDotNet.Artifacts
 /Serializer.Benchmarks/bin/Release
 /UnitTestProject1/obj
+/Serializer.Benchmarks/obj/Release
+/Serializer.Benchmarks/obj

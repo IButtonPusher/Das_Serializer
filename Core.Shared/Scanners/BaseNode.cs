@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using Das.Serializer;
 using Serializer.Core;
 
-namespace Das.Scanners
+namespace Das.Serializer.Scanners
 {
     internal abstract class BaseNode<TNode> : TypeCore, INode<TNode>
         where TNode : INode<TNode>

@@ -1,18 +1,71 @@
-﻿using Das.Serializer.ProtoBuf;
+﻿using Das.Serializer.Objects;
+using Das.Serializer.ProtoBuf;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 
 namespace Das.Serializer
 {
-    public class ProtoStructure<TPropertyAttribute> : TypeStructure, IProtoStructure
-        where TPropertyAttribute : Attribute
+    public abstract class ProtoStructure : TypeStructure, IProtoStructure
     {
-        // ReSharper disable once StaticMemberInGenericType
-        private static readonly ConcurrentDictionary<Type, ProtoWireTypes> _wireTypes;
-        // ReSharper disable once StaticMemberInGenericType
-        private static readonly Type _enumType = typeof(Enum);
+        public ProtoStructure(Type type, ISerializationDepth depth,
+            ITypeManipulator state,  INodePool nodePool)
+            : base(type, true, depth, state, nodePool)
+        {
+            FieldMap = new Dictionary<Int32, IProtoFieldAccessor>();
+            _headers = new Dictionary<String, Int32>();
+            WireTypes = new Dictionary<String, ProtoWireTypes>();
+            PropertyStructures = new Dictionary<Int32, IProtoStructure>();
 
+            _propertyIterators = new ThreadLocal<ProtoPropertyIterator>(() =>
+                new ProtoPropertyIterator(this));
+        }
+
+        public IProtoFieldAccessor this[Int32 idx] => _memberTypes[idx];
+        public Dictionary<Int32, IProtoStructure> PropertyStructures { get; }
+
+        public Int32 GetterCount => _propGetterList.Count; 
+
+        public KeyValuePair<String, Func<Object, Object>> GetGetter(Int32 index)
+            => _propGetterList[index];  
+
+        protected readonly Dictionary<String, Int32> _headers;
+        protected IProtoFieldAccessor[] _memberTypes;
+        
+
+        public Boolean TryGetHeader(INamedField field, out Int32 header) 
+            => _headers.TryGetValue(field.Name, out header);
+
+
+        public Dictionary<Int32, IProtoFieldAccessor> FieldMap { get; }
+
+        public Dictionary<String, ProtoWireTypes> WireTypes { get; }
+
+        Boolean IProtoStructure.IsCollection => false;
+
+        private static readonly ConcurrentDictionary<Type, ProtoWireTypes> _wireTypes;
+
+        protected readonly ThreadLocal<ProtoPropertyIterator> _propertyIterators;
+
+        public static ProtoWireTypes GetWireType(Type type)
+        {
+            if (!_wireTypes.TryGetValue(type, out var wire))
+            {
+                if (_enumType.IsAssignableFrom(type))
+                    wire = 0;
+                else wire = ProtoWireTypes.LengthDelimited;
+
+                _wireTypes[type] = wire;
+            }
+
+            return wire;
+        }
+
+        public abstract IProtoPropertyIterator GetPropertyValues(object o);
+
+        private static readonly Type _enumType = typeof(Enum);
         static ProtoStructure()
         {
             var wireTypes = new Dictionary<Type, ProtoWireTypes>
@@ -21,6 +74,7 @@ namespace Das.Serializer
                 {typeof(Int64), ProtoWireTypes.Varint},
                 {typeof(UInt32), ProtoWireTypes.Varint},
                 {typeof(UInt64), ProtoWireTypes.Varint},
+                {typeof(Byte), ProtoWireTypes.Varint},
                 {typeof(Boolean), ProtoWireTypes.Varint},
                 {typeof(Enum), ProtoWireTypes.Varint},
                 {typeof(Double), ProtoWireTypes.Int64},
@@ -31,50 +85,63 @@ namespace Das.Serializer
 
             _wireTypes = new ConcurrentDictionary<Type, ProtoWireTypes>(wireTypes);
         }
+    }
 
+    public class ProtoStructure<TPropertyAttribute> : ProtoStructure
+        where TPropertyAttribute : Attribute
+    {
         public ProtoStructure(Type type, ISerializationDepth depth, 
             ITypeManipulator state, ProtoBufOptions<TPropertyAttribute> options,INodePool nodePool) 
-            : base(type, true, depth, state,nodePool)
+            : base(type, depth, state,nodePool)
         {
-            FieldMap = new Dictionary<Int32, INamedField>();
-            _headers = new Dictionary<INamedField, Int32>();
-            var propsMaybe = GetMembersToSerialize(depth);
+            var propsMaybe = GetMembersToSerialize(depth).ToArray();
+            
+            var i = 0;
+            _memberTypes = new IProtoFieldAccessor[propsMaybe.Length];
 
             foreach (var prop in propsMaybe)
             {
-                if (!TryGetAttribute<TPropertyAttribute>(prop.Name, out var attributes))
+                var name = prop.Name;
+
+                if (!TryGetAttribute<TPropertyAttribute>(name, out var attributes))
                     continue;
 
                 var index = options.GetIndex(attributes);
-                var wire = GetWireType(prop);
+                var wire = GetWireType(prop.Type);
                 var header = (Int32)wire + (index << 3);
+
+                if (wire == ProtoWireTypes.LengthDelimited
+                    && prop.Type != Const.StrType)
+                {
+                    var propStructure = new ProtoStructure<TPropertyAttribute>(
+                        prop.Type, depth, state, options, nodePool);
+                    PropertyStructures[index] = propStructure;
+                }
+
+                WireTypes[name] = wire;
                 
-                FieldMap[index] = prop;
-                
-                
-                _headers[prop] = header;
+                _headers[name] = header;
+
+                var getter = GetGetter(i);
+
+                var tc = Type.GetTypeCode(prop.Type);
+
+                var protoField = new ProtoField(prop, wire, index, header, getter.Value, tc,
+                    IsLeaf(prop.Type, true));
+
+                _memberTypes[i++] = protoField;
+                FieldMap[index] = protoField;
             }
         }
 
-        private static ProtoWireTypes GetWireType(INamedField node)
+
+        public override IProtoPropertyIterator GetPropertyValues(Object o)
         {
-            if (!_wireTypes.TryGetValue(node.Type, out var wire))
-            {
-                if (_enumType.IsAssignableFrom(node.Type))
-                    wire = 0;
-                else wire = ProtoWireTypes.LengthDelimited;
-
-                _wireTypes[node.Type] = wire;
-            }
-
-            return wire;
+            var itar = _propertyIterators.Value;
+            itar.Set(o);
+            return itar;
         }
 
-        public Dictionary<Int32, INamedField> FieldMap { get; }
-
-        private readonly Dictionary<INamedField, Int32> _headers;
-        public Boolean TryGetHeader(INamedField field, out Int32 header) 
-            => _headers.TryGetValue(field, out header);
-
+      
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Text;
-using Das.Scanners;
 
 namespace Das.Serializer.Scanners
 {

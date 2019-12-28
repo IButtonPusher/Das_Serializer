@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using System.Threading;
-using Das.Scanners;
+using Das.Serializer.Scanners;
 using Das.Serializer;
 
 namespace Serializer.Core
