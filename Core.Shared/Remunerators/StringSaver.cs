@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
-using Interfaces.Shared.Scanners;
+using Das.Serializer.Scanners;
 
-namespace Das.Remunerators
+namespace Das.Serializer.Remunerators
 {
     public class StringSaver : ITextRemunerable, ITextAccessor
     {
@@ -62,10 +62,6 @@ namespace Das.Remunerators
         {
             _sb.Clear();
         }
-
-        [MethodImpl(256)]
-        public void Clear() => _sb.Clear();
-
 
         [MethodImpl(256)]
         public void Append(Char data)

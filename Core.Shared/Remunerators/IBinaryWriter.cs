@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using Das.Remunerators;
-using Das.Serializer;
 
-namespace Serializer.Core.Remunerators
+namespace Das.Serializer.Remunerators
 {
     public interface IBinaryWriter : IEnumerable<Byte>,
         IRemunerable<Byte[], Byte>, IStreamDelegate

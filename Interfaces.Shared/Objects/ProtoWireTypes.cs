@@ -9,6 +9,6 @@ namespace Das.Serializer.ProtoBuf
         Varint = 0,
         Int64 = 1,
         LengthDelimited = 2,
-        Int32 = 3
+        Int32 = 5
     }
 }

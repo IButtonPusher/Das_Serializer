@@ -2,8 +2,7 @@
 // ReSharper disable UnusedMemberInSuper.Global
 
 // ReSharper disable UnusedMember.Global
-
-namespace Serializer
+namespace Das.Serializer
 {
     public interface INumberExtractor
     {

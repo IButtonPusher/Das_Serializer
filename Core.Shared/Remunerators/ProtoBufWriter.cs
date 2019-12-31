@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using Serializer.Core.Remunerators;
+using System.Runtime.CompilerServices;
 
 namespace Das.Serializer.Remunerators
 {
@@ -35,12 +35,7 @@ namespace Das.Serializer.Remunerators
             _array = new Byte[startSize];
         }
 
-        protected ProtoBufWriter(ProtoBufWriter parent) : base(parent)
-        {
-            
-        }
-
-        public ProtoBufWriter GetChildWriter()
+        public ProtoBufWriter Push()
         {
             _stackDepth++;
             if (_stackDepth > 1)
@@ -55,8 +50,10 @@ namespace Das.Serializer.Remunerators
         public override IBinaryWriter Pop()
         {
             _stackDepth--;
+            if (_stackDepth < 0)
+                throw new InvalidOperationException();
 
-            var nest = _size; //_nestedObjectStack.Count;
+            var nest = _size; 
             var len = nest - _currentObjectStarted;
 
             _objectSizeStack.Push(len);
@@ -94,6 +91,7 @@ namespace Das.Serializer.Remunerators
             return this;
         }
 
+        [MethodImpl(256)]
         public override void WriteInt8(Byte value)
         {
             if (_stackDepth > 0)
@@ -115,10 +113,11 @@ namespace Das.Serializer.Remunerators
         }
 
 
-        public override void Append(Byte[] data)
+        [MethodImpl(256)]
+        public sealed override void Append(Byte[] data)
         {
             if (_stackDepth == 0)
-                base.Append(data);
+                OutStream.Write(data, 0 , data.Length);//.Append(data);
             else
             {
                 var l = data.Length;
@@ -134,13 +133,7 @@ namespace Das.Serializer.Remunerators
                 Buffer.BlockCopy(data, 0, _array, _tail, l);
 
                 _tail += l;
-                //_array[_tail] = value;
-                //MoveNext(ref _tail);
                 _size += l;
-
-
-//                for (var c = 0; c < data.Length; c++)
-//                    _nestedObjectStack.Enqueue(data[c]);
             }
         }
 
@@ -208,7 +201,9 @@ namespace Das.Serializer.Remunerators
             }
         }
 
-       
+        [MethodImpl(256)]
+        public sealed override void Write(Byte[] vals)
+            => Append(vals);
 
         public override void Write(Byte[] buffer, Int32 index, Int32 count) 
             => OutStream.Write(buffer, index, count);
@@ -218,9 +213,30 @@ namespace Das.Serializer.Remunerators
             throw new NotImplementedException();
         }
 
-        public sealed override void WriteInt64(Int64 val)
+        public sealed override void WriteInt64(Int64 value)
         {
-            throw new NotImplementedException();
+            if (value >= 0)
+            {
+                do
+                {
+                    var current = (Byte) (value & 127);
+                    value >>= 7;
+                    if (value > 0)
+                        current += 128; //8th bit to specify more bytes remain
+                    WriteInt8(current);
+                } while (value > 0);
+            }
+            else
+            {
+                for (var c = 0; c <= 4; c++)
+                {
+                    
+                    var current = (Byte)(value | 128);
+                    value >>= 7;
+                    WriteInt8(current);
+                }
+                Write(_negative32Fill, 0, 5);
+            }
         }
 
         public sealed override void WriteInt64(UInt64 val)
@@ -231,7 +247,7 @@ namespace Das.Serializer.Remunerators
         protected override ProtoBufWriter GetChildWriter(IPrintNode node, 
             IBinaryWriter parent,
             Int32 index)
-            => GetChildWriter();
+            => Push();
 
       
         

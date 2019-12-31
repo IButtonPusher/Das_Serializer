@@ -9,76 +9,85 @@ namespace Das.Serializer.ProtoBuf
     {
         public ProtoPropertyIterator(IProtoStructure protoStruct)
         {
-            //_value = o;
             _protoStruct = protoStruct;
             _structStack = new Stack<IProtoStructure>();
             _propertyStack = new Stack<Int32>();
             _valueStack = new Stack<Object>();
-            Count = protoStruct.GetterCount;
         }
 
         public void Set(Object value)
         {
-            _value = value;
+            Parent = null;
+            _object = value;
             _current = 0;
+            _count = _protoStruct.GetValueCount(value);
         }
 
-        private Object _value;
+        private Object _object;
         private Type _type;
-        private ProtoWireTypes _wireType;
-        private Int32 _header;
+        //private ProtoWireTypes _wireType;
+        //private Int32 _header;
+        private Int32 _count;
+        private Int32 _fieldIndex;
         private IProtoFieldAccessor _currentField;
-        private Stack<IProtoStructure> _structStack;
-        private Stack<Int32> _propertyStack;
-        private Stack<Object> _valueStack;
-        
-        
+        private readonly Stack<IProtoStructure> _structStack;
+        private readonly Stack<Int32> _propertyStack;
+        private readonly Stack<Object> _valueStack;
+        public IProtoPropertyIterator Parent { get; set; }
+
+
         private IProtoStructure _protoStruct;
-        private String _name;
+        //private String _name;
         protected Int32 _current;
 
         public Boolean MoveNext()
         {
-            if (_current >= Count )
+            if (_current >= _count )
                 return false;
 
             _currentField = _protoStruct[_current];
-            
-            Value = _currentField.GetValue(_value);
-            _name = _currentField.Name;
+            _fieldIndex = _currentField.Index;
+            Value = _currentField.GetValue(_object);
             _type = _currentField.Type;
-            _wireType = _currentField.WireType;
-            _header = _currentField.Header;
+            
             _current++;
             return true;
         }
 
-        public void Push()
+        public IProtoPropertyIterator Push()
         {
+            var child = _protoStruct.GetPropertyValues(Value, _current);
+            child.Parent = this;
+            return child;
+
             _propertyStack.Push(_current);
             _structStack.Push(_protoStruct);
-            _valueStack.Push(_value);
+            _valueStack.Push(_object);
             _protoStruct = _protoStruct.PropertyStructures[_currentField.Index];
             _current = 0;
-            Count = _protoStruct.GetterCount;
-            _value = Value;
+            _object = Value;
+            _count = _protoStruct.GetValueCount(_object);
+            
         }
 
-        public Boolean Pop()
+        public IProtoPropertyIterator Pop()
         {
-            if (_propertyStack.Count == 0)
-                return false;
-            _current = _propertyStack.Pop();
-            _protoStruct = _structStack.Pop();
-            Count = _protoStruct.GetterCount;
-            _value = _valueStack.Pop();
-            return true;
+            return Parent;
+
+            // if (_propertyStack.Count == 0)
+            //     return false;
+            // _current = _propertyStack.Pop();
+            // _protoStruct = _structStack.Pop();
+            //
+            // _object = _valueStack.Pop();
+            // _count = _protoStruct.GetValueCount(_object);
+            // return true;
         }
 
-        public Boolean IsCollection => _protoStruct.IsCollection;
+        public Boolean IsRepeated => _currentField.IsRepeated;
 
-        public ProtoWireTypes WireType => _wireType;
-        public Int32 Header => _header;
+        public ProtoWireTypes WireType => _currentField.WireType;
+        public Int32 Header => _currentField.Header;
         public Int32 Index => _currentField.Index;
 
         public TypeCode TypeCode => _currentField.TypeCode;
@@ -98,14 +107,18 @@ namespace Das.Serializer.ProtoBuf
             
         }
 
-        public Int32 Count { get; private set; }
+        public Int32 Count
+        {
+            get => _count;
+            private set => _count = value;
+        }
 
         public Type Type
         {
-            get => _type; 
-            set => _type = value;
+            get =>  _currentField.Type; 
+            set =>  throw new NotSupportedException();//_type = value;
         }
-        public String Name => _name;
+        public String Name => _currentField.Name;
         public Object Value { get; private set; }
         public void Dispose()
         {
@@ -114,6 +127,7 @@ namespace Das.Serializer.ProtoBuf
 
         public Boolean IsEmptyInitialized { get; }
         public Type DeclaringType => _protoStruct.Type;
+
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Das.Remunerators
+namespace Das.Serializer.Remunerators
 {
     public interface IRemunerable<in T, in E> : IRemunerable<T>,
         IDisposable where T : IEnumerable<E>

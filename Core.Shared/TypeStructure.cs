@@ -6,7 +6,6 @@ using System.Runtime.Serialization;
 using System.Threading;
 using System.Xml.Serialization;
 using Das.Serializer;
-using Serializer.Core;
 using Das.Serializer.Objects;
 using Das.Serializer.Types;
 
@@ -14,7 +13,8 @@ namespace Das
 {
     public class TypeStructure : TypeCore, ITypeStructure
     {
-        public Type Type { get; }
+        public virtual Type Type { get; }
+
         public SerializationDepth Depth { get; }
 
         private readonly ITypeManipulator _types;
@@ -362,6 +362,11 @@ namespace Das
 
             pDel(targetObj, propVal);
             return true;
+        }
+
+        public void SetPropertyValueUnsafe(String propName, ref Object targetObj, Object propVal)
+        {
+            _propertySetters[propName](ref targetObj, propVal);
         }
 
 

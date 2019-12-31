@@ -1,13 +1,12 @@
 // Das.Streamers.ProtoFeeder
 using Das.Serializer;
 using Das.Streamers;
-using Serializer.Core;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 
-internal class ProtoFeeder : BinaryFeeder
+public class ProtoFeeder : BinaryFeeder,IProtoFeeder
 {
 	private Stack<Int32> _arrayIndeces;
 
@@ -21,15 +20,9 @@ internal class ProtoFeeder : BinaryFeeder
 
 	public ByteStream ByteStream
 	{
-		get
-		{
-			return _byteStream;
-		}
-		set
-		{
-			SetByteStream(value);
-		}
-	}
+		get => _byteStream;
+        set => SetByteStream(value);
+    }
 
 	public ProtoFeeder(IBinaryPrimitiveScanner primitiveScanner, ISerializationCore dynamicFacade, IByteArray bytes, ISerializerSettings settings)
 		: base(primitiveScanner, dynamicFacade, bytes, settings)
@@ -40,9 +33,9 @@ internal class ProtoFeeder : BinaryFeeder
 
 	public void SetStream(Stream stream)
 	{
-		ByteStream.Stream = stream;
+		ByteStream.SetStream(stream);
 		_currentEndIndex = (Int32)ByteStream.Length - 1;
-		base.Index = 0;
+		Index = 0;
 	}
 
 	public void Push(Int32 length)
@@ -69,8 +62,8 @@ internal class ProtoFeeder : BinaryFeeder
 
 	public Object GetVarInt(Type type)
 	{
-		Int64 result = 0L;
-		Int32 push = 0;
+		var result = 0L;
+		var push = 0;
 		Int32 currentByte;
 		do
 		{
@@ -111,8 +104,8 @@ internal class ProtoFeeder : BinaryFeeder
 
 	public sealed override Int32 GetInt32()
 	{
-		Int32 result = 0;
-		Int32 push = 0;
+		var result = 0;
+		var push = 0;
 		Int32 currentByte;
 		do
 		{

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using Das.Streamers;
+using Das.Serializer.ProtoBuf;
 
 namespace Das.Serializer.Scanners
 {
@@ -20,8 +20,6 @@ namespace Das.Serializer.Scanners
             _properties = new Stack<IProtoFieldAccessor>();
             _protoStructs = new Stack<IProtoStructure>();
         }
-
-        
 
         public ProtoFeeder Feeder { get; set; }
 
@@ -43,8 +41,9 @@ namespace Das.Serializer.Scanners
 
             var typeO = typeof(T);
 
-            var typeStructure = _typeManipulator.GetPrintProtoStructure(typeO, _options);
-            var res = _instantiator.BuildDefault<T>(true);
+            var typeStructure = _typeManipulator.GetPrintProtoStructure(typeO, _options, _state);
+            
+            var res = (T) typeStructure.BuildDefault();
             Object ooutput = res;
             Boolean canContinue;
 
@@ -56,41 +55,55 @@ namespace Das.Serializer.Scanners
                 IProtoFieldAccessor currentProp;
                 while (_feeder.HasMoreBytes)
                 {
+                    //field header to wire/index
                     _feeder.GetInt32(ref iVal);
-                    var wireType = iVal & 7;
+                    //var wireType = iVal & 7;
                     var columnIndex = iVal >> 3;
-                    ///////
 
                     currentProp = typeStructure.FieldMap[columnIndex];
                     var currentType = currentProp.Type;
+                    
+                    var wireType = currentProp.WireType;
 
-                    do //inner loop for collections
+                    var typeCode = currentProp.TypeCode;
+
+                    do
                     {
+                        //inner loop for collections
+                        //avoid re-initializing things for the germane type
+                        //that won't change
+
                         switch (wireType)
                         {
-                            case Const.VarInt when currentType == Const.IntType:
+                            case ProtoWireTypes.Varint when currentType == Const.IntType:
                                 _feeder.GetInt32(ref iVal);
-                                typeStructure.SetValue(currentProp.Name, ref ooutput, iVal,
-                                    SerializationDepth.GetSetProperties);
+                                typeStructure.SetPropertyValueUnsafe(currentProp.Name,
+                                    ref ooutput, iVal);
                                 continue;
-                            case Const.VarInt when currentType == Const.ByteType:
+                            case ProtoWireTypes.Varint when currentType == Const.ByteType:
                                 propValue = _feeder.GetByte();
                                 break;
                             case Const.VarInt:
                                 propValue = _feeder.GetVarInt(currentType);
                                 break;
-                            case Const.Int64: //64-bit zb double
+                            case ProtoWireTypes.Int64: //64-bit zb double
+                            case ProtoWireTypes.Int32:
                                 propValue = _feeder.GetPrimitive(currentType);
                                 break;
-                            case Const.LengthDelimited when currentProp.IsLeafType:
+
+                            case ProtoWireTypes.LengthDelimited when currentProp.IsLeafType:
                                 propValue = _feeder.GetPrimitive(currentType);
                                 break;
-                            case Const.LengthDelimited:
+                            case ProtoWireTypes.LengthDelimited:
+                                var columnHeader = iVal;
                                 _feeder.GetInt32(ref iVal);
 
-                                switch (currentProp.TypeCode)
+                                switch (typeCode)
                                 {
                                     case TypeCode.String:
+                                        ///////////
+                                        // STRING
+                                        ///////////
                                         var sBytes = _feeder.GetBytes(iVal);
                                         propValue = Encoding.UTF8.GetString(sBytes);
                                         break;
@@ -99,6 +112,9 @@ namespace Das.Serializer.Scanners
 
                                         if (currentProp.Type == Const.ByteArrayType)
                                         {
+                                            ////////
+                                            // BYTE ARRAY
+                                            ////////
                                             propValue = _feeder.GetBytes(iVal);
                                             break;
                                         }
@@ -107,17 +123,31 @@ namespace Das.Serializer.Scanners
                                         _objects.Push(ooutput);
                                         _protoStructs.Push(typeStructure);
                                         _properties.Push(currentProp);
-                                        typeStructure = _typeManipulator.GetScanProtoStructure(
-                                            currentProp.Type, _options, iVal);
+                                         typeStructure = _typeManipulator.GetScanProtoStructure(
+                                             currentProp.Type, _options, iVal, _state, _feeder, 
+                                             columnHeader);
 
-                                        if (!typeStructure.IsCollection)
-                                            ooutput = _instantiator.BuildDefault(currentProp.Type, true);
+                                        if (!currentProp.IsRepeated)
+                                        {
+                                            /////////////////////////
+                                            // NESTED REFERENCE TYPE
+                                            /////////////////////////
+                                            
+                                            ooutput = typeStructure.BuildDefault();
+                                        }
                                         else
                                         {
-                                            wireType = (Int32) ProtoStructure.GetWireType(
-                                                typeStructure.Type);
+                                            ////////////////////////////////
+                                            // REPEATED FIELD -> *COLLECTION* 
+                                            ////////////////////////////////
+                                            Feeder.Push(iVal);
+
+                                            _feeder.GetInt32(ref iVal);
+                                            wireType = (ProtoWireTypes) (iVal & 7);
+                                            columnIndex = iVal >> 3;
                                             currentType = typeStructure.Type;
 
+                                            continue;
                                         }
 
                                         Feeder.Push(iVal);
@@ -125,7 +155,6 @@ namespace Das.Serializer.Scanners
                                         continue;
                                     default:
                                         var pBytes = _feeder.GetBytes(iVal);
-                                        //propValue = _primitiveScanner.GetValue(pBytes, property.Type);
                                         propValue = _primitiveScanner.GetValue(pBytes, currentProp.Type);
                                         break;
                                 }
@@ -135,10 +164,12 @@ namespace Das.Serializer.Scanners
                                 throw new NotImplementedException();
                         }
 
-                        typeStructure.SetValue(currentProp.Name, ref ooutput, propValue,
-                            SerializationDepth.GetSetProperties);
+                        typeStructure.SetPropertyValueUnsafe(currentProp.Name, ref ooutput,
+                            propValue);
 
-                    } while (typeStructure.IsCollection);
+                    } 
+                    while (typeStructure.IsRepeating(ref wireType, ref typeCode, ref currentType));
+
 
                 }
 
@@ -150,8 +181,7 @@ namespace Das.Serializer.Scanners
                     typeStructure = _protoStructs.Pop();
                     Feeder.Pop();
 
-                    typeStructure.SetValue(currentProp.Name, ref ooutput, propValue,
-                        SerializationDepth.GetSetProperties);
+                    typeStructure.SetPropertyValueUnsafe(currentProp.Name, ref ooutput, propValue);
                 }
 
             } 

@@ -1,7 +1,6 @@
 ﻿using System;
-using Das.Serializer;
 
-namespace Serializer.Core
+namespace Das.Serializer
 {
     public abstract class BaseState : CoreContext, ISerializationState
     {

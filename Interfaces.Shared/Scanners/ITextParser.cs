@@ -4,7 +4,7 @@ using System.Text;
 
 // ReSharper disable UnusedMember.Global
 
-namespace Serializer
+namespace Das.Serializer
 {
     public interface ITextParser : INumberExtractor
     {

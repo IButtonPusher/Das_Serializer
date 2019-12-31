@@ -36,6 +36,9 @@ namespace Das.Serializer
 
         Boolean SetValue(String propName, ref Object targetObj, Object propVal,
             SerializationDepth depth);
+        
+        /// <exception cref="KeyNotFoundException"></exception>
+        void SetPropertyValueUnsafe(String propName, ref Object targetObj, Object propVal);
 
         Boolean TryGetAttribute<TAttribute>(String propertyName, out TAttribute value)
             where TAttribute : Attribute;

@@ -5,7 +5,7 @@ using Das.Extensions;
 
 // ReSharper disable UnusedMember.Global
 
-namespace Serializer
+namespace Das.Serializer
 {
     public class CoreNumeric : INumberExtractor
     {

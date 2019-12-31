@@ -1,7 +1,6 @@
-﻿using Das.Serializer;
-using Serializer.Core.Scanners;
+﻿using Das.Serializer.Scanners;
 
-namespace Serializer.Core.State
+namespace Das.Serializer.State
 {
     public class JsonContext : CoreContext, ITextContext
     {

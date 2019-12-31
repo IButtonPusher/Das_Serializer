@@ -15,6 +15,8 @@ namespace Das.Serializer
 
         Boolean TryGetPropertiesConstructor(Type type, out ConstructorInfo constr);
 
+        Func<Object> GetDefaultConstructor(Type type);
+
         T CreatePrimitiveObject<T>(Byte[] rawValue, Type objType);
 
         Object CreatePrimitiveObject(Byte[] rawValue, Type objType);

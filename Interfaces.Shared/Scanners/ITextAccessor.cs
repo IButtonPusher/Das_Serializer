@@ -1,7 +1,7 @@
 ﻿using System;
 // ReSharper disable All
 
-namespace Interfaces.Shared.Scanners
+namespace Das.Serializer.Scanners
 {
     /// <summary>
     /// Abstraction for reading one character at a time for a string/builder etc

@@ -1,6 +1,5 @@
 ﻿using Das.Streamers;
 using System;
-using Serializer.Core;
 
 namespace Das.Serializer.Scanners
 {

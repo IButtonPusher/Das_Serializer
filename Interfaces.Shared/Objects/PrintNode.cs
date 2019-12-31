@@ -1,8 +1,7 @@
 ﻿using System;
-using Das.Serializer;
 using Das.Serializer.Objects;
 
-namespace Serializer.Core.Printers
+namespace Das.Serializer.Printers
 {
     public class PrintNode : NamedValueNode, IPrintNode
     {

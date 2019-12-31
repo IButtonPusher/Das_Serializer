@@ -1,8 +1,7 @@
 ﻿using System;
 using System.IO;
-using Das.Serializer;
 
-namespace Serializer.Core
+namespace Das.Serializer
 {
     public class ByteStream : IByteArray
     {
@@ -14,7 +13,7 @@ namespace Serializer.Core
             set => SetStream(value);
         }
 
-        private void SetStream(Stream value)
+        public void SetStream(Stream value)
         {
             _stream = value;
             if (value != null)

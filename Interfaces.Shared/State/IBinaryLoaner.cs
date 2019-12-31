@@ -1,5 +1,4 @@
-﻿using Interfaces.Shared.State;
-using System;
+﻿using System;
 
 namespace Das.Serializer
 {

@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Das.Serializer.Scanners;
-using Das.Serializer;
 
-namespace Serializer.Core
+namespace Das.Serializer
 {
     public class TextNodeProvider : NodeProvider<ITextNode>, ITextNodeProvider
     {

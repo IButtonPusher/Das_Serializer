@@ -1,5 +1,4 @@
-﻿using Serializer.Core;
-using Serializer.Core.State;
+﻿using Das.Serializer.State;
 
 namespace Das.Serializer
 {

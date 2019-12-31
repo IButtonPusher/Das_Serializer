@@ -3,7 +3,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Reflection;
 using Das.Serializer.Objects;
-using Interfaces.Shared.Settings;
 
 namespace Das.Types
 {

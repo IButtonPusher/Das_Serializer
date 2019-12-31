@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Das
+namespace Das.Serializer
 {
     public partial class DasCoreSerializer
     {

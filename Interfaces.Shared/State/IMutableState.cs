@@ -1,7 +1,6 @@
 ﻿using System;
-using Das.Serializer;
 
-namespace Interfaces.Shared.State
+namespace Das.Serializer
 {
     public interface IMutableState
     {

@@ -2,10 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Das.Serializer;
 using Das.Serializer.Scanners;
 
-namespace Serializer.Core
+namespace Das.Serializer
 {
     public abstract class BaseNodeSealer<TNode> : INodeSealer<TNode>
         where TNode : INode<TNode>, INode
@@ -62,10 +61,8 @@ namespace Serializer.Core
 
             var wal = node.Value;
             var t = wal.GetType();
-            if (_objects.SetProperty(t, name,
-                ref wal, value))
+            if (_objects.SetProperty(t, name, ref wal, value))
             {
-                //node.Value = wal;
                 return;
             }
 

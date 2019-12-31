@@ -2,9 +2,8 @@
 using System.Collections;
 using System.IO;
 using System.Runtime.CompilerServices;
-using Das.Serializer;
 
-namespace Serializer.Core.Remunerators
+namespace Das.Serializer.Remunerators
 {
     public class BinaryWriterWrapper : BinaryWriterBase<DeferredBinaryWriter>, IBinaryWriter
     {

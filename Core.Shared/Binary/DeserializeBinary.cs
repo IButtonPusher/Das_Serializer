@@ -1,10 +1,9 @@
 ﻿using Das.Streamers;
 using System;
 using System.IO;
-using Das.Serializer;
-using Serializer.Core;
 
-namespace Das
+
+namespace Das.Serializer
 {
     public partial class DasCoreSerializer
     {

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using Das.Serializer.Objects;
-using Serializer.Core.Printers;
+using Das.Serializer.Printers;
 
 namespace Das.Serializer
 {

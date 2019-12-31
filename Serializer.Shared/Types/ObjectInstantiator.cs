@@ -7,7 +7,6 @@ using System.Reflection.Emit;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using Das.Types;
-using Serializer.Core;
 
 namespace Das.Serializer
 {
@@ -18,7 +17,7 @@ namespace Das.Serializer
         private static readonly ConcurrentDictionary<Type, Boolean> KnownOnDeserialize;
         private readonly ITypeInferrer _typeInferrer;
         private readonly ITypeManipulator _typeManipulator;
-        private readonly IDictionary<Type, Type> _typeSurrogates;
+        private readonly Dictionary<Type, Type> _typeSurrogates;
         private readonly IObjectManipulator _objectManipulator;
         private readonly IDynamicTypes _dynamicTypes;
 
@@ -37,7 +36,7 @@ namespace Das.Serializer
         {
             _typeInferrer = typeInferrer;
             _typeManipulator = typeManipulator;
-            _typeSurrogates = typeSurrogates;
+            _typeSurrogates = new Dictionary<Type, Type>(typeSurrogates);
             _objectManipulator = objectManipulator;
             _dynamicTypes = dynamicTypes;
             
@@ -45,28 +44,28 @@ namespace Das.Serializer
 
         public Object BuildDefault(Type type, Boolean isCacheConstructors)
         {
-            if (!_typeSurrogates.TryGetValue(type, out var typ))
-                typ = type;
+            if (_typeSurrogates.ContainsKey(type))
+                type = _typeSurrogates[type];
 
-            var instType = GetInstantiationType(typ);
+            var instType = GetInstantiationType(type);
 
             switch (instType)
             {
                 case InstantiationTypes.EmptyString:
                     return String.Empty;
                 case InstantiationTypes.DefaultConstructor:
-                    return Activator.CreateInstance(typ);
+                    return Activator.CreateInstance(type);
                 case InstantiationTypes.Emit:
                     if (isCacheConstructors)
-                        return CreateInstanceCacheConstructor(typ);
+                        return CreateInstanceCacheConstructor(type);
                     else
-                        return CreateInstanceDetectConstructor(typ);
+                        return CreateInstanceDetectConstructor(type);
                     
                 case InstantiationTypes.EmptyArray:
-                    var germane = _typeInferrer.GetGermaneType(typ);
+                    var germane = _typeInferrer.GetGermaneType(type);
                     return Array.CreateInstance(germane, 0);
                 case InstantiationTypes.Uninitialized:
-                    return FormatterServices.GetUninitializedObject(typ);
+                    return FormatterServices.GetUninitializedObject(type);
                 case InstantiationTypes.NullObject:
                     return null;
                 case InstantiationTypes.Abstract:
@@ -149,6 +148,7 @@ namespace Das.Serializer
         }
 
 
+       
         public T CreatePrimitiveObject<T>(Byte[] rawValue, Type objType)
         {
             if (rawValue.Length == 0)
@@ -192,6 +192,19 @@ namespace Das.Serializer
             InstantionTypes.TryAdd(type, res);
             return res;
         }
+
+        public Func<Object> GetDefaultConstructor(Type type)
+        {
+            if (!Constructors.TryGetValue(type, out var constructor))
+            {
+
+                constructor = GetConstructorDelegate(type);
+                Constructors.TryAdd(type, constructor);
+            }
+
+            return constructor;
+        }
+
 
         private Object CreateInstanceCacheConstructor(Type type)
         {

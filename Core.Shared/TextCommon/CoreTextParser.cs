@@ -12,10 +12,12 @@ namespace Serializer
     {
         private readonly CultureInfo _enUs;
         private readonly String[] _splitTokens = {"\r\n", "\r", "\n"};
+      
 
         public CoreTextParser()
         {
             _enUs = new CultureInfo("en-US");
+           
         }
 
 
@@ -37,6 +39,8 @@ namespace Serializer
                 yield return res;
             }
         }
+
+        
 
 
         public Boolean ContainsAll(String str, String[] list)

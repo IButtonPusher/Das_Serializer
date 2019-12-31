@@ -18,6 +18,8 @@ namespace Das.Streamers
 
         Int32 GetInt32();
 
+        Int32 PeekInt32();
+
         Int32 Index { get; }
 
         Boolean HasMoreBytes { get; }

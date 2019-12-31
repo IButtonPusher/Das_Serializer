@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Das;
-using Das.Serializer;
 using Das.Serializer.Scanners;
 
-namespace Serializer.Core
+namespace Das.Serializer
 {
     public class TextNodeSealer : BaseNodeSealer<ITextNode>
     {

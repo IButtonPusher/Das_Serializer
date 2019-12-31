@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Das.Remunerators;
-using Das.Serializer;
-using Das.Serializer.Remunerators;
 
-namespace Serializer.Core.Remunerators
+namespace Das.Serializer.Remunerators
 {
     /// <summary>
     /// Writes to a temporary collection that is eventually merged back into the main stream (or parent deferred)

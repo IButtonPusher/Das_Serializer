@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.IO;
 using System.Text;
 using Das.Serializer;
@@ -30,7 +31,7 @@ namespace Das.Printers
 
             Object currentVal = o;
 
-            var typeStructure = _types.GetPrintProtoStructure(typeO, _protoSettings);
+            var typeStructure = _types.GetPrintProtoStructure(typeO, _protoSettings, _stateProvider);
             var properyValues = typeStructure.GetPropertyValues(currentVal);
             
             do //nested object loop
@@ -42,13 +43,13 @@ namespace Das.Printers
                     var pvType = pv.Type;
                     var pvValue = pv.Value;
                     var wireType = pv.WireType;
+                    var repeated = properyValues.IsRepeated;
 
-                    //header
-                    if (!properyValues.IsCollection) //todo: test different collections
-                    {
-                        _bWriter.WriteInt32(pv.Header); //wire type | field index << 3
-                    }
-                    /////
+                    //if this is a repeated field, we will print the header once for each value
+                    //so don't print it at the property level
+                    if (!repeated)
+                        _bWriter.WriteInt32(pv.Header);
+                    
 
                     var code = pv.TypeCode;
 
@@ -56,6 +57,7 @@ namespace Das.Printers
                     {
                         case ProtoWireTypes.Varint:
                         case ProtoWireTypes.Int64:
+                        case ProtoWireTypes.Int32:
                             if (!Print(pvValue, code))
                                 throw new InvalidOperationException();
                             break;
@@ -77,10 +79,14 @@ namespace Das.Printers
                                         break;
                                     }
 
-                                    properyValues.Push();
+                                    //nested object - have to stack bytes till we know the
+                                    //total length
+                                    properyValues = properyValues.Push();
+                                    if (!repeated)
+                                        _bWriter = _writer.Push();
 
-                                    _bWriter = _writer.GetChildWriter();
-
+                                    break;
+                                case TypeCode.Empty when pvValue is DictionaryEntry _:
                                     break;
                             }
 
@@ -92,11 +98,9 @@ namespace Das.Printers
                     pv.Dispose();
                 }
 
-                if (properyValues.Pop())
-                {
+                properyValues = properyValues.Pop();
+                if (properyValues != null)
                     _bWriter = _bWriter.Pop();
-                    //continue;
-                }
                 else break;
             } 
             while (true);
@@ -148,7 +152,8 @@ namespace Das.Printers
 
         private Boolean TryPrintHeader(IProperty prop)
         {
-            var typeStructure = _types.GetPrintProtoStructure(prop.DeclaringType, _protoSettings);
+            var typeStructure = _types.GetPrintProtoStructure(prop.DeclaringType, _protoSettings,
+                _stateProvider);
             return TryPrintHeader(prop, typeStructure);
         }
     }

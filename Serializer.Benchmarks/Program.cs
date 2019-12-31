@@ -4,8 +4,8 @@ using System.Diagnostics;
 using BenchmarkDotNet.Attributes;
 // ReSharper disable once RedundantUsingDirective
 using BenchmarkDotNet.Running;
-using UnitTestProject1;
-using UnitTestProject1.ProtocolBuffers;
+using Serializer.Tests;
+using Serializer.Tests.ProtocolBuffers;
 
 // ReSharper disable All
 
@@ -41,6 +41,7 @@ namespace Serializer.Benchmarks
 
                     for (var c = 0; c < 10000; c++)
                     {
+                        buff.DictionaryTest();
                         buff.DasByteArray();
                         buff.DasSimpleMessage();
 

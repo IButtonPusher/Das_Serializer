@@ -1,13 +1,12 @@
 ﻿using Das.Printers;
-using Das.Remunerators;
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Das.Serializer;
+using Das.Serializer.Remunerators;
 
 // ReSharper disable UnusedMember.Global
 
-namespace Das
+namespace Das.Serializer
 {
     public partial class DasCoreSerializer
     {

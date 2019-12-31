@@ -5,10 +5,10 @@ namespace Das.Serializer.Objects
     public interface IProtoPropertyIterator : IPropertyValueIterator<IProtoProperty>,
         IProtoField
     {
-        void Push();
+        IProtoPropertyIterator Push();
 
-        Boolean Pop();
+        IProtoPropertyIterator Pop();
 
-        Boolean IsCollection { get; }
+        IProtoPropertyIterator Parent { get; set; }
     }
 }

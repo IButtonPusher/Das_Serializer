@@ -5,9 +5,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Das.Serializer;
 
-namespace Serializer.Core
+namespace Das.Serializer
 {
     public class AssemblyList : IAssemblyList
     {

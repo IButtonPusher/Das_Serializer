@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Das.Extensions;
 // ReSharper disable All
 
-namespace UnitTestProject1
+namespace Serializer.Tests
 {
 	public interface ISimpleClass
 	{

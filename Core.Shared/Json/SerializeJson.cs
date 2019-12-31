@@ -1,11 +1,11 @@
 ﻿using Das.Printers;
-using Das.Remunerators;
 using System;
 using System.IO;
 using System.Runtime.CompilerServices;
-using Serializer.Core.Files;
+using Das.Serializer.Remunerators;
+using Das.Serializer.Files;
 
-namespace Das
+namespace Das.Serializer
 {
     public partial class DasCoreSerializer
     {

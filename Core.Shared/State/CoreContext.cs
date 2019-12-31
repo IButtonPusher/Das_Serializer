@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.ComponentModel;
-using Das.Serializer;
 
-namespace Serializer.Core
+namespace Das.Serializer
 {
     public abstract class CoreContext : SerializerCore, ISerializationContext
     {

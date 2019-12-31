@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace Serializer.Core.Remunerators
+namespace Das.Serializer.Remunerators
 {
     public interface IStreamDelegate
     {

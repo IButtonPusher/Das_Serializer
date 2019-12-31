@@ -7,7 +7,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Das.Extensions;
 using Das.Serializer;
-using Serializer.Core;
 
 namespace Das.Types
 {

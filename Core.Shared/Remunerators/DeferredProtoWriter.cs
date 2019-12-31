@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using Das.Remunerators;
-using Serializer.Core.Remunerators;
 
 namespace Das.Serializer.Remunerators
 {
@@ -69,25 +67,6 @@ namespace Das.Serializer.Remunerators
             => _backingList.Append(writer);
 
         public override IEnumerator<Byte> GetEnumerator() => _backingList.GetEnumerator();
-
-//        public override Int32 Length
-//        {
-//            get
-//            {
-//                var cnt = _backingList.Count;
-//                if (_isPopped)
-//                    return cnt;
-//
-//                foreach (var node in Children)
-//                {
-//                    if (node._isPopped)
-//                        continue;
-//                    cnt += node.Length;
-//                }
-//
-//                return cnt;
-//            }
-//        }
 
         public override Int32 GetDataLength() => _backingList.Count;
 

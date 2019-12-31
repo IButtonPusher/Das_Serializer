@@ -1,15 +1,12 @@
 ﻿using System;
 using Das.Serializer;
-using Serializer.Core;
 
 namespace Das.Streamers
 {
-    internal class BinaryFeeder : SerializerCore, IBinaryFeeder
+    public class BinaryFeeder : SerializerCore, IBinaryFeeder
     {
         public BinaryFeeder(IBinaryPrimitiveScanner primitiveScanner,
-            ISerializationCore dynamicFacade, IByteArray bytes, ISerializerSettings settings
-            //, BinaryLogger logger
-            )
+            ISerializationCore dynamicFacade, IByteArray bytes, ISerializerSettings settings)
             : base(dynamicFacade, settings)
         {
             _scanner = primitiveScanner;
@@ -17,7 +14,6 @@ namespace Das.Streamers
 
             _currentBytes = bytes;
             _currentEndIndex = (Int32)_currentBytes.Length - 1;
-         //   _logger = logger;
         }
 
         #region fields
@@ -25,9 +21,16 @@ namespace Das.Streamers
         protected IByteArray _currentBytes;
         protected Int32 _currentEndIndex;
 
-       // private readonly BinaryLogger _logger;
-
         public virtual Int32 GetInt32() => (Int32) GetPrimitive(typeof(Int32));
+        public Int32 PeekInt32()
+        {
+            if (_currentBytes.Length <= Index)
+                return -1;
+            var indexWas = Index;
+            var val = GetInt32();
+            Index = indexWas;
+            return val;
+        }
 
 
         public Int32 Index
@@ -36,7 +39,7 @@ namespace Das.Streamers
             protected set => _byteIndex = value;
         }
 
-        public Boolean HasMoreBytes => _byteIndex < _currentEndIndex; //_currentBytes.Length - 1;
+        public Boolean HasMoreBytes => _byteIndex < _currentEndIndex;
 
         protected Int32 _byteIndex;
 

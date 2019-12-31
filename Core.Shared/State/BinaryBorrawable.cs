@@ -1,8 +1,7 @@
 ﻿using System;
 using Das.Serializer.Scanners;
-using Das.Serializer;
 
-namespace Serializer.Core.State
+namespace Das.Serializer.State
 {
     public class BinaryBorrawable : BinaryState, IBinaryLoaner
     {

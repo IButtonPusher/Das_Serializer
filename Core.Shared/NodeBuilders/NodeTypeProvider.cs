@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Concurrent;
-using Das.Serializer;
 using Das.Serializer.Scanners;
 
-namespace Serializer.Core
+namespace Das.Serializer
 {
     public class NodeTypeProvider : TypeCore, INodeTypeProvider
     {

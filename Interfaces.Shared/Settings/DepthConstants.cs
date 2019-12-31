@@ -1,7 +1,6 @@
 ﻿using System;
-using Das.Serializer;
 
-namespace Interfaces.Shared.Settings
+namespace Das.Serializer
 {
     public class DepthConstants : ISerializationDepth
     {

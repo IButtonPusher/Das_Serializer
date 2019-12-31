@@ -28,6 +28,7 @@
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <CodeAnalysisRuleSet>UnitTestProject1.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -96,12 +97,9 @@
       <Version>2.4.4</Version>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Das.Serializer\Das.Serializer.csproj">
-      <Project>{a9d2ef65-4059-4c0a-b513-d49ac3d66cf2}</Project>
-      <Name>Das.Serializer</Name>
-    </ProjectReference>
-  </ItemGroup>
+  <Import Project="..\Core.Shared\Core.Shared.projitems" Label="Shared" />
+  <Import Project="..\Interfaces.Shared\Interfaces.Shared.projitems" Label="Shared" />
+  <Import Project="..\Serializer.Shared\Serializer.Shared.projitems" Label="Shared" />
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>

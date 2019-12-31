@@ -1,11 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
-using Das.Serializer;
 using Das.Serializer.ProtoBuf;
-using Serializer.Core;
 
-namespace Das
+namespace Das.Serializer
 {
     public partial class DasCoreSerializer : BaseState, IMultiSerializer
     {

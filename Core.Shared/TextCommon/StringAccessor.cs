@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using Interfaces.Shared.Scanners;
+using Das.Serializer.Scanners;
 
 namespace Core.Shared.TextCommon
 {

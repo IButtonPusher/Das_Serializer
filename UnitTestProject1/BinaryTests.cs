@@ -8,9 +8,10 @@ using System.Drawing;
 using System.Linq;
 using Das.Extensions;
 using Das.Serializer;
+
 // ReSharper disable All
 
-namespace UnitTestProject1
+namespace Serializer.Tests
 {
 	[TestClass]
 	public class BinaryTests : TestBase

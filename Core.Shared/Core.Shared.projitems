@@ -44,7 +44,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\ProtoArrayScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\ProtoBufSerializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\ProtoCollectionPrinter.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\ProtoCollectionScanner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\ProtoCollectionStructure.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\ProtoDictionaryPrinter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\ProtoDictionaryScanner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\ProtoDictionaryStructure.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\ProtoField.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\ProtoPropertyIterator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\ProtoStructure.cs" />
@@ -52,14 +55,12 @@
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\DeferredBinaryWriter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\BinaryWriterBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\BinaryWriterWrapper.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Remunerators\DeferredProtoWriter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\IBinaryWriter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\IRemunerable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\IStreamDelegate.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\ITextRemunerable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\ProtoBufWriter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\StringSaver.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Remunerators\DeferredProtoWriterPool.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\BaseNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\BinaryNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\BinaryPrimitiveScanner.cs" />

@@ -17,5 +17,7 @@ namespace Das.Serializer
         TypeCode TypeCode { get; }
 
         Boolean IsLeafType { get; }
+
+        Boolean IsRepeated { get; }
     }
 }

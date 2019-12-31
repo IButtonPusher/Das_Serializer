@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using Das.Serializer.Objects;
 using Das.Serializer.ProtoBuf;
@@ -7,11 +6,10 @@ using Das.Serializer.ProtoBuf;
 namespace Das.Serializer
 {
     public class ProtoCollectionStructure : IProtoStructure
-        //, IProtoPropertyIterator
     {
         public ProtoCollectionStructure(IProtoStructure structure, ITypeCore typeCore)
         {
-            IsCollection = true;
+            IsRepeating = true;
             _structure = structure;
             Type = typeCore.GetGermaneType(structure.Type);
             WireType = ProtoStructure.GetWireType(Type);
@@ -31,13 +29,24 @@ namespace Das.Serializer
             return true;
         }
 
+        public void SetPropertyValueUnsafe(String propName, ref Object targetObj, Object propVal)
+        {
+            _structure.SetPropertyValueUnsafe(propName, ref targetObj, propVal);
+        }
+
         IProtoFieldAccessor IProtoStructure.this[Int32 idx] => _structure[idx];
-        public Int32 GetterCount { get; }
+        public Int32 GetValueCount(Object o) => throw new NotImplementedException();
         public Dictionary<Int32, IProtoStructure> PropertyStructures { get; }
 
         public Dictionary<Int32, IProtoFieldAccessor> FieldMap => _structure.FieldMap;
 
-        public Boolean IsCollection {get; protected set; }
+        public Boolean IsRepeating {get; protected set; }
+        Boolean IProtoStructure.IsRepeating(ref ProtoWireTypes wireType,ref TypeCode typeCodes,
+            ref Type type)
+        {
+            throw new NotImplementedException();
+        }
+
         public Boolean TryGetHeader(INamedField field, out Int32 header)
         {
             return _structure.TryGetHeader(field, out header);
@@ -65,6 +74,16 @@ namespace Das.Serializer
         {
             throw new NotImplementedException();
             //return this;
+        }
+
+        public IProtoPropertyIterator GetPropertyValues(Object o, Int32 fieldIndex)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Object BuildDefault()
+        {
+            throw new NotImplementedException();
         }
 
         public IEnumerable<INamedField> GetMembersToSerialize(ISerializationDepth depth)

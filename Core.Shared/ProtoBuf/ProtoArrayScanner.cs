@@ -22,7 +22,7 @@ namespace Das.Serializer
             _object.SetValue(propVal, _index++);
             if (_index == _length)
             {
-                IsCollection = false;
+                IsRepeating = false;
                 targetObj = _object;
                 return false;
             }

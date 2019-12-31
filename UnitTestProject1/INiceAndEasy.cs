@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace UnitTestProject1
+namespace Serializer.Tests
 {
     public interface INiceAndEasy
     {

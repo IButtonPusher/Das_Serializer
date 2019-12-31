@@ -12,6 +12,8 @@ namespace Das.Serializer
 
         Byte[] this[Int32 start, Int32 length] { get; }
 
+        //ArraySegment<Byte> this[Int32 start, Int32 length] { get; }
+
         // ReSharper disable once UnusedMember.Global
         Int64 Length { get; }
     }

@@ -4,9 +4,8 @@ using System.Globalization;
 using System.Text;
 using System.Threading;
 using Das.Serializer.Scanners;
-using Das.Serializer;
 
-namespace Serializer.Core
+namespace Das.Serializer
 {
     public class XmlPrimitiveScanner : StringPrimitiveScanner
     {

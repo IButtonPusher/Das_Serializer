@@ -10,13 +10,13 @@ namespace Das.Serializer
 {
     public abstract class ProtoStructure : TypeStructure, IProtoStructure
     {
-        public ProtoStructure(Type type, ISerializationDepth depth,
-            ITypeManipulator state,  INodePool nodePool)
+        protected ProtoStructure(Type type, ISerializationDepth depth,
+            ITypeManipulator state,  INodePool nodePool, IInstantiator instantiator)
             : base(type, true, depth, state, nodePool)
         {
             FieldMap = new Dictionary<Int32, IProtoFieldAccessor>();
             _headers = new Dictionary<String, Int32>();
-            WireTypes = new Dictionary<String, ProtoWireTypes>();
+            _defaultConstructor = instantiator.GetDefaultConstructor(type);
             PropertyStructures = new Dictionary<Int32, IProtoStructure>();
 
             _propertyIterators = new ThreadLocal<ProtoPropertyIterator>(() =>
@@ -26,13 +26,14 @@ namespace Das.Serializer
         public IProtoFieldAccessor this[Int32 idx] => _memberTypes[idx];
         public Dictionary<Int32, IProtoStructure> PropertyStructures { get; }
 
-        public Int32 GetterCount => _propGetterList.Count; 
+        public virtual Int32 GetValueCount(Object _) => _propGetterList.Count; 
 
         public KeyValuePair<String, Func<Object, Object>> GetGetter(Int32 index)
             => _propGetterList[index];  
 
         protected readonly Dictionary<String, Int32> _headers;
         protected IProtoFieldAccessor[] _memberTypes;
+        private readonly Func<Object> _defaultConstructor;
         
 
         public Boolean TryGetHeader(INamedField field, out Int32 header) 
@@ -41,9 +42,8 @@ namespace Das.Serializer
 
         public Dictionary<Int32, IProtoFieldAccessor> FieldMap { get; }
 
-        public Dictionary<String, ProtoWireTypes> WireTypes { get; }
-
-        Boolean IProtoStructure.IsCollection => false;
+        public virtual Boolean IsRepeating(ref ProtoWireTypes wireType,
+            ref TypeCode typeCode, ref Type type) => false;
 
         private static readonly ConcurrentDictionary<Type, ProtoWireTypes> _wireTypes;
 
@@ -63,7 +63,19 @@ namespace Das.Serializer
             return wire;
         }
 
-        public abstract IProtoPropertyIterator GetPropertyValues(object o);
+        public virtual IProtoPropertyIterator GetPropertyValues(Object o)
+        {
+            var itar = _propertyIterators.Value;
+            itar.Set(o);
+            return itar;
+        }
+
+        public IProtoPropertyIterator GetPropertyValues(Object o, Int32 fieldIndex)
+        {
+            return PropertyStructures[fieldIndex].GetPropertyValues(o);
+        }
+
+        public Object BuildDefault() => _defaultConstructor();
 
         private static readonly Type _enumType = typeof(Enum);
         static ProtoStructure()
@@ -91,8 +103,9 @@ namespace Das.Serializer
         where TPropertyAttribute : Attribute
     {
         public ProtoStructure(Type type, ISerializationDepth depth, 
-            ITypeManipulator state, ProtoBufOptions<TPropertyAttribute> options,INodePool nodePool) 
-            : base(type, depth, state,nodePool)
+            ITypeManipulator state, ProtoBufOptions<TPropertyAttribute> options,INodePool nodePool,
+            ISerializationCore serializerCore) 
+            : base(type, depth, state,nodePool, serializerCore.ObjectInstantiator)
         {
             var propsMaybe = GetMembersToSerialize(depth).ToArray();
             
@@ -110,15 +123,18 @@ namespace Das.Serializer
                 var wire = GetWireType(prop.Type);
                 var header = (Int32)wire + (index << 3);
 
-                if (wire == ProtoWireTypes.LengthDelimited
-                    && prop.Type != Const.StrType)
+                var isValidLengthDelim = wire == ProtoWireTypes.LengthDelimited
+                                         && prop.Type != Const.StrType && prop.Type != Const.ByteArrayType;
+
+                if (isValidLengthDelim)
                 {
-                    var propStructure = new ProtoStructure<TPropertyAttribute>(
-                        prop.Type, depth, state, options, nodePool);
+                    var propStructure = state.GetPrintProtoStructure(prop.Type, 
+                        options, serializerCore);
+
                     PropertyStructures[index] = propStructure;
                 }
 
-                WireTypes[name] = wire;
+                
                 
                 _headers[name] = header;
 
@@ -126,22 +142,16 @@ namespace Das.Serializer
 
                 var tc = Type.GetTypeCode(prop.Type);
 
-                var protoField = new ProtoField(prop, wire, index, header, getter.Value, tc,
-                    IsLeaf(prop.Type, true));
+                var isCollection = isValidLengthDelim && state.IsCollection(prop.Type);
+
+                var protoField = new ProtoField(prop.Name, prop.Type, wire, 
+                    index, header, getter.Value, tc,
+                    IsLeaf(prop.Type, true), isCollection);
 
                 _memberTypes[i++] = protoField;
                 FieldMap[index] = protoField;
             }
         }
 
-
-        public override IProtoPropertyIterator GetPropertyValues(Object o)
-        {
-            var itar = _propertyIterators.Value;
-            itar.Set(o);
-            return itar;
-        }
-
-      
     }
 }

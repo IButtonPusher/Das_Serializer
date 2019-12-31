@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using Das;
 using Das.Serializer.Scanners;
-using Das.Serializer;
-using Serializer.Core.State;
+using Das.Serializer.State;
 
-namespace Serializer.Core
+namespace Das.Serializer
 {
     public class StateProvider : CoreContext, IStateProvider
     {

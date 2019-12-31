@@ -9,8 +9,6 @@ using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using Das.Serializer;
 using Das.Serializer.ProtoBuf;
-using Interfaces.Shared.Settings;
-using Serializer.Core;
 
 namespace Das.Types
 {
@@ -542,17 +540,25 @@ namespace Das.Types
         }
 
         public IProtoStructure GetPrintProtoStructure<TPropertyAttribute>(Type type,
-            ProtoBufOptions<TPropertyAttribute> options)
+            ProtoBufOptions<TPropertyAttribute> options, ISerializationCore serializerCore)
             where TPropertyAttribute : Attribute
         {
+            var instantiator = serializerCore.ObjectInstantiator;
+
             if (!TryGetTypeStructure(type, Settings, _knownProto, out var structure))
             {
                 if (IsCollection(type))
-                    structure = new ProtoCollectionPrinter(type,
-                        Settings, this, _nodePool);
+                {
+                    if (typeof(IDictionary).IsAssignableFrom(type))
+                        structure = new ProtoDictionaryPrinter(type,
+                            Settings, this, _nodePool, serializerCore);
+                    else
+                        structure = new ProtoCollectionPrinter(type,
+                        Settings, this, _nodePool, instantiator);
+                }
                 else
                     structure = new ProtoStructure<TPropertyAttribute>(type,
-                        Settings, this, options, _nodePool);
+                        Settings, this, options, _nodePool, serializerCore);
                 
 
                 _knownProto.TryAdd(type, structure);
@@ -563,16 +569,21 @@ namespace Das.Types
         }
 
         public IProtoStructure GetScanProtoStructure<TPropertyAttribute>(Type type, 
-            ProtoBufOptions<TPropertyAttribute> options, Int32 byteLength) 
+            ProtoBufOptions<TPropertyAttribute> options, Int32 byteLength, 
+            ISerializationCore serializerCore, IProtoFeeder byteFeeder, Int32 fieldHeader) 
             where TPropertyAttribute : Attribute
         {
             var seekingCollection = IsCollection(type);
-            var itemStruct = GetPrintProtoStructure(type, options);
+            var itemStruct = GetPrintProtoStructure(type, options, serializerCore);
             if (!seekingCollection)
                 return itemStruct;
 
             if (type.IsArray)
                 return new ProtoArrayScanner(itemStruct, byteLength, this);
+
+            if (typeof(IDictionary).IsAssignableFrom(type))
+                return new ProtoDictionaryScanner(type, Settings, this, _nodePool, serializerCore,
+                    byteFeeder, fieldHeader);
 
             return new ProtoCollectionStructure(itemStruct, this);
 

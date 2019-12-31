@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Das.Streamers;
 
-namespace Das
+namespace Das.Serializer
 {
     public partial class DasCoreSerializer
     {

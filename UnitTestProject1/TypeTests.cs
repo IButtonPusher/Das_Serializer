@@ -6,9 +6,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+
 // ReSharper disable All
 
-namespace UnitTestProject1
+namespace Serializer.Tests
 {
 	[TestClass]
 	public class TypeTests : TestBase

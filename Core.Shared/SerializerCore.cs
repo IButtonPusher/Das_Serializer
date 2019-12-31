@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using Das.Serializer;
 
-namespace Serializer.Core
+namespace Das.Serializer
 {
     public abstract class SerializerCore : TypeCore, ISerializationCore
     {
-        protected SerializerCore(ISerializationCore dynamicFacade, ISerializerSettings settings)
+        protected SerializerCore(ISerializationCore dynamicFacade, 
+            ISerializerSettings settings)
             : base(settings)
         {
             TextParser = dynamicFacade.TextParser;
@@ -25,7 +25,6 @@ namespace Serializer.Core
                 ? conc
                 : new ConcurrentDictionary<Type, Type>(Surrogates);
         }
-
 
         public ITextParser TextParser { get; }  
 

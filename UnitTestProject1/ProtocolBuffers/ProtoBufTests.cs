@@ -5,7 +5,7 @@ using Das.Serializer;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ProtoBuf;
 
-namespace UnitTestProject1.ProtocolBuffers
+namespace Serializer.Tests.ProtocolBuffers
 {
     [TestClass]
     public class ProtoBufTests : TestBase
@@ -24,7 +24,7 @@ namespace UnitTestProject1.ProtocolBuffers
         {
             var msg = new SimpleMessage();
             msg.A = 150;
-            //Byte[] dArr;
+            
             SimpleMessage outMsg2;
             using (var ms = new MemoryStream())
             {
@@ -144,45 +144,82 @@ namespace UnitTestProject1.ProtocolBuffers
             Assert.IsTrue(equal);
         }
 
-//        [Benchmark]
-//        public SimpleMessage DasNegativeIntegerMessage()
-//        {
-//            var msg = new SimpleMessage {A = -150};
-//            using (var ms = new MemoryStream())
-//            {
-//                ProtoSerializer.ToProtoStream(ms, msg);
-//                ms.Position = 0;
-//                return ProtoSerializer.FromProtoStream<SimpleMessage>(ms);
-//            }
-//        }
-//
-//        [Benchmark]
-//        public SimpleMessage ProtoNetNegativeIntegerMessage()
-//        {
-//            var msg = new SimpleMessage {A = -150};
-//            using (var ms = new MemoryStream())
-//            {
-//                ProtoBuf.Serializer.Serialize(ms, msg);
-//                ms.Position = 0;
-//                return ProtoBuf.Serializer.Deserialize<SimpleMessage>(ms);
-//            }
-//        }
-//
-//
-//        [TestMethod]
-//        public void NegativeIntegerTest()
-//        {
-//            //prop A: index = 2, wire type = varint = 0, val = -150
-//            //output: 16 234 254 255 255 255 255 255 255 255 1
-//            //16: indexA(2) << 3 = 10 ### + wire type(0) => ### = 000 so 10000 = 16
-//
-//            var fromDas = DasNegativeIntegerMessage();
-//            var fromNet = ProtoNetNegativeIntegerMessage();
-//
-//            var equal = SlowEquality.AreEqual(fromDas, fromNet);
-//            Assert.IsTrue(equal);
-//        }
-//
+
+        [Benchmark]
+        public DictionaryPropertyMessage DasDictionary()
+        {
+            var mc1 = DictionaryPropertyMessage.DefaultValue;
+            using (var ms = new MemoryStream())
+            {
+                ProtoSerializer.ToProtoStream(ms, mc1);
+                //var rdrr = ms.ToArray();
+                ms.Position = 0;
+                return ProtoSerializer.FromProtoStream<DictionaryPropertyMessage>(ms);
+            }
+        }
+
+        [Benchmark]
+        public DictionaryPropertyMessage ProtoNetObjectDictionary()
+        {
+            var msg = DictionaryPropertyMessage.DefaultValue;
+            using (var ms = new MemoryStream())
+            {
+                ProtoBuf.Serializer.Serialize(ms, msg);
+
+                ms.Position = 0;
+                return ProtoBuf.Serializer.Deserialize<DictionaryPropertyMessage>(ms);
+            }
+        }
+
+        [TestMethod]
+        public void DictionaryTest()
+        {
+            var fromNet = ProtoNetObjectDictionary();
+            var fromDas = DasDictionary();
+
+            var equal = SlowEquality.AreEqual(fromDas, fromNet);
+            Assert.IsTrue(equal);
+        }
+
+        [Benchmark]
+        public IntPropMessage DasNegativeIntegerMessage()
+        {
+            var msg = new IntPropMessage { A = -150 };
+            using (var ms = new MemoryStream())
+            {
+                ProtoSerializer.ToProtoStream(ms, msg);
+                ms.Position = 0;
+                return ProtoSerializer.FromProtoStream<IntPropMessage>(ms);
+            }
+        }
+
+        [Benchmark]
+        public IntPropMessage ProtoNetNegativeIntegerMessage()
+        {
+            var msg = new IntPropMessage { A = -150 };
+            using (var ms = new MemoryStream())
+            {
+                ProtoBuf.Serializer.Serialize(ms, msg);
+                ms.Position = 0;
+                return ProtoBuf.Serializer.Deserialize<IntPropMessage>(ms);
+            }
+        }
+
+
+        [TestMethod]
+        public void NegativeIntegerTest()
+        {
+            //prop A: index = 2, wire type = varint = 0, val = -150
+            //output: 16 234 254 255 255 255 255 255 255 255 1
+            //16: indexA(2) << 3 = 10 ### + wire type(0) => ### = 000 so 10000 = 16
+
+            var fromDas = DasNegativeIntegerMessage();
+            var fromNet = ProtoNetNegativeIntegerMessage();
+
+            var equal = SlowEquality.AreEqual(fromDas, fromNet);
+            Assert.IsTrue(equal);
+        }
+
 
 
 
@@ -275,6 +312,22 @@ namespace UnitTestProject1.ProtocolBuffers
             Assert.IsTrue(equal);
         }
 
+        [Benchmark]
+        public ByteArrayMessage DasByteArray()
+        {
+            var msg = new ByteArrayMessage
+            {
+                ByteArray = new Byte[] {127, 0, 0, 1, 255, 123}
+            };
+
+            using (var ms = new MemoryStream())
+            {
+                ProtoSerializer.ToProtoStream(ms, msg);
+                //var rdrr = ms.ToArray();
+                ms.Position = 0;
+                return ProtoSerializer.FromProtoStream<ByteArrayMessage>(ms);
+            }
+        }
 
         [Benchmark]
         public ByteArrayMessage ProtoNetByteArray()
@@ -293,22 +346,7 @@ namespace UnitTestProject1.ProtocolBuffers
             }
         }
 
-        [Benchmark]
-        public ByteArrayMessage DasByteArray()
-        {
-            var msg = new ByteArrayMessage
-            {
-                ByteArray = new Byte[] {127, 0, 0, 1, 255, 123}
-            };
-
-            using (var ms = new MemoryStream())
-            {
-                ProtoSerializer.ToProtoStream(ms, msg);
-                //var rdrr = ms.ToArray();
-                ms.Position = 0;
-                return ProtoSerializer.FromProtoStream<ByteArrayMessage>(ms);
-            }
-        }
+      
 
         [TestMethod]
         public void ByteArrayTest()

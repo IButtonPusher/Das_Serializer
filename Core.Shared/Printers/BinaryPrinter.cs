@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using Das.Serializer.Objects;
-using Serializer.Core.Remunerators;
+using Das.Serializer.Remunerators;
 
 namespace Das.Printers
 {

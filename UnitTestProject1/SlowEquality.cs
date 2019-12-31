@@ -3,11 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using Das.Extensions;
-using Serializer.Core;
+using Das.Serializer;
 
 // ReSharper disable All
 
-namespace UnitTestProject1
+namespace Serializer.Tests
 {
 	public static class SlowEquality
 	{
@@ -59,8 +59,6 @@ namespace UnitTestProject1
 			{
                 if (left is IList listLeft && right is IList listRight)
                 {
-                    
-                    //var listRight = (IList)right;
                     if (listLeft.Count != listRight.Count)
                         return false;
 
@@ -69,6 +67,21 @@ namespace UnitTestProject1
                         if (!AreEqual(listLeft[i], listRight[i], ref badProp))
                             return false;
                     }
+                }
+                else if (left is IDictionary leftDict && right is IDictionary rightDict)
+                {
+                    if (leftDict.Count != rightDict.Count)
+                        return false;
+
+                    foreach (var k in leftDict.Keys)
+                    {
+                        if (!rightDict.Contains(k))
+                            return false;
+
+                        if (!AreEqual(leftDict[k], rightDict[k]))
+                            return false;
+                    }
+
                 }
                 else throw new NotSupportedException();
 

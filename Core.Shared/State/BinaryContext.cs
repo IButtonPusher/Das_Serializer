@@ -1,8 +1,7 @@
 ﻿using Das.Serializer.Scanners;
-using Das.Serializer;
-using Serializer.Core.NodeBuilders;
+using Das.Serializer.NodeBuilders;
 
-namespace Serializer.Core
+namespace Das.Serializer
 {
     public class BinaryContext : CoreContext, IBinaryContext
     {

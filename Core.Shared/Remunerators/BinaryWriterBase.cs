@@ -2,10 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using Das.Remunerators;
-using Das.Serializer;
 
-namespace Serializer.Core.Remunerators
+namespace Das.Serializer.Remunerators
 {
     public abstract class BinaryWriterBase<TChildWriter> : BinaryWriterBase
         where TChildWriter : IBinaryWriter

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-using Serializer.Core;
 
 
 namespace Das.Serializer.Scanners
@@ -81,6 +80,7 @@ namespace Das.Serializer.Scanners
             fixed (Byte* pbyte = &value[0])
                 return *(Int32*) pbyte;
         }
+      
 
         public virtual unsafe String GetString(Byte[] tempByte)
         {

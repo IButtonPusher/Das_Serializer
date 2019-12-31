@@ -3,7 +3,7 @@ using Das;
 using Das.Serializer;
 using ProtoBuf;
 
-namespace UnitTestProject1
+namespace Serializer.Tests
 {
     public abstract class TestBase
     {

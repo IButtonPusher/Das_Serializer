@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Das.Remunerators
+namespace Das.Serializer.Remunerators
 {
     internal interface ITextRemunerable : IRemunerable<String, Char>, IStringRemunerable
     {

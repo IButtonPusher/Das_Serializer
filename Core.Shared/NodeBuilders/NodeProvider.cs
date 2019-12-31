@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using Das.Serializer;
 
-namespace Serializer.Core
+namespace Das.Serializer
 {
     public abstract class NodeProvider<T> : TypeCore,
         IScanNodeProvider<T> where T : INode, IEnumerable<T>
