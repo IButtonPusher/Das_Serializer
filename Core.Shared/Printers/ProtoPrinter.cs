@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.IO;
 using System.Text;
 using Das.Serializer;
@@ -39,27 +38,36 @@ namespace Das.Printers
                 while (properyValues.MoveNext())
                 {
                     var pv = properyValues;
-
-                    var pvType = pv.Type;
                     var pvValue = pv.Value;
-                    var wireType = pv.WireType;
+                    
                     var repeated = properyValues.IsRepeated;
 
                     //if this is a repeated field, we will print the header once for each value
                     //so don't print it at the property level
                     if (!repeated)
                         _bWriter.WriteInt32(pv.Header);
-                    
 
                     var code = pv.TypeCode;
 
-                    switch (wireType)
+                    switch (pv.WireType)
                     {
                         case ProtoWireTypes.Varint:
                         case ProtoWireTypes.Int64:
                         case ProtoWireTypes.Int32:
-                            if (!Print(pvValue, code))
-                                throw new InvalidOperationException();
+                            switch (code)
+                            {
+                                case TypeCode.Int32:
+                                    _bWriter.WriteInt32((Int32) pvValue);
+                                    break;
+                                case TypeCode.Int64:
+                                    _bWriter.WriteInt64((Int64) pvValue);
+                                    break;
+                                default:
+                                    if (!Print(pvValue, code))
+                                        throw new InvalidOperationException();
+                                    break;
+                            }
+                            
                             break;
                         case ProtoWireTypes.LengthDelimited:
                             currentVal = pvValue;
@@ -71,7 +79,7 @@ namespace Das.Printers
                                 case TypeCode.Object:
 
                                     //byte array - special case
-                                    if (pvType == Const.ByteArrayType)
+                                    if (pv.Type == Const.ByteArrayType)
                                     {
                                         var arr = (Byte[]) pvValue;
                                         _bWriter.WriteInt32(arr.Length);
@@ -86,8 +94,6 @@ namespace Das.Printers
                                         _bWriter = _writer.Push();
 
                                     break;
-                                case TypeCode.Empty when pvValue is DictionaryEntry _:
-                                    break;
                             }
 
                             break;
@@ -95,7 +101,7 @@ namespace Das.Printers
                             throw new NotImplementedException();
                     }
 
-                    pv.Dispose();
+                   // pv.Dispose();
                 }
 
                 properyValues = properyValues.Pop();

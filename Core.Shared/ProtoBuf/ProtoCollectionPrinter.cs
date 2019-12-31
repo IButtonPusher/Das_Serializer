@@ -88,23 +88,6 @@ namespace Das.Serializer.ProtoBuf
         {
             GetValueCount(o);
             return this;
-
-            if (o is IList ok)
-                _values = ok;
-            else
-            {
-                _values = new List<Object>();
-                var collection = (IEnumerable) o;
-
-                foreach (var item in collection)
-                {
-                    _values.Add(item);
-                }
-            }
-
-            _index = -1;
-
-            return this;
         }
 
         public String Name { get; }
@@ -133,13 +116,6 @@ namespace Das.Serializer.ProtoBuf
 
             _currentValue = _enumerator.Current;
             return true;
-
-            if (_index >= _values.Count - 1)
-                return false;
-
-            _index++;
-            _currentValue = _values[_index];
-            return true;
         }
 
         public void Clear()
@@ -161,11 +137,9 @@ namespace Das.Serializer.ProtoBuf
             return Parent;
         }
 
-        Boolean IProtoStructure.IsRepeating(ref ProtoWireTypes wireType,ref TypeCode typeCodes,
-            ref Type type) 
-            => true;
-
-        //Boolean IProtoPropertyIterator.IsCollection => true;
+        // Boolean IProtoScanStructure.IsRepeating(ref ProtoWireTypes wireType,ref TypeCode typeCodes,
+        //     ref Type type) 
+        //     => true;
 
         public Int32 Count => _values.Count;
     }

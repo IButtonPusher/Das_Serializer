@@ -73,15 +73,10 @@ namespace Das.Types
                 return new PropertyValueIterator<IProperty>();
 
             var useType = _typeDelegates.IsUseless(value.Type) ? val.GetType() : value.Type;
-            //var isReturnNulls = !depth.IsOmitDefaultValues;
+            
             var typeStruct =  _typeDelegates.GetTypeStructure(useType, DepthConstants.AllProperties);
             var found = typeStruct.GetPropertyValues(val, depth);
             return found;
-//            foreach (var res in typeStruct.GetPropertyValues(val, depth))
-//            {
-//                if (isReturnNulls || res.Value != null)
-//                    yield return res;
-//            }
         }
 
         public Boolean SetFieldValue(Type classType, String fieldName,

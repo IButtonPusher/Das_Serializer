@@ -80,7 +80,8 @@ public class ProtoFeeder : BinaryFeeder,IProtoFeeder
 		return Convert.ChangeType(result, type);
 	}
 
-	public void GetInt32(ref Int32 result)
+    // ReSharper disable once RedundantAssignment
+    public void GetInt32(ref Int32 result)
 	{
 		_currentByte = 0;
 		result = 0;

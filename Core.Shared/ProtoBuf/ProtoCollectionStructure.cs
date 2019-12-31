@@ -5,7 +5,7 @@ using Das.Serializer.ProtoBuf;
 
 namespace Das.Serializer
 {
-    public class ProtoCollectionStructure : IProtoStructure
+    public class ProtoCollectionStructure : IProtoStructure, IProtoScanStructure
     {
         public ProtoCollectionStructure(IProtoStructure structure, ITypeCore typeCore)
         {
@@ -16,10 +16,6 @@ namespace Das.Serializer
         }
 
          public ProtoWireTypes WireType { get; }
-         public Int32 Header { get; }
-         public Int32 Index { get; }
-         public TypeCode TypeCode { get; }
-         public Boolean IsLeaf { get; }
 
          private readonly IProtoStructure _structure;
 
@@ -41,11 +37,11 @@ namespace Das.Serializer
         public Dictionary<Int32, IProtoFieldAccessor> FieldMap => _structure.FieldMap;
 
         public Boolean IsRepeating {get; protected set; }
-        Boolean IProtoStructure.IsRepeating(ref ProtoWireTypes wireType,ref TypeCode typeCodes,
-            ref Type type)
-        {
-            throw new NotImplementedException();
-        }
+        // Boolean IProtoScanStructure.IsRepeating(ref ProtoWireTypes wireType,ref TypeCode typeCodes,
+        //     ref Type type)
+        // {
+        //     throw new NotImplementedException();
+        // }
 
         public Boolean TryGetHeader(INamedField field, out Int32 header)
         {
@@ -112,51 +108,13 @@ namespace Das.Serializer
         {
             return _structure.TryGetAttribute(propertyName, out value);
         }
-      
 
-        public String Name { get; }
-        public Object Value { get; }
-        public void Dispose()
+        Boolean IProtoScanStructure.IsRepeating(ref ProtoWireTypes wireType, ref TypeCode typeCodes, ref Type type)
         {
             throw new NotImplementedException();
         }
 
-        public Boolean IsEmptyInitialized { get; }
-        public Type DeclaringType { get; }
-        public Boolean MoveNext()
-        {
-            throw new NotImplementedException();
-        }
-
-        public IProtoProperty this[Int32 index] => throw new NotImplementedException();
-
-        public T Get<T>(Int32 index) where T : INamedValue
-            => 
-        throw new NotImplementedException();
-
-        public void Clear()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Int32 Count => throw new NotImplementedException();
-
-        public IEnumerator<IProtoProperty> GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
-
-//        IEnumerator IEnumerable.GetEnumerator()
-//        {
-//            return GetEnumerator();
-//        }
-
-        public void Push()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Boolean Pop()
+        public void Set(IProtoFeeder byteFeeder, Int32 fieldHeader)
         {
             throw new NotImplementedException();
         }

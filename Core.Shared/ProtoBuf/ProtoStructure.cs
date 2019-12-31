@@ -45,6 +45,11 @@ namespace Das.Serializer
         public virtual Boolean IsRepeating(ref ProtoWireTypes wireType,
             ref TypeCode typeCode, ref Type type) => false;
 
+        public void Set(IProtoFeeder byteFeeder, Int32 fieldHeader)
+        {
+            
+        }
+
         private static readonly ConcurrentDictionary<Type, ProtoWireTypes> _wireTypes;
 
         protected readonly ThreadLocal<ProtoPropertyIterator> _propertyIterators;

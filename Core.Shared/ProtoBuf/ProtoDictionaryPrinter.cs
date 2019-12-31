@@ -5,12 +5,20 @@ using Das.Serializer.Objects;
 
 namespace Das.Serializer.ProtoBuf
 {
-    public class ProtoDictionaryPrinter : ProtoDictionaryStructure, IProtoField,
+    public class ProtoDictionaryPrinter : ProtoDictionaryStructure,
         IProtoStructure, IProtoPropertyIterator, IProtoFieldAccessor
     {
-        private readonly ITypeManipulator _state;
+        public ProtoDictionaryPrinter(Type type, ISerializationDepth depth, ITypeManipulator state,
+            INodePool nodePool, ISerializationCore serializerCore)
+            : base(type, depth, state, nodePool, serializerCore)
+        {
+            _subIndex = 0;
+            _dictionaryType = type;
+        }
+
         private Int32 _subIndex;
         private IDictionaryEnumerator _enumerator;
+        private Type _dictionaryType;
         private Type _type;
         private ProtoWireTypes _wireType;
         private TypeCode _typeCode;
@@ -18,24 +26,17 @@ namespace Das.Serializer.ProtoBuf
         private Int32 _iteratedCount;
         private Int32 _index;
         protected Object _currentValue;
-        protected Type _germaneType;
 
-        private ProtoField _current;
+        //private ProtoField _current;
 
         public IProtoPropertyIterator Parent { get; set; }
 
         public Int32 Index => _index;
 
         public TypeCode TypeCode { get; protected set; }
-        public Boolean IsLeafType => _current.IsLeafType;
+        Boolean IProtoField.IsLeafType => throw new NotSupportedException(); //_current.IsLeafType;
 
-        public ProtoDictionaryPrinter(Type type, ISerializationDepth depth, ITypeManipulator state,
-            INodePool nodePool, ISerializationCore serializerCore)
-            : base(type, depth, state, nodePool, serializerCore)
-        {
-            _state = state;
-            _subIndex = 0;
-        }
+       
 
 
         public override IProtoPropertyIterator GetPropertyValues(Object o)
@@ -59,7 +60,6 @@ namespace Das.Serializer.ProtoBuf
             var dict = (IDictionary) obj;
             _enumerator = dict.GetEnumerator();
             _value = dict;
-            _germaneType = typeof(DictionaryEntry);
             TypeCode = TypeCode.Object;
             return _value.Count;
         }
@@ -93,12 +93,14 @@ namespace Das.Serializer.ProtoBuf
                     _typeCode = TypeCode.Object;
                     _isRepeated = false;
 
-                    _current = new ProtoField(string.Empty, _type, _wireType, 0, 0, default,
-                        _typeCode, false, _isRepeated);
+                    // _current = new ProtoField(string.Empty, _type, _wireType, 0, 0, default,
+                    //     _typeCode, false, _isRepeated);
 
                     return true;
                 case 1:
-                    _wireType = GetWireType(_enumerator.Key.GetType());
+                    _wireType = KeyWireType;
+                    // _wireType = GetWireType(_enumerator.Key?.GetType() ?? 
+                    //                         throw new InvalidOperationException());
                     _currentValue = (Int32)_wireType + (1 << 3);
                     _type = Const.IntType;
                     _typeCode = TypeCode.Int32;
@@ -106,21 +108,25 @@ namespace Das.Serializer.ProtoBuf
                     _subIndex = 2;
                     _isRepeated = true;
 
-                    _current = new ProtoField(string.Empty, _type, _wireType, 0, 0, default,
-                        _typeCode, false, _isRepeated);
+                    // _current = new ProtoField(string.Empty, _type, _wireType, 0, 0, default,
+                    //     _typeCode, false, _isRepeated);
 
                     return true;
                 case 2:
                     _currentValue = _enumerator.Key?? throw new InvalidOperationException();
+                    _type = KeyType;
+                    _typeCode = KeyTypeCode;
+                    _wireType = KeyWireType;
                     _subIndex = 3;
                     _isRepeated = true;
                     
-                    _current = new ProtoField(string.Empty, _type, _wireType, 0, 0, default,
-                        _typeCode, false, _isRepeated);
+                    // _current = new ProtoField(string.Empty, _type, _wireType, 0, 0, default,
+                    //     _typeCode, false, _isRepeated);
 
                     break;
                 case 3:
-                    _wireType = GetWireType(_enumerator.Value.GetType());
+                    //_wireType = GetWireType(_enumerator.Value.GetType());
+                    _wireType = ValueWireType;
                     _currentValue = (Int32)_wireType + (2 << 3);
                     _type = Const.IntType;
                     _typeCode = TypeCode.Int32;
@@ -128,12 +134,15 @@ namespace Das.Serializer.ProtoBuf
                     _wireType = ProtoWireTypes.Varint;
                     _isRepeated = true;
                     
-                    _current = new ProtoField(string.Empty, _type, _wireType, 0, 0, default,
-                        _typeCode, false, _isRepeated);
+                    // _current = new ProtoField(string.Empty, _type, _wireType, 0, 0, default,
+                    //     _typeCode, false, _isRepeated);
 
                     return true;
                 case 4:
                     _currentValue = _enumerator.Value;
+                    _type = ValueType;
+                    _typeCode = ValueTypeCode;
+                    _wireType = ValueWireType;
                     _subIndex = -1;
                     break;
                 case -1:
@@ -144,10 +153,27 @@ namespace Das.Serializer.ProtoBuf
                     return false;
             }
 
-            _type = _currentValue.GetType();
-            //_isRepeated = _subIndex != 1 || _state.IsCollection(_type);
-            _typeCode = Type.GetTypeCode(_type);
-            _wireType = ProtoStructure.GetWireType(_type);
+            // _type = ValueType;
+            // _typeCode = ValueTypeCode;
+            // _wireType = ValueWireType;
+            
+            // var t = _currentValue.GetType();
+            // if (t != _type)
+            // { }
+            //
+            // _type = t;
+            // //_isRepeated = _subIndex != 1 || _state.IsCollection(_type);
+            //
+            // var tc = Type.GetTypeCode(_type);
+            // if (tc != _typeCode)
+            // { }
+            //
+            // _typeCode = tc;
+            // var wt = ProtoStructure.GetWireType(_type);
+            // if (wt != _wireType)
+            // { }
+            //
+            // _wireType = wt;
             return true;
         }
 
@@ -190,6 +216,8 @@ namespace Das.Serializer.ProtoBuf
             set => _type = value;
         }
 
+        Type ITypeStructureBase.Type => _dictionaryType;
+
         ProtoWireTypes IProtoField.WireType => _wireType;
 
         TypeCode IProtoField.TypeCode => _typeCode;
@@ -203,7 +231,7 @@ namespace Das.Serializer.ProtoBuf
         }
 
         Int32 IProtoField.Header => Parent.Header;
-        public String Name => _current.Name;
+        String INamedField.Name => throw new NotSupportedException(); //_current.Name;
 
         Object IValueNode.Value => _currentValue; 
 

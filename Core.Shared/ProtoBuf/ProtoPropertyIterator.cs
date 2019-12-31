@@ -10,9 +10,6 @@ namespace Das.Serializer.ProtoBuf
         public ProtoPropertyIterator(IProtoStructure protoStruct)
         {
             _protoStruct = protoStruct;
-            _structStack = new Stack<IProtoStructure>();
-            _propertyStack = new Stack<Int32>();
-            _valueStack = new Stack<Object>();
         }
 
         public void Set(Object value)
@@ -24,15 +21,8 @@ namespace Das.Serializer.ProtoBuf
         }
 
         private Object _object;
-        private Type _type;
-        //private ProtoWireTypes _wireType;
-        //private Int32 _header;
         private Int32 _count;
-        private Int32 _fieldIndex;
         private IProtoFieldAccessor _currentField;
-        private readonly Stack<IProtoStructure> _structStack;
-        private readonly Stack<Int32> _propertyStack;
-        private readonly Stack<Object> _valueStack;
         public IProtoPropertyIterator Parent { get; set; }
 
 
@@ -46,10 +36,8 @@ namespace Das.Serializer.ProtoBuf
                 return false;
 
             _currentField = _protoStruct[_current];
-            _fieldIndex = _currentField.Index;
             Value = _currentField.GetValue(_object);
-            _type = _currentField.Type;
-            
+
             _current++;
             return true;
         }
@@ -59,29 +47,11 @@ namespace Das.Serializer.ProtoBuf
             var child = _protoStruct.GetPropertyValues(Value, _current);
             child.Parent = this;
             return child;
-
-            _propertyStack.Push(_current);
-            _structStack.Push(_protoStruct);
-            _valueStack.Push(_object);
-            _protoStruct = _protoStruct.PropertyStructures[_currentField.Index];
-            _current = 0;
-            _object = Value;
-            _count = _protoStruct.GetValueCount(_object);
-            
         }
 
         public IProtoPropertyIterator Pop()
         {
             return Parent;
-
-            // if (_propertyStack.Count == 0)
-            //     return false;
-            // _current = _propertyStack.Pop();
-            // _protoStruct = _structStack.Pop();
-            //
-            // _object = _valueStack.Pop();
-            // _count = _protoStruct.GetValueCount(_object);
-            // return true;
         }
 
         public Boolean IsRepeated => _currentField.IsRepeated;
@@ -110,7 +80,7 @@ namespace Das.Serializer.ProtoBuf
         public Int32 Count
         {
             get => _count;
-            private set => _count = value;
+            //private set => _count = value;
         }
 
         public Type Type

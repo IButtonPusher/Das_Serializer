@@ -5,13 +5,11 @@ using Das.Serializer.Objects;
 
 namespace Das.Serializer
 {
-    public interface ITypeStructure
+    public interface ITypeStructure : ITypeStructureBase
     {
         Dictionary<String, INamedField> MemberTypes { get; }
 
-        Int32 PropertyCount { get; }
-
-        Type Type { get; }
+        Int32 PropertyCount { get; }        
 
         SerializationDepth Depth { get; }
 
@@ -35,10 +33,8 @@ namespace Das.Serializer
         Boolean SetFieldValue<T>(String fieldName, Object targetObj, Object fieldVal);
 
         Boolean SetValue(String propName, ref Object targetObj, Object propVal,
-            SerializationDepth depth);
+            SerializationDepth depth);       
         
-        /// <exception cref="KeyNotFoundException"></exception>
-        void SetPropertyValueUnsafe(String propName, ref Object targetObj, Object propVal);
 
         Boolean TryGetAttribute<TAttribute>(String propertyName, out TAttribute value)
             where TAttribute : Attribute;

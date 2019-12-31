@@ -38,18 +38,21 @@ namespace Das.Serializer.Scanners
             switch (Type.GetTypeCode(type))
             {
                 case TypeCode.String:
-                    res = GetString(input);
-                    break;
+                    return GetString(input);
+                    
                 case TypeCode.Decimal:
-                    res = ToDecimal(input);
-                    break;
+                    return ToDecimal(input);
+                    
                 case TypeCode.DateTime:
                     var ticks = _instantiator.CreatePrimitiveObject<Int64>(input, typeof(Int64));
-                    res = new DateTime(ticks);
-                    break;
+                    return new DateTime(ticks);
+                    
                 case TypeCode.Double:
-                    res = BitConverter.ToDouble(input, 0);
-                    break;
+                    return BitConverter.ToDouble(input, 0);
+                    
+                case TypeCode.Single:
+                    return BitConverter.ToSingle(input, 0);
+                    
                 default:
                     if (type.IsEnum)
                     {

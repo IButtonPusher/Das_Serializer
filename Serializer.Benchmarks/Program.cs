@@ -41,15 +41,22 @@ namespace Serializer.Benchmarks
 
                     for (var c = 0; c < 10000; c++)
                     {
-                        buff.DictionaryTest();
+                        
                         buff.DasByteArray();
-                        buff.DasSimpleMessage();
-
-                      //  buff.DasByteArray();
                         buff.DasComposedMessage();
-                        buff.DasDoubleMeessage();
+                        buff.DasDictionary();
                         buff.DasMultiProperties();
+                        buff.DasNegativeIntegerMessage();
+                        buff.DasDoubleMessage();
+                        buff.DasSimpleMessage();
                         buff.DasStringMessage();
+                        
+
+                        //  buff.DasByteArray();
+                        
+                        
+                        
+                        
 //                        msg = buff.DasByteArray();
                     }
 

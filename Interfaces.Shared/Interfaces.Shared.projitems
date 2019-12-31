@@ -20,6 +20,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IInstantiator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IObjectConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IObjectManipulator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IProtoScanStructure.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IProtoStructureBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dynamics\ITypeStructureBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\IPropertyValueIterator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IProtoStructure.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\ITypeCore.cs" />

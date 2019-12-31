@@ -49,7 +49,7 @@ namespace Das.Serializer
             ProtoBufOptions<TPropertyAttribute> options, ISerializationCore serializerCore)
             where TPropertyAttribute : Attribute;
 
-        IProtoStructure GetScanProtoStructure<TPropertyAttribute>(Type type, 
+        IProtoScanStructure GetScanProtoStructure<TPropertyAttribute>(Type type, 
             ProtoBufOptions<TPropertyAttribute> options, Int32 byteLength, 
             ISerializationCore serializerCore, IProtoFeeder byteFeeder, Int32 fieldHeader)
             where TPropertyAttribute : Attribute;

@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using Das.Serializer;
 using Das.Serializer.ProtoBuf;
 
@@ -28,6 +29,9 @@ namespace Das.Types
             _knownInsensitive = new ConcurrentDictionary<Type, ITypeStructure>();
             _knownProto = new ConcurrentDictionary<Type, IProtoStructure>();
 
+            _scanStructures = new ThreadLocal<Dictionary<Type, IProtoScanStructure>>(()
+                => new Dictionary<Type, IProtoScanStructure>());
+
         } 
 
         private const BindingFlags InterfaceMethodBindings = BindingFlags.Instance |
@@ -39,6 +43,8 @@ namespace Das.Types
         private static readonly ConcurrentDictionary<Type, ITypeStructure> _knownSensitive;
         private static readonly ConcurrentDictionary<Type, IProtoStructure> _knownProto;
         private static readonly ConcurrentDictionary<Type, ITypeStructure> _knownInsensitive;
+
+        private static ThreadLocal<Dictionary<Type, IProtoScanStructure>> _scanStructures;
 
         /// <summary>
         /// Returns a delegate that can be invoked to quickly get the value for an object
@@ -568,24 +574,34 @@ namespace Das.Types
             return structure;
         }
 
-        public IProtoStructure GetScanProtoStructure<TPropertyAttribute>(Type type, 
+        public IProtoScanStructure GetScanProtoStructure<TPropertyAttribute>(Type type, 
             ProtoBufOptions<TPropertyAttribute> options, Int32 byteLength, 
             ISerializationCore serializerCore, IProtoFeeder byteFeeder, Int32 fieldHeader) 
             where TPropertyAttribute : Attribute
         {
+            var structs = _scanStructures.Value;
+            if (structs.TryGetValue(type, out var found))
+            {
+                found.Set(byteFeeder, fieldHeader);
+                return found;
+            }
+
             var seekingCollection = IsCollection(type);
+            
             var itemStruct = GetPrintProtoStructure(type, options, serializerCore);
             if (!seekingCollection)
-                return itemStruct;
+                found = itemStruct;
+            
+            else if (type.IsArray)
+                found = new ProtoArrayScanner(itemStruct, byteLength, this);
 
-            if (type.IsArray)
-                return new ProtoArrayScanner(itemStruct, byteLength, this);
+            else if (typeof(IDictionary).IsAssignableFrom(type))
+                found = new ProtoDictionaryScanner(itemStruct, byteFeeder, fieldHeader);
+            else
+                found = new ProtoCollectionStructure(itemStruct, this);
 
-            if (typeof(IDictionary).IsAssignableFrom(type))
-                return new ProtoDictionaryScanner(type, Settings, this, _nodePool, serializerCore,
-                    byteFeeder, fieldHeader);
-
-            return new ProtoCollectionStructure(itemStruct, this);
+            structs[type] = found;
+            return found;
 
         }
 

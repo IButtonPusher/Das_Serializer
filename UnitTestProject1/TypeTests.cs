@@ -81,7 +81,7 @@ namespace Serializer.Tests
 			type = typeof(Dictionary<String, SimpleClass>);
             if (type?.FullName == null)
                 throw new Exception();
-			var wrongName = type.FullName.Replace("UnitTestProject1", "UnitTestProject2");
+			var wrongName = type.FullName.Replace("Serializer.Tests", "Serializer.Tests2");
 			type2 = Serializer.TypeInferrer.GetTypeFromClearName(wrongName);
 			Assert.AreNotEqual(type, type2);
 

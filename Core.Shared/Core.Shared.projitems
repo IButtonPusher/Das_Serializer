@@ -41,6 +41,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Printers\TextPrinter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Printers\XmlPrinter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PropertyValueIterator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\NullProtoScanStructure.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\ProtoArrayScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\ProtoBufSerializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\ProtoCollectionPrinter.cs" />

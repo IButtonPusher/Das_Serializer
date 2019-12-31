@@ -1,8 +1,9 @@
 ﻿using System;
+using Das.Serializer.ProtoBuf;
 
 namespace Das.Serializer
 {
-    public class ProtoArrayScanner : ProtoCollectionStructure
+    public class ProtoArrayScanner : ProtoCollectionStructure, IProtoScanStructure
     {
         private Int32 _index;
         private readonly Int32 _length;
@@ -22,13 +23,18 @@ namespace Das.Serializer
             _object.SetValue(propVal, _index++);
             if (_index == _length)
             {
-                IsRepeating = false;
+                //IsRepeating = false;
                 targetObj = _object;
                 return false;
             }
 
             return true;
 
+        }
+
+        public Boolean IsRepeating(ref ProtoWireTypes wireType, ref TypeCode typeCodes, ref Type type)
+        {
+            throw new NotImplementedException();
         }
     }
 }

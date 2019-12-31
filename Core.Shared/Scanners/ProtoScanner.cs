@@ -14,11 +14,10 @@ namespace Das.Serializer.Scanners
         {
             _options = options;
             _typeManipulator = state.TypeManipulator;
-            _instantiator = state.ObjectInstantiator;
             _primitiveScanner = state.PrimitiveScanner;
             _objects = new Stack<Object>();
             _properties = new Stack<IProtoFieldAccessor>();
-            _protoStructs = new Stack<IProtoStructure>();
+            _protoStructs = new Stack<IProtoScanStructure>();
         }
 
         public ProtoFeeder Feeder { get; set; }
@@ -26,12 +25,11 @@ namespace Das.Serializer.Scanners
         private readonly ProtoBufOptions<TPropertyAttribute> _options;
         private ProtoFeeder _feeder;
         private readonly ITypeManipulator _typeManipulator;
-        private readonly IInstantiator _instantiator;
         private readonly IBinaryPrimitiveScanner _primitiveScanner;
         private readonly Stack<Object> _objects;
         private readonly Stack<IProtoFieldAccessor> _properties;
         
-        private readonly Stack<IProtoStructure> _protoStructs;
+        private readonly Stack<IProtoScanStructure> _protoStructs;
 
         public T Deserialize<T>(Stream stream)
         {
@@ -41,8 +39,10 @@ namespace Das.Serializer.Scanners
 
             var typeO = typeof(T);
 
-            var typeStructure = _typeManipulator.GetPrintProtoStructure(typeO, _options, _state);
-            
+            IProtoScanStructure typeStructure = _typeManipulator.GetPrintProtoStructure(
+                typeO, _options, _state);
+
+
             var res = (T) typeStructure.BuildDefault();
             Object ooutput = res;
             Boolean canContinue;
@@ -53,6 +53,8 @@ namespace Das.Serializer.Scanners
                 Object propValue;
 
                 IProtoFieldAccessor currentProp;
+                String currentPropName;
+
                 while (_feeder.HasMoreBytes)
                 {
                     //field header to wire/index
@@ -61,6 +63,7 @@ namespace Das.Serializer.Scanners
                     var columnIndex = iVal >> 3;
 
                     currentProp = typeStructure.FieldMap[columnIndex];
+                    currentPropName = currentProp.Name;
                     var currentType = currentProp.Type;
                     
                     var wireType = currentProp.WireType;
@@ -77,7 +80,7 @@ namespace Das.Serializer.Scanners
                         {
                             case ProtoWireTypes.Varint when currentType == Const.IntType:
                                 _feeder.GetInt32(ref iVal);
-                                typeStructure.SetPropertyValueUnsafe(currentProp.Name,
+                                typeStructure.SetPropertyValueUnsafe(currentPropName,
                                     ref ooutput, iVal);
                                 continue;
                             case ProtoWireTypes.Varint when currentType == Const.ByteType:
@@ -123,7 +126,7 @@ namespace Das.Serializer.Scanners
                                         _objects.Push(ooutput);
                                         _protoStructs.Push(typeStructure);
                                         _properties.Push(currentProp);
-                                         typeStructure = _typeManipulator.GetScanProtoStructure(
+                                        typeStructure = _typeManipulator.GetScanProtoStructure(
                                              currentProp.Type, _options, iVal, _state, _feeder, 
                                              columnHeader);
 
@@ -144,7 +147,7 @@ namespace Das.Serializer.Scanners
 
                                             _feeder.GetInt32(ref iVal);
                                             wireType = (ProtoWireTypes) (iVal & 7);
-                                            columnIndex = iVal >> 3;
+                                            //columnIndex = iVal >> 3;
                                             currentType = typeStructure.Type;
 
                                             continue;
@@ -164,7 +167,7 @@ namespace Das.Serializer.Scanners
                                 throw new NotImplementedException();
                         }
 
-                        typeStructure.SetPropertyValueUnsafe(currentProp.Name, ref ooutput,
+                        typeStructure.SetPropertyValueUnsafe(currentPropName, ref ooutput,
                             propValue);
 
                     } 
