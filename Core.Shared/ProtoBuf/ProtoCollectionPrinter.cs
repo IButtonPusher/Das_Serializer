@@ -15,6 +15,7 @@ namespace Das.Serializer.ProtoBuf
             _germaneType = GetGermaneType(type);
             _index = -1;
             WireType = GetWireType(_germaneType);
+            _values = new List<Object>();
         }
 
         public IProtoPropertyIterator Parent { get; set; }
@@ -48,7 +49,7 @@ namespace Das.Serializer.ProtoBuf
         private Int32 _stackHeight;
 
         public Boolean IsLeafType { get; }
-        public Boolean IsRepeated => throw new NotImplementedException();
+        public Boolean IsRepeatedField => throw new NotImplementedException();
 
         public Object GetValue(Object @from)
         {
@@ -108,6 +109,9 @@ namespace Das.Serializer.ProtoBuf
         {
             return GetEnumerator();
         }
+
+        Boolean IProtoPropertyIterator.MoveNext(ref IProtoPropertyIterator propertyValues)
+            => MoveNext();
 
         public virtual Boolean MoveNext()
         {

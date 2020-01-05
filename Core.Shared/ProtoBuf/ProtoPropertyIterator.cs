@@ -23,6 +23,7 @@ namespace Das.Serializer.ProtoBuf
         private Object _object;
         private Int32 _count;
         private IProtoFieldAccessor _currentField;
+        private IProtoPropertyIterator _propertyValues;
         public IProtoPropertyIterator Parent { get; set; }
 
 
@@ -30,7 +31,7 @@ namespace Das.Serializer.ProtoBuf
         //private String _name;
         protected Int32 _current;
 
-        public Boolean MoveNext()
+        public Boolean MoveNext(ref IProtoPropertyIterator propertyValues)
         {
             if (_current >= _count )
                 return false;
@@ -41,6 +42,10 @@ namespace Das.Serializer.ProtoBuf
             _current++;
             return true;
         }
+
+
+        public Boolean MoveNext() => MoveNext(ref _propertyValues);
+       
 
         public IProtoPropertyIterator Push()
         {
@@ -54,7 +59,7 @@ namespace Das.Serializer.ProtoBuf
             return Parent;
         }
 
-        public Boolean IsRepeated => _currentField.IsRepeated;
+        public Boolean IsRepeatedField => _currentField.IsRepeatedField;
 
         public ProtoWireTypes WireType => _currentField.WireType;
         public Int32 Header => _currentField.Header;

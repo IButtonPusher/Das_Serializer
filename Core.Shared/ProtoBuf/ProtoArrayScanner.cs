@@ -32,9 +32,9 @@ namespace Das.Serializer
 
         }
 
-        public Boolean IsRepeating(ref ProtoWireTypes wireType, ref TypeCode typeCodes, ref Type type)
-        {
-            throw new NotImplementedException();
-        }
+        // public Boolean IsRepeating(ref ProtoWireTypes wireType, ref TypeCode typeCodes, ref Type type)
+        // {
+        //     throw new NotImplementedException();
+        // }
     }
 }

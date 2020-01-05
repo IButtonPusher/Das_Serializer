@@ -22,7 +22,6 @@ namespace Das.Serializer.ProtoBuf
             _protoStruct = protoStruct;
             _byteFeeder = byteFeeder;
             _fieldHeader = fieldHeader;
-            _values = new List<Object>();
 
             _value = (IDictionary)protoStruct.BuildDefault();
         }
@@ -32,24 +31,29 @@ namespace Das.Serializer.ProtoBuf
             _byteFeeder = byteFeeder;
             _fieldHeader = fieldHeader;
             _value = (IDictionary)_protoStruct.BuildDefault();
-            _values.Clear();
+            _scanIndex = 0;
         }
 
         protected IDictionary _value;
-        private readonly List<Object> _values;
+        private Int32 _scanIndex;
+        
+        private Object _keyVal;
+
         private Boolean _isLastValueMeta;
         private readonly IProtoStructure _protoStruct;
         private IProtoFeeder _byteFeeder;
         private  Int32 _fieldHeader;
+        private Int32 _propHeader;
+        
 
-        public Type KeyType { get; }
-        public Type ValueType { get; }
+        private readonly Type KeyType;
+        private readonly Type ValueType;
 
-        public TypeCode KeyTypeCode { get; }
+        private readonly TypeCode KeyTypeCode;
 
-        public TypeCode ValueTypeCode { get; }
+        private readonly TypeCode ValueTypeCode;
 
-        public ProtoWireTypes KeyWireType { get; }
+        private readonly ProtoWireTypes KeyWireType;
 
         public ProtoWireTypes ValueWireType { get; }
 
@@ -60,40 +64,44 @@ namespace Das.Serializer.ProtoBuf
 
         public Dictionary<Int32, IProtoFieldAccessor> FieldMap => _protoStruct.FieldMap;
 
-        Boolean IProtoScanStructure.IsRepeating(ref ProtoWireTypes wireType, ref TypeCode typeCode,
+        public Boolean IsRepeating(ref ProtoWireTypes wireType, ref TypeCode typeCode,
             ref Type type)
         {
-            switch (_values.Count % 2)
+            switch (_scanIndex)
             {
+                case 1 when _isLastValueMeta:
+                    //_byteFeeder.GetInt32(ref _propHeader);
+                    _byteFeeder.DumpInt32();
+                    _isLastValueMeta = false;
+                    goto oneNotMeta;
+
                 case 1 when !_isLastValueMeta:
+                    oneNotMeta:
                     wireType = ValueWireType;
                     typeCode = ValueTypeCode;
                     type = ValueType;
                     return true;
-                case 1:
-                    wireType = ProtoWireTypes.Varint;
-                    typeCode = TypeCode.Int32;
-                    type = Const.IntType;
-                    return true;
+                
                 case 0:
 
                     wireType = KeyWireType;
                     typeCode = KeyTypeCode;
                     type = KeyType;
 
-                    if (!_byteFeeder.HasMoreBytes)
-                    {
-                        var peek = _byteFeeder.PeekInt32();
+                    if (_byteFeeder.HasMoreBytes) 
+                        return true;
 
-                        if (peek != _fieldHeader)
-                            return false;
+                    var peek = _byteFeeder.PeekInt32(_fieldHeader);
 
-                        var _ = _byteFeeder.GetInt32();
-                        var len = _byteFeeder.GetInt32();
-                        _byteFeeder.Pop();
-                        _byteFeeder.Push(len);
-                        _isLastValueMeta = true;
-                    }
+                    if (peek != _fieldHeader)
+                        return false;
+
+                    var len = _byteFeeder.GetInt32();
+                    _byteFeeder.Pop();
+                    _byteFeeder.Push(len);
+                    
+                    _byteFeeder.DumpInt32();
+                    //_byteFeeder.GetInt32(ref _propHeader);
 
                     return true;
             }
@@ -101,34 +109,34 @@ namespace Das.Serializer.ProtoBuf
             return true;
         }
 
-        
-
         // ReSharper disable once RedundantAssignment
         public Type Type => _protoStruct.Type;
 
         void ITypeStructureBase.SetPropertyValueUnsafe(String propName, ref Object targetObj, 
             Object propVal)
         {
+            if (_isLastValueMeta)
+            {
+                _isLastValueMeta = false;
+                return;
+            }
+
             targetObj = _value;
 
-            if (_isLastValueMeta)
-                _isLastValueMeta = false;
-            else
-            {
-                _values.Add(propVal);
 
-                switch (_values.Count)
+            var rdrr = _scanIndex++;
+
+                switch (rdrr)
                 {
-                    case 1:
+                    case 0:
+                        _keyVal = propVal;
                         _isLastValueMeta = true;
                         break;
-                    case 2:
-                        _isLastValueMeta = false;
-                        _value.Add(_values[0], _values[1]);
-                        _values.Clear();
+                    case 1:
+                        _value.Add(_keyVal, propVal);
+                        _scanIndex = 0;
                         break;
                 }
-            }
         }
     }
 }

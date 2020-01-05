@@ -23,6 +23,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IProtoScanStructure.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IProtoStructureBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\ITypeStructureBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Remunerators\IBinaryWriter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Remunerators\IProtoWriter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Remunerators\IRemunerable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\IPropertyValueIterator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IProtoStructure.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\ITypeCore.cs" />
@@ -68,6 +71,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Objects\PropertyValueNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\ProtoWireTypes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\ValueNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Remunerators\IStreamDelegate.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IBinaryFeeder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IBinaryPrimitiveScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IBinaryScanner.cs" />

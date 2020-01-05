@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace Das.Serializer.Remunerators
 {
-    public class ProtoBufWriter: BinaryWriterBase<ProtoBufWriter>
+    public class ProtoBufWriter: BinaryWriterBase<ProtoBufWriter>, IProtoWriter
     {
         private readonly Stack<Int32> _objectMarkersStack;
         private readonly Stack<Int32> _objectSizeStack;
@@ -35,7 +35,7 @@ namespace Das.Serializer.Remunerators
             _array = new Byte[startSize];
         }
 
-        public ProtoBufWriter Push()
+        public IProtoWriter Push()
         {
             _stackDepth++;
             if (_stackDepth > 1)
@@ -46,33 +46,29 @@ namespace Das.Serializer.Remunerators
             return this;
         }
 
-
         public override IBinaryWriter Pop()
         {
             _stackDepth--;
-            if (_stackDepth < 0)
-                throw new InvalidOperationException();
 
             var nest = _size; 
             var len = nest - _currentObjectStarted;
 
-            _objectSizeStack.Push(len);
-
             if (_stackDepth != 0)
+            {
+                _objectSizeStack.Push(len);
                 return this;
+            }
 
             var currentStart = 0;
-            Int32 currentLength;
-            Int32 writeBytes;
 
             while (_objectMarkersStack.Count > 0)
             {
-                currentLength = _objectSizeStack.Pop();
+                var currentLength = _objectSizeStack.Pop();
                 WriteInt32(currentLength);
                 var currentEnd = _objectMarkersStack.Pop();
 
-                writeBytes = currentEnd - currentStart;
-                
+                var writeBytes = currentEnd - currentStart;
+
                 OutStream.Write(_array, _head, writeBytes);
                 _size -= writeBytes;
                 _head += writeBytes;
@@ -80,9 +76,8 @@ namespace Das.Serializer.Remunerators
                 currentStart = currentEnd;
             }
 
-            currentLength = _objectSizeStack.Pop();
-            WriteInt32(currentLength);
-            
+            WriteInt32(len);
+           
             OutStream.Write(_array, _head, _size);
 
             _head = _tail = 0;
@@ -91,6 +86,7 @@ namespace Das.Serializer.Remunerators
             return this;
         }
 
+       
         [MethodImpl(256)]
         public override void WriteInt8(Byte value)
         {
@@ -247,7 +243,7 @@ namespace Das.Serializer.Remunerators
         protected override ProtoBufWriter GetChildWriter(IPrintNode node, 
             IBinaryWriter parent,
             Int32 index)
-            => Push();
+            => Push() as ProtoBufWriter;
 
       
         

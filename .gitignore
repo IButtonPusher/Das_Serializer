@@ -45,3 +45,4 @@
 /UnitTestProject1/obj
 /Serializer.Benchmarks/obj/Release
 /Serializer.Benchmarks/obj
+*.manifest

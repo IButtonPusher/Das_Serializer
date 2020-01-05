@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Das.Serializer.Remunerators;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
@@ -46,7 +47,8 @@ namespace Das.Serializer
         ITypeStructure GetTypeStructure(Type type, ISerializationDepth depth);
 
         IProtoStructure GetPrintProtoStructure<TPropertyAttribute>(Type type, 
-            ProtoBufOptions<TPropertyAttribute> options, ISerializationCore serializerCore)
+            ProtoBufOptions<TPropertyAttribute> options, ISerializationCore serializerCore,
+            IProtoWriter binaryWriter)
             where TPropertyAttribute : Attribute;
 
         IProtoScanStructure GetScanProtoStructure<TPropertyAttribute>(Type type, 

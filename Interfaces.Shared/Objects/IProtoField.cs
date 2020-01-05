@@ -18,6 +18,6 @@ namespace Das.Serializer
 
         Boolean IsLeafType { get; }
 
-        Boolean IsRepeated { get; }
+        Boolean IsRepeatedField { get; }
     }
 }

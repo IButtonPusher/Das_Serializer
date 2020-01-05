@@ -28,44 +28,45 @@ namespace Das.Serializer.Scanners
         private readonly IBinaryPrimitiveScanner _primitiveScanner;
         private readonly Stack<Object> _objects;
         private readonly Stack<IProtoFieldAccessor> _properties;
-        
+
         private readonly Stack<IProtoScanStructure> _protoStructs;
+
 
         public T Deserialize<T>(Stream stream)
         {
             _feeder = Feeder;
+
+
             Feeder.SetStream(stream);
+
             var iVal = 0;
 
             var typeO = typeof(T);
 
             IProtoScanStructure typeStructure = _typeManipulator.GetPrintProtoStructure(
-                typeO, _options, _state);
+                typeO, _options, _state, null);
 
 
             var res = (T) typeStructure.BuildDefault();
             Object ooutput = res;
-            Boolean canContinue;
 
             do //outer loop for properties that are proto contracts
             {
-                canContinue = false;
                 Object propValue;
 
                 IProtoFieldAccessor currentProp;
-                String currentPropName;
 
                 while (_feeder.HasMoreBytes)
                 {
                     //field header to wire/index
                     _feeder.GetInt32(ref iVal);
-                    //var wireType = iVal & 7;
+
                     var columnIndex = iVal >> 3;
 
                     currentProp = typeStructure.FieldMap[columnIndex];
-                    currentPropName = currentProp.Name;
+                    var currentPropName = currentProp.Name;
                     var currentType = currentProp.Type;
-                    
+
                     var wireType = currentProp.WireType;
 
                     var typeCode = currentProp.TypeCode;
@@ -83,20 +84,38 @@ namespace Das.Serializer.Scanners
                                 typeStructure.SetPropertyValueUnsafe(currentPropName,
                                     ref ooutput, iVal);
                                 continue;
+
                             case ProtoWireTypes.Varint when currentType == Const.ByteType:
                                 propValue = _feeder.GetByte();
                                 break;
+
                             case Const.VarInt:
                                 propValue = _feeder.GetVarInt(currentType);
                                 break;
+
                             case ProtoWireTypes.Int64: //64-bit zb double
                             case ProtoWireTypes.Int32:
-                                propValue = _feeder.GetPrimitive(currentType);
+
+                                switch (typeCode)
+                                {
+                                    case TypeCode.Single:
+                                        propValue = _feeder.GetInt8();
+                                        break;
+                                    case TypeCode.Double:
+                                        propValue = _feeder.GetDouble();
+                                        break;
+                                    default:
+                                        propValue = _feeder.GetPrimitive(currentType);
+                                        break;
+                                }
+
+                                
                                 break;
 
                             case ProtoWireTypes.LengthDelimited when currentProp.IsLeafType:
                                 propValue = _feeder.GetPrimitive(currentType);
                                 break;
+
                             case ProtoWireTypes.LengthDelimited:
                                 var columnHeader = iVal;
                                 _feeder.GetInt32(ref iVal);
@@ -107,6 +126,8 @@ namespace Das.Serializer.Scanners
                                         ///////////
                                         // STRING
                                         ///////////
+                                        //var sBytes = _feeder.IncludeBytes(iVal);
+                                        //propValue = Encoding.UTF8.GetString(sBytes, 0, iVal);
                                         var sBytes = _feeder.GetBytes(iVal);
                                         propValue = Encoding.UTF8.GetString(sBytes);
                                         break;
@@ -122,20 +143,19 @@ namespace Das.Serializer.Scanners
                                             break;
                                         }
 
-                                        canContinue = true;
                                         _objects.Push(ooutput);
                                         _protoStructs.Push(typeStructure);
                                         _properties.Push(currentProp);
                                         typeStructure = _typeManipulator.GetScanProtoStructure(
-                                             currentProp.Type, _options, iVal, _state, _feeder, 
-                                             columnHeader);
+                                            currentProp.Type, _options, iVal, _state, _feeder,
+                                            columnHeader);
 
-                                        if (!currentProp.IsRepeated)
+                                        if (!currentProp.IsRepeatedField)
                                         {
                                             /////////////////////////
                                             // NESTED REFERENCE TYPE
                                             /////////////////////////
-                                            
+
                                             ooutput = typeStructure.BuildDefault();
                                         }
                                         else
@@ -145,10 +165,8 @@ namespace Das.Serializer.Scanners
                                             ////////////////////////////////
                                             Feeder.Push(iVal);
 
-                                            _feeder.GetInt32(ref iVal);
-                                            wireType = (ProtoWireTypes) (iVal & 7);
-                                            //columnIndex = iVal >> 3;
-                                            currentType = typeStructure.Type;
+                                            //_feeder.GetInt32(ref iVal);
+                                            _feeder.DumpInt32();
 
                                             continue;
                                         }
@@ -157,8 +175,12 @@ namespace Das.Serializer.Scanners
 
                                         continue;
                                     default:
+                                        // var pBytes = _feeder.IncludeBytes(iVal);
+                                        // propValue = _primitiveScanner.GetValue(pBytes, 
+                                        //     currentProp.Type);
                                         var pBytes = _feeder.GetBytes(iVal);
-                                        propValue = _primitiveScanner.GetValue(pBytes, currentProp.Type);
+                                        propValue = _primitiveScanner.GetValue(pBytes, 
+                                            currentProp.Type);
                                         break;
                                 }
 
@@ -170,13 +192,13 @@ namespace Das.Serializer.Scanners
                         typeStructure.SetPropertyValueUnsafe(currentPropName, ref ooutput,
                             propValue);
 
-                    } 
-                    while (typeStructure.IsRepeating(ref wireType, ref typeCode, ref currentType));
+                    } while (typeStructure.IsRepeating(ref wireType, ref typeCode, ref currentType));
 
 
                 }
 
-                if (canContinue)
+
+                if (_objects.Count > 0)
                 {
                     propValue = ooutput;
                     ooutput = _objects.Pop();
@@ -185,13 +207,17 @@ namespace Das.Serializer.Scanners
                     Feeder.Pop();
 
                     typeStructure.SetPropertyValueUnsafe(currentProp.Name, ref ooutput, propValue);
+                    continue;
                 }
 
-            } 
-            while (canContinue);
+                break;
+
+
+            } while (true);
+
 
             return res;
         }
-      
+
     }
 }

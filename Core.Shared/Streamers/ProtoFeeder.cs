@@ -6,11 +6,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 
-public class ProtoFeeder : BinaryFeeder,IProtoFeeder
+public class ProtoFeeder : BinaryFeeder, IProtoFeeder
 {
 	private Stack<Int32> _arrayIndeces;
 
 	private ByteStream _byteStream;
+    private ByteArray _byteArray;
 
 	[ThreadStatic]
 	private static Int32 _currentByte;
@@ -30,18 +31,42 @@ public class ProtoFeeder : BinaryFeeder,IProtoFeeder
 		ByteStream = (bytes as ByteStream);
 		_arrayIndeces = new Stack<Int32>();
 	}
+    //
+    // public sealed override Boolean HasMoreBytes
+    // {
+    //     get
+    //     {
+    //         var ok = _currentBytes.Index < _currentEndIndex;
+    //         var rly = base.HasMoreBytes;
+    //         if (ok != rly)
+    //         { }
+    //
+    //         return rly;
+    //     }
+    // }
 
-	public void SetStream(Stream stream)
+    public void SetStream(Stream stream)
 	{
-		ByteStream.SetStream(stream);
-		_currentEndIndex = (Int32)ByteStream.Length - 1;
-		Index = 0;
+        _byteStream.SetStream(stream);
+		_currentEndIndex = (Int32)_byteStream.Length - 1;
+        _byteIndex = 0;
 	}
+
+    public void SetStream(Byte[] array, Int32 length)
+    {
+        if (_byteArray == null)
+            _byteArray = new ByteArray(array);
+        else
+            _byteArray.Bytes = array;
+        _currentEndIndex = length - 1;
+        _currentBytes = _byteArray;
+        _byteIndex = 0;
+    }
 
 	public void Push(Int32 length)
 	{
 		_arrayIndeces.Push(_currentEndIndex);
-		_currentEndIndex = Index + length - 1;
+		_currentEndIndex = _byteIndex + length - 1;
 	}
 
 	[MethodImpl(256)]
@@ -50,7 +75,9 @@ public class ProtoFeeder : BinaryFeeder,IProtoFeeder
 		return _currentBytes[_byteIndex++];
 	}
 
-	public void Pop()
+   
+
+    public void Pop()
 	{
 		_currentEndIndex = _arrayIndeces.Pop();
 	}
@@ -87,39 +114,50 @@ public class ProtoFeeder : BinaryFeeder,IProtoFeeder
 		result = 0;
 		_push = 0;
 		while (true)
-		{
-			_currentByte = _currentBytes[_byteIndex++];
+        {
+            _currentByte = _currentBytes.GetNextByte();
+            _byteIndex++;
 			result += (_currentByte & 0x7F) << _push;
 			if (_push == 28 && result < 0)
-			{
-				break;
-			}
+                break;
+			
 			_push += 7;
 			if ((_currentByte & 0x80) == 0)
-			{
-				return;
-			}
+                return;
+			
 		}
 		_byteIndex += 5;
 	}
 
-	public sealed override Int32 GetInt32()
+    [MethodImpl(256)]
+    public void DumpInt32() => _currentBytes.DumpProtoVarInt(ref _byteIndex);
+   
+
+    public sealed override Byte[] GetBytes(Int32 count)
+    {
+        var res = _currentBytes.GetNextBytes(count);
+        _byteIndex += count;
+        return res;
+    }
+
+    public sealed override Int32 GetInt32()
 	{
 		var result = 0;
-		var push = 0;
-		Int32 currentByte;
+        _push = 0;
+        _currentByte = 0;
 		do
 		{
-			currentByte = _currentBytes[_byteIndex++];
-			result += (currentByte & 0x7F) << push;
-			if (push == 28 && result < 0)
+            _currentByte= _currentBytes.GetNextByte(); 
+            _byteIndex++;
+			result += (_currentByte & 0x7F) << _push;
+			if (_push == 28 && result < 0)
 			{
 				_byteIndex += 5;
 				break;
 			}
-			push += 7;
+            _push += 7;
 		}
-		while ((currentByte & 0x80) != 0);
+		while ((_currentByte & 0x80) != 0);
 		return result;
 	}
 

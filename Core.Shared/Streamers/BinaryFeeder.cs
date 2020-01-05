@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using Das.Serializer;
 
 namespace Das.Streamers
@@ -22,13 +23,27 @@ namespace Das.Streamers
         protected Int32 _currentEndIndex;
 
         public virtual Int32 GetInt32() => (Int32) GetPrimitive(typeof(Int32));
-        public Int32 PeekInt32()
+
+
+        public Double GetDouble()
         {
-            if (_currentBytes.Length <= Index)
+            var bytes = GetBytes(8);
+            var res = _scanner.GetValue(bytes, typeof(Double));
+            return (Double)res;
+        }
+
+        public Int32 PeekInt32(Int32 advanceIf)
+        {
+            if (_currentBytes.Length <= _byteIndex)
                 return -1;
-            var indexWas = Index;
+            
             var val = GetInt32();
-            Index = indexWas;
+            if (val != advanceIf)
+            {
+                _byteIndex--;
+                _currentBytes.StepBack();
+            }
+
             return val;
         }
 
@@ -39,7 +54,7 @@ namespace Das.Streamers
             protected set => _byteIndex = value;
         }
 
-        public Boolean HasMoreBytes => _byteIndex < _currentEndIndex;
+        public virtual Boolean HasMoreBytes => _byteIndex < _currentEndIndex;
 
         protected Int32 _byteIndex;
 
@@ -77,6 +92,14 @@ namespace Das.Streamers
             var res = _scanner.GetValue(bytes, type);
             return res;
         }
+
+        public Single GetInt8()
+        {
+            var bytes = GetBytes(4);
+            var res = _scanner.GetValue(bytes, typeof(Single));
+            return (Single)res;
+        }
+
 
         private Byte[] GetPrimitiveBytes(Type type)
         {
@@ -136,19 +159,20 @@ namespace Das.Streamers
         }
 
 
-        public Byte[] GetBytes(Int32 count)
+        public virtual Byte[] GetBytes(Int32 count)
         {
-            try
-            {
-                var res = _currentBytes[_byteIndex, count];
-
-                return res;
-            }
-            finally
-            {
-                _byteIndex += count;
-            }
+            var res = _currentBytes[_byteIndex, count];
+            _byteIndex += count;
+            return res;
         }
+
+        [MethodImpl(256)]
+        public Byte[] IncludeBytes(Int32 count)
+        {
+            _byteIndex += count;
+            return _currentBytes.IncludeBytes(count);
+        }
+
 
         public Object GetFallback(Type dataType, ref Int32 blockSize)
         {

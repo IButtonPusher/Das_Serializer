@@ -16,8 +16,8 @@ namespace Das.Serializer.ProtoBuf
             ValueType = gargs[1];
             Type = KeyType;
             
-            KeyWireType = ProtoStructure.GetWireType(KeyType);
-            ValueWireType = ProtoStructure.GetWireType(ValueType);
+            KeyWireType = GetWireType(KeyType);
+            ValueWireType = GetWireType(ValueType);
             
             KeyTypeCode = Type.GetTypeCode(KeyType);
             ValueTypeCode = Type.GetTypeCode(ValueType);
@@ -25,16 +25,16 @@ namespace Das.Serializer.ProtoBuf
             _value = (IDictionary)BuildDefault();
         }
 
-        public Type KeyType { get; }
-        public Type ValueType { get; }
+        protected readonly Type KeyType;
+        protected readonly Type ValueType;
 
-        public TypeCode KeyTypeCode { get; }
+        protected readonly TypeCode KeyTypeCode;
 
-        public TypeCode ValueTypeCode { get; }
+        protected readonly TypeCode ValueTypeCode;
 
-        public ProtoWireTypes KeyWireType { get; }
+        protected readonly ProtoWireTypes KeyWireType;
 
-        public ProtoWireTypes ValueWireType { get; }
+        protected readonly ProtoWireTypes ValueWireType;
 
         
         public override Type Type {get;}

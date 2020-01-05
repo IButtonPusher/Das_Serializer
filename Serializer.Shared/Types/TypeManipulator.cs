@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using Das.Serializer;
 using Das.Serializer.ProtoBuf;
+using Das.Serializer.Remunerators;
 
 namespace Das.Types
 {
@@ -546,7 +547,8 @@ namespace Das.Types
         }
 
         public IProtoStructure GetPrintProtoStructure<TPropertyAttribute>(Type type,
-            ProtoBufOptions<TPropertyAttribute> options, ISerializationCore serializerCore)
+            ProtoBufOptions<TPropertyAttribute> options, ISerializationCore serializerCore,
+            IProtoWriter binaryWriter)
             where TPropertyAttribute : Attribute
         {
             var instantiator = serializerCore.ObjectInstantiator;
@@ -557,14 +559,14 @@ namespace Das.Types
                 {
                     if (typeof(IDictionary).IsAssignableFrom(type))
                         structure = new ProtoDictionaryPrinter(type,
-                            Settings, this, _nodePool, serializerCore);
+                            Settings, this, _nodePool, serializerCore, binaryWriter);
                     else
                         structure = new ProtoCollectionPrinter(type,
                         Settings, this, _nodePool, instantiator);
                 }
                 else
                     structure = new ProtoStructure<TPropertyAttribute>(type,
-                        Settings, this, options, _nodePool, serializerCore);
+                        Settings, this, options, _nodePool, serializerCore, binaryWriter);
                 
 
                 _knownProto.TryAdd(type, structure);
@@ -588,7 +590,7 @@ namespace Das.Types
 
             var seekingCollection = IsCollection(type);
             
-            var itemStruct = GetPrintProtoStructure(type, options, serializerCore);
+            var itemStruct = GetPrintProtoStructure(type, options, serializerCore, null);
             if (!seekingCollection)
                 found = itemStruct;
             

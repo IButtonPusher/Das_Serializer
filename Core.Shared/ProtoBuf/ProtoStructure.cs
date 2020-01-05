@@ -1,5 +1,6 @@
 ﻿using Das.Serializer.Objects;
 using Das.Serializer.ProtoBuf;
+using Das.Serializer.Remunerators;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -109,7 +110,7 @@ namespace Das.Serializer
     {
         public ProtoStructure(Type type, ISerializationDepth depth, 
             ITypeManipulator state, ProtoBufOptions<TPropertyAttribute> options,INodePool nodePool,
-            ISerializationCore serializerCore) 
+            ISerializationCore serializerCore, IProtoWriter binaryWriter) 
             : base(type, depth, state,nodePool, serializerCore.ObjectInstantiator)
         {
             var propsMaybe = GetMembersToSerialize(depth).ToArray();
@@ -134,7 +135,7 @@ namespace Das.Serializer
                 if (isValidLengthDelim)
                 {
                     var propStructure = state.GetPrintProtoStructure(prop.Type, 
-                        options, serializerCore);
+                        options, serializerCore, binaryWriter);
 
                     PropertyStructures[index] = propStructure;
                 }

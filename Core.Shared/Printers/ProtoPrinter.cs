@@ -26,21 +26,17 @@ namespace Das.Printers
 
         public void Print<TObject>(TObject o)
         {
-            var typeO = typeof(TObject);
+            var typeStructure = _types.GetPrintProtoStructure(typeof(TObject),
+                _protoSettings, _stateProvider, _writer);
 
-            Object currentVal = o;
-
-            var typeStructure = _types.GetPrintProtoStructure(typeO, _protoSettings, _stateProvider);
-            var properyValues = typeStructure.GetPropertyValues(currentVal);
+            var properyValues = typeStructure.GetPropertyValues(o);
             
             do //nested object loop
             {
-                while (properyValues.MoveNext())
+                while (properyValues.MoveNext(ref properyValues))
                 {
                     var pv = properyValues;
-                    var pvValue = pv.Value;
-                    
-                    var repeated = properyValues.IsRepeated;
+                    var repeated = properyValues.IsRepeatedField;
 
                     //if this is a repeated field, we will print the header once for each value
                     //so don't print it at the property level
@@ -57,31 +53,30 @@ namespace Das.Printers
                             switch (code)
                             {
                                 case TypeCode.Int32:
-                                    _bWriter.WriteInt32((Int32) pvValue);
+                                    _bWriter.WriteInt32((Int32) pv.Value);
                                     break;
                                 case TypeCode.Int64:
-                                    _bWriter.WriteInt64((Int64) pvValue);
+                                    _bWriter.WriteInt64((Int64) pv.Value);
                                     break;
                                 default:
-                                    if (!Print(pvValue, code))
+                                    if (!Print(pv.Value, code))
                                         throw new InvalidOperationException();
                                     break;
                             }
                             
                             break;
                         case ProtoWireTypes.LengthDelimited:
-                            currentVal = pvValue;
                             switch (code)
                             {
                                 case TypeCode.String:
-                                    WriteString((String)currentVal);
+                                    WriteString((String)pv.Value);
                                     break;
                                 case TypeCode.Object:
 
                                     //byte array - special case
                                     if (pv.Type == Const.ByteArrayType)
                                     {
-                                        var arr = (Byte[]) pvValue;
+                                        var arr = (Byte[]) pv.Value;
                                         _bWriter.WriteInt32(arr.Length);
                                         _bWriter.Append(arr);
                                         break;
@@ -100,8 +95,6 @@ namespace Das.Printers
                         default:
                             throw new NotImplementedException();
                     }
-
-                   // pv.Dispose();
                 }
 
                 properyValues = properyValues.Pop();
@@ -159,7 +152,7 @@ namespace Das.Printers
         private Boolean TryPrintHeader(IProperty prop)
         {
             var typeStructure = _types.GetPrintProtoStructure(prop.DeclaringType, _protoSettings,
-                _stateProvider);
+                _stateProvider, _writer);
             return TryPrintHeader(prop, typeStructure);
         }
     }

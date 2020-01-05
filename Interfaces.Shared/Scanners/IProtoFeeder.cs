@@ -7,6 +7,10 @@ namespace Das.Serializer
     {
         void Push(Int32 length);
 
+        void GetInt32(ref Int32 result);
+
+        void DumpInt32();
+
         void Pop();
     }
 }

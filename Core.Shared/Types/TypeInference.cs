@@ -25,17 +25,18 @@ namespace Das.Types
         
         private readonly IAssemblyList _assemblies;
         private static readonly ConcurrentDictionary<Type, Object> CachedDefaults;
-        private static readonly ConcurrentDictionary<Type, Int32> CachedSizes;
+        private static readonly Dictionary<Type, Int32> CachedSizes;
 
 
         static TypeInference()
         {
-            
-            CachedSizes = new ConcurrentDictionary<Type, Int32>();
-            
+
+            CachedSizes = new Dictionary<Type, Int32>();
+
             //bitconverter gives 1 byte.  SizeOf gives 4
-            CachedSizes.TryAdd(typeof(Boolean), 1);
-            CachedSizes.TryAdd(typeof(DateTime), 8);
+            CachedSizes[typeof(Boolean)] = 1;
+            CachedSizes[typeof(DateTime)] = 8;
+            CachedSizes[typeof(Single)] = 4;
 
             CachedDefaults = new ConcurrentDictionary<Type, Object>();
 
@@ -54,18 +55,39 @@ namespace Das.Types
             TypeNames["object"] = Const.ObjectType;
             TypeNames["string"] = typeof(String);
             TypeNames["bool"] = typeof(Boolean);
-            TypeNames["byte"]= typeof(Byte);
-            TypeNames["char"]= typeof(Char);
-            TypeNames["decimal"]= typeof(Decimal);
-            TypeNames["double"]= typeof(Double);
-            TypeNames["short"]= typeof(Int16);
-            TypeNames["int"]= Const.IntType;
-            TypeNames["long"]= typeof(Int64);
-            TypeNames["sbyte"]= typeof(SByte);
-            TypeNames["float"]= typeof(Single);
-            TypeNames["ushort"]= typeof(UInt16);
-            TypeNames["uint"]= typeof(UInt32);
-            TypeNames["ulong"]= typeof(UInt64);
+            TypeNames["byte"] = typeof(Byte);
+            TypeNames["char"] = typeof(Char);
+            TypeNames["decimal"] = typeof(Decimal);
+            TypeNames["double"] = typeof(Double);
+            TypeNames["short"] = typeof(Int16);
+            TypeNames["int"] = Const.IntType;
+            TypeNames["long"] = typeof(Int64);
+            TypeNames["sbyte"] = typeof(SByte);
+            TypeNames["float"] = typeof(Single);
+            TypeNames["ushort"] = typeof(UInt16);
+            TypeNames["uint"] = typeof(UInt32);
+            TypeNames["ulong"] = typeof(UInt64);
+
+            foreach (var typ in TypeNames.Values)
+            {
+                if (!typ.IsValueType)
+                    continue;
+
+
+                if (typ.IsEnum)
+                {
+                    var length = Marshal.SizeOf(Enum.GetUnderlyingType(typ));
+                    CachedSizes[typ] = length;
+                }
+                else
+                {
+                    var length = Marshal.SizeOf(typ);
+                    CachedSizes[typ] = length;
+                }
+            }
+
+            CachedSizes[typeof(Boolean)] = 1;
+
 
             _cachedTypeNames = new ConcurrentDictionary<Type, String>();
         }
@@ -216,7 +238,7 @@ namespace Das.Types
                     length += Marshal.SizeOf(Enum.GetUnderlyingType(typ));
                 else
                     length += Marshal.SizeOf(typ);
-                CachedSizes.TryAdd(typ, length);
+                //CachedSizes.TryAdd(typ, length);
             }
             else
             {

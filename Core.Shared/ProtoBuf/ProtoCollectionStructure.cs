@@ -9,7 +9,7 @@ namespace Das.Serializer
     {
         public ProtoCollectionStructure(IProtoStructure structure, ITypeCore typeCore)
         {
-            IsRepeating = true;
+          //  IsRepeating = true;
             _structure = structure;
             Type = typeCore.GetGermaneType(structure.Type);
             WireType = ProtoStructure.GetWireType(Type);
@@ -36,7 +36,7 @@ namespace Das.Serializer
 
         public Dictionary<Int32, IProtoFieldAccessor> FieldMap => _structure.FieldMap;
 
-        public Boolean IsRepeating {get; protected set; }
+       // public Boolean IsRepeating {get; protected set; }
         // Boolean IProtoScanStructure.IsRepeating(ref ProtoWireTypes wireType,ref TypeCode typeCodes,
         //     ref Type type)
         // {

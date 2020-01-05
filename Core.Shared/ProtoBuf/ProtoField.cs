@@ -11,7 +11,7 @@ namespace Das.Serializer.ProtoBuf
             _valueGetter = valueGetter;
             TypeCode = typeCode;
             IsLeafType = isLeaf;
-            IsRepeated = isRepeated;
+            IsRepeatedField = isRepeated;
             Type = type;
             Name = name;
             WireType = wireType;
@@ -26,7 +26,7 @@ namespace Das.Serializer.ProtoBuf
         public Int32 Index { get; }
         public TypeCode TypeCode { get; }
         public Boolean IsLeafType { get; }
-        public Boolean IsRepeated { get; }
+        public Boolean IsRepeatedField { get; }
 
         private readonly Func<Object, Object> _valueGetter;
 

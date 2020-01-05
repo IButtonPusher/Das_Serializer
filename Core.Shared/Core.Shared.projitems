@@ -56,9 +56,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\DeferredBinaryWriter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\BinaryWriterBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\BinaryWriterWrapper.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Remunerators\IBinaryWriter.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Remunerators\IRemunerable.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Remunerators\IStreamDelegate.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\ITextRemunerable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\ProtoBufWriter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\StringSaver.cs" />
