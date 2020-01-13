@@ -47,14 +47,10 @@ namespace Das.Serializer.ProtoBuf
 
         public Int32 Index => _index;
 
-        Boolean IProtoField.IsLeafType => throw new NotSupportedException(); //_current.IsLeafType;
-
-       
-
+        Boolean IProtoField.IsLeafType => throw new NotSupportedException();
 
         public override IProtoPropertyIterator GetPropertyValues(Object o)
         {
-            //GetValueCount(o);
             _iteratedCount = 0;
             var dict = (IDictionary) o;
             _enumerator = dict.GetEnumerator();

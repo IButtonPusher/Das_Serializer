@@ -23,6 +23,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IProtoScanStructure.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IProtoStructureBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\ITypeStructureBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Printers\IProtoPrinter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\IBinaryWriter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\IProtoWriter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\IRemunerable.cs" />

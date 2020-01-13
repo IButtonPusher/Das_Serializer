@@ -32,6 +32,11 @@ namespace Serializer.Tests.ProtocolBuffers
     [ProtoContract]
     public class MultiPropMessage
     {
+        public MultiPropMessage()
+        {
+            
+        }
+
         [ProtoMember(1)] public String S { get; set; }
 
         [ProtoMember(2)] public Int32 A { get; set; }
@@ -40,10 +45,74 @@ namespace Serializer.Tests.ProtocolBuffers
     [ProtoContract]
     public class ComposedMessage
     {
-        [ProtoMember(2)] public MultiPropMessage MultiPropMessage { get; set; }
+        public ComposedMessage()
+        {
+            
+        }
+
+        [ProtoMember(2)] public ComposedMessage2 InnerComposed1 { get; set; }
+
+        [ProtoMember(3)] public ComposedMessage2 InnerComposed2 { get; set; }
+
+        [ProtoMember(1)] public Int32 A { get; set; }
+
+        public static ComposedMessage Default
+        {
+            get
+            {
+                var c = new ComposedMessage();
+                c.A = 150;
+                c.InnerComposed1 = new ComposedMessage2
+                {
+                    A = 3,
+                    MultiPropMessage1 = new MultiPropMessage
+                    {
+                        A = 5,
+                        S = "hello"
+                    },
+                    MultiPropMessage2 = new MultiPropMessage
+                    {
+                        A = 51,
+                        S = "world"
+                    }
+                };
+
+                c.InnerComposed2 = new ComposedMessage2
+                {
+                    A = 21,
+                    MultiPropMessage1 = new MultiPropMessage
+                    {
+                        A = 4,
+                        S = "hallo"
+                    },
+                    MultiPropMessage2 = new MultiPropMessage
+                    {
+                        A = 41,
+                        S = "weld"
+                    }
+                };
+
+                return c;
+            }
+        }
+
+    }
+
+    [ProtoContract]
+    public class ComposedMessage2
+    {
+        public ComposedMessage2()
+        {
+            
+        }
+
+        [ProtoMember(2)] public MultiPropMessage MultiPropMessage1 { get; set; }
+
+        [ProtoMember(3)] public MultiPropMessage MultiPropMessage2 { get; set; }
 
         [ProtoMember(1)] public Int32 A { get; set; }
     }
+
 
     [ProtoContract]
     public class ByteArrayMessage

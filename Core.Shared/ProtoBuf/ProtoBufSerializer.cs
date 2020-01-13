@@ -18,12 +18,21 @@ namespace Das.Serializer.ProtoBuf
 
             Printer = new ThreadLocal<ProtoPrinter<TPropertyAttribute>>(() =>
                 {
-                    var pWriter = new ProtoBufWriter(100);
+                    var pWriter = new ProtoBufWriter3(100);
                     var state = StateProvider.BorrowBinary(Settings);
                     var printer = new ProtoPrinter<TPropertyAttribute>(pWriter,
                         state, TypeManipulator, options1);
                     return printer;
                 });
+
+            Printer2 = new ThreadLocal<IProtoPrinter>(() =>
+            {
+                var pWriter = new ProtoBufWriter3(100);
+                var state = StateProvider.BorrowBinary(Settings);
+                var printer = new ProtoPrinter<TPropertyAttribute>(pWriter,
+                    state, TypeManipulator, options1);
+                return printer;
+            });
 
             Scanner = new ThreadLocal<ProtoScanner<TPropertyAttribute>>(() =>
             {
@@ -40,11 +49,13 @@ namespace Das.Serializer.ProtoBuf
 
         private readonly ThreadLocal<ProtoPrinter<TPropertyAttribute>> Printer;
 
+        private readonly ThreadLocal<IProtoPrinter> Printer2;
+
         private readonly ThreadLocal<ProtoScanner<TPropertyAttribute>> Scanner;
 
         public void ToProtoStream<TObject>(Stream stream, TObject o)
         {
-            var pickMe = Printer.Value;
+            var pickMe = Printer2.Value;
             pickMe.Stream = stream;
             pickMe.Print(o);
         }

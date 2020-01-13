@@ -5,6 +5,6 @@ namespace Das.Serializer.Remunerators
 {
     public interface IStreamDelegate
     {
-        Stream OutStream { get; }
+        Stream OutStream { get; set; }
     }
 }

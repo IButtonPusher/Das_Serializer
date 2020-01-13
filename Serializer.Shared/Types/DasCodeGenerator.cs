@@ -81,7 +81,14 @@ namespace Das.Serializer
 
             }
         }
-        
+
+        public void Save(String saveAs)
+        {
+#if NET45 || NET40
+            AssemblyBuilder.Save(saveAs);
+#endif
+        }
+
         // ReSharper disable once UnusedMember.Local
         private Boolean GetCanSave()
         {

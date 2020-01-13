@@ -29,8 +29,7 @@ namespace Serializer.Benchmarks
             var buff = new ProtoBufTests();
             var swo = new Stopwatch();
             swo.Start();
-            ByteArrayMessage msg;
-            
+
 
             for (var i = 0; i < 1000; i++)
             {
@@ -45,19 +44,11 @@ namespace Serializer.Benchmarks
                         buff.DasByteArray();
                         buff.DasComposedMessage();
                         buff.DasDictionary();
-                        buff.DasMultiProperties();
-                        buff.DasNegativeIntegerMessage();
-                        buff.DasDoubleMessage();
-                        buff.DasSimpleMessage();
-                        buff.DasStringMessage();
-                        
-
-                        //  buff.DasByteArray();
-                        
-                        
-                        
-                        
-//                        msg = buff.DasByteArray();
+                         buff.DasMultiProperties();
+                         buff.DasNegativeIntegerMessage();
+                         buff.DasDoubleMessage();
+                         buff.DasSimpleMessage();
+                         buff.DasStringMessage();
                     }
 
 

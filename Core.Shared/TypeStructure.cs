@@ -44,10 +44,6 @@ namespace Das
 
         public Dictionary<String, INamedField> MemberTypes { get; }
 
-        
-
-        
-
         private readonly String _onDeserializedMethodName;
 
 
@@ -378,8 +374,6 @@ namespace Das
             {
                 value = attr;
                 return true;
-                //value = items.OfType<TAttribute>().FirstOrDefault();
-                //return value != null;
             }
 
             value = default;

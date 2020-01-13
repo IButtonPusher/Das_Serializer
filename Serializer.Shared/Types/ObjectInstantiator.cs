@@ -14,6 +14,7 @@ namespace Das.Serializer
     {
         private static readonly ConcurrentDictionary<Type, InstantiationTypes> InstantionTypes;
         private static readonly ConcurrentDictionary<Type, Func<Object>> Constructors;
+        
         private static readonly ConcurrentDictionary<Type, Boolean> KnownOnDeserialize;
         private readonly ITypeInferrer _typeInferrer;
         private readonly ITypeManipulator _typeManipulator;
@@ -130,9 +131,16 @@ namespace Das.Serializer
             return dynamicMethod.CreateDelegate(delegateType);
         }
 
-      
+
         public Func<Object> GetConstructorDelegate(Type type)
-            => (Func<Object>) GetConstructorDelegate(type, typeof(Func<Object>));
+        {
+            var delType = typeof(Func<>).MakeGenericType(type);
+
+            return (Func<Object>) GetConstructorDelegate(type, delType);
+        }
+
+        public Func<T> GetConstructorDelegate<T>()
+            => (Func<T>) GetConstructorDelegate(typeof(T), typeof(Func<T>));
 
         public void OnDeserialized(IValueNode node, ISerializationDepth depth)
         {
@@ -203,6 +211,18 @@ namespace Das.Serializer
             }
 
             return constructor;
+        }
+
+        public Func<T> GetDefaultConstructor<T>() where T: class
+        {
+            var type = typeof(T);
+            if (!Constructors.TryGetValue(type, out var constructor))
+            {
+                constructor = GetConstructorDelegate<T>();
+                Constructors.TryAdd(type, constructor);
+            }
+
+            return constructor as Func<T>;
         }
 
 

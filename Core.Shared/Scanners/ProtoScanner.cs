@@ -36,7 +36,6 @@ namespace Das.Serializer.Scanners
         {
             _feeder = Feeder;
 
-
             Feeder.SetStream(stream);
 
             var iVal = 0;
@@ -60,6 +59,8 @@ namespace Das.Serializer.Scanners
                 {
                     //field header to wire/index
                     _feeder.GetInt32(ref iVal);
+
+                   
 
                     var columnIndex = iVal >> 3;
 

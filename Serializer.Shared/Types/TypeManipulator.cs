@@ -63,26 +63,26 @@ namespace Das.Types
             var getMethod = new DynamicMethod(String.Empty, setReturnType,
                 setParamTypes, owner, true);
 
-            var ilCommunication = getMethod.GetILGenerator();
+            var il = getMethod.GetILGenerator();
 
-            ilCommunication.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Ldarg_0);
 
-            ilCommunication.Emit(targetType.IsValueType
+            il.Emit(targetType.IsValueType
                 ? OpCodes.Unbox
                 : OpCodes.Castclass, targetType);
 
             var targetGetMethod = propertyInfo.GetGetMethod();
             var opCode = targetType.IsValueType ? OpCodes.Call : OpCodes.Callvirt;
-            ilCommunication.Emit(opCode, targetGetMethod);
+            il.Emit(opCode, targetGetMethod);
             var returnType = targetGetMethod.ReturnType;
 
 
             if (returnType.IsValueType)
             {
-                ilCommunication.Emit(OpCodes.Box, returnType);
+                il.Emit(OpCodes.Box, returnType);
             }
 
-            ilCommunication.Emit(OpCodes.Ret);
+            il.Emit(OpCodes.Ret);
 
             var del = getMethod.CreateDelegate(Expression.GetFuncType(setParamType, setReturnType));
             return del as Func<Object, Object>;

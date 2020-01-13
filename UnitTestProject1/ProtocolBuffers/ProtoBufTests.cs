@@ -13,14 +13,20 @@ namespace Serializer.Tests.ProtocolBuffers
         {
             var msg = new SimpleMessage();
             msg.A = 150;
+
+            var o = TypeProvider.GetProtoDynamicObject<SimpleMessage>();
             
             SimpleMessage outMsg2;
             using (var ms = new MemoryStream())
             {
-                ProtoSerializer.ToProtoStream(ms, msg);
+                o.OutStream = ms;
+                o.Print(msg);
+
+                //ProtoSerializer.ToProtoStream(ms, msg);
 
                 ms.Position = 0;
-                outMsg2 = ProtoSerializer.FromProtoStream<SimpleMessage>(ms);
+                
+                outMsg2 = o.Scan(ms);                
             }
 
             return outMsg2;
@@ -63,12 +69,14 @@ namespace Serializer.Tests.ProtocolBuffers
         public DoubleMessage DasDoubleMessage()
         {
             var msg = new DoubleMessage {D = 3.14};
+            var o = TypeProvider.GetProtoDynamicObject<DoubleMessage>();
             using (var ms = new MemoryStream())
             {
-                ProtoSerializer.ToProtoStream(ms, msg);
-
+                o.OutStream = ms;
+                o.Print(msg);               
+               
                 ms.Position = 0;
-                return ProtoSerializer.FromProtoStream<DoubleMessage>(ms);
+                return o.Scan(ms);                
             }
         }
 
@@ -113,11 +121,15 @@ namespace Serializer.Tests.ProtocolBuffers
         public StringMessage DasStringMessage()
         {
             var msg = new StringMessage {S = "hello world"};
+            var o = TypeProvider.GetProtoDynamicObject<StringMessage>();
             using (var ms = new MemoryStream())
             {
-                ProtoSerializer.ToProtoStream(ms, msg);
+                o.OutStream = ms;
+                o.Print(msg);
+                
                 ms.Position = 0;
-                return ProtoSerializer.FromProtoStream<StringMessage>(ms);
+                return o.Scan(ms);
+                
             }
         }
 
@@ -156,14 +168,23 @@ namespace Serializer.Tests.ProtocolBuffers
         }
 
 
+        private static void Test(Byte b)
+        {
+
+        }
+
         [Benchmark]
         public DictionaryPropertyMessage DasDictionary()
         {
             var mc1 = DictionaryPropertyMessage.DefaultValue;
+
+            var o = TypeProvider.GetProtoDynamicObject<DictionaryPropertyMessage>();
+
             using (var ms = new MemoryStream())
             {
-                ProtoSerializer.ToProtoStream(ms, mc1);
-                //var rdrr = ms.ToArray();
+                o.OutStream = ms;
+                o.Print(mc1);
+
                 ms.Position = 0;
                 return ProtoSerializer.FromProtoStream<DictionaryPropertyMessage>(ms);
             }
@@ -207,11 +228,14 @@ namespace Serializer.Tests.ProtocolBuffers
         public IntPropMessage DasNegativeIntegerMessage()
         {
             var msg = new IntPropMessage { A = -150 };
+            var o = TypeProvider.GetProtoDynamicObject<IntPropMessage>();
             using (var ms = new MemoryStream())
             {
-                ProtoSerializer.ToProtoStream(ms, msg);
+                o.OutStream = ms;
+                o.Print(msg);
+                
                 ms.Position = 0;
-                return ProtoSerializer.FromProtoStream<IntPropMessage>(ms);
+                return o.Scan(ms);                
             }
         }
 
@@ -225,6 +249,13 @@ namespace Serializer.Tests.ProtocolBuffers
                 ms.Position = 0;
                 return ProtoBuf.Serializer.Deserialize<IntPropMessage>(ms);
             }
+        }
+
+        [TestMethod]
+        public void DynamicTypeTest()
+        {
+
+            var simpleTest = TypeProvider.GetProtoDynamicObject<SimpleMessage>();
         }
 
 
@@ -263,11 +294,15 @@ namespace Serializer.Tests.ProtocolBuffers
                 A = 150,
                 S = "hello world"
             };
+            var o = TypeProvider.GetProtoDynamicObject<MultiPropMessage>();
+
             using (var ms = new MemoryStream())
             {
-                ProtoSerializer.ToProtoStream(ms, msg);
+                o.OutStream = ms;
+                o.Print(msg);
+                
                 ms.Position = 0;
-                return ProtoSerializer.FromProtoStream<MultiPropMessage>(ms);
+                return o.Scan(ms);
             }
         }
 
@@ -311,17 +346,18 @@ namespace Serializer.Tests.ProtocolBuffers
         [Benchmark]
         public ComposedMessage DasComposedMessage()
         {
-            var msg = new ComposedMessage();
-            msg.MultiPropMessage = new MultiPropMessage();
-            msg.A = 150;
-            msg.MultiPropMessage.S = "hello world";
-            msg.MultiPropMessage.A = 5;
+            var msg = ComposedMessage.Default;
+            var o = TypeProvider.GetProtoDynamicObject<ComposedMessage>();
+
             using (var ms = new MemoryStream())
             {
-                ProtoSerializer.ToProtoStream(ms, msg);
+                o.OutStream = ms;
+                o.Print(msg);
                 ms.Position = 0;
-                
-                return ProtoSerializer.FromProtoStream<ComposedMessage>(ms);
+
+
+                var okThen = o.Scan(ms);
+                return okThen;
             }
         }
 
@@ -329,19 +365,38 @@ namespace Serializer.Tests.ProtocolBuffers
         [Benchmark]
         public ComposedMessage ProtoNetComposedMessage()
         {
-            var msg = new ComposedMessage();
-            msg.MultiPropMessage = new MultiPropMessage();
-            msg.A = 150;
-            msg.MultiPropMessage.S = "hello world";
-            msg.MultiPropMessage.A = 5;
+            var msg = ComposedMessage.Default;
+
             using (var ms = new MemoryStream())
             {
                 ProtoBuf.Serializer.Serialize(ms, msg);
                 ms.Position = 0;
-                
+               
+                //var arr = ms.ToArray();
+                // for (var c = 0; c < arr.Length; c++)
+                // {
+                //     Debug.WriteLine(arr[c]);
+                // }
+                //
+                // Debug.WriteLine("***********************");
+
                 return ProtoBuf.Serializer.Deserialize<ComposedMessage>(ms);
             }
         }
+
+        // private T TestPrintAndScan<T>(T msg) where T : class
+        // {
+        //     var o = TypeProvider.GetProtoDynamicObject<T>();
+        //
+        //     using (var ms = new MemoryStream())
+        //     {
+        //         o.OutStream = ms;
+        //         o.Print(msg);
+        //         ms.Position = 0;
+        //         return o.Scan(ms);
+        //         //return ProtoSerializer.FromProtoStream<T>(ms);
+        //     }
+        // }
 
         [TestMethod]
         public void ComposedTest()
@@ -367,13 +422,15 @@ namespace Serializer.Tests.ProtocolBuffers
             {
                 ByteArray = new Byte[] {127, 0, 0, 1, 255, 123}
             };
+            var o = TypeProvider.GetProtoDynamicObject<ByteArrayMessage>();
 
             using (var ms = new MemoryStream())
             {
-                ProtoSerializer.ToProtoStream(ms, msg);
-                //var rdrr = ms.ToArray();
+                o.OutStream = ms;
+                o.Print(msg);
+
                 ms.Position = 0;
-                return ProtoSerializer.FromProtoStream<ByteArrayMessage>(ms);
+                return o.Scan(ms);                
             }
         }
 

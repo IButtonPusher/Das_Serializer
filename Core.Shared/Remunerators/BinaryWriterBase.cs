@@ -61,7 +61,11 @@ namespace Das.Serializer.Remunerators
 
         public virtual Int32 Length => GetDataLength();
 
-        Stream IStreamDelegate.OutStream => OutStream;
+        Stream IStreamDelegate.OutStream
+        {
+            get => OutStream;
+            set => OutStream = value;
+        }
 
         public Int32 SumLength
         {

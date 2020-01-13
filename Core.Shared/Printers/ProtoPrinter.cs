@@ -8,14 +8,14 @@ using Das.Serializer.Remunerators;
 
 namespace Das.Printers
 {
-    internal class ProtoPrinter<TPropertyAttribute> : BinaryPrinter
-        where  TPropertyAttribute : Attribute
+    internal class ProtoPrinter<TPropertyAttribute> : BinaryPrinter, IProtoPrinter 
+        where TPropertyAttribute : Attribute
     {
-        private readonly ProtoBufWriter _writer;
+        private readonly IProtoWriter _writer;
         private readonly ITypeManipulator _types;
         private readonly ProtoBufOptions<TPropertyAttribute> _protoSettings;
 
-        public ProtoPrinter(ProtoBufWriter writer, IBinaryState stateProvider,
+        public ProtoPrinter(IProtoWriter writer, IBinaryState stateProvider,
             ITypeManipulator typeManipulator, ProtoBufOptions<TPropertyAttribute> protoSettings)
             : base(writer, stateProvider)
         {
@@ -103,6 +103,8 @@ namespace Das.Printers
                 else break;
             } 
             while (true);
+
+            _writer.Flush();
         }
 
         public Stream Stream

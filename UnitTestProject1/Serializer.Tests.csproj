@@ -23,7 +23,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;TEST</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;TEST; NET45</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -76,6 +76,7 @@
     <Compile Include="INiceAndEasy.cs" />
     <Compile Include="InstantiationTests.cs" />
     <Compile Include="JsonTests.cs" />
+    <Compile Include="LOL_TEST.cs" />
     <Compile Include="ProtocolBuffers\ProtoBufTests.cs" />
     <Compile Include="ProtocolBuffers\SimpleMessage.cs" />
     <Compile Include="SlowEquality.cs" />

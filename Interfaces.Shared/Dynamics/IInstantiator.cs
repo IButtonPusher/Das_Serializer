@@ -17,6 +17,8 @@ namespace Das.Serializer
 
         Func<Object> GetDefaultConstructor(Type type);
 
+        Func<T> GetDefaultConstructor<T>() where T : class;
+
         T CreatePrimitiveObject<T>(Byte[] rawValue, Type objType);
 
         Object CreatePrimitiveObject(Byte[] rawValue, Type objType);
