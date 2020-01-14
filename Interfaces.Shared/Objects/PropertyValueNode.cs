@@ -16,6 +16,7 @@ namespace Das.Serializer.Objects
         public PropertyValueNode(Action<PropertyValueNode> returnToSender, String propertyName, 
             Object propertyValue, Type propertyType, Type declaringType)
         {
+            _isEmptyInitialized = -1;
             _value = propertyValue;
             _name = propertyName;
             _type= propertyType;

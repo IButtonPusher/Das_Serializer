@@ -105,8 +105,6 @@ namespace Das.Printers
                         current.IsTagOpen = false;
                         Writer.Append(CloseAttributes);
                     }
-
-//                    node.Type = valType;
                 }
                 else if (_stateProvider.TypeInferrer.IsLeaf(node.Type, true)
                          || nodeType == NodeTypes.Fallback && current.IsTagOpen)

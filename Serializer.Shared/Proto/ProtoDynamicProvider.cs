@@ -20,6 +20,7 @@ namespace Das.Serializer.Proto
         private static readonly string SaveFile = $"{AssemblyName}.dll";
 #endif
 
+        // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
         private readonly AssemblyBuilder _asmBuilder;
         private readonly ModuleBuilder _moduleBuilder;
 
@@ -59,6 +60,13 @@ namespace Das.Serializer.Proto
         private readonly MethodInfo _bytesToDouble;
         private readonly FieldInfo _utf8;
 
+        private const MethodAttributes MethodOverride = MethodAttributes.Public |
+                                                        MethodAttributes.HideBySig |
+                                                        MethodAttributes.Virtual |
+                                                        MethodAttributes.CheckAccessOnOverride
+                                                        | MethodAttributes.Final;
+
+        // ReSharper disable once NotAccessedField.Local
         private readonly MethodInfo _debugWriteline;
 
         public ProtoDynamicProvider(ProtoBufOptions<TPropertyAttribute> protoSettings,
@@ -71,6 +79,7 @@ namespace Das.Serializer.Proto
             _objects = new Dictionary<Type, ProtoDynamicBase>();
 
             var asmName = new AssemblyName("BOB.Stuff");
+            // ReSharper disable once JoinDeclarationAndInitializer
             AssemblyBuilderAccess access;
             //AssemblyBuilder asmBuilder = null;
 
@@ -156,15 +165,11 @@ namespace Das.Serializer.Proto
             //     BindingFlags.Static | BindingFlags.Public,null, new Type[] { typeof(Object)},null);
         }
 
-        private static MethodInfo GetMethodOrDie<TClass>(String methodName,
-            params Type[] parameters) => GetMethodOrDie(typeof(TClass), methodName, parameters);
-
-
         private static MethodInfo GetMethodOrDie(Type classType, String methodName,
             BindingFlags flags = BindingFlags.Instance | BindingFlags.Public,
             params Type[] parameters) => parameters.Length > 0
-            ? classType.GetMethod(methodName, parameters)
-            : classType.GetMethod(methodName)
+            ? classType.GetMethod(methodName, flags, null, parameters, null)
+            : classType.GetMethod(methodName, flags)
               ?? throw new InvalidOperationException();
 
         private static MethodInfo GetMethodOrDie(Type classType, String methodName,
@@ -192,15 +197,16 @@ namespace Das.Serializer.Proto
         {
             var type = typeof(T);
             var fields = GetProtoFields(type);
+            var typeName = type.FullName ?? throw new InvalidOperationException();
 
-            var bldr = _moduleBuilder.DefineType(type.FullName.Replace(".", "_"),
+            var bldr = _moduleBuilder.DefineType(typeName.Replace(".", "_"),
                 TypeAttributes.Public | TypeAttributes.Class);
 
             var utf = bldr.DefineField("_utf8", typeof(Encoding), FieldAttributes.Private);
 
             var genericParent = typeof(ProtoDynamicBase<>).MakeGenericType(type);
 
-            AddConstructor(bldr, utf, type, genericParent);
+            AddConstructor(bldr, utf, genericParent);
 
             
 
@@ -212,9 +218,10 @@ namespace Das.Serializer.Proto
 
             var dynamicType = bldr.CreateType();
 
+
             ////////////////////////////////
 #if NET45 || NET40
-            //_asmBuilder.Save("protoTest.dll");
+            _asmBuilder.Save("protoTest.dll");
 #endif
             ////////////////////////////////
 
@@ -224,8 +231,7 @@ namespace Das.Serializer.Proto
             return (ProtoDynamicBase)Activator.CreateInstance(dynamicType, new Object[]{ ctor});
         }
 
-        private void AddConstructor(TypeBuilder bldr, FieldInfo utfField, Type type,
-            Type genericBase)
+        private void AddConstructor(TypeBuilder bldr, FieldInfo utfField, Type genericBase)
         {
             var baseCtors = genericBase.GetConstructors(BindingFlags.Public |
                                                         BindingFlags.NonPublic |

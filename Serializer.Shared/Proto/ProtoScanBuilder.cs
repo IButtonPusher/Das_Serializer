@@ -20,11 +20,11 @@ namespace Das.Serializer.Proto
         private void AddScanMethod(Type parentType, TypeBuilder bldr,
             Type genericParent, IEnumerable<IProtoField> fields)
         {
-            var args = MethodAttributes.Public |
-                       MethodAttributes.HideBySig |
-                       MethodAttributes.Virtual |
-                       MethodAttributes.CheckAccessOnOverride
-                       | MethodAttributes.Final;
+            // var args = MethodAttributes.Public |
+            //            MethodAttributes.HideBySig |
+            //            MethodAttributes.Virtual |
+            //            MethodAttributes.CheckAccessOnOverride
+            //            | MethodAttributes.Final;
 
             var buildDefault = GetMethodOrDie(genericParent,
                 nameof(ProtoDynamicBase<Object>.BuildDefault));
@@ -34,7 +34,7 @@ namespace Das.Serializer.Proto
 
 
             var method = bldr.DefineMethod(nameof(ProtoDynamicBase<Object>.Scan),
-                args, parentType, new[] {typeof(Stream)});
+                MethodOverride, parentType, new[] {typeof(Stream)});
 
             var il = method.GetILGenerator();
 
@@ -303,7 +303,7 @@ namespace Das.Serializer.Proto
 
                     break;
 
-                case ProtoWireTypes.LengthDelimited when currentProp.IsLeafType:
+                case ProtoWireTypes.LengthDelimited when currentProp.Type.IsPrimitive:
                     throw new NotImplementedException();
                     // propValue = _feeder.GetPrimitive(currentType);
                     break;
@@ -465,7 +465,7 @@ namespace Das.Serializer.Proto
 
                                  il.Emit(OpCodes.Ldarg_1);
                                  il.Emit(OpCodes.Callvirt, _getStreamPosition);
-                                 il.Emit(OpCodes.Conv_I4);
+                                 //il.Emit(OpCodes.Conv_I4);
                                  il.Emit(OpCodes.Ldloc, propLength);
 
                                  il.Emit(OpCodes.Bge, endOfPropLabel);

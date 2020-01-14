@@ -9,23 +9,18 @@ using Das.Serializer.ProtoBuf;
 namespace Das.Serializer.Proto
 {
     // ReSharper disable once UnusedType.Global
+    // ReSharper disable once UnusedTypeParameter
     public partial class ProtoDynamicProvider<TPropertyAttribute>
     {
         private void AddPrintMethod(Type parentType, TypeBuilder bldr, Type genericParent,
             FieldInfo utfField, IEnumerable<IProtoField> fields)
         {
-            var args = MethodAttributes.Public |
-                       MethodAttributes.HideBySig |
-                       MethodAttributes.Virtual |
-                       MethodAttributes.CheckAccessOnOverride
-                       | MethodAttributes.Final;
-
             var abstractMethod = genericParent.GetMethod(
                                      nameof(ProtoDynamicBase<Object>.Print))
                                  ?? throw new InvalidOperationException();
 
             var method = bldr.DefineMethod(nameof(ProtoDynamicBase<Object>.Print),
-                args, typeof(void), new[] {parentType});
+                MethodOverride, typeof(void), new[] {parentType});
 
             var il = method.GetILGenerator();
 
@@ -119,6 +114,7 @@ namespace Das.Serializer.Proto
 
 
             var enumeratorLocal = il.DeclareLocal(getEnumeratorMethod.ReturnType);
+            var enumeratorType = enumeratorLocal.LocalType ?? throw new InvalidOperationException();
             var enumeratorCurrentValue = il.DeclareLocal(enumeratorCurrent.ReturnType);
 
             il.Emit(OpCodes.Ldarg_1);
@@ -126,10 +122,11 @@ namespace Das.Serializer.Proto
             il.Emit(OpCodes.Callvirt, getEnumeratorMethod);
             il.Emit(OpCodes.Stloc, enumeratorLocal);
 
-
-
             var allDone = il.DefineLabel();
 
+            /////////////////////////////////////
+            // TRY
+            /////////////////////////////////////
             il.BeginExceptionBlock();
             {
                 var tryNext = il.DefineLabel();
@@ -138,7 +135,7 @@ namespace Das.Serializer.Proto
                 /////////////////////////////////////
                 // !enumerator.HasNext() -> EXIT LOOP
                 /////////////////////////////////////
-                if (enumeratorLocal.LocalType.IsValueType)
+                if (enumeratorType.IsValueType)
                     il.Emit(OpCodes.Ldloca, enumeratorLocal);
                 else
                     il.Emit(OpCodes.Ldloc, enumeratorLocal);
@@ -151,7 +148,7 @@ namespace Das.Serializer.Proto
                 /////////////////////////////////////
                 PrintHeaderBytes(headerBytes, il, ref isArrayMade, fieldByteArray);
 
-                if (enumeratorLocal.LocalType.IsValueType)
+                if (enumeratorType.IsValueType)
                     il.Emit(OpCodes.Ldloca, enumeratorLocal);
                 else
                     il.Emit(OpCodes.Ldloc, enumeratorLocal);
@@ -160,9 +157,8 @@ namespace Das.Serializer.Proto
                 il.Emit(OpCodes.Stloc, enumeratorCurrentValue);
 
                 il.Emit(OpCodes.Ldarg_0);
-                 il.Emit(OpCodes.Callvirt, _push);
-                 il.Emit(OpCodes.Pop);
-
+                il.Emit(OpCodes.Callvirt, _push);
+                il.Emit(OpCodes.Pop);
                 /////////////
 
                 if (typeof(IDictionary).IsAssignableFrom(pv.Type))
@@ -172,16 +168,16 @@ namespace Das.Serializer.Proto
                     var valueType = gargs[1];
 
                     var keyWireType = ProtoStructure.GetWireType(keyType);
-                    var keyHeader = (Int32)keyWireType + (1 << 3);
+                    var keyHeader = (Int32) keyWireType + (1 << 3);
 
-                    var keyGetter = GetOrDie(enumeratorCurrentValue.LocalType, 
+                    var keyGetter = GetOrDie(enumeratorCurrentValue.LocalType,
                         nameof(KeyValuePair<Object, Object>.Key));
 
 
                     var valueWireType = ProtoStructure.GetWireType(valueType);
-                    var valueHeader = (Int32)valueWireType + (1 << 3);
+                    var valueHeader = (Int32) valueWireType + (1 << 3);
 
-                    var valueGetter = GetOrDie(enumeratorCurrentValue.LocalType, 
+                    var valueGetter = GetOrDie(enumeratorCurrentValue.LocalType,
                         nameof(KeyValuePair<Object, Object>.Value));
 
                     /////////////////////////////////////
@@ -220,16 +216,20 @@ namespace Das.Serializer.Proto
                 /////////////
 
                 il.Emit(OpCodes.Ldarg_0);
-                 il.Emit(OpCodes.Callvirt, _pop);
-                 il.Emit(OpCodes.Pop);
+                il.Emit(OpCodes.Callvirt, _pop);
+                il.Emit(OpCodes.Pop);
 
                 il.Emit(OpCodes.Br, tryNext);
 
                 il.MarkLabel(allDone);
             }
+
+            /////////////////////////////////////
+            // FINALLY
+            /////////////////////////////////////
             il.BeginFinallyBlock();
             {
-                if (enumeratorLocal.LocalType.IsValueType)
+                if (enumeratorType.IsValueType)
                     il.Emit(OpCodes.Ldloca, enumeratorLocal);
                 else
                     il.Emit(OpCodes.Ldloc, enumeratorLocal);
@@ -255,11 +255,9 @@ namespace Das.Serializer.Proto
             ref Boolean isArrayMade, LocalBuilder fieldByteArray, ref LocalBuilder localBytes,
             Action<ILGenerator> loadObject, ref LocalBuilder localString, FieldInfo utfField)
         {
-            var code = pv.TypeCode;
             var pvProp = parentType.GetProperty(pv.Name) ?? throw new InvalidOperationException();
             var getMethod = pvProp.GetGetMethod();
 
-           
             var headerBytes = GetBytes(pv.Header).ToArray();
 
             if (!_types.IsCollection(pv.Type) || pv.Type == Const.ByteArrayType)
@@ -272,7 +270,6 @@ namespace Das.Serializer.Proto
             }
             else
             {
-
                 PrintCollectionProperty(pv, il, loadObject, headerBytes, ref isArrayMade,
                     fieldByteArray, getMethod, ref localBytes, ref localString, utfField);
 

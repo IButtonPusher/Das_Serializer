@@ -168,11 +168,6 @@ namespace Serializer.Tests.ProtocolBuffers
         }
 
 
-        private static void Test(Byte b)
-        {
-
-        }
-
         [Benchmark]
         public DictionaryPropertyMessage DasDictionary()
         {
@@ -186,7 +181,8 @@ namespace Serializer.Tests.ProtocolBuffers
                 o.Print(mc1);
 
                 ms.Position = 0;
-                return ProtoSerializer.FromProtoStream<DictionaryPropertyMessage>(ms);
+                return o.Scan(ms);
+                //return ProtoSerializer.FromProtoStream<DictionaryPropertyMessage>(ms);
             }
         }
 
@@ -254,8 +250,8 @@ namespace Serializer.Tests.ProtocolBuffers
         [TestMethod]
         public void DynamicTypeTest()
         {
-
             var simpleTest = TypeProvider.GetProtoDynamicObject<SimpleMessage>();
+            Assert.IsNotNull(simpleTest);
         }
 
 
