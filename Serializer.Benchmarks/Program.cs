@@ -13,16 +13,21 @@ namespace Serializer.Benchmarks
 {
     public class Program
     {
-        public static void Main()
+        public static void Main(String[] args)
         {
 #if DEBUG
             RunManyTimes();
 #endif
 #if !DEBUG
-           BenchmarkRunner.Run<ProtoBufTests>();
+           if (args == null || args.Length == 0)
+               BenchmarkRunner.Run<ProtoBufTests>();
+           else
+               RunManyTimes();
 #endif
 
         }
+
+     
 
         private static void RunManyTimes()
         {
@@ -80,6 +85,8 @@ namespace Serializer.Benchmarks
 
             Debug.WriteLine(" das TOTAL: " + swo.ElapsedMilliseconds);
         }
+
+     
 
         public class Benchies : TestBase
         {

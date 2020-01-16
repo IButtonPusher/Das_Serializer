@@ -65,7 +65,7 @@ namespace Das.Serializer
             ProtoBufOptions<TPropertyAttribute> options) 
             where TPropertyAttribute : Attribute
         {
-            return new ProtoBufSerializer<TPropertyAttribute>(StateProvider, Settings,
+            return new ProtoBufSerializer(StateProvider, Settings,
                 new CoreProtoProvider());
         }
 

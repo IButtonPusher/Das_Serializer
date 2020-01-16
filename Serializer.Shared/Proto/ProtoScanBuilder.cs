@@ -13,12 +13,7 @@ namespace Das.Serializer.ProtoBuf
     // ReSharper disable once UnusedTypeParameter
     public partial class ProtoDynamicProvider<TPropertyAttribute>
     {
-        private static MethodInfo SetOrDie(Type type, String property, BindingFlags flags =
-            BindingFlags.Public | BindingFlags.Instance)
-        {
-            return type.GetProperty(property, flags)?.GetSetMethod() ??
-                   throw new InvalidOperationException();
-        }
+      
 
         private void AddScanMethod(Type parentType, TypeBuilder bldr,
             Type genericParent, IEnumerable<IProtoField> fields)
@@ -167,7 +162,7 @@ namespace Das.Serializer.ProtoBuf
                 if (!field.IsRepeatedField)
                     continue;
                 
-                var setter = SetOrDie(type, field.Name);
+                var setter = type.SetterOrDie(field.Name);
                 var fieldCtor = field.Type.GetConstructor(Type.EmptyTypes)
                        ?? throw new MissingMethodException();
 
@@ -183,7 +178,7 @@ namespace Das.Serializer.ProtoBuf
             ILGenerator il, Action<ILGenerator> loadObject,
             Label afterPropertyLabel, LocalBuilder fieldByteArray, LocalBuilder lastByte)
         {
-            var setter = SetOrDie(parentType, currentProp.Name);
+            var setter = parentType.SetterOrDie(currentProp.Name);
 
             LocalBuilder holdForSet = null;
 

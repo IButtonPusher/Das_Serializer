@@ -171,6 +171,13 @@ namespace Das.Extensions
                    throw new InvalidOperationException(tType.Name + "." + property);
         }
 
+        public static MethodInfo SetterOrDie(this Type type, String property, BindingFlags flags =
+            BindingFlags.Public | BindingFlags.Instance)
+        {
+            return type.GetProperty(property, flags)?.GetSetMethod() ??
+                   throw new InvalidOperationException();
+        }
+
         public static Boolean TryGetMethod(this Type classType, String methodName,
             out MethodInfo method,
             params Type[] parameters) => classType.TryGetMethod(methodName, out method,

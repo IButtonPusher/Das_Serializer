@@ -5,23 +5,44 @@ using System.Runtime.CompilerServices;
 
 namespace Das.Serializer.Remunerators
 {
-    public class ProtoBufWriter: BinaryWriterBase<ProtoBufWriter>, IProtoWriter
+    public class ProtoBufWriter : BinaryWriterBase<ProtoBufWriter>, IProtoWriter
     {
-        private readonly Stack<Int32> _objectMarkersStack;
-        private readonly Stack<Int32> _objectSizeStack;
-        
-        private Int32 _currentObjectStarted;
-        private Int32 _stackDepth;
-
+        private readonly List<Int32> _objectStarts; 
+        private readonly Stack<Int32> _objectStartStack; 
+     
+        private readonly Byte[] _sizeBuffer;
         private Byte[] _array;
+        private readonly Dictionary<Int32, Int32> _objects; 
+        private readonly Dictionary<Int32, Int32> _parents; 
         private Int32 _size;
         private Int32 _head;
-        private Int32 _tail;
+        //private Int32 _tail;
+        private Int32 _bufferTail;
+        protected Stream _outStream;
+        protected Int32 _stackDepth;
+        private Int32 _capacity;
+        private Int32 _nextResize;
+
 
         public new Stream OutStream
         {
-            get => base.OutStream;
-            set => base.OutStream = value;
+            get => _outStream;
+            set
+            {
+                _outStream = value;
+                base.OutStream = value;
+
+                _stackDepth = 0;
+                _head = 0;
+                
+                _bufferTail = 0;
+                _size = 0;
+                _stackDepth = 0;
+                _objects.Clear();
+                _parents.Clear();
+                _objectStarts.Clear();
+                _objectStartStack.Clear();
+            }
         }
 
         private static readonly Byte[] _negative32Fill = { Byte.MaxValue, Byte.MaxValue, 
@@ -29,106 +50,137 @@ namespace Das.Serializer.Remunerators
 
         public ProtoBufWriter(Int32 startSize)
         {
-         
-            _objectMarkersStack = new Stack<Int32>();
-            _objectSizeStack = new Stack<Int32>();
+            _outStream = base.OutStream;
+            _capacity = startSize;
+            _nextResize = startSize / 2;
             _array = new Byte[startSize];
+            _sizeBuffer = new Byte[startSize];
+            _objects = new Dictionary<Int32, Int32>();
+            _parents = new Dictionary<Int32, Int32>();
+
+            _objectStartStack = new Stack<Int32>();
+            _objectStarts = new List<Int32>();
+
         }
 
         public IProtoWriter Push()
         {
             _stackDepth++;
-            if (_stackDepth > 1)
-                _objectMarkersStack.Push(_currentObjectStarted);
 
-            _currentObjectStarted = _size;
-            
+            _parents[_size] = 0;
+
+            _objectStartStack.Push(_size);
+            _objectStarts.Add(_size);
+
             return this;
         }
 
         public override IBinaryWriter Pop()
         {
-            _stackDepth--;
+            var started = _objectStartStack.Pop();
 
-            var nest = _size; 
-            var len = nest - _currentObjectStarted;
-
-            if (_stackDepth != 0)
+            ///////////////////////////
+            var value = _size - started + _parents[started];
+            var cnt = 0;
+            do
             {
-                _objectSizeStack.Push(len);
-                return this;
-            }
+                var current = (Byte) (value & 127);
+                value >>= 7;
+                if (value > 0)
+                    current += 128; //8th bit to specify more bytes remain
+                
+                _sizeBuffer[_bufferTail] = current;
+                cnt++;
+            } while (value > 0);
 
-            var currentStart = 0;
+            _parents[started] = _bufferTail;
+            _bufferTail += cnt;
+            _objects[started] = _bufferTail;
 
-            while (_objectMarkersStack.Count > 0)
-            {
-                var currentLength = _objectSizeStack.Pop();
-                WriteInt32(currentLength);
-                var currentEnd = _objectMarkersStack.Pop();
+            ////////////////////////
 
-                var writeBytes = currentEnd - currentStart;
-
-                OutStream.Write(_array, _head, writeBytes);
-                _size -= writeBytes;
-                _head += writeBytes;
-
-                currentStart = currentEnd;
-            }
-
-            WriteInt32(len);
-           
-            OutStream.Write(_array, _head, _size);
-
-            _head = _tail = 0;
-            _size = 0;
+            if (_objectStartStack.Count > 0)
+                _parents[_objectStartStack.Peek()] += cnt;
 
             return this;
         }
 
-       
+        public override void Flush()
+        {
+            base.Flush();
+            
+            var last = 0;
+
+            for (var c = 0; c < _objectStarts.Count; c++)
+            {
+                var next = _objectStarts[c];
+                if (next != last)
+                    _outStream.Write(_array, last, next - last);
+
+                var f = _parents[next] ;
+
+                _outStream.Write(_sizeBuffer, f, _objects[next] - f);
+                last = next;
+            }
+
+            if (last < _size)
+                _outStream.Write(_array, last, _size - last);
+        }
+
+
         [MethodImpl(256)]
         public override void WriteInt8(Byte value)
         {
             if (_stackDepth > 0)
             {
-                if (_size == _array.Length)
+                if (_size >= _capacity)
                 {
-                    var capacity = (Int32) (_array.Length * 200L / 100L);
-                    if (capacity < _array.Length + 4)
-                        capacity = _array.Length + 4;
+                    var capacity = (Int32) (_capacity * 200L / 100L);
+                    if (capacity < _capacity + 4)
+                        capacity = _capacity + 4;
                     SetCapacity(capacity);
                 }
 
-                _array[_tail] = value;
-                _tail++;
-                ++_size;
+                _array[_size++] = value;
             }
             else
-                OutStream.WriteByte(value);
+                _outStream.WriteByte(value);
         }
+
+        private void UpdateSize()
+        {
+            var capacity = (Int32) (_capacity * 400L / 100L);
+            if (capacity < _capacity + 4)
+                capacity = _capacity + 4;
+            SetCapacity(capacity);
+        }
+
+        public void UnsafeStackByte(Byte value) 
+            =>_array[_size++] = value;
 
 
         [MethodImpl(256)]
         public sealed override void Append(Byte[] data)
         {
             if (_stackDepth == 0)
-                OutStream.Write(data, 0 , data.Length);//.Append(data);
+                _outStream.Write(data, 0 , data.Length);
             else
             {
+
+
                 var l = data.Length;
 
-                if (_size + l >= _array.Length)
+                if (_size + l >= _capacity)
                 {
-                    var capacity = (Int32) (_array.Length * 200L / 100L);
-                    if (capacity < _array.Length + 4)
-                        capacity = _array.Length + 4;
+                    var capacity = (Int32) (_capacity * 200L / 100L);
+                    if (capacity < _capacity + 4)
+                        capacity = _capacity + 4;
                     SetCapacity(capacity);
                 }
 
-                Buffer.BlockCopy(data, 0, _array, _tail, l);
 
-                _tail += l;
+                Buffer.BlockCopy(data, 0, _array, _size, l);
+
                 _size += l;
             }
         }
@@ -139,19 +191,20 @@ namespace Das.Serializer.Remunerators
             var objArray = new Byte[capacity];
             if (_size > 0)
             {
-                if (_head < _tail)
+                if (_head < _size)
                 {
                     Array.Copy(_array, _head, objArray, 0, _size);
                 }
                 else
                 {
                     Array.Copy(_array, _head, objArray, 0, _array.Length - _head);
-                    Array.Copy(_array, 0, objArray, _array.Length - _head, _tail);
+                    Array.Copy(_array, 0, objArray, _array.Length - _head, _size);
                 }
             }
             _array = objArray;
+            _capacity = capacity;
+            _nextResize = capacity / 2;
             _head = 0;
-            _tail = _size == capacity ? 0 : _size;
         }
 
         public sealed override void WriteInt8(SByte value)
@@ -173,36 +226,95 @@ namespace Das.Serializer.Remunerators
 
         public sealed override void WriteInt32(Int32 value)
         {
-            if (value >= 0)
+            if (_stackDepth > 0)
             {
-                do
+                if (_size > _nextResize)
+                    UpdateSize();
+
+                if (value > 0)
                 {
-                    var current = (Byte) (value & 127);
-                    value >>= 7;
-                    if (value > 0)
-                        current += 128; //8th bit to specify more bytes remain
-                    WriteInt8(current);
-                } while (value > 0);
+                    if (value > 127)
+                    {
+                        if (value > 16256)
+                        {
+                            _array[_size++] = (Byte) ((value & 127) | 128);
+                            _array[_size++] = (Byte) ((value & 16256) >> 7 | 128);
+                            _array[_size++] = (Byte) ((value & 1040384) >> 14);
+
+                            return;
+                        }
+
+                        _array[_size++] =(Byte) ((value & 127) | 128);
+                        _array[_size++] =  (Byte) ((value & 16256) >> 7);
+
+                        return;
+                    }
+
+                    _array[_size++] = (Byte) (value & 127);
+
+                    return;
+                }
             }
             else
             {
-                for (var c = 0; c <= 4; c++)
+                if (value > 0)
                 {
-                    
-                    var current = (Byte)(value | 128);
-                    value >>= 7;
-                    WriteInt8(current);
+                    if (value > 127)
+                    {
+                        if (value > 16256)
+                        {
+                            _outStream.WriteByte((Byte) ((value & 127) | 128));
+                            _outStream.WriteByte((Byte) ((value & 16256) >> 7 | 128));
+                            _outStream.WriteByte((Byte) ((value & 1040384) >> 14));
+
+                            return;
+                        }
+
+                        _outStream.WriteByte((Byte) ((value & 127) | 128));
+                        _outStream.WriteByte((Byte) ((value & 16256) >> 7));
+
+                        return;
+                    }
+
+                    _outStream.WriteByte((Byte) (value & 127));
+
+                    return;
                 }
-                Write(_negative32Fill, 0, 5);
             }
+
+
+            if (value >= 0) 
+                return;
+            for (var c = 0; c <= 4; c++)
+            {
+                var current = (Byte)(value | 128);
+                value >>= 7;
+                WriteInt8(current);
+            }
+            Write(_negative32Fill, 0, 5);
+
         }
 
         [MethodImpl(256)]
         public sealed override void Write(Byte[] vals)
             => Append(vals);
 
-        public override void Write(Byte[] buffer, Int32 index, Int32 count) 
-            => OutStream.Write(buffer, index, count);
+
+        public void Write(Byte[] buffer, Int32 count) => Write(buffer, 0, count);
+
+        public override void Write(Byte[] buffer, Int32 index, Int32 count)
+        {
+            if (_stackDepth == 0)
+            {
+                _outStream.Write(buffer, index, count);
+            }
+            else
+            {
+                Buffer.BlockCopy(buffer, index, _array, _size, count);
+                _size += count;
+            }
+        }
+                
 
         public sealed override void WriteInt32(Int64 val)
         {

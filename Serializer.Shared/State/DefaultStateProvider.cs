@@ -1,5 +1,4 @@
-﻿using Das.Serializer.ProtoBuf;
-using Das.Serializer.State;
+﻿using Das.Serializer.State;
 
 namespace Das.Serializer
 {

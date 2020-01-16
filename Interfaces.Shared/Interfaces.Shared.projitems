@@ -102,7 +102,4 @@
     <Compile Include="$(MSBuildThisFileDirectory)State\ITextState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\IXmlLoaner.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="$(MSBuildThisFileDirectory)Printers\" />
-  </ItemGroup>
 </Project>

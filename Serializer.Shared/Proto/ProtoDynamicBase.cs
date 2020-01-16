@@ -24,8 +24,7 @@ namespace Das.Serializer.ProtoBuf
         public T BuildDefault() => _defaultConstructor();
     }
 
-    public abstract class ProtoDynamicBase : ProtoBufWriter3
-    {
+    public abstract class ProtoDynamicBase : ProtoBufWriter{
         protected static Encoding Utf8;
 
         static ProtoDynamicBase()

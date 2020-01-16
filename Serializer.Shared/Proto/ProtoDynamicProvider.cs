@@ -7,7 +7,6 @@ using System.Reflection.Emit;
 using System.Text;
 using System.Threading;
 using Das.Extensions;
-using Das.Printers;
 using Das.Serializer.Remunerators;
 
 namespace Das.Serializer.ProtoBuf
@@ -15,8 +14,6 @@ namespace Das.Serializer.ProtoBuf
     public partial class ProtoDynamicProvider<TPropertyAttribute> : 
         IProtoProvider where TPropertyAttribute : Attribute
     {
-
-
         private const string AssemblyName = "BOB.Stuff";
 #if NET45 || NET40
         // ReSharper disable once StaticMemberInGenericType
@@ -68,13 +65,20 @@ namespace Das.Serializer.ProtoBuf
         private readonly FieldInfo _outStreamField;
         private readonly FieldInfo _stackDepthField;
 
+        
+
         private const MethodAttributes MethodOverride = MethodAttributes.Public |
                                                         MethodAttributes.HideBySig |
                                                         MethodAttributes.Virtual |
                                                         MethodAttributes.CheckAccessOnOverride
                                                         | MethodAttributes.Final;
 
-        private const BindingFlags PublicStatic = BindingFlags.Static | BindingFlags.Public; 
+        private const BindingFlags PublicStatic = BindingFlags.Static | BindingFlags.Public;
+        private const BindingFlags NonPublicStatic = BindingFlags.Static | BindingFlags.NonPublic;
+
+        private const BindingFlags Public = BindingFlags.Instance | BindingFlags.Public;
+        private const BindingFlags PrivateOrProtected = BindingFlags.Instance | BindingFlags.NonPublic;
+
 
         // ReSharper disable once NotAccessedField.Local
         private readonly MethodInfo _debugWriteline;
@@ -103,24 +107,23 @@ namespace Das.Serializer.ProtoBuf
             _moduleBuilder = _asmBuilder.DefineDynamicModule(AssemblyName);
 #endif
 
-            var writer = typeof(ProtoBufWriter3);
+            var writer = typeof(ProtoBufWriter);
 
             _writeInt8 = writer.GetMethodOrDie(nameof(IProtoWriter.WriteInt8), typeof(Byte));
             _writeInt32 = writer.GetMethodOrDie(nameof(IProtoWriter.WriteInt32), typeof(Int32));
             _writeInt64 = writer.GetMethodOrDie(nameof(IProtoWriter.WriteInt64), typeof(Int64));
             _writeBytes = writer.GetMethodOrDie(nameof(IProtoWriter.Write), typeof(Byte[]));
-            _writeSomeBytes = writer.GetMethodOrDie(nameof(IProtoWriter.Write), typeof(Byte[]), typeof(Int32));
+            _writeSomeBytes = writer.GetMethodOrDie(nameof(IProtoWriter.Write), typeof(Byte[]), 
+                typeof(Int32));
 
             _push = writer.GetMethodOrDie(nameof(IProtoWriter.Push), Type.EmptyTypes);
             _pop = writer.GetMethodOrDie(nameof(IProtoWriter.Pop), Type.EmptyTypes);
             _flush = writer.GetMethodOrDie(nameof(IProtoWriter.Flush), Type.EmptyTypes);
 
-            _utf8 = typeof(ProtoDynamicBase).GetField("Utf8", BindingFlags.Static |
-                BindingFlags.NonPublic);
-            _outStreamField = typeof(ProtoBufWriter3).GetField("_outStream", BindingFlags.Instance |
-                                                                       BindingFlags.NonPublic);
-            _stackDepthField= typeof(ProtoBufWriter3).GetField("_stackDepth", BindingFlags.Instance |
-                                                                             BindingFlags.NonPublic);
+            _utf8 = typeof(ProtoDynamicBase).GetField("Utf8", NonPublicStatic);
+
+            _outStreamField = typeof(ProtoBufWriter).GetField("_outStream", PrivateOrProtected);
+            _stackDepthField= typeof(ProtoBufWriter).GetField("_stackDepth", PrivateOrProtected);
 
             _getSingleBytes = typeof(BitConverter).GetMethodOrDie(nameof(BitConverter.GetBytes),
                 PublicStatic, typeof(Single));
@@ -144,8 +147,8 @@ namespace Das.Serializer.ProtoBuf
             _readStreamBytes = typeof(Stream).GetMethodOrDie(nameof(Stream.Read));
 
             _writeStreamByte = typeof(Stream).GetMethodOrDie(nameof(Stream.WriteByte));
-            _unsafeStackByte = typeof(ProtoBufWriter3).GetMethodOrDie(
-                "UnsafeStackByte", BindingFlags.NonPublic | BindingFlags.Instance);
+            _unsafeStackByte = typeof(ProtoBufWriter).GetMethodOrDie(
+                nameof(ProtoBufWriter.UnsafeStackByte), Public);
 
             _getPositiveInt32 = protoBase.GetMethodOrDie(nameof(ProtoDynamicBase.GetPositiveInt32),
                 PublicStatic);
@@ -276,15 +279,14 @@ namespace Das.Serializer.ProtoBuf
             il.Emit(OpCodes.Ret);
         }
 
-        private static MethodInfo GetOrDie<TTYpe>(String property, BindingFlags flags =
-            BindingFlags.Public | BindingFlags.Instance)
+        private static MethodInfo GetOrDie<TTYpe>(String property, BindingFlags flags = Public)
         {
             return typeof(TTYpe).GetProperty(property, flags)?.GetGetMethod() ??
                    throw new InvalidOperationException();
         }
 
-        private static MethodInfo GetOrDie(Type tType, String property, BindingFlags flags =
-            BindingFlags.Public | BindingFlags.Instance)
+        private static MethodInfo GetOrDie(Type tType, String property, 
+            BindingFlags flags = Public)
         {
             return tType.GetProperty(property, flags)?.GetGetMethod() ??
                    throw new InvalidOperationException();

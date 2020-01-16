@@ -286,7 +286,7 @@ namespace Serializer.Tests.ProtocolBuffers
         {
             var msg = new MultiPropMessage
             {
-                A = 150,
+                A = 26256,
                 S = "hello world"
             };
             var o = TypeProvider.GetProtoProxy<MultiPropMessage>();
@@ -306,7 +306,7 @@ namespace Serializer.Tests.ProtocolBuffers
         {
             var msg = new MultiPropMessage
             {
-                A = 150,
+                A = 26256,
                 S = "hello world"
             };
             using (var ms = new MemoryStream())
@@ -411,10 +411,8 @@ namespace Serializer.Tests.ProtocolBuffers
         [Benchmark]
         public ByteArrayMessage DasByteArray()
         {
-            var msg = new ByteArrayMessage
-            {
-                ByteArray = new Byte[] {127, 0, 0, 1, 255, 123}
-            };
+            var msg = ByteArrayMessage;
+
             var o = TypeProvider.GetProtoProxy<ByteArrayMessage>();
 
             using (var ms = new MemoryStream())
@@ -427,18 +425,20 @@ namespace Serializer.Tests.ProtocolBuffers
             }
         }
 
+        private static ByteArrayMessage ByteArrayMessage = new ByteArrayMessage
+        {
+            ByteArray = new Byte[] {127, 0, 0, 1, 255, 123}
+        };
+
         [Benchmark]
         public ByteArrayMessage ProtoNetByteArray()
         {
-            var msg = new ByteArrayMessage
-            {
-                ByteArray = new Byte[] {127, 0, 0, 1, 255, 123}
-            };
+            var msg = ByteArrayMessage;
 
             using (var ms = new MemoryStream())
             {
                 ProtoBuf.Serializer.Serialize(ms, msg);
-                //var rdrr = ms.ToArray();
+                
                 ms.Position = 0;
                 return ProtoBuf.Serializer.Deserialize<ByteArrayMessage>(ms);
             }

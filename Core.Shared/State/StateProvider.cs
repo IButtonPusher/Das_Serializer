@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using Das.Serializer.ProtoBuf;
 using Das.Serializer.Scanners;
 using Das.Serializer.State;
 
@@ -32,10 +31,6 @@ namespace Das.Serializer
         protected static readonly ThreadLocal<Queue<IBinaryLoaner>> _binaryBuffer
             = new ThreadLocal<Queue<IBinaryLoaner>>(() => new Queue<IBinaryLoaner>());
 
-        private static Queue<IBinaryLoaner> ProtoBuffer => _protoBuffer.Value;
-        protected static readonly ThreadLocal<Queue<IBinaryLoaner>> _protoBuffer
-            = new ThreadLocal<Queue<IBinaryLoaner>>(() => new Queue<IBinaryLoaner>());
-
         private static Queue<IXmlLoaner> XmlBuffer => _xmlBuffer.Value;
 
         protected static readonly ThreadLocal<Queue<IXmlLoaner>> _xmlBuffer
@@ -48,10 +43,6 @@ namespace Das.Serializer
 
         private static void ReturnToLibrary(IBinaryLoaner loaned)
             => BinaryBuffer.Enqueue(loaned);
-
-        private static void ReturnProtoToLibrary(IBinaryLoaner loaned)
-            => ProtoBuffer.Enqueue(loaned);
-
 
         private static void ReturnToLibrary(IXmlLoaner loaned)
             => XmlBuffer.Enqueue(loaned);

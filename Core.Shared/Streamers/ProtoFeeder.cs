@@ -31,19 +31,6 @@ public class ProtoFeeder : BinaryFeeder, IProtoFeeder
 		ByteStream = (bytes as ByteStream);
 		_arrayIndeces = new Stack<Int32>();
 	}
-    //
-    // public sealed override Boolean HasMoreBytes
-    // {
-    //     get
-    //     {
-    //         var ok = _currentBytes.Index < _currentEndIndex;
-    //         var rly = base.HasMoreBytes;
-    //         if (ok != rly)
-    //         { }
-    //
-    //         return rly;
-    //     }
-    // }
 
     public void SetStream(Stream stream)
 	{

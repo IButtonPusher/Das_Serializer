@@ -49,7 +49,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\BinaryWriterBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\BinaryWriterWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\ITextRemunerable.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Remunerators\ProtoBufWriter2.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Remunerators\ProtoBufWriter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\StringSaver.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\BaseNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\BinaryNode.cs" />
@@ -79,7 +79,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Streamers\BinaryFeeder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Streamers\ByteArray.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Streamers\ByteStream.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Streamers\ProtoFeeder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Streamers\StreamStreamer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TextCommon\CoreTextParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TextCommon\ITextParserProvider.cs" />

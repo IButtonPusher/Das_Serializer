@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace Das.Serializer.ProtoBuf
+﻿namespace Das.Serializer.ProtoBuf
 {
     public interface IProtoProvider
     {

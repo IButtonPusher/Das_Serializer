@@ -38,7 +38,7 @@ namespace Das.Serializer
         {
             var provider = new ProtoDynamicProvider<TPropertyAttribute>(options,
                 TypeManipulator, ObjectInstantiator);
-            return new ProtoBufSerializer<TPropertyAttribute>(StateProvider, Settings, provider);
+            return new ProtoBufSerializer(StateProvider, Settings, provider);
         }
 
 #else
