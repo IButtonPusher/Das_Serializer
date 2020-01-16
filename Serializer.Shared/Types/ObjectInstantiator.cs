@@ -205,7 +205,6 @@ namespace Das.Serializer
         {
             if (!Constructors.TryGetValue(type, out var constructor))
             {
-
                 constructor = GetConstructorDelegate(type);
                 Constructors.TryAdd(type, constructor);
             }

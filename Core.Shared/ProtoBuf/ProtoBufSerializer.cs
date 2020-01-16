@@ -1,72 +1,87 @@
-﻿using Das.Serializer.Remunerators;
-using System;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
-using System.Threading;
-using Das.Printers;
-using Das.Serializer.Scanners;
 
 namespace Das.Serializer.ProtoBuf
 {
-    public class ProtoBufSerializer<TPropertyAttribute> : CoreContext, IProtoSerializer
+    public class ProtoBufSerializer<TPropertyAttribute> : ProtoBufSerializer, IProtoSerializer
         where  TPropertyAttribute : Attribute
     {
-        public ProtoBufSerializer(IStateProvider stateProvider, ISerializerSettings settings,
-            ProtoBufOptions<TPropertyAttribute> options) : base(stateProvider, settings)
+        public ProtoBufSerializer(IStateProvider stateProvider, ISerializerSettings settings, 
+            IProtoProvider typeProvider) 
+            : base(stateProvider, settings)
         {
-            var options1 = options;
             StateProvider = stateProvider;
-
-            Printer = new ThreadLocal<ProtoPrinter<TPropertyAttribute>>(() =>
-                {
-                    var pWriter = new ProtoBufWriter3(100);
-                    var state = StateProvider.BorrowBinary(Settings);
-                    var printer = new ProtoPrinter<TPropertyAttribute>(pWriter,
-                        state, TypeManipulator, options1);
-                    return printer;
-                });
-
-            Printer2 = new ThreadLocal<IProtoPrinter>(() =>
-            {
-                var pWriter = new ProtoBufWriter3(100);
-                var state = StateProvider.BorrowBinary(Settings);
-                var printer = new ProtoPrinter<TPropertyAttribute>(pWriter,
-                    state, TypeManipulator, options1);
-                return printer;
-            });
-
-            Scanner = new ThreadLocal<ProtoScanner<TPropertyAttribute>>(() =>
-            {
-                var state = StateProvider.BorrowProto(Settings, options1);
-                var arr = new ByteStream();
-                var f = new ProtoFeeder(state.PrimitiveScanner, state, arr, Settings);
-                var s = (ProtoScanner<TPropertyAttribute>)state.Scanner;
-                s.Feeder = f;
-                return s;
-            });
+            TypeProvider = typeProvider;
         }
 
         public IStateProvider StateProvider { get; }
 
-        private readonly ThreadLocal<ProtoPrinter<TPropertyAttribute>> Printer;
-
-        private readonly ThreadLocal<IProtoPrinter> Printer2;
-
-        private readonly ThreadLocal<ProtoScanner<TPropertyAttribute>> Scanner;
+        protected IProtoProvider TypeProvider;
 
         public void ToProtoStream<TObject>(Stream stream, TObject o)
+            where TObject : class
         {
-            var pickMe = Printer2.Value;
-            pickMe.Stream = stream;
-            pickMe.Print(o);
+            var printer = TypeProvider.GetProtoProxy<TObject>();
+            printer.OutStream = stream;
+            printer.Print(o);
         }
 
         public TObject FromProtoStream<TObject>(Stream stream)
+            where TObject : class
         {
-            var pickMe = Scanner.Value;
-            return pickMe.Deserialize<TObject>(stream);
+            var scanner = TypeProvider.GetProtoProxy<TObject>();
+
+            return scanner.Scan(stream);
         }
 
         public override IScanNodeProvider ScanNodeProvider
             => StateProvider.BinaryContext.ScanNodeProvider;
+    }
+
+    public abstract class ProtoBufSerializer : CoreContext
+    {
+        private static readonly ConcurrentDictionary<Type, ProtoWireTypes> _wireTypes;
+        private static readonly Type _enumType = typeof(Enum);
+
+        static ProtoBufSerializer()
+        {
+            var wireTypes = new Dictionary<Type, ProtoWireTypes>
+            {
+                {typeof(Int32), ProtoWireTypes.Varint},
+                {typeof(Int64), ProtoWireTypes.Varint},
+                {typeof(UInt32), ProtoWireTypes.Varint},
+                {typeof(UInt64), ProtoWireTypes.Varint},
+                {typeof(Byte), ProtoWireTypes.Varint},
+                {typeof(Boolean), ProtoWireTypes.Varint},
+                {typeof(Enum), ProtoWireTypes.Varint},
+                {typeof(Double), ProtoWireTypes.Int64},
+                {typeof(String), ProtoWireTypes.LengthDelimited},
+                {typeof(Byte[]), ProtoWireTypes.LengthDelimited},
+                {typeof(Single), ProtoWireTypes.Int32}
+            };
+
+            _wireTypes = new ConcurrentDictionary<Type, ProtoWireTypes>(wireTypes);
+        }
+
+        protected ProtoBufSerializer(ISerializationCore dynamicFacade, ISerializerSettings settings) 
+            : base(dynamicFacade, settings)
+        {
+        }
+
+        public static ProtoWireTypes GetWireType(Type type)
+        {
+            if (!_wireTypes.TryGetValue(type, out var wire))
+            {
+                if (_enumType.IsAssignableFrom(type))
+                    wire = 0;
+                else wire = ProtoWireTypes.LengthDelimited;
+
+                _wireTypes[type] = wire;
+            }
+
+            return wire;
+        }
     }
 }

@@ -61,11 +61,12 @@ namespace Das.Serializer
             }
         }
 
-        public IProtoSerializer GetProtoSerializer<TPropertyAttribute>(
+        public virtual IProtoSerializer GetProtoSerializer<TPropertyAttribute>(
             ProtoBufOptions<TPropertyAttribute> options) 
             where TPropertyAttribute : Attribute
         {
-            return new ProtoBufSerializer<TPropertyAttribute>(StateProvider, Settings, options);
+            return new ProtoBufSerializer<TPropertyAttribute>(StateProvider, Settings,
+                new CoreProtoProvider());
         }
 
     }

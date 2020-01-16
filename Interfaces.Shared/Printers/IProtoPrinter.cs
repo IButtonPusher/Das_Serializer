@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using Das.Serializer;
 
 namespace Das.Printers
 {
@@ -8,11 +7,6 @@ namespace Das.Printers
     {
         void Print<TObject>(TObject o);
 
-        Stream Stream
-        {
-            // ReSharper disable once UnusedMember.GlobalQueue
-            get;
-            set;
-        }
+        Stream Stream { get; set; }
     }
 }

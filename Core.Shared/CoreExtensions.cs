@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Das.Serializer;
@@ -80,7 +81,7 @@ namespace Das.Extensions
             item.Equals(c5) || item.IsIn(c1, c2, c3, c4);
 
         [MethodImpl(256)]
-        public static Boolean IsIn<T>(this T item, T c1, T c2, T c3, T c4) 
+        public static Boolean IsIn<T>(this T item, T c1, T c2, T c3, T c4)
             => item.Equals(c4) || item.IsIn(c1, c2, c3);
 
         [MethodImpl(256)]
@@ -88,7 +89,7 @@ namespace Das.Extensions
             item.Equals(c3) || item.IsIn(c1, c2);
 
         [MethodImpl(256)]
-        public static Boolean IsIn<T>(this T item, T c1, T c2) 
+        public static Boolean IsIn<T>(this T item, T c1, T c2)
             => item.Equals(c1) || item.Equals(c2);
 
         [MethodImpl(256)]
@@ -161,6 +162,54 @@ namespace Das.Extensions
                 if (isIncludeNulls || item != null)
                     action(item);
             }
+        }
+
+        public static MethodInfo GetterOrDie(this Type tType, String property,
+            BindingFlags flags = BindingFlags.Public | BindingFlags.Instance)
+        {
+            return tType.GetProperty(property, flags)?.GetGetMethod() ??
+                   throw new InvalidOperationException(tType.Name + "." + property);
+        }
+
+        public static Boolean TryGetMethod(this Type classType, String methodName,
+            out MethodInfo method,
+            params Type[] parameters) => classType.TryGetMethod(methodName, out method,
+            BindingFlags.Instance | BindingFlags.Public, parameters);
+
+        public static Boolean TryGetMethod(this Type classType, String methodName,
+            out MethodInfo method,
+            BindingFlags flags = BindingFlags.Instance | BindingFlags.Public,
+            params Type[] parameters)
+        {
+            method = parameters.Length > 0
+                ? classType.GetMethod(methodName, flags, null, parameters, null)
+                : classType.GetMethod(methodName, flags);
+
+            return method != null;
+        }
+
+        public static MethodInfo GetMethodOrDie(this Type classType, String methodName)
+            => classType.GetMethod(methodName) ?? 
+               throw new InvalidOperationException(classType.Name + "->" + methodName);
+
+
+        public static MethodInfo GetMethodOrDie(this Type classType, String methodName,
+            BindingFlags flags) => classType.GetMethod(methodName, flags)
+                                   ?? Die(classType, methodName);
+
+        public static MethodInfo GetMethodOrDie(this Type classType, String methodName,
+            BindingFlags flags, params Type[] parameters)
+            => classType.GetMethod(methodName, flags, null, parameters, null)
+               ?? Die(classType, methodName);
+
+        public static MethodInfo GetMethodOrDie(this Type classType, String methodName,
+            params Type[] parameters)
+            => GetMethodOrDie(classType, methodName,
+                BindingFlags.Instance | BindingFlags.Public, parameters);
+
+        private static MethodInfo Die(Type classType, String methodName)
+        {
+            throw new InvalidOperationException(classType.Name + "->" + methodName);
         }
     }
 }

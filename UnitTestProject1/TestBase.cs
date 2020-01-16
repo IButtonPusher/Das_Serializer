@@ -1,8 +1,7 @@
 ﻿using System;
 using Das;
 using Das.Serializer;
-using Das.Serializer.Proto;
-using Das.Serializer.Types;
+using Das.Serializer.ProtoBuf;
 using ProtoBuf;
 
 namespace Serializer.Tests

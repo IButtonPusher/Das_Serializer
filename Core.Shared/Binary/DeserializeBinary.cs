@@ -45,17 +45,17 @@ namespace Das.Serializer
             return new BinaryFeeder(state.PrimitiveScanner, state, arr, Settings);
         }
 
-        public TObject FromProtoStream<TObject, TPropertyAttribute>(Stream stream,
-            ProtoBufOptions<TPropertyAttribute> options)
-            where TPropertyAttribute : Attribute
-        {
-            using (var state = StateProvider.BorrowProto(Settings, options))
-            {
-                var arr = new ByteStream(stream);
-                var f = new ProtoFeeder(state.PrimitiveScanner, state, arr, Settings);
-                return state.Scanner.Deserialize<TObject>(f);
-            }
-        }
+        // public TObject FromProtoStream<TObject, TPropertyAttribute>(Stream stream,
+        //     ProtoBufOptions<TPropertyAttribute> options)
+        //     where TPropertyAttribute : Attribute
+        // {
+        //     using (var state = StateProvider.BorrowProto(Settings, options))
+        //     {
+        //         var arr = new ByteStream(stream);
+        //         var f = new ProtoFeeder(state.PrimitiveScanner, state, arr, Settings);
+        //         return state.Scanner.Deserialize<TObject>(f);
+        //     }
+        // }
 
         
     }

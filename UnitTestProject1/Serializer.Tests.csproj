@@ -76,7 +76,6 @@
     <Compile Include="INiceAndEasy.cs" />
     <Compile Include="InstantiationTests.cs" />
     <Compile Include="JsonTests.cs" />
-    <Compile Include="LOL_TEST.cs" />
     <Compile Include="ProtocolBuffers\ProtoBufTests.cs" />
     <Compile Include="ProtocolBuffers\SimpleMessage.cs" />
     <Compile Include="SlowEquality.cs" />

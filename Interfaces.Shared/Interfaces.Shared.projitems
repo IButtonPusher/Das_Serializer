@@ -20,15 +20,14 @@
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IInstantiator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IObjectConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IObjectManipulator.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IProtoScanStructure.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IProtoStructureBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\ITypeStructureBase.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Printers\IProtoPrinter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IProtoProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObjectPools\INodePool.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\IProtoProxy.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\IBinaryWriter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\IProtoWriter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\IRemunerable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\IPropertyValueIterator.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IProtoStructure.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\ITypeCore.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\ITypeInferrer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\ITypeManipulator.cs" />
@@ -36,7 +35,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)IBinarySerializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IByteArray.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IProtoSerializer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ObjectPools\IDataLender.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IJsonSerializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IMultiSerializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ISerializationCore.cs" />
@@ -52,9 +50,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Nodes\ITextNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Nodes\ITextNodeProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Nodes\NodeTypes.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ObjectPools\ILendable.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ObjectPools\INodePool.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ObjectPools\ObjectLender.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\DasMember.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\DasProperty.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\INamedField.cs" />
@@ -106,5 +101,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)State\ITextContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\ITextState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\IXmlLoaner.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)Printers\" />
   </ItemGroup>
 </Project>

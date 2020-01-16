@@ -18,8 +18,8 @@ namespace Das.Serializer.Remunerators
         private Int32 _head;
         //private Int32 _tail;
         private Int32 _bufferTail;
-        private Stream _outStream;
-        private Int32 _stackDepth;
+        protected Stream _outStream;
+        protected Int32 _stackDepth;
         private Int32 _capacity;
 
 
@@ -151,6 +151,9 @@ namespace Das.Serializer.Remunerators
             else
                 _outStream.WriteByte(value);
         }
+
+        protected void UnsafeStackByte(Byte value) 
+            =>_array[_size++] = value;
 
 
         [MethodImpl(256)]

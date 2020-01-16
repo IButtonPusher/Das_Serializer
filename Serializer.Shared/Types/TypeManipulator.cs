@@ -7,10 +7,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
-using System.Threading;
 using Das.Serializer;
-using Das.Serializer.ProtoBuf;
-using Das.Serializer.Remunerators;
 
 namespace Das.Types
 {
@@ -28,11 +25,6 @@ namespace Das.Types
         {
             _knownSensitive = new ConcurrentDictionary<Type, ITypeStructure>();
             _knownInsensitive = new ConcurrentDictionary<Type, ITypeStructure>();
-            _knownProto = new ConcurrentDictionary<Type, IProtoStructure>();
-
-            _scanStructures = new ThreadLocal<Dictionary<Type, IProtoScanStructure>>(()
-                => new Dictionary<Type, IProtoScanStructure>());
-
         } 
 
         private const BindingFlags InterfaceMethodBindings = BindingFlags.Instance |
@@ -42,10 +34,9 @@ namespace Das.Types
 
 
         private static readonly ConcurrentDictionary<Type, ITypeStructure> _knownSensitive;
-        private static readonly ConcurrentDictionary<Type, IProtoStructure> _knownProto;
         private static readonly ConcurrentDictionary<Type, ITypeStructure> _knownInsensitive;
 
-        private static ThreadLocal<Dictionary<Type, IProtoScanStructure>> _scanStructures;
+        //private static ThreadLocal<Dictionary<Type, IProtoScanStructure>> _scanStructures;
 
         /// <summary>
         /// Returns a delegate that can be invoked to quickly get the value for an object
@@ -546,81 +537,22 @@ namespace Das.Types
             return ValidateCollection(type, depth, false);
         }
 
-        public IProtoStructure GetPrintProtoStructure<TPropertyAttribute>(Type type,
-            ProtoBufOptions<TPropertyAttribute> options, ISerializationCore serializerCore,
-            IProtoWriter binaryWriter)
-            where TPropertyAttribute : Attribute
-        {
-            var instantiator = serializerCore.ObjectInstantiator;
-
-            if (!TryGetTypeStructure(type, Settings, _knownProto, out var structure))
-            {
-                if (IsCollection(type))
-                {
-                    if (typeof(IDictionary).IsAssignableFrom(type))
-                        structure = new ProtoDictionaryPrinter(type,
-                            Settings, this, _nodePool, serializerCore, binaryWriter);
-                    else
-                        structure = new ProtoCollectionPrinter(type,
-                        Settings, this, _nodePool, instantiator);
-                }
-                else
-                    structure = new ProtoStructure<TPropertyAttribute>(type,
-                        Settings, this, options, _nodePool, serializerCore, binaryWriter);
-                
-
-                _knownProto.TryAdd(type, structure);
-                _knownSensitive.TryAdd(type, structure);
-            }
-
-            return structure;
-        }
-
-        public IProtoScanStructure GetScanProtoStructure<TPropertyAttribute>(Type type, 
-            ProtoBufOptions<TPropertyAttribute> options, Int32 byteLength, 
-            ISerializationCore serializerCore, IProtoFeeder byteFeeder, Int32 fieldHeader) 
-            where TPropertyAttribute : Attribute
-        {
-            var structs = _scanStructures.Value;
-            if (structs.TryGetValue(type, out var found))
-            {
-                found.Set(byteFeeder, fieldHeader);
-                return found;
-            }
-
-            var seekingCollection = IsCollection(type);
-            
-            var itemStruct = GetPrintProtoStructure(type, options, serializerCore, null);
-            if (!seekingCollection)
-                found = itemStruct;
-            
-            else if (type.IsArray)
-                found = new ProtoArrayScanner(itemStruct, byteLength, this);
-
-            else if (typeof(IDictionary).IsAssignableFrom(type))
-                found = new ProtoDictionaryScanner(itemStruct, byteFeeder, fieldHeader);
-            else
-                found = new ProtoCollectionStructure(itemStruct, this);
-
-            structs[type] = found;
-            return found;
-
-        }
+      
 
         private readonly Object _lockNewType = new Object();
 
-        private Boolean TryGetTypeStructure<TStructure>(Type type, ISerializationDepth depth,
-            ConcurrentDictionary<Type, TStructure> collection, out TStructure found)
-            where TStructure : ITypeStructure
-        {
-            var doCache = Settings.CacheTypeConstructors;
-            if (doCache && collection.TryGetValue(type, out found) &&
-                found.Depth >= depth.SerializationDepth)
-                return true;
-
-            found = default;
-            return false;
-        }
+        // private Boolean TryGetTypeStructure<TStructure>(Type type, ISerializationDepth depth,
+        //     ConcurrentDictionary<Type, TStructure> collection, out TStructure found)
+        //     where TStructure : ITypeStructure
+        // {
+        //     var doCache = Settings.CacheTypeConstructors;
+        //     if (doCache && collection.TryGetValue(type, out found) &&
+        //         found.Depth >= depth.SerializationDepth)
+        //         return true;
+        //
+        //     found = default;
+        //     return false;
+        // }
 
         private ITypeStructure ValidateCollection(Type type, ISerializationDepth depth,
             Boolean caseSensitive)

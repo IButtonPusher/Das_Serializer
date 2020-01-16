@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using Das.Serializer.ProtoBuf;
 using Das.Serializer.Scanners;
 using Das.Serializer.State;
 
@@ -66,19 +67,6 @@ namespace Das.Serializer
                 : new BinaryBorrawable(ReturnToLibrary, settings, this, 
                     s => new BinaryScanner(s), 
                     (c, s) => new BinaryPrimitiveScanner(c,s));
-            state.UpdateSettings(settings);
-            return state;
-        }
-
-        public IBinaryLoaner BorrowProto<T>(ISerializerSettings settings,
-            ProtoBufOptions<T> options) where T : Attribute
-        {
-            var buffer = ProtoBuffer;
-            var state = buffer.Count > 0
-                ? buffer.Dequeue()
-                : new BinaryBorrawable(ReturnProtoToLibrary, settings, this, 
-                    s => new ProtoScanner<T>(s, options),
-                    (c, s) => new ProtoPrimitiveScanner(c, s));
             state.UpdateSettings(settings);
             return state;
         }

@@ -32,11 +32,6 @@ namespace Serializer.Tests.ProtocolBuffers
     [ProtoContract]
     public class MultiPropMessage
     {
-        public MultiPropMessage()
-        {
-            
-        }
-
         [ProtoMember(1)] public String S { get; set; }
 
         [ProtoMember(2)] public Int32 A { get; set; }
@@ -45,11 +40,6 @@ namespace Serializer.Tests.ProtocolBuffers
     [ProtoContract]
     public class ComposedMessage
     {
-        public ComposedMessage()
-        {
-            
-        }
-
         [ProtoMember(2)] public ComposedMessage2 InnerComposed1 { get; set; }
 
         [ProtoMember(3)] public ComposedMessage2 InnerComposed2 { get; set; }
@@ -101,11 +91,6 @@ namespace Serializer.Tests.ProtocolBuffers
     [ProtoContract]
     public class ComposedMessage2
     {
-        public ComposedMessage2()
-        {
-            
-        }
-
         [ProtoMember(2)] public MultiPropMessage MultiPropMessage1 { get; set; }
 
         [ProtoMember(3)] public MultiPropMessage MultiPropMessage2 { get; set; }

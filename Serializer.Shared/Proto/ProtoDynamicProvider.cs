@@ -6,18 +6,21 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 using System.Threading;
+using Das.Extensions;
 using Das.Printers;
-using Das.Serializer.ProtoBuf;
 using Das.Serializer.Remunerators;
 
-namespace Das.Serializer.Proto
+namespace Das.Serializer.ProtoBuf
 {
-    public partial class ProtoDynamicProvider<TPropertyAttribute> : IProtoPrinter
-        where TPropertyAttribute : Attribute
+    public partial class ProtoDynamicProvider<TPropertyAttribute> : 
+        IProtoProvider where TPropertyAttribute : Attribute
     {
+
+
         private const string AssemblyName = "BOB.Stuff";
 #if NET45 || NET40
-        private static readonly string SaveFile = $"{AssemblyName}.dll";
+        // ReSharper disable once StaticMemberInGenericType
+        private static readonly String SaveFile = $"{AssemblyName}.dll";
 #endif
 
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
@@ -49,22 +52,29 @@ namespace Das.Serializer.Proto
         private readonly MethodInfo _getStreamLength;
         private readonly MethodInfo _getStreamPosition;
         private readonly MethodInfo _readStreamByte;
+        private readonly MethodInfo _writeStreamByte;
+        private readonly MethodInfo _unsafeStackByte;
         private readonly MethodInfo _readStreamBytes;
         private readonly MethodInfo _getPositiveInt32;
         private readonly MethodInfo _getPositiveInt64;
         private readonly MethodInfo _getColumnIndex;
         private readonly MethodInfo _getInt32;
+        private readonly MethodInfo _getInt64;
         private readonly MethodInfo _bytesToString;
 
         private readonly MethodInfo _bytesToSingle;
         private readonly MethodInfo _bytesToDouble;
         private readonly FieldInfo _utf8;
+        private readonly FieldInfo _outStreamField;
+        private readonly FieldInfo _stackDepthField;
 
         private const MethodAttributes MethodOverride = MethodAttributes.Public |
                                                         MethodAttributes.HideBySig |
                                                         MethodAttributes.Virtual |
                                                         MethodAttributes.CheckAccessOnOverride
                                                         | MethodAttributes.Final;
+
+        private const BindingFlags PublicStatic = BindingFlags.Static | BindingFlags.Public; 
 
         // ReSharper disable once NotAccessedField.Local
         private readonly MethodInfo _debugWriteline;
@@ -81,7 +91,6 @@ namespace Das.Serializer.Proto
             var asmName = new AssemblyName("BOB.Stuff");
             // ReSharper disable once JoinDeclarationAndInitializer
             AssemblyBuilderAccess access;
-            //AssemblyBuilder asmBuilder = null;
 
 
 #if NET45 || NET40
@@ -96,28 +105,31 @@ namespace Das.Serializer.Proto
 
             var writer = typeof(ProtoBufWriter3);
 
-            _writeInt8 = writer.GetMethod(nameof(IProtoWriter.WriteInt8), new[] {typeof(Byte)});
-            _writeInt32 = writer.GetMethod(nameof(IProtoWriter.WriteInt32), new[] {typeof(Int32)});
-            _writeInt64 = writer.GetMethod(nameof(IProtoWriter.WriteInt64), new[] {typeof(Int64)});
-            _writeBytes = writer.GetMethod(nameof(IProtoWriter.Write), new[] {typeof(Byte[])});
-            _writeSomeBytes = writer.GetMethod(nameof(IProtoWriter.Write), new[]
-                {typeof(Byte[]), typeof(Int32)});
+            _writeInt8 = writer.GetMethodOrDie(nameof(IProtoWriter.WriteInt8), typeof(Byte));
+            _writeInt32 = writer.GetMethodOrDie(nameof(IProtoWriter.WriteInt32), typeof(Int32));
+            _writeInt64 = writer.GetMethodOrDie(nameof(IProtoWriter.WriteInt64), typeof(Int64));
+            _writeBytes = writer.GetMethodOrDie(nameof(IProtoWriter.Write), typeof(Byte[]));
+            _writeSomeBytes = writer.GetMethodOrDie(nameof(IProtoWriter.Write), typeof(Byte[]), typeof(Int32));
 
-            _push = writer.GetMethod(nameof(IProtoWriter.Push), Type.EmptyTypes);
-            _pop = writer.GetMethod(nameof(IProtoWriter.Pop), Type.EmptyTypes);
-            _flush = writer.GetMethod(nameof(IProtoWriter.Flush), Type.EmptyTypes);
+            _push = writer.GetMethodOrDie(nameof(IProtoWriter.Push), Type.EmptyTypes);
+            _pop = writer.GetMethodOrDie(nameof(IProtoWriter.Pop), Type.EmptyTypes);
+            _flush = writer.GetMethodOrDie(nameof(IProtoWriter.Flush), Type.EmptyTypes);
 
             _utf8 = typeof(ProtoDynamicBase).GetField("Utf8", BindingFlags.Static |
                 BindingFlags.NonPublic);
+            _outStreamField = typeof(ProtoBufWriter3).GetField("_outStream", BindingFlags.Instance |
+                                                                       BindingFlags.NonPublic);
+            _stackDepthField= typeof(ProtoBufWriter3).GetField("_stackDepth", BindingFlags.Instance |
+                                                                             BindingFlags.NonPublic);
 
-            _getSingleBytes = typeof(BitConverter).GetMethod(nameof(BitConverter.GetBytes),
-                BindingFlags.Static | BindingFlags.Public, null, new[] {typeof(Single)}, null);
+            _getSingleBytes = typeof(BitConverter).GetMethodOrDie(nameof(BitConverter.GetBytes),
+                PublicStatic, typeof(Single));
 
-            _getDoubleBytes = typeof(BitConverter).GetMethod(nameof(BitConverter.GetBytes),
-                BindingFlags.Static | BindingFlags.Public, null, new[] {typeof(Double)}, null);
+            _getDoubleBytes = typeof(BitConverter).GetMethodOrDie(nameof(BitConverter.GetBytes),
+                PublicStatic, typeof(Double));
 
-            _getStringBytes = typeof(UTF8Encoding).GetMethod(nameof(UTF8Encoding.GetBytes),
-                new[] {typeof(String)});
+            _getStringBytes = typeof(UTF8Encoding).GetMethodOrDie(nameof(UTF8Encoding.GetBytes), 
+                typeof(String));
 
             var arrayLengthProp = typeof(Array).GetProperty(nameof(Array.Length))
                                   ?? throw new InvalidOperationException();
@@ -128,55 +140,40 @@ namespace Das.Serializer.Proto
             _getStreamLength = GetOrDie<Stream>(nameof(Stream.Length));
             _getStreamPosition = GetOrDie<Stream>(nameof(Stream.Position));
 
-            _readStreamByte = typeof(Stream).GetMethod(nameof(Stream.ReadByte));
-            _readStreamBytes = typeof(Stream).GetMethod(nameof(Stream.Read));
+            _readStreamByte = typeof(Stream).GetMethodOrDie(nameof(Stream.ReadByte));
+            _readStreamBytes = typeof(Stream).GetMethodOrDie(nameof(Stream.Read));
 
-            _getPositiveInt32 = protoBase.GetMethod(nameof(ProtoDynamicBase.GetPositiveInt32),
-                BindingFlags.Static | BindingFlags.Public);
-            _getPositiveInt64 = protoBase.GetMethod(nameof(ProtoDynamicBase.GetPositiveInt64),
-                BindingFlags.Static | BindingFlags.Public);
-            _getInt32 = protoBase.GetMethod(nameof(ProtoDynamicBase.GetInt32),
-                BindingFlags.Static | BindingFlags.Public);
-            _getColumnIndex = protoBase.GetMethod(nameof(ProtoDynamicBase.GetColumnIndex),
-                BindingFlags.Static | BindingFlags.Public);
+            _writeStreamByte = typeof(Stream).GetMethodOrDie(nameof(Stream.WriteByte));
+            _unsafeStackByte = typeof(ProtoBufWriter3).GetMethodOrDie(
+                "UnsafeStackByte", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            _getPositiveInt32 = protoBase.GetMethodOrDie(nameof(ProtoDynamicBase.GetPositiveInt32),
+                PublicStatic);
+            _getPositiveInt64 = protoBase.GetMethodOrDie(nameof(ProtoDynamicBase.GetPositiveInt64),
+                PublicStatic);
+            _getInt32 = protoBase.GetMethodOrDie(nameof(ProtoDynamicBase.GetInt32),
+                PublicStatic);
+            _getInt64 = protoBase.GetMethodOrDie(nameof(ProtoDynamicBase.GetInt64),
+                PublicStatic);
+            _getColumnIndex = protoBase.GetMethodOrDie(nameof(ProtoDynamicBase.GetColumnIndex),
+                PublicStatic);
              
 
-            _bytesToSingle = typeof(BitConverter).GetMethod(nameof(BitConverter.ToSingle),
-                BindingFlags.Static | BindingFlags.Public, null, new[]
-                {
-                    typeof(Byte[]), typeof(Int32)
-                }, null);
+            _bytesToSingle = typeof(BitConverter).GetMethodOrDie(nameof(BitConverter.ToSingle),
+                PublicStatic, typeof(Byte[]), typeof(Int32));
 
-            _bytesToDouble = typeof(BitConverter).GetMethod(nameof(BitConverter.ToDouble),
-                BindingFlags.Static | BindingFlags.Public, null, new[]
-                {
-                    typeof(Byte[]),
-                    typeof(Int32)
-                }, null);
+            _bytesToDouble = typeof(BitConverter).GetMethodOrDie(nameof(BitConverter.ToDouble),
+                PublicStatic, typeof(Byte[]), typeof(Int32));
 
-            _bytesToString = typeof(Encoding).GetMethod(nameof(Encoding.GetString),
-                new[] {typeof(Byte[]), typeof(Int32), typeof(Int32)});
+            _bytesToString = typeof(Encoding).GetMethodOrDie(nameof(Encoding.GetString), 
+                typeof(Byte[]), typeof(Int32), typeof(Int32));
 
-            _debugWriteline = typeof(ProtoDynamicBase).GetMethod(
+            _debugWriteline = typeof(ProtoDynamicBase).GetMethodOrDie(
                 nameof(ProtoDynamicBase.DebugWriteline));
 
-            // _debugWriteline = typeof(System.Diagnostics.Debug).GetMethod(
-            //     nameof(System.Diagnostics.Debug.WriteLine), 
-            //     BindingFlags.Static | BindingFlags.Public,null, new Type[] { typeof(Object)},null);
         }
 
-        private static MethodInfo GetMethodOrDie(Type classType, String methodName,
-            BindingFlags flags = BindingFlags.Instance | BindingFlags.Public,
-            params Type[] parameters) => parameters.Length > 0
-            ? classType.GetMethod(methodName, flags, null, parameters, null)
-            : classType.GetMethod(methodName, flags)
-              ?? throw new InvalidOperationException();
-
-        private static MethodInfo GetMethodOrDie(Type classType, String methodName,
-            params Type[] parameters) => GetMethodOrDie(classType, methodName,
-            BindingFlags.Instance | BindingFlags.Public, parameters);
-
-        public ProtoDynamicBase<T> GetProtoDynamicObject<T>() where T: class
+        public IProtoProxy<T> GetProtoProxy<T>() where T: class
         {
             var forType = typeof(T);
 
@@ -221,14 +218,14 @@ namespace Das.Serializer.Proto
 
             ////////////////////////////////
 #if NET45 || NET40
-            _asmBuilder.Save("protoTest.dll");
+            //_asmBuilder.Save("protoTest.dll");
 #endif
             ////////////////////////////////
 
 
             
 
-            return (ProtoDynamicBase)Activator.CreateInstance(dynamicType, new Object[]{ ctor});
+            return (ProtoDynamicBase)Activator.CreateInstance(dynamicType, ctor);
         }
 
         private void AddConstructor(TypeBuilder bldr, FieldInfo utfField, Type genericBase)
@@ -261,7 +258,7 @@ namespace Das.Serializer.Proto
             il.Emit(OpCodes.Call, baseCtor);
 
             var getUtf8 = GetOrDie<Encoding>(nameof(Encoding.UTF8),
-                BindingFlags.Static | BindingFlags.Public);                
+                PublicStatic);                
                
             var utf = il.DeclareLocal(typeof(Encoding));
 
@@ -278,8 +275,6 @@ namespace Das.Serializer.Proto
 
             il.Emit(OpCodes.Ret);
         }
-
-      
 
         private static MethodInfo GetOrDie<TTYpe>(String property, BindingFlags flags =
             BindingFlags.Public | BindingFlags.Instance)
@@ -340,7 +335,7 @@ namespace Das.Serializer.Proto
 
                 var pType = prop.PropertyType;
 
-                var wire = ProtoStructure.GetWireType(pType);
+                var wire = ProtoBufSerializer.GetWireType(pType);
                 var index = _protoSettings.GetIndex(attribs[0]);
                
                 var header = (Int32)wire + (index << 3);
@@ -362,17 +357,6 @@ namespace Das.Serializer.Proto
             }
 
             return res;
-        }
-
-        public void Print<TObject>(TObject o)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Stream Stream
-        {
-            get => throw new NotImplementedException();
-            set => throw new NotImplementedException();
         }
     }
 }

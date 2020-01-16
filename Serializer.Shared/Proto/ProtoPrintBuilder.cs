@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using Das.Serializer.ProtoBuf;
+using Das.Extensions;
 
-namespace Das.Serializer.Proto
+namespace Das.Serializer.ProtoBuf
 {
     // ReSharper disable once UnusedType.Global
     // ReSharper disable once UnusedTypeParameter
@@ -26,18 +26,16 @@ namespace Das.Serializer.Proto
 
             var fieldByteArray = il.DeclareLocal(typeof(Byte[]));
 
-
-            var doubleBytes = il.DeclareLocal(typeof(Double));
-            var singleBytes = il.DeclareLocal(typeof(Single));
-
             var localBytes = il.DeclareLocal(typeof(Byte[]));
 
             LocalBuilder localString = null;
 
             var isArrayMade = false;
+            var isPushed = false;
 
             AddFieldsToPrintMethod(il, ref isArrayMade, ref localString, fieldByteArray,
-                ref localBytes, fields, parentType, utfField, ilg => ilg.Emit(OpCodes.Ldarg_1));
+                ref localBytes, fields, parentType, utfField, ilg => ilg.Emit(OpCodes.Ldarg_1),
+                ref isPushed);
 
             il.Emit(OpCodes.Ldarg_0);
             il.Emit(OpCodes.Callvirt, _flush);
@@ -48,12 +46,13 @@ namespace Das.Serializer.Proto
         }
 
         private void PrintHeaderBytes(Byte[] headerBytes, ILGenerator il,
-            ref Boolean isArrayMade, LocalBuilder fieldByteArray)
+            ref Boolean isArrayMade, LocalBuilder fieldByteArray,
+            Boolean? isPushed)
         {
-            il.Emit(OpCodes.Ldarg_0);
-
             if (headerBytes.Length > 1)
             {
+                il.Emit(OpCodes.Ldarg_0);
+
                 if (!isArrayMade)
                 {
                     il.Emit(OpCodes.Ldc_I4_3);
@@ -81,31 +80,71 @@ namespace Das.Serializer.Proto
             }
             else
             {
-                il.Emit(OpCodes.Ldc_I4_S, headerBytes[0]);
-                il.Emit(OpCodes.Callvirt, _writeInt8);
+                PrintConstByte(headerBytes[0], il, isPushed);
             }
         }
 
-        private void PrintCollectionProperty(IProtoField pv, ILGenerator il,
-            Action<ILGenerator> loadObject, Byte[] headerBytes,
-            ref Boolean isArrayMade, LocalBuilder fieldByteArray, MethodInfo getMethod,
-            ref LocalBuilder localBytes,ref LocalBuilder localString, FieldInfo utfField)
+        private void PrintConstByte(Byte constVal, ILGenerator il, Boolean? isPushed)
         {
-            var getEnumeratorMethod = GetMethodOrDie(pv.Type, nameof(IEnumerable.GetEnumerator));
-            var enumeratorDisposeMethod = getEnumeratorMethod.ReturnType.GetMethod(nameof(IDisposable.Dispose));
+            var hasStackDepth = il.DefineLabel();
+            var noStackDepth = il.DefineLabel();
+            var endOfPrintConst = il.DefineLabel();
 
-            var enumeratorMoveNext = GetMethodOrDie(typeof(IEnumerator),
+            switch (isPushed)
+            {
+                case false:
+                    goto notPushed;
+                case true:
+                    goto yesPushed;
+                case null:
+                    il.Emit(OpCodes.Ldarg_0);
+                    il.Emit(OpCodes.Ldfld, _stackDepthField);
+                    il.Emit(OpCodes.Brtrue, hasStackDepth);
+
+                    il.Emit(OpCodes.Br, noStackDepth);
+
+                    break;
+            }
+
+            yesPushed:
+            il.MarkLabel(hasStackDepth);
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Ldc_I4_S, constVal);
+            il.Emit(OpCodes.Call, _unsafeStackByte);
+
+            il.Emit(OpCodes.Br, endOfPrintConst);
+
+            notPushed:
+            il.MarkLabel(noStackDepth);
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Ldfld, _outStreamField);
+            il.Emit(OpCodes.Ldc_I4_S, constVal);
+            il.Emit(OpCodes.Callvirt, _writeStreamByte);
+
+            il.MarkLabel(endOfPrintConst);
+        }
+
+        private void PrintCollectionProperty(IProtoField pv, ILGenerator il, Byte[] headerBytes,
+            ref Boolean isArrayMade, LocalBuilder fieldByteArray, MethodInfo getMethod,
+            ref LocalBuilder localBytes,ref LocalBuilder localString, FieldInfo utfField, 
+            ref Boolean hasPushed)
+        {
+            var getEnumeratorMethod = pv.Type.GetMethodOrDie(nameof(IEnumerable.GetEnumerator));
+            var enumeratorDisposeMethod = getEnumeratorMethod.ReturnType.GetMethod(
+                nameof(IDisposable.Dispose));
+
+            var enumeratorMoveNext = typeof(IEnumerator).GetMethodOrDie(
                 nameof(IEnumerator.MoveNext));
 
             var isExplicit = enumeratorDisposeMethod == null;
             if (isExplicit)
             {
-                enumeratorDisposeMethod = GetMethodOrDie(typeof(IDisposable),
+                enumeratorDisposeMethod = typeof(IDisposable).GetMethodOrDie(
                     nameof(IDisposable.Dispose));
             }
             else
             {
-                enumeratorMoveNext = getEnumeratorMethod.ReturnType.GetMethod(
+                enumeratorMoveNext = getEnumeratorMethod.ReturnType.GetMethodOrDie(
                     nameof(IEnumerator.MoveNext));
             }
 
@@ -146,7 +185,7 @@ namespace Das.Serializer.Proto
                 /////////////////////////////////////
                 // PRINT FIELD'S HEADER
                 /////////////////////////////////////
-                PrintHeaderBytes(headerBytes, il, ref isArrayMade, fieldByteArray);
+                PrintHeaderBytes(headerBytes, il, ref isArrayMade, fieldByteArray, null);
 
                 if (enumeratorType.IsValueType)
                     il.Emit(OpCodes.Ldloca, enumeratorLocal);
@@ -159,54 +198,40 @@ namespace Das.Serializer.Proto
                 il.Emit(OpCodes.Ldarg_0);
                 il.Emit(OpCodes.Callvirt, _push);
                 il.Emit(OpCodes.Pop);
+                hasPushed = true;
                 /////////////
 
                 if (typeof(IDictionary).IsAssignableFrom(pv.Type))
                 {
-                    var gargs = pv.Type.GetGenericArguments();
-                    var keyType = gargs[0];
-                    var valueType = gargs[1];
-
-                    var keyWireType = ProtoStructure.GetWireType(keyType);
-                    var keyHeader = (Int32) keyWireType + (1 << 3);
-
-                    var keyGetter = GetOrDie(enumeratorCurrentValue.LocalType,
-                        nameof(KeyValuePair<Object, Object>.Key));
-
-
-                    var valueWireType = ProtoStructure.GetWireType(valueType);
-                    var valueHeader = (Int32) valueWireType + (1 << 3);
-
-                    var valueGetter = GetOrDie(enumeratorCurrentValue.LocalType,
-                        nameof(KeyValuePair<Object, Object>.Value));
+                    var info = new ProtoDictionaryInfo(pv.Type, _types);
 
                     /////////////////////////////////////
                     // PRINT KEY'S HEADER / KEY'S VALUE
                     /////////////////////////////////////
                     il.Emit(OpCodes.Ldarg_0);
-                    il.Emit(OpCodes.Ldc_I4, keyHeader);
+                    il.Emit(OpCodes.Ldc_I4, info.KeyHeader);
                     il.Emit(OpCodes.Callvirt, _writeInt32);
 
                     AddGettableValueToPrintMethod(il, ref isArrayMade, fieldByteArray,
                         ref localBytes,
                         ilg => ilg.Emit(OpCodes.Ldloca, enumeratorCurrentValue),
                         ref localString, utfField,
-                        Type.GetTypeCode(keyType), keyWireType, keyType, keyGetter);
+                        Type.GetTypeCode(info.KeyType), info.KeyWireType, info.KeyType, 
+                        info.KeyGetter, ref hasPushed);
 
                     /////////////////////////////////////
                     // PRINT VALUE'S HEADER / VALUE'S VALUE
                     /////////////////////////////////////
                     il.Emit(OpCodes.Ldarg_0);
-                    il.Emit(OpCodes.Ldc_I4, valueHeader);
+                    il.Emit(OpCodes.Ldc_I4, info.ValueHeader);
                     il.Emit(OpCodes.Callvirt, _writeInt32);
 
                     AddGettableValueToPrintMethod(il, ref isArrayMade, fieldByteArray,
                         ref localBytes,
                         ilg => ilg.Emit(OpCodes.Ldloca, enumeratorCurrentValue),
                         ref localString, utfField,
-                        Type.GetTypeCode(valueType), valueWireType, valueType, valueGetter);
-
-
+                        Type.GetTypeCode(info.ValueType), info.ValueWireType, 
+                        info.ValueType, info.ValueGetter, ref hasPushed);
                 }
                 else
                 {
@@ -241,19 +266,21 @@ namespace Das.Serializer.Proto
         private void AddFieldsToPrintMethod(ILGenerator il, ref Boolean isArrayMade,
             ref LocalBuilder localString,
             LocalBuilder fieldByteArray, ref LocalBuilder localBytes,
-            IEnumerable<IProtoField> fields,
-            Type parentType, FieldInfo utfField, Action<ILGenerator> loadObject)
+            IEnumerable<IProtoField> fields, Type parentType, 
+            FieldInfo utfField, Action<ILGenerator> loadObject,
+            ref Boolean hasPushed)
         {
             foreach (var pv in fields)
             {
                 AddFieldToPrintMethod(il, parentType, pv, ref isArrayMade, fieldByteArray,
-                    ref localBytes, loadObject, ref localString, utfField);
+                    ref localBytes, loadObject, ref localString, utfField, ref hasPushed);
             }
         }
 
         private void AddFieldToPrintMethod(ILGenerator il, Type parentType, IProtoField pv,
             ref Boolean isArrayMade, LocalBuilder fieldByteArray, ref LocalBuilder localBytes,
-            Action<ILGenerator> loadObject, ref LocalBuilder localString, FieldInfo utfField)
+            Action<ILGenerator> loadObject, ref LocalBuilder localString, FieldInfo utfField,
+            ref Boolean hasPushed)
         {
             var pvProp = parentType.GetProperty(pv.Name) ?? throw new InvalidOperationException();
             var getMethod = pvProp.GetGetMethod();
@@ -262,16 +289,17 @@ namespace Das.Serializer.Proto
 
             if (!_types.IsCollection(pv.Type) || pv.Type == Const.ByteArrayType)
             {
-                PrintHeaderBytes(headerBytes, il, ref isArrayMade, fieldByteArray);
+                PrintHeaderBytes(headerBytes, il, ref isArrayMade, fieldByteArray, hasPushed);
 
                 AddGettableValueToPrintMethod(il, ref isArrayMade, fieldByteArray, ref localBytes,
                     loadObject, ref localString, utfField, pv.TypeCode, pv.WireType,
-                    pv.Type, getMethod);
+                    pv.Type, getMethod, ref hasPushed);
             }
             else
             {
-                PrintCollectionProperty(pv, il, loadObject, headerBytes, ref isArrayMade,
-                    fieldByteArray, getMethod, ref localBytes, ref localString, utfField);
+                PrintCollectionProperty(pv, il, headerBytes, ref isArrayMade,
+                    fieldByteArray, getMethod, ref localBytes, ref localString, utfField,
+                    ref hasPushed);
 
             }
         }
@@ -279,7 +307,8 @@ namespace Das.Serializer.Proto
         private void AddGettableValueToPrintMethod(ILGenerator il,
             ref Boolean isArrayMade, LocalBuilder fieldByteArray, ref LocalBuilder localBytes,
             Action<ILGenerator> loadObject, ref LocalBuilder localString, FieldInfo utfField,
-            TypeCode code, ProtoWireTypes wireType, Type type, MethodInfo getMethod)
+            TypeCode code, ProtoWireTypes wireType, Type type, MethodInfo getMethod, 
+            ref Boolean hasPushed)
         {
             il.Emit(OpCodes.Ldarg_0);
             loadObject(il);
@@ -326,7 +355,7 @@ namespace Das.Serializer.Proto
                             throw new NotImplementedException();
                             // if (!Print(pv.Value, code))
                             //     throw new InvalidOperationException();
-                            break;
+                            
                     }
 
                     break;
@@ -347,12 +376,9 @@ namespace Das.Serializer.Proto
                             il.Emit(OpCodes.Ldfld, utfField);
                             il.Emit(OpCodes.Ldloc, localString);
 
-
-                            //bytes = _utf8.GetBytes(s);
                             il.Emit(OpCodes.Callvirt, _getStringBytes);
                             il.Emit(OpCodes.Stloc, localBytes);
 
-                            //WriteInt32(bytes.Length);
                             il.Emit(OpCodes.Ldloc, localBytes);
                             il.Emit(OpCodes.Call, _getArrayLength);
                             il.Emit(OpCodes.Call, _writeInt32);
@@ -384,31 +410,26 @@ namespace Das.Serializer.Proto
                             }
 
                             var localForPropVal = il.DeclareLocal(type);
-                            //
+                            
                             il.Emit(OpCodes.Call, getMethod);
                             il.Emit(OpCodes.Stloc, localForPropVal);
 
-                            //
                             var subFields = GetProtoFields(type);
 
+                            hasPushed = true;
                             il.Emit(OpCodes.Callvirt, _push);
                             il.Emit(OpCodes.Pop);
 
                             AddFieldsToPrintMethod(il, ref isArrayMade, ref localString,
                                 fieldByteArray, ref localBytes, subFields, type, utfField,
-                                ilg => ilg.Emit(OpCodes.Ldloc, localForPropVal));
+                                ilg => ilg.Emit(OpCodes.Ldloc, localForPropVal),
+                                ref hasPushed);
 
                             il.Emit(OpCodes.Ldarg_0);
                             il.Emit(OpCodes.Callvirt, _pop);
 
                             il.Emit(OpCodes.Pop);
 
-
-                            //nested object - have to stack bytes till we know the
-                            //total length
-                            // properyValues = properyValues.Push();
-                            // if (!repeated)
-                            //     _bWriter = _writer.Push();
 
                             break;
                     }

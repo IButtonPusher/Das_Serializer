@@ -6,9 +6,6 @@ namespace Das.Serializer
     {
         IBinaryLoaner BorrowBinary(ISerializerSettings settings);
 
-        IBinaryLoaner BorrowProto<T>(ISerializerSettings settings, ProtoBufOptions<T> options)
-            where T : Attribute;
-
         IXmlLoaner BorrowXml(ISerializerSettings settings);
 
         IJsonLoaner BorrowJson(ISerializerSettings settings);

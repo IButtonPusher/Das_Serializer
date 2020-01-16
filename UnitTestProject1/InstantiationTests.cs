@@ -1,5 +1,6 @@
 ﻿using System;
 using Das;
+using Das.Serializer;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Serializer.Tests

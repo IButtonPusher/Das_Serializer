@@ -5,8 +5,10 @@ namespace Das.Serializer
 {
     public interface IProtoSerializer
     {
-        void ToProtoStream<TObject>(Stream stream, TObject o);
+        void ToProtoStream<TObject>(Stream stream, TObject o) 
+            where TObject : class;
 
-        TObject FromProtoStream<TObject>(Stream stream);
+        TObject FromProtoStream<TObject>(Stream stream)
+            where TObject : class;
     }
 }
