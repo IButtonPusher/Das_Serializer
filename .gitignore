@@ -46,3 +46,5 @@
 /Serializer.Benchmarks/obj/Release
 /Serializer.Benchmarks/obj
 *.manifest
+/Das.Serializer.Split/obj
+/Serializer.Core/bin/Release

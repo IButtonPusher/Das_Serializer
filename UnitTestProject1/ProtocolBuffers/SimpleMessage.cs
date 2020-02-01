@@ -131,4 +131,27 @@ namespace Serializer.Tests.ProtocolBuffers
             };
     }
 
+    [ProtoContract]
+    public class CollectionsPropertyMessage
+    {
+        [ProtoMember(1)] public List<String> List1 { get; set; }
+
+        [ProtoMember(2)] public Int32[] Array1 { get; set; }
+
+
+        public static CollectionsPropertyMessage DefaultValue { get; } =
+            new CollectionsPropertyMessage
+            {
+                List1 = new List<String>
+                {
+                    "hello",
+                    "world"
+                },
+                Array1 = new[]
+                {
+                    Int32.MaxValue, 734, 54354
+                }
+            };
+    }
+
 }

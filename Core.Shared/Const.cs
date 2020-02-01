@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Das.Serializer
 {
-    internal static class Const
+    public static class Const
     {
         public static readonly Type StrType = typeof(String);
         public static Type DbNull = typeof(DBNull);

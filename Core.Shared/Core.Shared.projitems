@@ -42,6 +42,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)PropertyValueIterator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\CoreProtoProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\ProtoBufSerializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\ProtoCollectionItem.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\ProtoDictionaryInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\ProtoScanningField.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\ByteBuilder.cs" />
@@ -92,9 +93,5 @@
     <Compile Include="$(MSBuildThisFileDirectory)Util.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xml\DeserializeXml.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xml\SerializeXml.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="$(MSBuildThisFileDirectory)Printers\cdPrinting.cd" />
-    <None Include="$(MSBuildThisFileDirectory)Scanners\cdScanning.cd" />
   </ItemGroup>
 </Project>

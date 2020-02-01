@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using BenchmarkDotNet.Attributes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -198,6 +199,70 @@ namespace Serializer.Tests.ProtocolBuffers
             }
         }
 
+        [Benchmark]
+        public CollectionsPropertyMessage DasCollections()
+        {
+            var mc1 = CollectionsPropertyMessage.DefaultValue;
+
+            var o = TypeProvider.GetProtoProxy<CollectionsPropertyMessage>();
+
+            var lol = new Serializer_Tests_ProtocolBuffers_CollectionsPropertyMessage(
+                () => new CollectionsPropertyMessage());
+
+            using (var ms = new MemoryStream())
+            {
+               
+                o.OutStream = ms;
+                o.Print(mc1);
+                Debug.WriteLine("DAS\r\n-----------------------------------");
+                PrintMemoryStream(ms);
+                ms.Position = 0;
+                return o.Scan(ms);
+            }
+        }
+
+        [Benchmark]
+        public CollectionsPropertyMessage ProtoCollections()
+        {
+            var mc1 = CollectionsPropertyMessage.DefaultValue;
+
+            using (var ms = new MemoryStream())
+            {
+                ProtoBuf.Serializer.Serialize(ms, mc1);
+                
+                ms.Position = 0;
+                return ProtoBuf.Serializer.Deserialize<CollectionsPropertyMessage>(ms);
+            }
+        }
+
+        private static void PrintMemoryStream(MemoryStream ms)
+        {
+            var arr = ms.ToArray();
+            for (var c = 0; c < arr.Length; c++)
+                Debug.WriteLine(arr[c]);
+        }
+
+        [TestMethod]
+        public void CollectionsTest()
+        {
+            var fromNet = ProtoCollections();
+            
+            var fromDas = DasCollections();
+            var fromDas2 = DasCollections();
+            var fromDas3 = DasCollections();
+            var fromDas4 = DasCollections();
+            var fromDas5 = DasCollections();
+            var fromDas6 = DasCollections();
+
+            var equal = SlowEquality.AreEqual(fromDas, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas2, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas3, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas4, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas5, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas6, fromNet);
+            Assert.IsTrue(equal);
+        }
+
         [TestMethod]
         public void DictionaryTest()
         {
@@ -364,32 +429,11 @@ namespace Serializer.Tests.ProtocolBuffers
             {
                 ProtoBuf.Serializer.Serialize(ms, msg);
                 ms.Position = 0;
-               
-                //var arr = ms.ToArray();
-                // for (var c = 0; c < arr.Length; c++)
-                // {
-                //     Debug.WriteLine(arr[c]);
-                // }
-                //
-                // Debug.WriteLine("***********************");
+
 
                 return ProtoBuf.Serializer.Deserialize<ComposedMessage>(ms);
             }
         }
-
-        // private T TestPrintAndScan<T>(T msg) where T : class
-        // {
-        //     var o = TypeProvider.GetProtoDynamicObject<T>();
-        //
-        //     using (var ms = new MemoryStream())
-        //     {
-        //         o.OutStream = ms;
-        //         o.Print(msg);
-        //         ms.Position = 0;
-        //         return o.Scan(ms);
-        //         //return ProtoSerializer.FromProtoStream<T>(ms);
-        //     }
-        // }
 
         [TestMethod]
         public void ComposedTest()

@@ -62,10 +62,9 @@ namespace Das.Serializer.ProtoBuf
         private readonly MethodInfo _bytesToSingle;
         private readonly MethodInfo _bytesToDouble;
         private readonly FieldInfo _utf8;
+        private readonly FieldInfo _readBytes;
         private readonly FieldInfo _outStreamField;
         private readonly FieldInfo _stackDepthField;
-
-        
 
         private const MethodAttributes MethodOverride = MethodAttributes.Public |
                                                         MethodAttributes.HideBySig |
@@ -174,6 +173,9 @@ namespace Das.Serializer.ProtoBuf
             _debugWriteline = typeof(ProtoDynamicBase).GetMethodOrDie(
                 nameof(ProtoDynamicBase.DebugWriteline));
 
+            _readBytes = typeof(ProtoDynamicBase).GetField(nameof(_readBytes), NonPublicStatic)
+                         ?? throw new InvalidOperationException();
+
         }
 
         public IProtoProxy<T> GetProtoProxy<T>() where T: class
@@ -208,8 +210,6 @@ namespace Das.Serializer.ProtoBuf
 
             AddConstructor(bldr, utf, genericParent);
 
-            
-
             AddPrintMethod(type, bldr, genericParent, utf, fields);
             AddScanMethod(type, bldr, genericParent, fields);
             
@@ -221,7 +221,7 @@ namespace Das.Serializer.ProtoBuf
 
             ////////////////////////////////
 #if NET45 || NET40
-            //_asmBuilder.Save("protoTest.dll");
+            _asmBuilder.Save("protoTest.dll");
 #endif
             ////////////////////////////////
 
@@ -337,8 +337,15 @@ namespace Das.Serializer.ProtoBuf
 
                 var pType = prop.PropertyType;
 
-                var wire = ProtoBufSerializer.GetWireType(pType);
+                var isCollection = _types.IsCollection(pType);
                 var index = _protoSettings.GetIndex(attribs[0]);
+
+               
+                var wire = ProtoBufSerializer.GetWireType(
+                    pType);
+                // var wire = ProtoBufSerializer.GetWireType(
+                //     isCollection ? _types.GetGermaneType(pType) : pType);
+                    
                
                 var header = (Int32)wire + (index << 3);
                 var tc = Type.GetTypeCode(pType);
@@ -347,7 +354,7 @@ namespace Das.Serializer.ProtoBuf
                                          && pType != Const.StrType 
                                          && pType != Const.ByteArrayType;
 
-                var isCollection = isValidLengthDelim && _types.IsCollection(pType);
+                //isCollection = isValidLengthDelim && _types.IsCollection(pType);
 
                 var getter = _types.CreatePropertyGetter(type, prop);
 

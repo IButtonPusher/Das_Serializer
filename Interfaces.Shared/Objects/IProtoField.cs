@@ -3,7 +3,7 @@ using Das.Serializer.ProtoBuf;
 
 namespace Das.Serializer
 {
-    public interface IProtoField : INamedField
+    public interface IProtoField : INamedField, IEquatable<IProtoField>
     {
         ProtoWireTypes WireType { get; }
 

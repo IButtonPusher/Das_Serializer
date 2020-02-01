@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
+using System.Threading;
 using Das.Serializer;
 
 // ReSharper disable UnusedMember.Global
@@ -12,12 +13,19 @@ namespace Serializer
     {
         private readonly CultureInfo _enUs;
         private readonly String[] _splitTokens = {"\r\n", "\r", "\n"};
-      
+
+        private static readonly ThreadLocal<StringBuilder> _stringBuilder;
+
 
         public CoreTextParser()
         {
             _enUs = new CultureInfo("en-US");
            
+        }
+
+        static CoreTextParser()
+        {
+            _stringBuilder = new ThreadLocal<StringBuilder>(() => new StringBuilder());
         }
 
 
@@ -566,5 +574,54 @@ namespace Serializer
 
         public String[] GetLines(String str) =>
             str.Split(_splitTokens, StringSplitOptions.RemoveEmptyEntries);
+
+        public String BuildString<T1, T2, T3, T4>(T1 item1, T2 item2, T3 item3, T4 item4)
+        {
+            var sb = _stringBuilder.Value;
+            sb.Clear();
+            sb.Append(item1);
+            sb.Append(item2);
+            sb.Append(item3);
+            sb.Append(item4);
+
+            return sb.ToString();
+        }
+
+        public String BuildString<T1, T2, T3, T4, T5>(T1 item1, 
+            T2 item2, T3 item3, T4 item4, T5 item5)
+        {
+            var sb = _stringBuilder.Value;
+            sb.Clear();
+            sb.Append(item1);
+            sb.Append(item2);
+            sb.Append(item3);
+            sb.Append(item4);
+            sb.Append(item5);
+
+            return sb.ToString();
+        }
+
+        public String BuildString<T1, T2, T3, T4, T5, T6>(T1 item1, T2 item2, 
+            T3 item3, T4 item4, T5 item5, T6 item6)
+        {
+            var sb = _stringBuilder.Value;
+            sb.Clear();
+            sb.Append(item1);
+            sb.Append(item2);
+            sb.Append(item3);
+            sb.Append(item4);
+            sb.Append(item5);
+            sb.Append(item6);
+
+            return sb.ToString();
+        }
+
+        public StringBuilder GetThreadsStringBuilder(String initial)
+        {
+            var sb = _stringBuilder.Value;
+            sb.Clear();
+            sb.Append(initial);
+            return sb;
+        }
     }
 }

@@ -197,7 +197,13 @@ namespace Das.Extensions
 
         public static MethodInfo GetMethodOrDie(this Type classType, String methodName)
             => classType.GetMethod(methodName) ?? 
-               throw new InvalidOperationException(classType.Name + "->" + methodName);
+               throw new MissingMethodException(classType.Name, methodName);
+
+        public static ConstructorInfo GetDefaultConstructorOrDie(this Type classType)
+            => classType.GetConstructor(BindingFlags.Instance | BindingFlags.Public
+                                                              | BindingFlags.NonPublic,
+                   null, Type.EmptyTypes, null) ?? throw new MissingMethodException(
+                   classType.FullName, "ctor");
 
 
         public static MethodInfo GetMethodOrDie(this Type classType, String methodName,

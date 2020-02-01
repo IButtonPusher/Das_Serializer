@@ -154,6 +154,7 @@ namespace Das.Serializer
         Boolean ITypeCore.IsLeaf(Type t, Boolean isStringCounts) 
             => Leaves.GetOrAdd(t, l => AmIALeaf(l, isStringCounts));
 
+        // ReSharper disable once InconsistentNaming
         private static Boolean AmIALeaf(Type t, Boolean isStringCounts) 
             => (t.IsValueType || isStringCounts &&
             t == Const.StrType)
@@ -266,6 +267,10 @@ namespace Das.Serializer
             foreach (var prop in res)
                 yield return prop;
         }
+
+        public PropertyInfo FindPublicProperty(Type type, String propertyName)
+            => GetPublicProperties(type, false).
+                FirstOrDefault(p => p.Name == propertyName);
         
         public Boolean TryGetPropertiesConstructor(Type type, out ConstructorInfo constr)
         {

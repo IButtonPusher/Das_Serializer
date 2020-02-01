@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Das.Serializer.ProtoBuf;
+using System;
 using System.IO;
 using System.Threading.Tasks;
-using Das.Serializer.ProtoBuf;
 
 namespace Das.Serializer
 {

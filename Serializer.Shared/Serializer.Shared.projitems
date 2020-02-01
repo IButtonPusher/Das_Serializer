@@ -13,6 +13,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)DynamicExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DynamicFacade.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoArrayInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoDynamicBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoPrintBuilder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoScanBuilder.cs" />

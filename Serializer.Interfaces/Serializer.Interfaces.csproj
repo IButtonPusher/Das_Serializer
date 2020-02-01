@@ -9,6 +9,13 @@
     <DelaySign>false</DelaySign>
     <AssemblyOriginatorKeyFile>InterfacesArmstrong.snk</AssemblyOriginatorKeyFile>
 	<SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
+	<Version>0.0.1-alpha</Version>
+	<Description>Loose coupling - no unsafe code</Description>
+	<PackageId>Das.Serializer.Interfaces</PackageId>
+	<Authors>Claus Trappberger</Authors>
+	<Company />
+	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	<PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

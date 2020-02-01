@@ -129,6 +129,74 @@ namespace Das.Serializer.ProtoBuf
             ref LocalBuilder localBytes,ref LocalBuilder localString, FieldInfo utfField, 
             ref Boolean hasPushed)
         {
+            if (pv.Type.IsArray)
+            {
+                var germane = _types.GetGermaneType(pv.Type);
+                var arr = il.DeclareLocal(pv.Type);
+                var info = new ProtoCollectionItem(pv.Type, _types, pv.Index);
+
+                il.Emit(OpCodes.Ldarg_1);
+                il.Emit(OpCodes.Callvirt, getMethod);
+                il.Emit(OpCodes.Stloc, arr);
+
+
+
+                var getLength = pv.Type.GetterOrDie(nameof(Array.Length));
+                var arrLength = il.DeclareLocal(typeof(Int32));
+                il.Emit(OpCodes.Ldloc, arr);
+                il.Emit(OpCodes.Call, getLength);
+                il.Emit(OpCodes.Stloc, arrLength);
+
+
+                var i = il.DeclareLocal(typeof(Int32));
+                var current = il.DeclareLocal(germane);
+                //
+                var endOfLoop = il.DefineLabel();
+                var nextLoop = il.DefineLabel();
+                //
+                il.Emit(OpCodes.Ldc_I4_0);
+                il.Emit(OpCodes.Stloc, i);
+                //
+
+                //
+                il.MarkLabel(nextLoop);
+                il.Emit(OpCodes.Ldloc, i);
+                il.Emit(OpCodes.Ldloc, arrLength);
+                il.Emit(OpCodes.Bge, endOfLoop);
+                //
+                // ///////////////////////
+                //
+                il.Emit(OpCodes.Ldloc, arr);
+                il.Emit(OpCodes.Ldloc, i);
+                il.Emit(OpCodes.Ldelem, germane);
+                il.Emit(OpCodes.Stloc, current);
+                //
+                
+                PrintHeaderBytes(headerBytes, il, ref isArrayMade, fieldByteArray, null);
+                
+                AddObtainableValueToPrintMethod(il, ref isArrayMade, fieldByteArray,
+                    ref localBytes,
+                    ref localString, utfField,
+                    info.TypeCode, info.WireType, info.Type,
+                    ilg => ilg.Emit(OpCodes.Ldloc, current),
+                    ilg => ilg.Emit(OpCodes.Ldloc, current),
+                    ref hasPushed);
+
+                // ///////////////////////
+                //
+                //
+                il.Emit(OpCodes.Ldloc, i);
+                il.Emit(OpCodes.Ldc_I4_1);
+                il.Emit(OpCodes.Add);
+                il.Emit(OpCodes.Stloc, i);
+                il.Emit(OpCodes.Br, nextLoop);
+                //
+                il.MarkLabel(endOfLoop);
+
+                return;
+            }
+
+
             var getEnumeratorMethod = pv.Type.GetMethodOrDie(nameof(IEnumerable.GetEnumerator));
             var enumeratorDisposeMethod = getEnumeratorMethod.ReturnType.GetMethod(
                 nameof(IDisposable.Dispose));
@@ -137,7 +205,7 @@ namespace Das.Serializer.ProtoBuf
                 nameof(IEnumerator.MoveNext));
 
             var isExplicit = enumeratorDisposeMethod == null;
-            if (isExplicit)
+            if (isExplicit && typeof(IDisposable).IsAssignableFrom(getEnumeratorMethod.ReturnType))
             {
                 enumeratorDisposeMethod = typeof(IDisposable).GetMethodOrDie(
                     nameof(IDisposable.Dispose));
@@ -166,7 +234,8 @@ namespace Das.Serializer.ProtoBuf
             /////////////////////////////////////
             // TRY
             /////////////////////////////////////
-            il.BeginExceptionBlock();
+            if (enumeratorDisposeMethod != null)
+                il.BeginExceptionBlock();
             {
                 var tryNext = il.DefineLabel();
                 il.MarkLabel(tryNext);
@@ -195,14 +264,17 @@ namespace Das.Serializer.ProtoBuf
 
                 il.Emit(OpCodes.Stloc, enumeratorCurrentValue);
 
-                il.Emit(OpCodes.Ldarg_0);
-                il.Emit(OpCodes.Callvirt, _push);
-                il.Emit(OpCodes.Pop);
-                hasPushed = true;
                 /////////////
+
+                var shallPush = true;
 
                 if (typeof(IDictionary).IsAssignableFrom(pv.Type))
                 {
+                    il.Emit(OpCodes.Ldarg_0);
+                    il.Emit(OpCodes.Callvirt, _push);
+                    il.Emit(OpCodes.Pop);
+                    hasPushed = true;
+
                     var info = new ProtoDictionaryInfo(pv.Type, _types);
 
                     /////////////////////////////////////
@@ -235,19 +307,47 @@ namespace Das.Serializer.ProtoBuf
                 }
                 else
                 {
+                    var info = new ProtoCollectionItem(pv.Type, _types, pv.Index);
+                    shallPush = info.WireType == ProtoWireTypes.LengthDelimited && 
+                        Const.StrType != info.Type;
 
+                    if (shallPush)
+                    {
+                        il.Emit(OpCodes.Ldarg_0);
+                        il.Emit(OpCodes.Callvirt, _push);
+                        il.Emit(OpCodes.Pop);
+                        hasPushed = true;
+
+                        il.Emit(OpCodes.Ldarg_0);
+                        il.Emit(OpCodes.Ldc_I4, info.Header);
+                        il.Emit(OpCodes.Callvirt, _writeInt32);
+                    }
+
+                    AddObtainableValueToPrintMethod(il, ref isArrayMade, fieldByteArray,
+                        ref localBytes,
+                        ref localString, utfField,
+                        info.TypeCode, info.WireType, info.Type, 
+                        ilg => ilg.Emit(OpCodes.Ldloc, enumeratorCurrentValue),
+                        ilg => ilg.Emit(OpCodes.Ldloca, enumeratorCurrentValue),
+                        ref hasPushed);
                 }
 
                 /////////////
 
-                il.Emit(OpCodes.Ldarg_0);
-                il.Emit(OpCodes.Callvirt, _pop);
-                il.Emit(OpCodes.Pop);
+                if (shallPush)
+                {
+                    il.Emit(OpCodes.Ldarg_0);
+                    il.Emit(OpCodes.Callvirt, _pop);
+                    il.Emit(OpCodes.Pop);
+                }
 
                 il.Emit(OpCodes.Br, tryNext);
 
                 il.MarkLabel(allDone);
             }
+
+            if (enumeratorDisposeMethod == null)
+                return;
 
             /////////////////////////////////////
             // FINALLY
@@ -412,6 +512,144 @@ namespace Das.Serializer.ProtoBuf
                             var localForPropVal = il.DeclareLocal(type);
                             
                             il.Emit(OpCodes.Call, getMethod);
+                            il.Emit(OpCodes.Stloc, localForPropVal);
+
+                            var subFields = GetProtoFields(type);
+
+                            hasPushed = true;
+                            il.Emit(OpCodes.Callvirt, _push);
+                            il.Emit(OpCodes.Pop);
+
+                            AddFieldsToPrintMethod(il, ref isArrayMade, ref localString,
+                                fieldByteArray, ref localBytes, subFields, type, utfField,
+                                ilg => ilg.Emit(OpCodes.Ldloc, localForPropVal),
+                                ref hasPushed);
+
+                            il.Emit(OpCodes.Ldarg_0);
+                            il.Emit(OpCodes.Callvirt, _pop);
+
+                            il.Emit(OpCodes.Pop);
+
+
+                            break;
+                    }
+
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+
+         private void AddObtainableValueToPrintMethod(ILGenerator il,
+            ref Boolean isArrayMade, LocalBuilder fieldByteArray, ref LocalBuilder localBytes,
+            ref LocalBuilder localString, FieldInfo utfField,
+            TypeCode code, ProtoWireTypes wireType, Type type, 
+            Action<ILGenerator> loadValue, Action<ILGenerator> loadObject,
+            ref Boolean hasPushed)
+        {
+             il.Emit(OpCodes.Ldarg_0);
+            // loadObject(il);
+
+            switch (wireType)
+            {
+                case ProtoWireTypes.Varint:
+                case ProtoWireTypes.Int64:
+                case ProtoWireTypes.Int32:
+                    switch (code)
+                    {
+                        case TypeCode.Int32:
+                            loadValue(il);
+                            il.Emit(OpCodes.Callvirt, _writeInt32);
+
+                            break;
+                        case TypeCode.Int64:
+                            loadValue(il);
+                            il.Emit(OpCodes.Callvirt, _writeInt64);
+                            break;
+                        case TypeCode.Single:
+
+                            loadValue(il);
+                            il.Emit(OpCodes.Call, _getSingleBytes);
+                            il.Emit(OpCodes.Callvirt, _writeBytes);
+
+                            break;
+                        case TypeCode.Double:
+                            loadValue(il);
+                            il.Emit(OpCodes.Call, _getDoubleBytes);
+                            il.Emit(OpCodes.Callvirt, _writeBytes);
+                            break;
+                        case TypeCode.Decimal:
+                            loadValue(il);
+                            il.Emit(OpCodes.Call, _getDoubleBytes);
+                            il.Emit(OpCodes.Callvirt, _writeBytes);
+                            break;
+
+                        case TypeCode.Byte:
+                            loadValue(il);
+                            il.Emit(OpCodes.Callvirt, _writeInt8);
+                            break;
+                        default:
+                            throw new NotImplementedException();
+                            // if (!Print(pv.Value, code))
+                            //     throw new InvalidOperationException();
+                            
+                    }
+
+                    break;
+                case ProtoWireTypes.LengthDelimited:
+                    switch (code)
+                    {
+
+                        case TypeCode.String:
+                            ////////////
+                            // STRING
+                            ///////////
+                            localString = localString ?? il.DeclareLocal(typeof(String));
+
+                            loadValue(il);
+                            il.Emit(OpCodes.Stloc, localString);
+
+                            il.Emit(OpCodes.Ldarg_0);
+                            il.Emit(OpCodes.Ldfld, utfField);
+                            il.Emit(OpCodes.Ldloc, localString);
+
+                            il.Emit(OpCodes.Callvirt, _getStringBytes);
+                            il.Emit(OpCodes.Stloc, localBytes);
+
+                            il.Emit(OpCodes.Ldloc, localBytes);
+                            il.Emit(OpCodes.Call, _getArrayLength);
+                            il.Emit(OpCodes.Call, _writeInt32);
+
+                            il.Emit(OpCodes.Ldarg_0);
+                            il.Emit(OpCodes.Ldloc, localBytes);
+                            il.Emit(OpCodes.Call, _writeBytes);
+
+                            break;
+                        case TypeCode.Object:
+
+                            ///////////
+                            // BYTE [ARRAY]
+                            ///////////
+                            if (type == Const.ByteArrayType)
+                            {
+                                loadValue(il);
+                                il.Emit(OpCodes.Stloc, localBytes);
+
+                                il.Emit(OpCodes.Ldarg_0);
+                                il.Emit(OpCodes.Ldloc, localBytes);
+                                il.Emit(OpCodes.Call, _getArrayLength);
+                                il.Emit(OpCodes.Call, _writeInt32);
+
+                                il.Emit(OpCodes.Ldloc, localBytes);
+                                il.Emit(OpCodes.Call, _writeBytes);
+
+                                break;
+                            }
+
+                            var localForPropVal = il.DeclareLocal(type);
+                            
+                            loadValue(il);
                             il.Emit(OpCodes.Stloc, localForPropVal);
 
                             var subFields = GetProtoFields(type);

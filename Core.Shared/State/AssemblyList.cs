@@ -148,6 +148,7 @@ namespace Das.Serializer
                 {
                     found = Assembly.LoadFile(dll.FullName);
                 }
+                // ReSharper disable once EmptyGeneralCatchClause
                 catch
                 {
                 }

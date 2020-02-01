@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
+using Das.Extensions;
 using Das.Serializer;
 
 namespace Das.Types
@@ -18,7 +19,7 @@ namespace Das.Types
         public TypeManipulator(ISerializerSettings settings, INodePool nodePool) : base(settings)
         {
             _nodePool = nodePool;
-            CachedAdders = new ConcurrentDictionary<Type, VoidMethod>();
+            _cachedAdders = new ConcurrentDictionary<Type, VoidMethod>();
         }
 
         static TypeManipulator()
@@ -30,7 +31,7 @@ namespace Das.Types
         private const BindingFlags InterfaceMethodBindings = BindingFlags.Instance |
                                                              BindingFlags.Public | BindingFlags.NonPublic;
 
-        private readonly ConcurrentDictionary<Type, VoidMethod> CachedAdders;
+        private readonly ConcurrentDictionary<Type, VoidMethod> _cachedAdders;
 
 
         private static readonly ConcurrentDictionary<Type, ITypeStructure> _knownSensitive;
@@ -336,7 +337,7 @@ namespace Das.Types
         {
             var colType = collection.GetType();
 
-            if (CachedAdders.TryGetValue(colType, out var res))
+            if (_cachedAdders.TryGetValue(colType, out var res))
                 return res;
 
             var method = GetAddMethod(collection);
@@ -346,14 +347,14 @@ namespace Das.Types
                 res = (VoidMethod) dynam.CreateDelegate(typeof(VoidMethod));
             }
 
-            CachedAdders.TryAdd(colType, res);
+            _cachedAdders.TryAdd(colType, res);
 
             return res;
         }
 
         public VoidMethod GetAdder(Type collectionType, Object exampleValue)
         {
-            if (CachedAdders.TryGetValue(collectionType, out var res))
+            if (_cachedAdders.TryGetValue(collectionType, out var res))
                 return res;
 
             var eType = exampleValue.GetType();
@@ -391,7 +392,7 @@ namespace Das.Types
             if (type == null)
                 type = collection.GetType();
 
-            if (CachedAdders.TryGetValue(type, out var res))
+            if (_cachedAdders.TryGetValue(type, out var res))
                 return res;
 
 
@@ -422,7 +423,7 @@ namespace Das.Types
         {
             var colType = collection.GetType();
 
-            if (CachedAdders.TryGetValue(colType, out var res))
+            if (_cachedAdders.TryGetValue(colType, out var res))
                 return res;
 
             //super sophisticated
@@ -433,7 +434,7 @@ namespace Das.Types
                 res = (VoidMethod) dynam.CreateDelegate(typeof(VoidMethod));
             }
 
-            CachedAdders.TryAdd(colType, res);
+            _cachedAdders.TryAdd(colType, res);
 
             return res;
         }
@@ -467,6 +468,25 @@ namespace Das.Types
             }
 
             return null;
+        }
+
+        public MethodInfo GetAddMethod(Type cType)
+        {
+            var germane = GetGermaneType(cType);
+
+            if (cType.TryGetMethod(nameof(ICollection<Object>.Add), out var adder, germane))
+                return adder;
+
+            if (typeof(List<>).IsAssignableFrom(cType) || typeof(IDictionary).IsAssignableFrom(cType))
+                return cType.GetMethodOrDie(nameof(List<Object>.Add));
+
+            if (typeof(Stack<>).IsAssignableFrom(cType))
+                return cType.GetMethodOrDie(nameof(Stack<Object>.Push));
+
+            if (typeof(Queue<>).IsAssignableFrom(cType))
+                return cType.GetMethodOrDie(nameof(Queue<Object>.Enqueue));
+
+            throw new MissingMethodException(cType.FullName, "Add");
         }
 
         public Type GetPropertyType(Type classType, String propName)

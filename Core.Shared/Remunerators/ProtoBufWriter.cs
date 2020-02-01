@@ -16,7 +16,6 @@ namespace Das.Serializer.Remunerators
         private readonly Dictionary<Int32, Int32> _parents; 
         private Int32 _size;
         private Int32 _head;
-        //private Int32 _tail;
         private Int32 _bufferTail;
         protected Stream _outStream;
         protected Int32 _stackDepth;
@@ -237,6 +236,10 @@ namespace Das.Serializer.Remunerators
                     {
                         if (value > 16256)
                         {
+                            if (value > 2080768)
+                            {
+
+                            }
                             _array[_size++] = (Byte) ((value & 127) | 128);
                             _array[_size++] = (Byte) ((value & 16256) >> 7 | 128);
                             _array[_size++] = (Byte) ((value & 1040384) >> 14);
@@ -263,6 +266,39 @@ namespace Das.Serializer.Remunerators
                     {
                         if (value > 16256)
                         {
+                            if (value > 1040384)
+                            {
+                                if (value > 66584576)
+                                {
+                                    if (value > 2130706432)
+                                    {
+                                        _outStream.WriteByte((Byte) ((value & 127) | 128));
+                                        _outStream.WriteByte((Byte) ((value & 16256) >> 7 | 128));
+                                        _outStream.WriteByte((Byte) ((value & 1040384) >> 13 | 128));
+                                        _outStream.WriteByte((Byte) ((value & 66584576) >> 19 | 128));
+                                        _outStream.WriteByte((Byte) ((value & 1879048192) >> 28));
+
+                                        return;
+                                    }
+
+                                    _outStream.WriteByte((Byte) ((value & 127) | 128));
+                                    _outStream.WriteByte((Byte) ((value & 16256) >> 7 | 128));
+                                    _outStream.WriteByte((Byte) ((value & 1040384) >> 13 | 128));
+                                    _outStream.WriteByte((Byte) ((value & 66584576) >> 19 | 128));
+                                    _outStream.WriteByte((Byte) ((value & 4261412864) >> 26));
+                                    
+
+                                    return;
+                                }
+
+                                _outStream.WriteByte((Byte) ((value & 127) | 128));
+                                _outStream.WriteByte((Byte) ((value & 16256) >> 7 | 128));
+                                _outStream.WriteByte((Byte) ((value & 1040384) >> 13 | 128));
+                                _outStream.WriteByte((Byte) ((value & 66584576) >> 20));
+
+                                return;
+                            }
+
                             _outStream.WriteByte((Byte) ((value & 127) | 128));
                             _outStream.WriteByte((Byte) ((value & 16256) >> 7 | 128));
                             _outStream.WriteByte((Byte) ((value & 1040384) >> 14));

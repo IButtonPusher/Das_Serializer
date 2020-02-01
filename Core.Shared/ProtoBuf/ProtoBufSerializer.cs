@@ -5,42 +5,6 @@ using System.IO;
 
 namespace Das.Serializer.ProtoBuf
 {
-    // public class ProtoBufSerializer<TPropertyAttribute> 
-    //     : ProtoBufSerializer, IProtoSerializer
-    //     where  TPropertyAttribute : Attribute
-    // {
-    //     public ProtoBufSerializer(IStateProvider stateProvider, ISerializerSettings settings, 
-    //         IProtoProvider typeProvider) 
-    //         : base(stateProvider, settings)
-    //     {
-    //         StateProvider = stateProvider;
-    //         TypeProvider = typeProvider;
-    //     }
-    //
-    //     public IStateProvider StateProvider { get; }
-    //
-    //     protected IProtoProvider TypeProvider;
-    //
-    //     public void ToProtoStream<TObject>(Stream stream, TObject o)
-    //         where TObject : class
-    //     {
-    //         var printer = TypeProvider.GetProtoProxy<TObject>();
-    //         printer.OutStream = stream;
-    //         printer.Print(o);
-    //     }
-    //
-    //     public TObject FromProtoStream<TObject>(Stream stream)
-    //         where TObject : class
-    //     {
-    //         var scanner = TypeProvider.GetProtoProxy<TObject>();
-    //
-    //         return scanner.Scan(stream);
-    //     }
-    //
-    //     public override IScanNodeProvider ScanNodeProvider
-    //         => StateProvider.BinaryContext.ScanNodeProvider;
-    // }
-
     public class ProtoBufSerializer : CoreContext, IProtoSerializer
     {
         private static readonly ConcurrentDictionary<Type, ProtoWireTypes> _wireTypes;
@@ -66,8 +30,7 @@ namespace Das.Serializer.ProtoBuf
             _wireTypes = new ConcurrentDictionary<Type, ProtoWireTypes>(wireTypes);
         }
 
-        public ProtoBufSerializer(IStateProvider stateProvider, 
-            //ISerializationCore dynamicFacade, 
+        public ProtoBufSerializer(IStateProvider stateProvider,
             ISerializerSettings settings,
             IProtoProvider typeProvider) 
             : base(stateProvider, settings)

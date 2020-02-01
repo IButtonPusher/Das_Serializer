@@ -3,11 +3,19 @@
   <PropertyGroup>
     <TargetFrameworks>netcoreapp3.0;net45</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.0.1</Version>
+    <Version>0.0.3-alpha</Version>
   </PropertyGroup>
 
   <PropertyGroup>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Description>Xml/Json/Protocol Buffers/Binary&lt;-&gt;Anything
+Single dll (fw/core) to keep it simple</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/IButtonPusher/Das_Serializer</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/IButtonPusher/Das_Serializer.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <Authors>Claus Trappberger</Authors>
+	
   </PropertyGroup> 
   
 

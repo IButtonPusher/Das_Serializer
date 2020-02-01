@@ -27,6 +27,8 @@ namespace Das.Serializer
 
         MethodInfo GetAddMethod<T>(IEnumerable<T> collection);
 
+        MethodInfo GetAddMethod(Type collectionType);
+
         Type GetPropertyType(Type classType, String propName);
 
         // ReSharper disable once UnusedMember.Global

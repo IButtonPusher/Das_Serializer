@@ -65,8 +65,8 @@ namespace Das.Serializer
             // 3 -> '#' found after '&' and getting numbers
             var state = 0;
             var number = 0;
-            var is_hex_value = false;
-            var have_trailing_digits = false;
+            var isHexValue = false;
+            var haveTrailingDigits = false;
 
             for (var i = 0; i < len; i++)
             {
@@ -90,10 +90,10 @@ namespace Das.Serializer
                 if (c == '&')
                 {
                     state = 1;
-                    if (have_trailing_digits)
+                    if (haveTrailingDigits)
                     {
                         entity.Append(number.ToString(CultureInfo.InvariantCulture));
-                        have_trailing_digits = false;
+                        haveTrailingDigits = false;
                     }
 
                     output.Append(entity);
@@ -114,7 +114,7 @@ namespace Das.Serializer
                     else
                     {
                         number = 0;
-                        is_hex_value = false;
+                        isHexValue = false;
                         if (c != '#')
                         {
                             state = 2;
@@ -161,32 +161,32 @@ namespace Das.Serializer
                         state = 0;
                         entity.Length = 0;
                         rawEntity.Length = 0;
-                        have_trailing_digits = false;
+                        haveTrailingDigits = false;
                     }
-                    else if (is_hex_value && Uri.IsHexDigit(c))
+                    else if (isHexValue && Uri.IsHexDigit(c))
                     {
                         number = number * 16 + Uri.FromHex(c);
-                        have_trailing_digits = true;
+                        haveTrailingDigits = true;
                         rawEntity.Append(c);
                     }
                     else if (Char.IsDigit(c))
                     {
                         number = number * 10 + (c - '0');
-                        have_trailing_digits = true;
+                        haveTrailingDigits = true;
                         rawEntity.Append(c);
                     }
                     else if (number == 0 && (c == 'x' || c == 'X'))
                     {
-                        is_hex_value = true;
+                        isHexValue = true;
                         rawEntity.Append(c);
                     }
                     else
                     {
                         state = 2;
-                        if (have_trailing_digits)
+                        if (haveTrailingDigits)
                         {
                             entity.Append(number.ToString(CultureInfo.InvariantCulture));
-                            have_trailing_digits = false;
+                            haveTrailingDigits = false;
                         }
 
                         entity.Append(c);
@@ -198,7 +198,7 @@ namespace Das.Serializer
             {
                 output.Append(entity);
             }
-            else if (have_trailing_digits)
+            else if (haveTrailingDigits)
             {
                 output.Append(number.ToString(CultureInfo.InvariantCulture));
             }

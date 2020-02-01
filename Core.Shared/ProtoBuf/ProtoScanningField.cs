@@ -35,6 +35,17 @@ namespace Das.Serializer.ProtoBuf
             return _valueGetter(from);
         }
 
+        public Boolean Equals(IProtoField other)
+        {
+            if (ReferenceEquals(null, other))
+                return false;
+
+            return other.Header == Header && other.Name == Name;
+        }
+
+        public override Int32 GetHashCode() => Header;
+        
+
         public override String ToString()
             => $"{Type.Name} {Name} [{WireType}] protofield";
     }

@@ -27,10 +27,13 @@ namespace Serializer.Benchmarks
 
         }
 
-     
+        [ThreadStatic]
+        private static Byte[] _rdrr;
 
-        private static void RunManyTimes()
+        private unsafe static void RunManyTimes()
         {
+            _rdrr = _rdrr ?? new Byte[256];
+
             var buff = new ProtoBufTests();
             var swo = new Stopwatch();
             swo.Start();
@@ -59,22 +62,6 @@ namespace Serializer.Benchmarks
 
                     Debug.WriteLine(" das elapsed: " + sw.ElapsedMilliseconds);
                 }
-
-//                {
-//                    var sw = new Stopwatch();
-//                    sw.Start();
-//
-//
-//                    for (var c = 0; c < 10000; c++)
-//                    {
-//                        //buff.ProtoNetByteArray();
-//                        //buff.ProtoNetSimpleMessage();
-//                        msg = buff.ProtoNetByteArray();
-//                    }
-//
-//
-//                    Debug.WriteLine(" proto elapsed: " + sw.ElapsedMilliseconds);
-//                }
             }
 
             for (var i = 0; i < 1000; i++)
