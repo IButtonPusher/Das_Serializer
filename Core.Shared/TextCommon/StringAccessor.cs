@@ -33,6 +33,20 @@ namespace Core.Shared.TextCommon
             return false;
         }
 
+        public Boolean Contains(String str)
+            => _accessing.IndexOf(str, StringComparison.Ordinal) >= 0;
+        
+
+        public Int32 Count(Char c)
+        {
+            var cnt = 0;
+            for (var i = 0; i < _accessing.Length; i++)
+                if (_accessing[i] == c)
+                    cnt++;
+
+            return cnt;
+        }
+
         public override String ToString() => _accessing;
 
         public String Substring(Int32 start, Int32 length) => _accessing.Substring(start, length);

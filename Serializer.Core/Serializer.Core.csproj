@@ -8,7 +8,7 @@
     <AssemblyOriginatorKeyFile>CoreArmstrong.snk</AssemblyOriginatorKeyFile>
 	<SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
 	<RootNamespace>Das.Serializer</RootNamespace>
-	<Version>0.0.1-alpha</Version>
+	<Version>0.0.2-alpha</Version>
 	<PackageId>Das.Serializer.Core</PackageId>
 	<Authors>Claus Trappberger</Authors>
 	<Company />
@@ -40,7 +40,7 @@
   </Target>
   
    <ItemGroup>
-     <PackageReference Include="Das.Serializer.Interfaces" Version="0.0.1-alpha" />
+     <PackageReference Include="Das.Serializer.Interfaces" Version="0.0.2-alpha" />
    </ItemGroup>
 
 </Project>

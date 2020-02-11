@@ -12,6 +12,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Annotations.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DasAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Delegates.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DtoExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IAssemblyList.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IConverterProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IDynamicAccessor.cs" />

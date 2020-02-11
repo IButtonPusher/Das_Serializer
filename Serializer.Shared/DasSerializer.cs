@@ -1,4 +1,7 @@
-﻿using Das.Serializer.ProtoBuf;
+﻿#if !NET40
+using Das.Serializer.ProtoBuf;
+#endif
+
 using System;
 using System.IO;
 using System.Threading.Tasks;

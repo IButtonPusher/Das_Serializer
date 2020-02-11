@@ -16,7 +16,8 @@ namespace Das.Types
     {
         private readonly INodePool _nodePool;
 
-        public TypeManipulator(ISerializerSettings settings, INodePool nodePool) : base(settings)
+        public TypeManipulator(ISerializerSettings settings, INodePool nodePool) 
+            : base(settings)
         {
             _nodePool = nodePool;
             _cachedAdders = new ConcurrentDictionary<Type, VoidMethod>();

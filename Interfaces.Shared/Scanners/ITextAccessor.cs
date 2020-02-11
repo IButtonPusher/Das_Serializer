@@ -16,6 +16,18 @@ namespace Das.Serializer.Scanners
 
         Boolean IsNullOrWhiteSpace();
 
+        String[] Split();
+
+        String Substring(Int32 start, Int32 length);
+
+        String Substring(Int32 start);
+
+        Boolean Contains(Char c);
+        
+        Boolean Contains(String str);
+
+        Int32 Count(Char c);
+
         void CopyTo(
             int sourceIndex,
             char[] destination,
