@@ -272,14 +272,22 @@ namespace Das
                 return arr2;
             }
 
-            if (collectionType.GetConstructor(new[] {itemType}) != null)
+
+            var ctor = collectionType.GetConstructor(new[] {itemType}) ;
+                //?? collectionType.GetConstructor(new[]
+                //{
+                //    typeof(IEnumerable<>).MakeGenericType(itemType)
+                //});
+
+            if (ctor != null)
                 return Activator.CreateInstance(collectionType, objects);
+
 
             var gargs = itemType.GetGenericArguments();
 
             var buildDictionary = gargs.Length == 2 &&
                                   collectionType.IsAssignableFrom(collectionType) &&
-                                  TryGetCtor(out var ctor);
+                                  TryGetCtor(out ctor);
 
             if (!buildDictionary)
                 return BuildCollectionDynamically(collectionType, objects);
@@ -300,6 +308,20 @@ namespace Das
         {
             var val = _instantiate.BuildDefault(collectionType,
                 _currentSettings.CacheTypeConstructors);
+
+            if (objects.Length == 0)
+                return val;
+
+            if (val is IList ilist)
+            {
+                foreach (var o in objects)
+                {
+                    ilist.Add(o);
+                }
+
+                return val;
+            }
+
             var addDelegate = _dynamicFacade.TypeManipulator.GetAdder(val as IEnumerable);
 
             foreach (var child in objects)

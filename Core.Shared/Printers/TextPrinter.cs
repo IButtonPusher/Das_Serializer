@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Text;
 using Das.Serializer;
-using Das.Serializer.Remunerators;
 
 namespace Das.Printers
 {
@@ -12,6 +11,7 @@ namespace Das.Printers
             ISerializerSettings settings) 
             : base(stateProvider, settings)
         {
+            writer.Undispose();
             Writer = writer;
             _stateProvider = stateProvider;
             _tabs = new StringBuilder();

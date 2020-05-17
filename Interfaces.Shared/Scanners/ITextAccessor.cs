@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+
 // ReSharper disable All
 
 namespace Das.Serializer.Scanners
@@ -17,6 +19,12 @@ namespace Das.Serializer.Scanners
         Boolean IsNullOrWhiteSpace();
 
         String[] Split();
+
+        String[] Split(Char[] separators, StringSplitOptions options = StringSplitOptions.RemoveEmptyEntries);
+
+        String[] TrimAndSplit();
+
+        String Remove(ISet<Char> chars);
 
         String Substring(Int32 start, Int32 length);
 

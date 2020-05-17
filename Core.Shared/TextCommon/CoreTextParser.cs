@@ -3,18 +3,18 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using System.Threading;
-using Das.Serializer;
 
 // ReSharper disable UnusedMember.Global
 
-namespace Serializer
+namespace Das.Serializer
 {
     public class CoreTextParser : CoreNumeric, ITextParser
     {
         private readonly CultureInfo _enUs;
         private readonly String[] _splitTokens = {"\r\n", "\r", "\n"};
 
-        private static readonly ThreadLocal<StringBuilder> _stringBuilder;
+        private static readonly ThreadLocal<StringSaver> _stringBuilder;
+        private static readonly ThreadLocal<StringSaver> _myStringBuilder;
 
 
         public CoreTextParser()
@@ -25,8 +25,11 @@ namespace Serializer
 
         static CoreTextParser()
         {
-            _stringBuilder = new ThreadLocal<StringBuilder>(() => new StringBuilder());
+            _stringBuilder = new ThreadLocal<StringSaver>(GetNewSaver);
+            _myStringBuilder = new ThreadLocal<StringSaver>(GetNewSaver);
         }
+
+        private static StringSaver GetNewSaver() => new StringSaver();
 
 
         public String FindJsonValue(String input, String toFind)
@@ -234,9 +237,9 @@ namespace Serializer
 
             leftIndex += leftBounds.Length;
 
-            if (middleIndex == -1)
-                yield return input.Substring(leftIndex, rightIndex - leftIndex);
-            else
+            //if (middleIndex == -1)
+            //    yield return input.Substring(leftIndex, rightIndex - leftIndex);
+            //else
             {
                 yield return input.Substring(leftIndex, middleIndex - leftIndex);
 
@@ -577,51 +580,68 @@ namespace Serializer
 
         public String BuildString<T1, T2, T3, T4>(T1 item1, T2 item2, T3 item3, T4 item4)
         {
-            var sb = _stringBuilder.Value;
-            sb.Clear();
-            sb.Append(item1);
-            sb.Append(item2);
-            sb.Append(item3);
-            sb.Append(item4);
+            using (var sb = _myStringBuilder.Value)
+            {
+                sb.Clear();
+                sb.Append(item1);
+                sb.Append(item2);
+                sb.Append(item3);
+                sb.Append(item4);
 
-            return sb.ToString();
+                return sb.ToString();
+            }
         }
 
         public String BuildString<T1, T2, T3, T4, T5>(T1 item1, 
             T2 item2, T3 item3, T4 item4, T5 item5)
         {
-            var sb = _stringBuilder.Value;
-            sb.Clear();
-            sb.Append(item1);
-            sb.Append(item2);
-            sb.Append(item3);
-            sb.Append(item4);
-            sb.Append(item5);
+            using (var sb = _myStringBuilder.Value)
+            {
+                sb.Clear();
+                sb.Append(item1);
+                sb.Append(item2);
+                sb.Append(item3);
+                sb.Append(item4);
+                sb.Append(item5);
 
-            return sb.ToString();
+                return sb.ToString();
+            }
         }
 
         public String BuildString<T1, T2, T3, T4, T5, T6>(T1 item1, T2 item2, 
             T3 item3, T4 item4, T5 item5, T6 item6)
         {
-            var sb = _stringBuilder.Value;
-            sb.Clear();
-            sb.Append(item1);
-            sb.Append(item2);
-            sb.Append(item3);
-            sb.Append(item4);
-            sb.Append(item5);
-            sb.Append(item6);
+            using (var sb = _myStringBuilder.Value)
+            {
+                sb.Clear();
+                sb.Append(item1);
+                sb.Append(item2);
+                sb.Append(item3);
+                sb.Append(item4);
+                sb.Append(item5);
+                sb.Append(item6);
 
-            return sb.ToString();
+                return sb.ToString();
+            }
         }
 
-        public StringBuilder GetThreadsStringBuilder(String initial)
+        public ITextRemunerable GetThreadsStringBuilder(String initial)
         {
-            var sb = _stringBuilder.Value;
-            sb.Clear();
+            var sb = GetThreadsStringBuilder();
+           
             sb.Append(initial);
             return sb;
         }
+
+        public ITextRemunerable GetThreadsStringBuilder()
+        {
+            var sb = _stringBuilder.Value;
+            if (!sb.IsEmpty)
+                throw new ObjectDisposedException("Stringbuilder was not disposed " + sb);
+            sb.Undispose();
+
+            return sb;
+        }
+
     }
 }

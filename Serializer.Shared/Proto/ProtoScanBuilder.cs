@@ -21,7 +21,7 @@ namespace Das.Serializer.ProtoBuf
             var buildDefault = genericParent.GetMethodOrDie(
                 nameof(ProtoDynamicBase<Object>.BuildDefault));
 
-            var abstractMethod = genericParent.GetMethodOrDie( 
+            var abstractMethod = genericParent.GetMethodOrDie(
                 nameof(ProtoDynamicBase<Object>.Scan));
 
 
@@ -63,11 +63,11 @@ namespace Das.Serializer.ProtoBuf
                 arrayCounters);
 
             il.Emit(OpCodes.Ldarg_1);
-             il.Emit(OpCodes.Callvirt, _getStreamLength);
-             il.Emit(OpCodes.Stloc, streamLength);
-            
-            AddPropertiesToScanMethod(fieldArr, parentType, il, 
-                ilg => ilg.Emit(OpCodes.Ldloc, returnValue), 
+            il.Emit(OpCodes.Callvirt, _getStreamLength);
+            il.Emit(OpCodes.Stloc, streamLength);
+
+            AddPropertiesToScanMethod(fieldArr, parentType, il,
+                ilg => ilg.Emit(OpCodes.Ldloc, returnValue),
                 endLabel, fieldByteArray, lastByte, streamLength, arrayCounters);
 
             il.MarkLabel(endLabel);
@@ -330,7 +330,7 @@ namespace Das.Serializer.ProtoBuf
                             il.Emit(OpCodes.Ldarg_1);
                             il.Emit(OpCodes.Call, _getPositiveInt32);
                             il.Emit(OpCodes.Stloc, lastByte);
-                            //
+                            
                             //read bytes into buffer field
                             il.Emit(OpCodes.Ldloc, fieldByteArray);
                             il.Emit(OpCodes.Ldc_I4_0);

@@ -69,6 +69,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Objects\ProtoWireTypes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\ValueNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\IStreamDelegate.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Remunerators\ITextRemunerable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IBinaryFeeder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IBinaryPrimitiveScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IBinaryScanner.cs" />
@@ -82,6 +83,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\ITextParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\ITextScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\CircularReference.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Settings\DefaultValueOmission.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\ISerializerSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\DepthConstants.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\ISerializationDepth.cs" />

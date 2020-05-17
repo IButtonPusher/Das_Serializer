@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Linq;
 using Das.Serializer;
-using Das.Serializer.Remunerators;
 
 namespace Das.Printers
 {
@@ -28,10 +27,10 @@ namespace Das.Printers
         protected Boolean IsPrintingLeaf;
 
 
-        public override Boolean PrintNode(INamedValue node)
+        public override void PrintNode(INamedValue node)
         {
             if (node.Value == null)
-                return false;
+                return; //false;
 
             if (!_isIgnoreCircularDependencies)
                 PushStack(node.Name);
@@ -62,7 +61,8 @@ namespace Das.Printers
                             PrintLeafAttribute(valu);
                         }
 
-                        return true;
+                        return;
+                        //return true;
                     }
                     else
                     {
@@ -79,15 +79,20 @@ namespace Das.Printers
                 /////////////////////////
                 // open node's tag
                 /////////////////////////
-                var tabBlob = Enumerable.Repeat(_indenter, current.Tabs);
+                
                 if (Settings.CircularReferenceBehavior != CircularReference.IgnoreObject
                     || !IsObjectReferenced(node.Value))
-                //don't open a tag unless we need it
+                    //don't open a tag unless we need it
                 {
-                    Writer.Append(tabBlob);
+                    for (var c = 0; c < current.Tabs; c++)
+                        Writer.Append(_indenter);
+
+                    //var tabBlob = Enumerable.Repeat(_indenter, current.Tabs);
+
+                    //Writer.Append(tabBlob);
                     Writer.Append(OpenAttributes, node.Name);
                 }
-                else return false; //we're ignoring circular refs and this was a circular ref...
+                else return; //we're ignoring circular refs and this was a circular ref...
 
                 if (isWrapping)
                 {
@@ -149,18 +154,20 @@ namespace Das.Printers
                             break;
                         case NodeTypes.Collection:
                             if (node.IsEmptyInitialized)
-                                return true;
+                                return;// true;
                             break;
                         default:
-                            tabBlob = Enumerable.Repeat(_indenter, current.Tabs);
-                            Writer.Append(tabBlob);
+                            //tabBlob = Enumerable.Repeat(_indenter, current.Tabs);
+                            //Writer.Append(tabBlob);
+                            for (var c = 0; c < current.Tabs; c++)
+                                Writer.Append(_indenter);
                             break;
                     }
                    
                     Writer.Append($"</{node.Name}>\r\n");
                 }
 
-                return true;
+                //return true;
                 /////////////////////////
             }
             finally
@@ -194,8 +201,12 @@ namespace Das.Printers
             if (!knownEmpty)
             {
                 var germane = _stateProvider.TypeInferrer.GetGermaneType(node.Type);
+                //_formatStack.Peek().Tabs++;
+
                 PrintSeries(ExplodeList(node.Value as IEnumerable, germane),
                     PrintCollectionObject);
+
+                //_formatStack.Peek().Tabs--;
             }
 
             _formatStack.Push(parent);
@@ -203,7 +214,7 @@ namespace Das.Printers
 
         public override Boolean IsRespectXmlIgnore => true;
 
-        protected Boolean PrintCollectionObject(ObjectNode val)
+        protected void PrintCollectionObject(ObjectNode val)
         {
             if (!_isIgnoreCircularDependencies)
                 PushStack($"[{val.Index}]");
@@ -212,7 +223,7 @@ namespace Das.Printers
             if (!_isIgnoreCircularDependencies)
                 PopStack();
 
-            return true;
+            
         }
 
         private void PrintLeafAttribute(IPrintNode node)

@@ -2,8 +2,8 @@
 using System;
 using System.IO;
 using System.Runtime.CompilerServices;
-using Das.Serializer.Remunerators;
 using Das.Serializer.Files;
+using System.Threading;
 
 namespace Das.Serializer
 {
@@ -11,16 +11,32 @@ namespace Das.Serializer
     {
         public void ToJson(Object o, FileInfo fi)
         {
-            var xml = ToJson(o);
+            var json = ToJson(o);
 
             using (var _ = new SafeFile(fi))
-                File.WriteAllText(fi.FullName, xml);
+                File.WriteAllText(fi.FullName, json);
         }
 
         public void ToJson<TTarget>(Object o, FileInfo fileName)
         {
             var obj = ObjectManipulator.CastDynamic<TTarget>(o);
             ToJson(obj, fileName);
+        }
+
+        private static readonly ThreadLocal<StringSaver> _escapeSaver = 
+            new ThreadLocal<StringSaver>(NewStringSaver);
+
+        private static StringSaver NewStringSaver() => new StringSaver();
+
+        public String JsonEscape(String str)
+        {
+            using (var saver = _escapeSaver.Value)
+            {
+                JsonPrinter.AppendEscaped(str, saver);
+                var res = saver.ToString();
+                
+                return res;
+            }
         }
 
         /// <summary>
@@ -35,15 +51,15 @@ namespace Das.Serializer
         [MethodImpl(256)]
         private String ToJson(Object obj, Type asType)
         {
-            using (var sp = new StringSaver())
+            //using (var sp = new StringSaver())
+            using (var sp = _escapeSaver.Value)
             {
                 using (var state = StateProvider.BorrowJson(Settings))
                 {
                     var jp = new JsonPrinter(sp, state);
                     using (var node = PrintNodePool.GetNamedValue(String.Empty, obj, asType))
                         jp.PrintNode(node);
-                    //var node = new NamedValueNode(String.Empty, obj, asType);
-                    
+
                     var str = sp.ToString();
 
                     return str;

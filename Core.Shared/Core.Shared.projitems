@@ -49,7 +49,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\DeferredBinaryWriter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\BinaryWriterBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\BinaryWriterWrapper.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Remunerators\ITextRemunerable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\ProtoBufWriter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\StringSaver.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\BaseNode.cs" />
@@ -84,7 +83,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)TextCommon\CoreTextParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TextCommon\ITextParserProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TextCommon\StringAccessor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TextCommon\StringBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TypeStructure.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Types\DoubleConcurrentDictionary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\DoubleDictionary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\InstantiationTypes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\InvalidCollection.cs" />

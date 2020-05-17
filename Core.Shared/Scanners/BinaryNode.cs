@@ -17,6 +17,8 @@ namespace Das.Serializer.Scanners
             PendingReferences = new List<IBinaryNode>();
         }
 
+        public override Boolean IsEmpty => BlockSize == 1 && Type != typeof(Byte);
+
         public override void Clear()
         {
             base.Clear();

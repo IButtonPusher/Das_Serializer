@@ -2,17 +2,41 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
-using Core.Shared.TextCommon;
+using Das.Extensions;
 using Das.Serializer.Scanners;
+// ReSharper disable UnusedMember.Global
 
-namespace Das.Serializer.Remunerators
+namespace Das.Serializer
 {
-    public class StringSaver : ITextRemunerable, ITextAccessor
+    public class StringSaver : StringBase, ITextRemunerable, ITextAccessor
     {
-        private readonly StringBuilder _sb;
+        private StringBuilder _sb;
+
+        private static readonly Object _sbLock;
+        private static readonly List<StringBuilder> _sbPool;
+
+        static StringSaver()
+        {
+            _sbLock = new Object();
+            _sbPool = new List<StringBuilder>();
+        }
 
         public StringSaver()
         {
+            SetBackingBuilder();
+        }
+
+        private void SetBackingBuilder()
+        {
+            lock (_sbLock)
+            {
+                if (_sbPool.Count > 0)
+                {
+                    _sb = _sbPool[0];
+                    _sbPool.RemoveAt(0);
+                    return;
+                }
+            }
             _sb = new StringBuilder();
         }
 
@@ -31,19 +55,92 @@ namespace Das.Serializer.Remunerators
         [MethodImpl(256)]
         public void Append(String data)
         {
+            var len = _sb.Length + data.Length;
+            if (len > _sb.Capacity)
+                TryGetBiggerBackingBuilder(len);
+
             _sb.Append(data);
+        }
+
+        [MethodImpl(256)]
+        public void Append(Object obj)
+        {
+            _sb.Append(obj);
         }
 
         [MethodImpl(256)]
         public void Append(String data1, String data2)
         {
+            var len = _sb.Length + data1.Length + data2.Length;
+            if (len > _sb.Capacity)
+                TryGetBiggerBackingBuilder(len);
+
             _sb.Append(data1);
             _sb.Append(data2);
+        }
+
+        private void TryGetBiggerBackingBuilder(Int32 capacity)
+        {
+            var newI = -1;
+
+            lock (_sbLock)
+            {
+                var half = _sbPool.Count / 2.0;
+                if (half.IsZero())
+                    return;
+                var i = Convert.ToInt32(half);
+                var current = _sbPool[i];
+                if (current.Capacity > capacity)
+                {
+                    //we need smaller than average
+                    for (; i >= 0; i--)
+                    {
+                        current = _sbPool[i];
+                        if (current.Capacity >= capacity) 
+                            continue;
+
+                        //ok that's too small now
+                        newI = i + 1;
+                        goto isHaveIt;
+                    }
+                }
+                else
+                {
+                    //we need greater than average
+                    for (; i < _sbPool.Count; i++)
+                    {
+                        current = _sbPool[i];
+                        if (current.Capacity <= capacity) 
+                            continue;
+
+                        //ok that's too big now
+                        newI = i - 1;
+                        goto isHaveIt;
+                    }
+                }
+
+                isHaveIt:
+                if (newI == -1)
+                    return;
+
+                var letsUse = _sbPool[newI];
+                _sbPool.RemoveAt(newI);
+
+                letsUse.Append(_sb);
+                
+                Recycle(_sb);
+                
+                _sb = letsUse;
+            }
         }
 
         [MethodImpl(256)]
         public void Append(String data1, String data2, String data3)
         {
+            var len = _sb.Length + data1.Length + data2.Length + data3.Length;
+            if (len > _sb.Capacity)
+                TryGetBiggerBackingBuilder(len);
+
             _sb.Append(data1);
             _sb.Append(data2);
             _sb.Append(data3);
@@ -53,8 +150,48 @@ namespace Das.Serializer.Remunerators
         [MethodImpl(256)]
         public void Append(Char data1, String data2)
         {
+            var len = _sb.Length + 1 + data2.Length;
+            if (len > _sb.Capacity)
+                TryGetBiggerBackingBuilder(len);
+
             _sb.Append(data1);
             _sb.Append(data2);
+        }
+
+        public Boolean Append<T>(IList<T> items, Char separator)
+        {
+            if (items.Count == 0)
+                return false;
+
+            _sb.Append(items[0]);
+
+            for (var c = 1; c < items.Count; c++)
+            {
+                _sb.Append(separator);
+                _sb.Append(items[c]);
+            }
+
+            return true;
+        }
+
+        public Boolean Append<T>(IEnumerable<T> items, Char separator)
+        where T : IConvertible
+        {
+            using (var itar = items.GetEnumerator())
+            {
+                if (!itar.MoveNext())
+                    return false;
+
+                _sb.Append(itar.Current);
+
+                while (itar.MoveNext())
+                {
+                    _sb.Append(separator);
+                    _sb.Append(itar.Current);
+                }
+            }
+
+            return true;
         }
 
         public void Append(IEnumerable<String> datas)
@@ -63,10 +200,24 @@ namespace Das.Serializer.Remunerators
                 _sb.Append(data);
         }
 
+        public void Append<T>(T data) where T : struct
+        {
+            _sb.Append(data.ToString());
+        }
+
         public void Append(String[] datas, Char separator)
         {
             if (datas.Length == 0)
                 return;
+
+            var len = 0;
+            if (len > _sb.Capacity)
+                TryGetBiggerBackingBuilder(len);
+
+            for (var c = 0; c < datas.Length; c++)
+            {
+                len += datas[c].Length + 1;
+            }
 
             for (var c = 0; c < datas.Length - 1; c++)
             {
@@ -75,7 +226,6 @@ namespace Das.Serializer.Remunerators
             }
 
             _sb.Append(datas[datas.Length-1]);
-
         }
 
         public override String ToString() => _sb.ToString();
@@ -85,11 +235,68 @@ namespace Das.Serializer.Remunerators
             return new StringAccessor(_sb.ToString());
         }
 
+        public static implicit operator StringBuilder(StringSaver sv) => sv._sb;
 
         [MethodImpl(256)]
         public void Dispose()
         {
-            _sb.Clear();
+            Recycle(_sb);
+            _sb = null;
+        }
+
+        public void Undispose()
+        {
+            if (_sb != null)
+                return;
+            SetBackingBuilder();
+        }
+
+        private static void Recycle(StringBuilder sb)
+        {
+            var capacity = sb.Capacity;
+
+            sb.Clear();
+
+            lock (_sbLock)
+            {
+                var half = _sbPool.Count / 2.0;
+                if (half.IsZero())
+                {
+                    _sbPool.Add(sb);
+                    return;
+                }
+
+                var i = Convert.ToInt32(half);
+                var current = _sbPool[i];
+                if (current.Capacity > capacity)
+                {
+                    for (; i >= 0; i--)
+                    {
+                        current = _sbPool[i];
+                        if (current.Capacity < capacity)
+                        {
+                            _sbPool.Insert(i + 1, sb);
+                            return;
+                        }
+                    }
+
+                    _sbPool.Insert(0, sb);
+                }
+                else
+                {
+                    for (; i < _sbPool.Count; i++)
+                    {
+                        current = _sbPool[i];
+                        if (current.Capacity > capacity)
+                        {
+                            _sbPool.Insert(i - 1, sb);
+                            return;
+                        }
+                    }
+
+                    _sbPool.Add(sb);
+                }
+            }
         }
 
         [MethodImpl(256)]
@@ -101,7 +308,7 @@ namespace Das.Serializer.Remunerators
         // ReSharper disable once UnusedMember.Global
         public void Remove(Int32 startIndex, Int32 length) => _sb.Remove(startIndex, length);
 
-        public Boolean IsEmpty => _sb.Length == 0;
+        public Boolean IsEmpty => _sb == null || _sb.Length == 0;
 
         public Char this[Int32 index] => _sb[index];
 
@@ -126,9 +333,22 @@ namespace Das.Serializer.Remunerators
 
         public String[] Split()
         {
-            //var cnt = Count(' ');
-            //var res = new StringBuilder[cnt];
             return _sb.ToString().Split();
+        }
+
+        public String[] Split(Char[] separators, StringSplitOptions options = StringSplitOptions.RemoveEmptyEntries)
+        {
+            return _sb.ToString().Split(separators, options);
+        }
+
+        public String[] TrimAndSplit()
+        {
+            return _sb.ToString().Trim().Split();
+        }
+
+        public String Remove(ISet<Char> chars)
+        {
+            return Remove(chars, _sb.ToString());
         }
 
         public String Substring(Int32 start, Int32 length)
@@ -179,6 +399,8 @@ namespace Das.Serializer.Remunerators
 
         public void Clear()
         {
+            if (_sb == null)
+                Undispose();
             _sb.Clear();
         }
 

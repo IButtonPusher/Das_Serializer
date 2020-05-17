@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Das.Serializer;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 // ReSharper disable UnusedMember.Global
 
@@ -9,36 +9,38 @@ namespace Serializer.Printers
 {
     public class JsonWriter
     {
-        protected void Block(StringBuilder sb, params Action[] blocks)
+        protected static void Block(ITextRemunerable sb, params Action<ITextRemunerable>[] blocks)
         {
             ConditionalBlock(sb, Cast(blocks).ToArray());
 
-            IEnumerable<Func<Boolean>> Cast(IEnumerable<Action> actions)
+            IEnumerable<Func<ITextRemunerable, Boolean>> Cast(
+                IEnumerable<Action<ITextRemunerable>> actions)
             {
                 foreach (var action in actions)
-                    yield return () =>
+                    yield return (s) =>
                     {
-                        action();
+                        action(s);
                         return true;
                     };
             }
         }
 
-        protected void ConditionalBlock(StringBuilder sb, params Func<Boolean>[] blocks)
+        protected static void ConditionalBlock(ITextRemunerable sb,
+            params Func<ITextRemunerable, Boolean>[] blocks)
         {
             sb.Append("{ ");
             Boolean lastPrinted;
             var isDeficit = false;
 
             if (blocks?.Length > 0)
-                lastPrinted = blocks[0]();
+                lastPrinted = blocks[0](sb);
             else return;
 
             for (var c = 1; c < blocks.Length; c++)
             {
                 if (lastPrinted)
                     sb.Append(",");
-                var nowPrinted = blocks[c]();
+                var nowPrinted = blocks[c](sb);
                 if (!nowPrinted && lastPrinted)
                     isDeficit = true;
                 else if (nowPrinted && !lastPrinted)
@@ -52,15 +54,15 @@ namespace Serializer.Printers
             sb.Append(" }");
         }
 
-        protected void Block(StringBuilder sb, String key,
-            Action<StringBuilder> action)
+        protected static void Block(ITextRemunerable sb, String key,
+            Action<ITextRemunerable > action)
         {
             sb.Append("\"" + key + "\": { ");
             action(sb);
             sb.Append(" }");
         }
 
-        protected void Collection<T>(StringBuilder sb, String key,
+        protected static void Collection<T>(ITextRemunerable sb, String key,
             IEnumerable<T> items, Action<T> action)
         {
             sb.Append("\"" + key + "\": [ ");
@@ -83,23 +85,23 @@ namespace Serializer.Printers
             sb.Append(" ]");
         }
 
-        protected void Text(StringBuilder sb, String key, String value)
+        protected static void Text(ITextRemunerable sb, String key, String value)
         {
             sb.Append("\"" + key + "\": \"" + value + "\"");
         }
 
-        protected void Texts(StringBuilder sb, IDictionary<String, String> texts)
+        protected void Texts(ITextRemunerable sb, IDictionary<String, String> texts)
         {
             foreach (var kvp in texts)
                 sb.Append("\"" + kvp.Key + "\": \"" + kvp.Value + "\"");
         }
 
-        protected void Number(StringBuilder sb, String key, Int32 value)
+        protected static void Number(ITextRemunerable sb, String key, Int32 value)
         {
             sb.Append("\"" + key + "\":" + value);
         }
 
-        protected void Boolean(StringBuilder sb, String key, Boolean value)
+        protected static void Boolean(ITextRemunerable sb, String key, Boolean value)
         {
             sb.Append("\"" + key + "\":" + (value ? "true" : "false"));
         }

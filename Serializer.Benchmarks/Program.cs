@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using BenchmarkDotNet.Attributes;
 // ReSharper disable once RedundantUsingDirective
@@ -78,7 +77,7 @@ namespace Serializer.Benchmarks
         public class Benchies : TestBase
         {
             private String _xmlString;
-            private IEnumerable<Char> _xmlEnumerable;
+            private Char[] _xmlEnumerable;
 
             public Benchies()
             {
@@ -86,7 +85,7 @@ namespace Serializer.Benchmarks
 
                 var xml = Serializer.ToXml(mc1);
                 _xmlString = xml;
-                _xmlEnumerable = xml;
+                _xmlEnumerable = xml.ToCharArray();
             }
 
             [Benchmark]

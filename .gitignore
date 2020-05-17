@@ -48,3 +48,9 @@
 *.manifest
 /Das.Serializer.Split/obj
 /Serializer.Core/bin/Release
+*.v2
+*.DotSettings
+/Serializer.Tests/obj
+/UpgradeLog2.htm
+/UpgradeLog.htm
+/.editorconfig

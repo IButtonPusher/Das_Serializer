@@ -66,7 +66,7 @@ namespace Das.Types
 
             var targetGetMethod = propertyInfo.GetGetMethod();
             var opCode = targetType.IsValueType ? OpCodes.Call : OpCodes.Callvirt;
-            il.Emit(opCode, targetGetMethod);
+            il.Emit(opCode, targetGetMethod!);
             var returnType = targetGetMethod.ReturnType;
 
 
@@ -138,7 +138,7 @@ namespace Das.Types
             switch (memberInfo)
             {
                 case PropertyInfo info:
-                    generator.Emit(OpCodes.Callvirt, info.GetSetMethod(true));
+                    generator.Emit(OpCodes.Callvirt, info.GetSetMethod(true)!);
                     break;
                 case FieldInfo field:
                     generator.Emit(OpCodes.Stfld, field);
@@ -167,14 +167,17 @@ namespace Das.Types
             }
         }
 
-        private static FieldInfo GetBackingField(PropertyInfo pi)
+        private static FieldInfo? GetBackingField(PropertyInfo pi)
         {
+            if (pi == null)
+                return null;
+
             var compGen = typeof(CompilerGeneratedAttribute);
 
-            var decType = pi?.DeclaringType;
+            var decType = pi.DeclaringType;
 
             if (decType == null || !pi.CanRead ||
-                !pi.GetGetMethod(true).IsDefined(compGen, true))
+                pi.GetGetMethod(true)?.IsDefined(compGen, true) != true)
                 return null;
             var backingField = decType.GetField($"<{pi.Name}>k__BackingField",
                 Const.NonPublic);
@@ -205,7 +208,7 @@ namespace Das.Types
             var backingField = GetBackingField(propertyInfo);
             if (backingField == null)
             {
-                setter = default;
+                setter = default!;
                 return false;
             }
 
@@ -331,27 +334,27 @@ namespace Das.Types
             return dynam;
         }
 
-        /// <summary>
-        /// Gets a delegate to add an object to a generic collection
-        /// </summary>		
-        public VoidMethod CreateAddDelegate<T>(IEnumerable<T> collection)
-        {
-            var colType = collection.GetType();
+        ///// <summary>
+        ///// Gets a delegate to add an object to a generic collection
+        ///// </summary>		
+        //public VoidMethod CreateAddDelegate<T>(IEnumerable<T> collection)
+        //{
+        //    var colType = collection.GetType();
 
-            if (_cachedAdders.TryGetValue(colType, out var res))
-                return res;
+        //    if (_cachedAdders.TryGetValue(colType, out var res))
+        //        return res;
 
-            var method = GetAddMethod(collection);
-            if (method != null)
-            {
-                var dynam = CreateMethodCaller(method, true);
-                res = (VoidMethod) dynam.CreateDelegate(typeof(VoidMethod));
-            }
+        //    var method = GetAddMethod(collection);
+        //    if (method != null)
+        //    {
+        //        var dynam = CreateMethodCaller(method, true);
+        //        res = (VoidMethod) dynam.CreateDelegate(typeof(VoidMethod));
+        //    }
 
-            _cachedAdders.TryAdd(colType, res);
+        //    _cachedAdders.TryAdd(colType, res);
 
-            return res;
-        }
+        //    return res;
+        //}
 
         public VoidMethod GetAdder(Type collectionType, Object exampleValue)
         {
@@ -373,9 +376,7 @@ namespace Das.Types
 
                 if (interfaces != null)
                     addMethod = interfaces.GetMethod("Add", new[] {eType});
-
             }
-
 
             if (addMethod == null)
                 return default;

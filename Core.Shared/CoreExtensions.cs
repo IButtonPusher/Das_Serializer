@@ -44,6 +44,32 @@ namespace Das.Extensions
         }
 
 
+        public static String ToString<T>(this IList<T> list, Char sep,
+            Char? excludeWhenFirst = null)
+        {
+            if (list == null || list.Count == 0)
+                return String.Empty;
+
+            if (list.Count == 1)
+                return list[0]!.ToString();
+
+            var sb = new StringBuilder();
+            foreach (var i in list)
+            {
+                if (null == i)
+                    continue;
+
+                if (excludeWhenFirst != null && i.ToString()[0] == excludeWhenFirst)
+                    sb.Append($"{sep}");
+                else
+                    sb.Append($"{i}{sep}");
+            }
+
+            if (sb.Length > 0)
+                sb.Remove(sb.Length - 1, 1);
+            return sb.ToString();
+        }
+
         public static String ToString<T>(this IEnumerable<T> list, Char sep,
             Char? excludeWhenFirst = null)
         {
@@ -53,6 +79,9 @@ namespace Das.Extensions
             var sb = new StringBuilder();
             foreach (var i in list)
             {
+                if (null == i)
+                    continue;
+
                 if (excludeWhenFirst != null && i.ToString()[0] == excludeWhenFirst)
                     sb.Append($"{sep}");
                 else
@@ -70,27 +99,27 @@ namespace Das.Extensions
 
         [MethodImpl(256)]
         public static Boolean IsIn<T>(this T item, T c1, T c2, T c3, T c4, T c5, T c6, T c7) =>
-            item.Equals(c7) || item.IsIn(c1, c2, c3, c4, c5, c6);
+            Equals(item, c7) || item.IsIn(c1, c2, c3, c4, c5, c6);
 
         [MethodImpl(256)]
         public static Boolean IsIn<T>(this T item, T c1, T c2, T c3, T c4, T c5, T c6) =>
-            item.Equals(c6) || item.IsIn(c1, c2, c3, c4, c5);
+            Equals(item, c6) || item.IsIn(c1, c2, c3, c4, c5);
 
         [MethodImpl(256)]
         public static Boolean IsIn<T>(this T item, T c1, T c2, T c3, T c4, T c5) =>
-            item.Equals(c5) || item.IsIn(c1, c2, c3, c4);
+            Equals(item, c5) || item.IsIn(c1, c2, c3, c4);
 
         [MethodImpl(256)]
         public static Boolean IsIn<T>(this T item, T c1, T c2, T c3, T c4)
-            => item.Equals(c4) || item.IsIn(c1, c2, c3);
+            => Equals(item, c4) || item.IsIn(c1, c2, c3);
 
         [MethodImpl(256)]
         public static Boolean IsIn<T>(this T item, T c1, T c2, T c3) =>
-            item.Equals(c3) || item.IsIn(c1, c2);
+            Equals(item, c3) || item.IsIn(c1, c2);
 
         [MethodImpl(256)]
         public static Boolean IsIn<T>(this T item, T c1, T c2)
-            => item.Equals(c1) || item.Equals(c2);
+            => Equals(item, c1) || Equals(item, c2);
 
         [MethodImpl(256)]
         public static Boolean IsIn<T>(this T item, IEnumerable<T> collection)
@@ -108,15 +137,44 @@ namespace Das.Extensions
 
         public static Boolean Congruent<T>(this IList<T> left, IList<T> right)
         {
-            if (right?.Count != left?.Count)
+            if (ReferenceEquals(null, left))
+                return ReferenceEquals(null, right);
+            if (ReferenceEquals(null, right))
                 return false;
 
-            if (left == null)
-                return true;
+            if (right.Count != left.Count)
+                return false;
+
+            //if (left == null)
+            //    return true;
 
             for (var i = 0; i < left.Count; i++)
             {
-                if (!left[i].Equals(right[i]))
+                if (!Equals(left[i], right[i]))
+                    return false;
+            }
+
+            return true;
+        }
+
+        public static Boolean AreCongruent<T>(this IReadOnlyList<T> left, IReadOnlyList<T> right)
+        {
+            //if (right?.Count != left?.Count)
+            //    return false;
+
+            //if (left == null)
+            //    return true;
+            if (ReferenceEquals(null, left))
+                return ReferenceEquals(null, right);
+            if (ReferenceEquals(null, right))
+                return false;
+
+            if (right.Count != left.Count)
+                return false;
+
+            for (var i = 0; i < left.Count; i++)
+            {
+                if (!Equals(left[i], right[i]))
                     return false;
             }
 

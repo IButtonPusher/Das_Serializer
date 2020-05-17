@@ -17,7 +17,7 @@ namespace Das.Printers
         private readonly ISerializationState _stateProvider;
         protected readonly INodeTypeProvider _nodeTypes;
         protected readonly Boolean _isIgnoreCircularDependencies;
-        private readonly Boolean _isElideDefaultProperties;
+        private readonly Boolean _isOmitDefaultProperties;
 
         //to quickly detected if an object exists in this path
         private readonly HashSet<Object> _pathReferences;
@@ -62,7 +62,7 @@ namespace Das.Printers
             _isIgnoreCircularDependencies = stateProvider.Settings.CircularReferenceBehavior
                                             == CircularReference.NoValidation;
 
-            _isElideDefaultProperties = IsTextPrinter && settings.IsOmitDefaultValues;
+            _isOmitDefaultProperties = IsTextPrinter && settings.IsOmitDefaultValues;
         }
 
 
@@ -85,7 +85,7 @@ namespace Das.Printers
         /// { "__type": "System.Int16", "__val": *Object's Json* }
         /// -Binary can just put the type name/length bytes beforehand
         /// </summary>
-        public abstract Boolean PrintNode(INamedValue node);
+        public abstract void PrintNode(INamedValue node);
 
         /// <summary>
         /// Every object passes through here.  Once we've gotten here we assume that any 
@@ -256,9 +256,8 @@ namespace Das.Printers
             }
         }
 
-        protected virtual void PrintProperties<T>(IPropertyValueIterator<T> values, 
-            Func<T, Boolean> exe) where T : class, INamedValue
-
+        protected virtual void PrintProperties<T>(IPropertyValueIterator<T> values,
+            Action<T> exe) where T : class, INamedValue
         {
             for (var c = 0; c < values.Count; c++)
             {
@@ -267,10 +266,11 @@ namespace Das.Printers
             }
         }
 
-        protected virtual void PrintSeries<T>(IEnumerable<T> values, Func<T, Boolean> exe)
+        protected virtual void PrintSeries<T>(IEnumerable<T> values,
+            Action<T> print)
         {
             foreach (var val in values)
-               exe(val);
+                print(val);
         }
 
         protected IEnumerable<ObjectNode> ExplodeList(IEnumerable list, Type itemType)
@@ -283,21 +283,27 @@ namespace Das.Printers
                 yield return new ObjectNode(o, itemType, index++);
         }
 
-        protected Boolean PrintProperty(INamedValue prop)
+        public Boolean ShouldPrintNode(INamedValue prop) 
+            => ShouldPrintValue(prop.Value);
+
+        protected Boolean ShouldPrintValue<T>(T item)
+            => !ReferenceEquals(null, item) &&
+               (!_isOmitDefaultProperties ||
+                !_typeInferrer.IsDefaultValue(item));
+        
+
+        protected void PrintProperty(INamedValue prop)
         {
             if (prop.Type.IsNestedPrivate && _typeInferrer.IsCollection(prop.Type))
             {
                 //force deferred to run
             }
 
-            if (_isElideDefaultProperties && _typeInferrer.IsDefaultValue(prop.Value))
-                return false;
-
-            var printed = PrintNode(prop);
+            PrintNode(prop);
 
             prop.Dispose();
 
-            return printed;
+            //return printed;
         }
 
         #endregion

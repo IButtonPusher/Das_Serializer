@@ -98,37 +98,45 @@ namespace Das.Serializer.Scanners
             for (var i = 0; i < source.Length; i++)
             {
                 var c = source[i];
-                PreProcessCharacter(c);
+                PreProcessCharacter(ref c);
             }
 
             return GetResult<T>();
         }
 
-        public T Deserialize<T>(IEnumerable<Char> source)
+        public T Deserialize<T>(String source)
         {
             _resultType = typeof(T);
 
+            var len = source.Length;
+
+            for (var c = 0; c < len; c++)
+            {
+                var current = source[c];
+                PreProcessCharacter(ref current);
+            }
+
             //check for BOM
             //https://stackoverflow.com/questions/1317700/strip-byte-order-mark-from-string-in-c-sharp
-            using (var iterator = source.GetEnumerator())
+            //using (var iterator = source.GetEnumerator())
             {
-                if (!iterator.MoveNext())
-                    return default;
+                //if (!iterator.MoveNext())
+                //    return default;
 
-                var c = iterator.Current;
+                //var c = iterator.Current;
 
-                if (c > Byte.MaxValue)
-                {
-                    if (!iterator.MoveNext())
-                        return default;
-                }
+                //if (c > Byte.MaxValue)
+                //{
+                //    if (!iterator.MoveNext())
+                //        return default;
+                //}
 
-                do
-                {
-                    c = iterator.Current;
-                    PreProcessCharacter(c);
-                }
-                while (iterator.MoveNext());
+                //do
+                //{
+                //    c = iterator.Current;
+                //    PreProcessCharacter(c);
+                //}
+                //while (iterator.MoveNext());
             }
 
             return GetResult<T>();
@@ -137,7 +145,7 @@ namespace Das.Serializer.Scanners
         private T GetResult<T>() => TextState.ObjectManipulator.
             CastDynamic<T>(RootNode.Value, _converter, Settings);
 
-        private void PreProcessCharacter(Char c)
+        private void PreProcessCharacter(ref Char c)
         {
             var iq = IsQuote(c);
 

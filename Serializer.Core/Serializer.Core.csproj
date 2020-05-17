@@ -31,6 +31,11 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
+<PropertyGroup>
+   <LangVersion>8.0</LangVersion>
+   <Nullable>enable</Nullable>
+</PropertyGroup>
+
   <Import Project="..\Core.Shared\Core.Shared.projitems" Label="Shared" />
   
    <Target Name="CopyProjectReferencesToPackage" DependsOnTargets="ResolveReferences">
@@ -39,8 +44,14 @@
     </ItemGroup>
   </Target>
   
-   <ItemGroup>
+   <ItemGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
      <PackageReference Include="Das.Serializer.Interfaces" Version="0.0.2-alpha" />
+   </ItemGroup>
+   
+   <ItemGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+     <ProjectReference Include="..\Serializer.Interfaces\Serializer.Interfaces.csproj">
+	 <Name>Serializer.Interfaces</Name>
+	 </ProjectReference>
    </ItemGroup>
 
 </Project>

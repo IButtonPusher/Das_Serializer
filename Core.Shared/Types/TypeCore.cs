@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 
 namespace Das.Serializer
 {
-    public class TypeCore : ITypeCore
+    public class TypeCore : ITypeCore, IComparer<PropertyInfo>
     {
         private ISerializerSettings _settings;
 
@@ -47,6 +47,7 @@ namespace Das.Serializer
             _cachedGermane = new ConcurrentDictionary<Type, Type>();
             CachedProperties = new ConcurrentDictionary<Type,
                 IEnumerable<PropertyInfo>>();
+            
             _typesKnownSettableProperties = new ConcurrentDictionary<Type, Boolean>();
             CachedConstructors = new ConcurrentDictionary<Type, ConstructorInfo>();
             CollectionTypes = new ConcurrentDictionary<Type, Boolean>();
@@ -55,6 +56,9 @@ namespace Das.Serializer
 
         private static readonly ConcurrentDictionary<Type, IEnumerable<PropertyInfo>>
             CachedProperties;
+
+        private static readonly ConcurrentDictionary<Type, ISet<PropertyInfo>>
+            CachedProperties2 = new ConcurrentDictionary<Type, ISet<PropertyInfo>>();
 
         public Boolean TryGetNullableType(Type candidate, out Type primitive)
         {
@@ -149,10 +153,15 @@ namespace Das.Serializer
         }
 
         public static Boolean IsLeaf(Type t, Boolean isStringCounts)
-            => Leaves.GetOrAdd(t, l => AmIALeaf(l, isStringCounts));
+        {
+            if (Leaves.TryGetValue(t, out var l))
+                return l;
 
-        Boolean ITypeCore.IsLeaf(Type t, Boolean isStringCounts) 
-            => Leaves.GetOrAdd(t, l => AmIALeaf(l, isStringCounts));
+            return Leaves[t] = AmIALeaf(t, isStringCounts);
+        }
+
+        Boolean ITypeCore.IsLeaf(Type t, Boolean isStringCounts)  
+            => IsLeaf(t, isStringCounts);
 
         // ReSharper disable once InconsistentNaming
         private static Boolean AmIALeaf(Type t, Boolean isStringCounts) 
@@ -200,9 +209,6 @@ namespace Das.Serializer
 
         protected static Boolean IsAnonymousType(Type type)
         {
-//            if (type == null)
-//                throw new ArgumentNullException(nameof(type));
-
             return type.Namespace == null &&
                    type.IsGenericType &&
                    type.IsSealed && type.BaseType == Const.ObjectType &&
@@ -210,6 +216,50 @@ namespace Das.Serializer
                    && type.Name.Contains("AnonymousType")
                    && (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))
                    && (type.Attributes & TypeAttributes.Public) == TypeAttributes.NotPublic;
+        }
+
+        public ISet<PropertyInfo> GetPublicProperties2(Type type, Boolean numericFirst = true)
+        {
+
+            if (CachedProperties2.TryGetValue(type, out var results))
+                return results;
+
+            if (numericFirst)
+                results = new SortedSet<PropertyInfo>(this);
+            else results = new HashSet<PropertyInfo>();
+
+            //var res = type.GetProperties(BindingFlags.Instance | BindingFlags.Public);
+
+            //todo: remove this and get it to work with explicits
+            if (type.IsInterface)
+            {
+                foreach (var parentInterface in type.GetInterfaces())
+                {
+                    var letsAdd = GetPublicProperties2(parentInterface, false);
+
+                    foreach (var l in letsAdd)
+                        results.Add(l);
+                }
+            }
+            else
+            {
+                var bt = type.BaseType;
+
+                while (bt != null)
+                {
+                    foreach (var pp in GetPublicProperties2(type.BaseType, false))
+                    {
+                        results.Add(pp);
+                    }
+
+                    bt = bt.BaseType;
+                }
+            }
+
+
+            CachedProperties2.TryAdd(type, results);
+            return results;
+
         }
 
         public IEnumerable<PropertyInfo> GetPublicProperties(Type type, Boolean numericFirst = true)
@@ -259,12 +309,18 @@ namespace Das.Serializer
                 }
             }
 
-            if (numericFirst)
-                res = res.OrderByDescending(p => IsLeaf(p.PropertyType, false));
+            var rar = numericFirst
+                ? res.OrderByDescending(p => IsLeaf(p.PropertyType, false)).ToArray()
+                : res.ToArray();
 
-            CachedProperties.TryAdd(type, res);
+           // if (numericFirst)
+           //     res = res.OrderByDescending(p => IsLeaf(p.PropertyType, false));
 
-            foreach (var prop in res)
+            //var rar = res.ToArray();
+
+            CachedProperties.TryAdd(type, rar);
+
+            foreach (var prop in rar)
                 yield return prop;
         }
 
@@ -306,5 +362,11 @@ namespace Das.Serializer
             return true;
         }
 
+        public Int32 Compare(PropertyInfo x, PropertyInfo y)
+        {
+            if (ReferenceEquals(null, x) || ReferenceEquals(null, y))
+                return Int32.MaxValue;
+            return String.Compare(x.Name, y.Name, StringComparison.Ordinal);
+        }
     }
 }

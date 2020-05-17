@@ -44,6 +44,14 @@ namespace Das.Streamers
             return Encoding.ASCII;
         }
 
+        public static implicit operator Char[](StreamStreamer stream)
+        {
+            var len = (Int32)stream._stream.Length;
+            var buffer = new Byte[len];
+            var encoding = GetEncoding(buffer);
+            return encoding.GetChars(buffer, 0, len);
+        }
+
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         public void Dispose()

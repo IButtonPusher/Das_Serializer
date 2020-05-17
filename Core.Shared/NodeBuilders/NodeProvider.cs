@@ -36,12 +36,15 @@ namespace Das.Serializer
 
             node.Clear();
             foreach (var n in letsAdd)
+            {
                 buffer.Enqueue(n);
+                if (buffer.Count > 1000)
+                    break;
+            }
 
             letsAdd.Clear();
         }
 
-        
     }
 
   

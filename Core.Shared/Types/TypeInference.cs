@@ -250,40 +250,71 @@ namespace Das.Types
         }
 
 
-        public Boolean IsDefaultValue(Object o)
+        public Boolean IsDefaultValue<T>(T value)
         {
-            switch (o)
-            {
-                case null:
-                    return true;
-                case String str:
-                    return str == String.Empty;
-                case DateTime dt:
-                    return dt == DateTime.MinValue;
-                case IConvertible conv:
-                    return Convert.ToInt32(conv) == 0;
-            }
-
-            var t = o.GetType();
-
-            if (!t.IsValueType || t == typeof(void))
+            if (ReferenceEquals(null, value))
                 return true;
 
-            if (t.IsEnum)
-            {
-                return Convert.ToInt32(o) == 0;
-            }
+            var typo = typeof(T);
 
-            if (CachedDefaults.TryGetValue(t, out var def))
-                return def.Equals(o);
+            if (typo != typeof(Object))
+                return EqualityComparer<T>.Default.Equals(value);
 
-            def = Activator.CreateInstance(t); //yuck
+            typo = value.GetType();
+
+            if (!typo.IsValueType)
+                return false;
+            //return ReferenceEquals(null, value);
+
+            if (typo.IsEnum)
+                return Convert.ToInt32(value) == 0;
+
+            if (CachedDefaults.TryGetValue(typo, out var def))
+                return def.Equals(value);
+
+            def = Activator.CreateInstance(typo); //yuck
             //this has to be activator.  A value type is dynamically made 
             //made using only that!
 
-            CachedDefaults.TryAdd(t, def);
-            return def.Equals(o);
+            CachedDefaults.TryAdd(typo, def);
+            return def.Equals(value);
         }
+
+        //public Boolean IsDefaultValue(Object o)
+        //{
+
+        //    switch (o)
+        //    {
+        //        case null:
+        //            return true;
+        //        case String str:
+        //            return str == String.Empty;
+        //        case DateTime dt:
+        //            return dt == DateTime.MinValue;
+        //        case IConvertible conv:
+        //            return Convert.ToInt32(conv) == 0;
+        //    }
+
+        //    var t = o.GetType();
+
+        //    if (!t.IsValueType || t == typeof(void))
+        //        return true;
+
+        //    if (t.IsEnum)
+        //    {
+        //        return Convert.ToInt32(o) == 0;
+        //    }
+
+        //    if (CachedDefaults.TryGetValue(t, out var def))
+        //        return def.Equals(o);
+
+        //    def = Activator.CreateInstance(t); //yuck
+        //    //this has to be activator.  A value type is dynamically made 
+        //    //made using only that!
+
+        //    CachedDefaults.TryAdd(t, def);
+        //    return def.Equals(o);
+        //}
 
         public Type GetTypeFromClearName(String clearName,Boolean isTryGeneric = false)
             => FromClearName(clearName, true, isTryGeneric);

@@ -23,7 +23,9 @@ namespace Das.Serializer
 
         Int32 BytesNeeded(Type typ);
 
-        Boolean IsDefaultValue(Object o);
+        //Boolean IsDefaultValue(Object o);
+
+        Boolean IsDefaultValue<T>(T value);
 
         /// <summary>
         /// Pascal cases the string

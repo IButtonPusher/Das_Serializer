@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -23,7 +22,7 @@ namespace Das.Serializer
             }
         }
 
-        public T FromXml<T>(IEnumerable<Char> xml)
+        public T FromXml<T>(Char[] xml)
         {
             using (var state = StateProvider.BorrowXml(Settings))
                 return state.Scanner.Deserialize<T>(xml);

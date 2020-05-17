@@ -56,21 +56,5 @@ namespace Das.Serializer
         /// and is automatically disabled in contexts where one is being deserialized
         /// </summary>
         Boolean CacheTypeConstructors { get; set; }
-
-//        /// <summary>
-//        /// Switches binary serialization to use protocol buffers format
-//        /// </summary>
-//        /// <typeparam name="TPropertyAttribute"></typeparam>
-//        /// <param name="options"></param>
-//        /// <see cref="https://developers.google.com/protocol-buffers/docs/encoding"/>
-//        void SetProtoBufOptions<TPropertyAttribute>(ProtoBufOptions<TPropertyAttribute> options)
-//            where TPropertyAttribute : Attribute;
-
-//        /// <summary>
-//        /// Changes from default to ProtoBuf when a non-null argument is passed to the SetProtoBufOptions method
-//        /// </summary>
-//        /// <see cref="SetProtoBufOptions{TPropertyAttribute}"/>
-//        BinaryFormats BinaryFormat { get; }
-
     }
 }

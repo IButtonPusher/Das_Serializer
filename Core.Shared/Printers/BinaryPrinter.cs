@@ -37,7 +37,7 @@ namespace Das.Printers
 
         #region public interface
 
-        public override Boolean PrintNode(INamedValue node)
+        public override void PrintNode(INamedValue node)
         {
             var name = node.Name;
             var propType = node.Type;
@@ -69,7 +69,7 @@ namespace Das.Printers
                 {
                     print.IsWrapping = isWrapping;
 
-                    return PrintBinaryNode(print, !isLeaf || isWrapping);
+                    PrintBinaryNode(print, !isLeaf || isWrapping);
                 }
             }
             finally
@@ -128,12 +128,10 @@ namespace Das.Printers
                 WriteType(node.Value.GetType());
         }
 
-        private Boolean PrintPrimitiveItem(NamedValueNode node)
+        private void PrintPrimitiveItem(NamedValueNode node)
         {
             using (var print = _printNodePool.GetPrintNode(node))
                 PrintPrimitive(print);
-
-            return false;
         }
 
         [MethodImpl(256)]
@@ -232,16 +230,25 @@ namespace Das.Printers
         {
             var germane = _typeInferrer.GetGermaneType(node.Type);
 
-            var list = node.Value as IEnumerable ?? throw new ArgumentException();
+            switch (node.Value)
+            {
+                case null:
+                    _bWriter.WriteInt8(0);
+                    break;
+                case IEnumerable list:
+                    var boom = ExplodeList(list, germane);
 
-            var boom = ExplodeList(list, germane);
+                    var isLeaf = _typeInferrer.IsLeaf(germane, true);
 
-            var isLeaf = _typeInferrer.IsLeaf(germane, true);
-
-            if (isLeaf)
-                PrintSeries(boom, PrintPrimitiveItem);
-            else
-                PrintSeries(boom, PrintNode);
+                    if (isLeaf)
+                        PrintSeries(boom, PrintPrimitiveItem);
+                    else
+                        PrintSeries(boom, PrintNode);
+                    break;
+                default:
+                    throw new InvalidOperationException(
+                        $"{node.Value} is not valid to be printed as a collection");
+            }
         }
 
 

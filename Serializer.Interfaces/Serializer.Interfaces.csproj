@@ -21,6 +21,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+  
+  <PropertyGroup>
+   <LangVersion>8.0</LangVersion>
+   <Nullable>enable</Nullable>
+</PropertyGroup>
+
 
   <ItemGroup>
     <Compile Remove="Dynamics\**" />

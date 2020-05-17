@@ -42,5 +42,7 @@ namespace Das.Serializer
         void ToJson(Object o, FileInfo fileName);
 
         void ToJson<TTarget>(Object o, FileInfo fileName);
+
+        String JsonEscape(String str);
     }
 }

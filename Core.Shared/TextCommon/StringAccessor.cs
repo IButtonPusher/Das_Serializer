@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Das.Serializer.Scanners;
 
-namespace Core.Shared.TextCommon
+namespace Das.Serializer
 {
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
-    public class StringAccessor : ITextAccessor
+    public class StringAccessor : StringBase, ITextAccessor
     {
         private readonly String _accessing;
 
@@ -18,6 +19,21 @@ namespace Core.Shared.TextCommon
         public String[] Split(Char splitter) => _accessing.Split(splitter);
 
         public String[] Split() => _accessing.Split();
+
+        public String[] Split(Char[] separators, StringSplitOptions options = StringSplitOptions.RemoveEmptyEntries)
+        {
+            return _accessing.Split(separators, options);
+        }
+
+        public String[] TrimAndSplit()
+        {
+            return _accessing.Trim().Split();
+        }
+
+        public String Remove(ISet<Char> chars)
+        {
+            return Remove(chars, _accessing);
+        }
 
         public String Right(Int32 numberOfChars) => _accessing.Substring(
             _accessing.Length - numberOfChars, numberOfChars);
@@ -68,7 +84,7 @@ namespace Core.Shared.TextCommon
         
 
         public static implicit operator StringAccessor(String accessMe) 
-            => new StringAccessor(accessMe);
+            => accessMe == null ? null : new StringAccessor(accessMe);
 
         public static implicit operator String(StringAccessor accessMe)
             => accessMe?._accessing;

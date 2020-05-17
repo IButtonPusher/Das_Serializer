@@ -8,7 +8,7 @@ using Das.Serializer;
 
 using Das.Extensions;
 using Das.Serializer.Objects;
-
+using System.ComponentModel;
 
 namespace Das.Types
 {
@@ -39,6 +39,10 @@ namespace Das.Types
         private static readonly DasCodeGenerator _codeGenerator;
 
         private static readonly Object _lockDynamic;
+
+        private const MethodAttributes AccessorAttributes = 
+            MethodAttributes.Public | MethodAttributes.SpecialName |
+            MethodAttributes.HideBySig | MethodAttributes.Virtual;
 
         public Type GetDynamicImplementation(Type interfaceType)
         {
@@ -95,8 +99,10 @@ namespace Das.Types
                 methodReplacements, events, parentTypes);
 
 
-        private DasType GetDynamicTypeImpl(String typeName, IEnumerable<DasProperty> properties,
-            Boolean isCreatePropertyDelegates, IDictionary<MethodInfo, MethodInfo> methodReplacements,
+        private DasType GetDynamicTypeImpl(String typeName, 
+            IEnumerable<DasProperty> properties,
+            Boolean isCreatePropertyDelegates, 
+            IDictionary<MethodInfo, MethodInfo> methodReplacements,
             IEnumerable<EventInfo> events,
             params Type[] parentTypes)
         {
@@ -164,13 +170,14 @@ namespace Das.Types
 
                 var addedMethods = new HashSet<String>();
                 var addedProperties = new HashSet<String>();
+                var addedEvents = new HashSet<String>();
 
                 //abstract before interfaces in case an abstract already implements 
                 //items from the interface
                 foreach (var type in parentTypes.OrderBy(t => t.IsAbstract).ThenByDescending(t => t.IsClass))
                 {
                     ImplementParent(typeBuilder, type, addedProperties, methodReplacements,
-                        addedMethods);
+                        addedMethods,addedEvents);
                 }
 
                 if (properties != null)
@@ -183,6 +190,14 @@ namespace Das.Types
                             continue;
                         CreateProperty(typeBuilder, kvp);
                     }
+                }
+
+                foreach (var eve in events)
+                {
+                    if (addedEvents.Contains(eve.Name))
+                        continue;
+                    
+                    CreateEvent(typeBuilder, eve);
                 }
 
                 var created = typeBuilder.CreateType();
@@ -208,7 +223,7 @@ namespace Das.Types
         private void ImplementParent(TypeBuilder typeBuilder,
             Type interfaceType, ISet<String> addedProperties,
             IDictionary<MethodInfo, MethodInfo> methodReplacements,
-            ISet<String> addedMethods)
+            ISet<String> addedMethods, ISet<String> addedEvents)
         {
             foreach (var prop in GetPublicProperties(interfaceType))
             {
@@ -223,6 +238,16 @@ namespace Das.Types
                 if (!interfaceType.IsClass || IsAbstract(prop))
                     CreateProperty(typeBuilder, dasProp);
                 addedProperties.Add(prop.Name);
+            }
+
+            foreach (var eve in interfaceType.GetEvents(BindingFlags.Public |
+                                                        BindingFlags.Instance |
+                                                        BindingFlags.FlattenHierarchy))
+            {
+                if (addedEvents.Contains(eve.Name))
+                    continue;
+                
+                CreateEvent(typeBuilder, eve);
             }
 
             foreach (var method in _typeManipulator.GetInterfaceMethods(interfaceType))
@@ -259,6 +284,8 @@ namespace Das.Types
 
 
         #region private implementation
+
+     
 
         private static void CreateMethod(TypeBuilder tb, MethodInfo meth,
             MethodInfo replacing = null)
@@ -316,6 +343,54 @@ namespace Das.Types
             tb.DefineMethodOverride(methodBuilder, replacing);
         }
 
+        private static void CreateEvent(TypeBuilder tb, EventInfo eve)
+        {
+            var eventName = eve.Name;
+            var eventType = eve.EventHandlerType;
+
+            var fieldBuilder = tb.DefineField("_" + eventName, eventType!, FieldAttributes.Private);
+            var theEvent = tb.DefineEvent(eve.Name, EventAttributes.None, eventType);
+
+            var addMethod = tb.DefineMethod($"add_{eventName}",
+                MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.SpecialName | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot,
+                CallingConventions.Standard | CallingConventions.HasThis,
+                typeof(void),
+                new[] { eventType });
+            var generator = addMethod.GetILGenerator();
+            var combine = typeof(Delegate).GetMethod("Combine", 
+                new[] { typeof(Delegate), typeof(Delegate) }) ?? throw new MissingMethodException();
+            generator.Emit(OpCodes.Ldarg_0);
+            generator.Emit(OpCodes.Ldarg_0);
+            generator.Emit(OpCodes.Ldfld, fieldBuilder);
+            generator.Emit(OpCodes.Ldarg_1);
+            generator.Emit(OpCodes.Call, combine);
+            generator.Emit(OpCodes.Castclass, eventType);
+            generator.Emit(OpCodes.Stfld, fieldBuilder);
+            generator.Emit(OpCodes.Ret);
+            theEvent.SetAddOnMethod(addMethod);
+
+
+
+            var removeMethod = tb.DefineMethod($"remove_{eventName}",
+                MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.SpecialName | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot,
+                CallingConventions.Standard | CallingConventions.HasThis,
+                typeof(void),
+                new[] { eventType });
+            var remove = typeof(Delegate).GetMethod("Remove", new[] 
+                             { typeof(Delegate), typeof(Delegate) })
+            ?? throw new MissingMethodException();
+            generator = removeMethod.GetILGenerator();
+            generator.Emit(OpCodes.Ldarg_0);
+            generator.Emit(OpCodes.Ldarg_0);
+            generator.Emit(OpCodes.Ldfld, fieldBuilder);
+            generator.Emit(OpCodes.Ldarg_1);
+            generator.Emit(OpCodes.Call, remove);
+            generator.Emit(OpCodes.Castclass, typeof(PropertyChangedEventHandler));
+            generator.Emit(OpCodes.Stfld, fieldBuilder);
+            generator.Emit(OpCodes.Ret);
+            theEvent.SetRemoveOnMethod(removeMethod);
+        }
+
         private static void CreateProperty(TypeBuilder tb, DasProperty prop)
         {
             var propertyName = prop.Name;
@@ -326,8 +401,10 @@ namespace Das.Types
             var propBuilder = tb.DefineProperty(propertyName, PropertyAttributes.HasDefault,
                 propertyType, null);
             var getPropMthdBldr = tb.DefineMethod("get_" + propertyName,
-                MethodAttributes.Public | MethodAttributes.SpecialName |
-                MethodAttributes.HideBySig | MethodAttributes.Virtual, propertyType, Type.EmptyTypes);
+                AccessorAttributes,
+                //MethodAttributes.Public | MethodAttributes.SpecialName |
+                //MethodAttributes.HideBySig | MethodAttributes.Virtual, 
+                propertyType, Type.EmptyTypes);
             var getIl = getPropMthdBldr.GetILGenerator();
 
             getIl.Emit(OpCodes.Ldarg_0);
@@ -336,9 +413,10 @@ namespace Das.Types
 
             var setPropMthdBldr =
                 tb.DefineMethod("set_" + propertyName,
-                    MethodAttributes.Public |
-                    MethodAttributes.SpecialName |
-                    MethodAttributes.HideBySig | MethodAttributes.Virtual,
+                    AccessorAttributes,
+                    //MethodAttributes.Public |
+                    //MethodAttributes.SpecialName |
+                    //MethodAttributes.HideBySig | MethodAttributes.Virtual,
                     null, new[] {propertyType});
 
             var setIl = setPropMthdBldr.GetILGenerator();

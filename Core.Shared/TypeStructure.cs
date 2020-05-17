@@ -198,10 +198,10 @@ namespace Das
             foreach (var fld in type.GetFields(BindingFlags.Public | Const.NonPublic))
             {
                 var delGet = _types.CreateFieldGetter(fld);
-                _fieldGetters.Add(fld.Name, delGet);
+                _fieldGetters[fld.Name] = delGet;
 
                 var delSet = _types.CreateFieldSetter(fld);
-                _fieldSetters.Add(fld.Name, delSet);
+                _fieldSetters[fld.Name] =  delSet;
 
                 var member = new DasMember(fld.Name, fld.FieldType);
                 MemberTypes[fld.Name] = member;

@@ -1,6 +1,5 @@
 ﻿using Das.Streamers;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -14,8 +13,14 @@ namespace Das.Serializer
                 return state.Scanner.Deserialize<Object>(json);
         }
 
-        public T FromJson<T>(String json) => FromJsonCharArray<T>(json);
-
+        public T FromJson<T>(String json) //=> FromJsonCharArray<T>(json);
+        {
+            using (var state = StateProvider.BorrowJson(Settings))
+            {
+                var res = state.Scanner.Deserialize<T>(json);
+                return res;
+            }
+        }
         public T FromJson<T>(FileInfo file)
         {
             using (var fs = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
@@ -28,7 +33,7 @@ namespace Das.Serializer
             return FromJsonCharArray<T>(streamWrap);
         }
 
-        protected virtual T FromJsonCharArray<T>(IEnumerable<Char> json)
+        protected virtual T FromJsonCharArray<T>(Char[] json)
         {
             using (var state = StateProvider.BorrowJson(Settings))
             {

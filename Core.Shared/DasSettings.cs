@@ -65,6 +65,7 @@ namespace Das.Serializer
         public DasSettings()
         {
             IsPropertyNamesCaseSensitive = true;
+            //IsOmitDefaultValues = true;
             TypeSpecificity = TypeSpecificity.Discrepancy;
             SerializationDepth = SerializationDepth.GetSetProperties;
             TypeSearchNameSpaces = new[] {Const.Tsystem};

@@ -92,11 +92,10 @@ namespace Das.Serializer
 
         protected void ConstructCollection(ref TNode node)
         {
-            if (node.Type == null)
+            if (node.Type == null || node.IsEmpty)
                 return;
             
             var childType = _types.GetGermaneType(node.Type);
-            
 
             if (node.Type.IsArray)
             {

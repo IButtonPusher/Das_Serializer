@@ -226,7 +226,8 @@ namespace Das.Serializer.ProtoBuf
             ////////////////////////////////
 
 
-            
+            if (dynamicType == null)
+                return default;
 
             return (ProtoDynamicBase)Activator.CreateInstance(dynamicType, ctor);
         }

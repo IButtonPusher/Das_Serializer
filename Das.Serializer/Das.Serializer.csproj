@@ -15,6 +15,7 @@ Single dll (fw/core) to keep it simple</Description>
     <RepositoryUrl>https://github.com/IButtonPusher/Das_Serializer.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <Authors>Claus Trappberger</Authors>
+    <RunAnalyzersDuringLiveAnalysis>false</RunAnalyzersDuringLiveAnalysis>
 	
   </PropertyGroup> 
   
@@ -28,5 +29,11 @@ Single dll (fw/core) to keep it simple</Description>
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.6.0" />
   </ItemGroup>
+
+<PropertyGroup>
+   <LangVersion>8.0</LangVersion>
+   <Nullable>enable</Nullable>
+</PropertyGroup>
+
 
 </Project>

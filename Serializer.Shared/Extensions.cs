@@ -40,7 +40,15 @@ namespace Das.Extensions
 
         public static Boolean TryGetPropertyValue<T>(this Object obj, String propertyName,
             out T result) 
-            => SerializationCore.ObjectManipulator.TryGetPropertyValue(obj, propertyName, out result);
+            => SerializationCore.ObjectManipulator.TryGetPropertyValue(obj, 
+                propertyName, out result);
+
+        public static Boolean TryGetPropertyValue(
+            this Object obj, 
+            String propertyName,
+            out Object result) => 
+            SerializationCore.ObjectManipulator.TryGetPropertyValue(obj, 
+                propertyName, out result);
 
         public static T GetPropertyValue<T>(this Object obj, String propertyName)
             => SerializationCore.ObjectManipulator.GetPropertyValue<T>(obj, propertyName);
@@ -55,6 +63,11 @@ namespace Das.Extensions
             var node = new ValueNode(obj, typeof(T));
             var walues = SerializationCore.ObjectManipulator.GetPropertyResults(node, Settings);
             return walues.ToDictionary(w => w.Name, w => w);
+            //var res = new Dictionary<String, IProperty>();
+            //foreach (var kvp in walues)
+            //    res[kvp.Name] = kvp;
+
+            //return res;
         }
       
         public static Boolean TrySetPropertyValue(this Object obj, String propertyName,

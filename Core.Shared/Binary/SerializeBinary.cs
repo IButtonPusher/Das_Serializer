@@ -57,9 +57,5 @@ namespace Das.Serializer
             var obj = (TTarget) o;
             ToBytes(obj, fileName);
         }
-
-     
-
-      
     }
 }

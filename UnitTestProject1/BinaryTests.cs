@@ -276,7 +276,8 @@ namespace Serializer.Tests
 		}
 
 
-		[TestCategory("list"), TestCategory("binary"), TestCategory("collections"), TestMethod]
+		[TestCategory("list"), TestCategory("binary"), 
+         TestCategory("collections"), TestMethod]
 		public void ObjectListBinary()
 		{
 			var list1 = ObjectList.Get();
@@ -289,6 +290,22 @@ namespace Serializer.Tests
 				Assert.IsTrue(list1.ItemList[i].Equals(res.ItemList[i]));
 			}		
 		}
+
+        [TestCategory("list"), TestCategory("binary"), 
+         TestCategory("collections"), TestCategory("null"),
+         TestMethod]
+        public void NullListBinary()
+        {
+            var list1 = new ObjectList
+            {
+                ItemList = null
+            };
+
+            var byt = Serializer.ToBytes(list1);
+            var res = Serializer.FromBytes<ObjectList>(byt);
+
+           Assert.IsNull(res.ItemList);
+        }
 
         [TestCategory("list"), TestCategory("binary"), TestCategory("collections"), TestMethod]
         public void PrimitiveListBinary()
