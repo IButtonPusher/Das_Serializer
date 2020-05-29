@@ -47,6 +47,7 @@ Serializer.Interfaces (standard)</Description>
 <PropertyGroup>
    <LangVersion>8.0</LangVersion>
    <Nullable>enable</Nullable>
+   <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
 </PropertyGroup>
 
 

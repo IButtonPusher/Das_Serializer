@@ -2,7 +2,7 @@
 using System.Text;
 using System.Threading;
 
-namespace Das.Serializer.Scanners
+namespace Das.Serializer
 {
     public class JsonPrimitiveScanner : StringPrimitiveScanner
     {

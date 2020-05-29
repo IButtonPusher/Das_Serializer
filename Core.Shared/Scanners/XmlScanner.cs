@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-namespace Das.Serializer.Scanners
+namespace Das.Serializer
 {
     internal class XmlScanner : TextScanner
     {

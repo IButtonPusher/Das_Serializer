@@ -18,6 +18,7 @@ namespace Serializer.Tests
 		#region easy
 
 		//[TestCategory("primitive"), TestCategory("binary"), TestMethod]
+		[Fact]
 		public void IntExplicitBinary()
 		{
 			var someInt = 55;
@@ -29,6 +30,7 @@ namespace Serializer.Tests
 		}
 
 		//[TestCategory("primitive"), TestCategory("binary"), TestMethod]
+		[Fact]
 		public void Int32asInt16Binary()
 		{
 			var someInt = 55;
@@ -47,7 +49,7 @@ namespace Serializer.Tests
 		}
 
         //[TestCategory("primitive"), TestCategory("binary"), TestMethod]
-        public void StringOnly()
+        [Fact]public void StringOnly()
         {
             var str = "Lorem Ipsum";
 
@@ -60,7 +62,7 @@ namespace Serializer.Tests
         }
 
         //[TestCategory("special"), TestCategory("binary"), TestMethod]
-        public void VersionBinary()
+        [Fact]public void VersionBinary()
         {
             var v = new Version(3, 1, 4);
             var std = Serializer;
@@ -73,7 +75,7 @@ namespace Serializer.Tests
 
 
         //[TestCategory("object"), TestCategory("binary"), TestMethod]
-		public void PrimitivePropertiesBinary()
+		[Fact]public void PrimitivePropertiesBinary()
 		{
 			var sc = new SimpleClass
 			{
@@ -93,7 +95,7 @@ namespace Serializer.Tests
 		}
 
 		//[TestCategory("object"), TestCategory("binary"), TestMethod]
-		public void BoolAsObjectBinary()
+		[Fact]public void BoolAsObjectBinary()
 		{
 			var sc = new SimpleClass
 			{
@@ -113,7 +115,7 @@ namespace Serializer.Tests
 		}
 
 		//[TestCategory("object"), TestCategory("binary"), TestMethod]
-		public void EnumAsObjectBinary()
+		[Fact]public void EnumAsObjectBinary()
 		{
 			var sc = new SimpleClass
 			{
@@ -133,7 +135,7 @@ namespace Serializer.Tests
 		}
 
 		//[TestCategory("types"), TestCategory("binary"), TestMethod]
-		public void BinaryTypesAsObjects()
+		[Fact]public void BinaryTypesAsObjects()
 		{
 			var type = typeof(Int32);
 			var srl = Serializer;
@@ -147,7 +149,7 @@ namespace Serializer.Tests
 
 
         //[TestCategory("types"), TestCategory("binary"), TestMethod]
-        public void BinaryTypesFallbackComplex()
+        [Fact]public void BinaryTypesFallbackComplex()
         {
             var srl = Serializer;
 
@@ -167,7 +169,7 @@ namespace Serializer.Tests
         }
 
         //[TestCategory("object"), TestCategory("binary"), TestMethod]
-		public void ObjectPropertiesBinary()
+		[Fact]public void ObjectPropertiesBinary()
 		{
 			var test = TestCompositeClass.Init();
 
@@ -180,7 +182,7 @@ namespace Serializer.Tests
 		}
 
 		//[TestCategory("object"), TestCategory("binary"), TestMethod]
-		public void DeferredEnumerableBinary()
+		[Fact]public void DeferredEnumerableBinary()
 		{
 			var test = new DeferredProperty();
 
@@ -196,7 +198,7 @@ namespace Serializer.Tests
 
 
 		//[TestCategory("object"), TestCategory("binary"), TestMethod]
-		public void NullClassPropertyBinary()
+		[Fact]public void NullClassPropertyBinary()
 		{
 			var test = TestCompositeClass.Init();
 			test.SimpleLeft = null;
@@ -214,7 +216,7 @@ namespace Serializer.Tests
 		#region collections
 
 		//[TestCategory("array"), TestCategory("binary"), TestCategory("collections"), TestMethod]
-		public void PrimitiveArrayBinary()
+		[Fact]public void PrimitiveArrayBinary()
 		{
 			var mc1 = PrimitiveArray.Get();
 
@@ -228,7 +230,7 @@ namespace Serializer.Tests
 		}
 
 		//[TestCategory("array"), TestCategory("binary"), TestCategory("collections"), TestMethod]
-		public void ObjectArrayBinary()
+		[Fact]public void ObjectArrayBinary()
 		{
 			var arr1 = ObjectArray.Get();
 
@@ -241,7 +243,7 @@ namespace Serializer.Tests
 		}
 
 		//[TestCategory("integers"), TestCategory("binary"),  TestMethod]
-		public void UIntTypes()
+		[Fact]public void UIntTypes()
 		{
 			var t1 = new UTypes
 			{
@@ -278,7 +280,7 @@ namespace Serializer.Tests
 
 		//[TestCategory("list"), TestCategory("binary"), 
          //TestCategory("collections"), TestMethod]
-		public void ObjectListBinary()
+		[Fact]public void ObjectListBinary()
 		{
 			var list1 = ObjectList.Get();
 
@@ -294,7 +296,7 @@ namespace Serializer.Tests
         //[TestCategory("list"), TestCategory("binary"), 
          //TestCategory("collections"), TestCategory("null"),
          //TestMethod]
-        public void NullListBinary()
+        [Fact]public void NullListBinary()
         {
             var list1 = new ObjectList
             {
@@ -308,7 +310,7 @@ namespace Serializer.Tests
         }
 
         //[TestCategory("list"), TestCategory("binary"), TestCategory("collections"), TestMethod]
-        public void PrimitiveListBinary()
+        [Fact]public void PrimitiveListBinary()
         {
             var list2 = PrimitiveList.Get();
 
@@ -322,7 +324,7 @@ namespace Serializer.Tests
         }
 
         //[TestCategory("list"), TestCategory("binary"), TestCategory("collections"), TestMethod]
-		public void BlockingBinary()
+		[Fact]public void BlockingBinary()
 		{
 			var bc = new BlockingCollection<SimpleClass>();
 			bc.Add(SimpleClass.GetPrimitivePayload());
@@ -338,7 +340,7 @@ namespace Serializer.Tests
 		}
 
 		//[TestCategory("queue"), TestCategory("binary"), TestCategory("collections"), TestMethod]
-		public void QueuesBinary()
+		[Fact]public void QueuesBinary()
 		{
 			var qs = new Queue<SimpleClass>();
 			qs.Enqueue(SimpleClass.GetPrimitivePayload());
@@ -355,7 +357,7 @@ namespace Serializer.Tests
 		}
 
 		//[TestCategory("dictionary"), TestCategory("binary"), TestMethod]
-		public void DictionaryBinary()
+		[Fact]public void DictionaryBinary()
 		{
 			var mc1 = ObjectDictionary.Get();
 			var byt = Serializer.ToBytes(mc1);

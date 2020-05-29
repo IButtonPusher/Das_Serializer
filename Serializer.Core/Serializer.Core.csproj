@@ -34,6 +34,7 @@
 <PropertyGroup>
    <LangVersion>8.0</LangVersion>
    <Nullable>enable</Nullable>
+   <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
 </PropertyGroup>
 
   <Import Project="..\Core.Shared\Core.Shared.projitems" Label="Shared" />

@@ -1,17 +1,21 @@
 ﻿using System;
+using System.Reflection;
 
 namespace Das.Serializer.ProtoBuf
 {
     public class ProtoField : IProtoFieldAccessor
     {
         public ProtoField(String name, Type type, ProtoWireTypes wireType, Int32 fieldIndex,
-            Int32 header, Func<Object, Object> valueGetter, TypeCode typeCode, Boolean isLeaf,
-            Boolean isRepeated)
+            Int32 header, MethodInfo valueGetter, TypeCode typeCode, Boolean isLeaf,
+            Boolean isRepeated, ProtoFieldAction fieldAction, Byte[] headerBytes, MethodInfo? setMethod)
         {
             _valueGetter = valueGetter;
             TypeCode = typeCode;
             IsLeafType = isLeaf;
             IsRepeatedField = isRepeated;
+            FieldAction = fieldAction;
+            HeaderBytes = headerBytes;
+            SetMethod = setMethod;
             Type = type;
             Name = name;
             WireType = wireType;
@@ -27,13 +31,20 @@ namespace Das.Serializer.ProtoBuf
         public TypeCode TypeCode { get; }
         public Boolean IsLeafType { get; }
         public Boolean IsRepeatedField { get; }
+        public ProtoFieldAction FieldAction { get; }
 
-        private readonly Func<Object, Object> _valueGetter;
+        public MethodInfo GetMethod => _valueGetter;
 
-        public Object GetValue(Object @from)
-        {
-            return _valueGetter(from);
-        }
+        public MethodInfo? SetMethod { get; }
+
+        public Byte[] HeaderBytes { get; }
+
+        private readonly MethodInfo _valueGetter;
+
+        //public Object GetValue(Object @from)
+        //{
+        //    return _valueGetter(from);
+        //}
 
         public Boolean Equals(IProtoField other)
         {

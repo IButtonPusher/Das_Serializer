@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 // ReSharper disable All
 
-namespace Das.Serializer.Scanners
+namespace Das.Serializer
 {
     /// <summary>
     /// Abstraction for reading one character at a time for a string/builder etc

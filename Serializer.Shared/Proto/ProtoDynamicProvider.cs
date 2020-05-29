@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using Das.Extensions;
@@ -25,16 +27,27 @@ namespace Das.Serializer.ProtoBuf
         private readonly ModuleBuilder _moduleBuilder;
 
         private readonly ProtoBufOptions<TPropertyAttribute> _protoSettings;
+
         private readonly ITypeManipulator _types;
         private readonly IInstantiator _instantiator;
         private readonly Dictionary<Type, ProtoDynamicBase> _objects;
+        private readonly Dictionary<Type, Type> _proxiesByDtoType;
         private readonly ReaderWriterLockSlim _lookupLock;
 
         private readonly MethodInfo _writeInt8;
+        private readonly MethodInfo _writeInt16;
         private readonly MethodInfo _writeInt32;
         private readonly MethodInfo _writeInt64;
         private readonly MethodInfo _writeBytes;
         private readonly MethodInfo _writeSomeBytes;
+
+        private readonly MethodInfo _writePacked16;
+        private readonly MethodInfo _writePacked32;
+        private readonly MethodInfo _writePacked64;
+
+        private readonly MethodInfo _getPackedInt32Length;
+        private readonly MethodInfo _getPackedInt16Length;
+        private readonly MethodInfo _getPackedInt64Length;
 
         private readonly MethodInfo _getSingleBytes;
         private readonly MethodInfo _getDoubleBytes;
@@ -46,25 +59,43 @@ namespace Das.Serializer.ProtoBuf
         private readonly MethodInfo _pop;
         private readonly MethodInfo _flush;
 
+        
+        ////////////////////////////////////////////////
+        // READ
+        ////////////////////////////////////////////////
+
         private readonly MethodInfo _getStreamLength;
         private readonly MethodInfo _getStreamPosition;
+        private readonly MethodInfo _setStreamPosition;
         private readonly MethodInfo _readStreamByte;
         private readonly MethodInfo _writeStreamByte;
         private readonly MethodInfo _unsafeStackByte;
         private readonly MethodInfo _readStreamBytes;
+        private readonly MethodInfo _copyStreamTo;
+        private readonly MethodInfo _setStreamLength;
+
         private readonly MethodInfo _getPositiveInt32;
         private readonly MethodInfo _getPositiveInt64;
         private readonly MethodInfo _getColumnIndex;
+        
         private readonly MethodInfo _getInt32;
         private readonly MethodInfo _getInt64;
         private readonly MethodInfo _bytesToString;
+
+        private readonly MethodInfo _extractPackedInt16Itar;
+        private readonly MethodInfo _extractPackedInt32Itar;
+        private readonly MethodInfo _extractPackedInt64Itar;
 
         private readonly MethodInfo _bytesToSingle;
         private readonly MethodInfo _bytesToDouble;
         private readonly FieldInfo _utf8;
         private readonly FieldInfo _readBytes;
-        private readonly FieldInfo _outStreamField;
+        //private readonly FieldInfo _outStreamField;
         private readonly FieldInfo _stackDepthField;
+
+        private readonly FieldInfo _proxyProviderField;
+
+        private readonly MethodInfo _getProtoProxy;
 
         private const MethodAttributes MethodOverride = MethodAttributes.Public |
                                                         MethodAttributes.HideBySig |
@@ -72,12 +103,7 @@ namespace Das.Serializer.ProtoBuf
                                                         MethodAttributes.CheckAccessOnOverride
                                                         | MethodAttributes.Final;
 
-        private const BindingFlags PublicStatic = BindingFlags.Static | BindingFlags.Public;
-        private const BindingFlags NonPublicStatic = BindingFlags.Static | BindingFlags.NonPublic;
-
-        private const BindingFlags Public = BindingFlags.Instance | BindingFlags.Public;
-        private const BindingFlags PrivateOrProtected = BindingFlags.Instance | BindingFlags.NonPublic;
-
+      
 
         // ReSharper disable once NotAccessedField.Local
         private readonly MethodInfo _debugWriteline;
@@ -90,6 +116,7 @@ namespace Das.Serializer.ProtoBuf
             _instantiator = instantiator;
             _lookupLock = new ReaderWriterLockSlim();
             _objects = new Dictionary<Type, ProtoDynamicBase>();
+            _proxiesByDtoType = new Dictionary<Type, Type>();
 
             var asmName = new AssemblyName("BOB.Stuff");
             // ReSharper disable once JoinDeclarationAndInitializer
@@ -98,8 +125,10 @@ namespace Das.Serializer.ProtoBuf
 
 #if NET45 || NET40
             access = AssemblyBuilderAccess.RunAndSave;
+            //access = AssemblyBuilderAccess.Run;
             _asmBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, access);
             _moduleBuilder = _asmBuilder.DefineDynamicModule(AssemblyName, SaveFile);
+            //_moduleBuilder = _asmBuilder.DefineDynamicModule(AssemblyName);
 #else
             access = AssemblyBuilderAccess.Run;
             _asmBuilder = AssemblyBuilder.DefineDynamicAssembly(asmName, access);
@@ -107,65 +136,82 @@ namespace Das.Serializer.ProtoBuf
 #endif
 
             var writer = typeof(ProtoBufWriter);
+            var bitConverter = typeof(BitConverter);
 
             _writeInt8 = writer.GetMethodOrDie(nameof(IProtoWriter.WriteInt8), typeof(Byte));
+            _writeInt16 = writer.GetMethodOrDie(nameof(IProtoWriter.WriteInt16), typeof(Int16));
             _writeInt32 = writer.GetMethodOrDie(nameof(IProtoWriter.WriteInt32), typeof(Int32));
             _writeInt64 = writer.GetMethodOrDie(nameof(IProtoWriter.WriteInt64), typeof(Int64));
             _writeBytes = writer.GetMethodOrDie(nameof(IProtoWriter.Write), typeof(Byte[]));
             _writeSomeBytes = writer.GetMethodOrDie(nameof(IProtoWriter.Write), typeof(Byte[]), 
                 typeof(Int32));
+            
+            _writePacked16 = writer.GetMethodOrDie(nameof(IProtoWriter.WritePacked16));
+            _writePacked32 = writer.GetMethodOrDie(nameof(IProtoWriter.WritePacked32));
+            _writePacked64 = writer.GetMethodOrDie(nameof(IProtoWriter.WritePacked64));
+
+            _getPackedInt32Length= writer.GetMethodOrDie(nameof(IProtoWriter.GetPackedArrayLength32));
+            _getPackedInt16Length= writer.GetMethodOrDie(nameof(IProtoWriter.GetPackedArrayLength16));
+            _getPackedInt64Length= writer.GetMethodOrDie(nameof(IProtoWriter.GetPackedArrayLength64));
 
             _push = writer.GetMethodOrDie(nameof(IProtoWriter.Push), Type.EmptyTypes);
             _pop = writer.GetMethodOrDie(nameof(IProtoWriter.Pop), Type.EmptyTypes);
             _flush = writer.GetMethodOrDie(nameof(IProtoWriter.Flush), Type.EmptyTypes);
 
-            _utf8 = typeof(ProtoDynamicBase).GetField("Utf8", NonPublicStatic);
+            var protoDynBase = typeof(ProtoDynamicBase);
 
-            _outStreamField = typeof(ProtoBufWriter).GetField("_outStream", PrivateOrProtected);
-            _stackDepthField= typeof(ProtoBufWriter).GetField("_stackDepth", PrivateOrProtected);
+            _utf8 = protoDynBase.GetStaticFieldOrDie("Utf8");
 
-            _getSingleBytes = typeof(BitConverter).GetMethodOrDie(nameof(BitConverter.GetBytes),
-                PublicStatic, typeof(Single));
+            //_outStreamField = writer.GetInstanceFieldOrDie("_outStream");
+            _stackDepthField= writer.GetInstanceFieldOrDie("_stackDepth");
+            _proxyProviderField = protoDynBase.GetInstanceFieldOrDie("_proxyProvider");
+            _getProtoProxy = typeof(IProtoProvider).GetMethod(nameof(IProtoProvider.GetProtoProxy));
 
-            _getDoubleBytes = typeof(BitConverter).GetMethodOrDie(nameof(BitConverter.GetBytes),
-                PublicStatic, typeof(Double));
+            _getSingleBytes = bitConverter.GetPublicStaticMethodOrDie(nameof(BitConverter.GetBytes),
+                typeof(Single));
+
+            _getDoubleBytes = bitConverter.GetPublicStaticMethodOrDie(nameof(BitConverter.GetBytes),
+                typeof(Double));
 
             _getStringBytes = typeof(UTF8Encoding).GetMethodOrDie(nameof(UTF8Encoding.GetBytes), 
                 typeof(String));
 
-            var arrayLengthProp = typeof(Array).GetProperty(nameof(Array.Length))
-                                  ?? throw new InvalidOperationException();
-            _getArrayLength = arrayLengthProp.GetGetMethod();
+            _getArrayLength = typeof(Array).GetterOrDie(nameof(Array.Length), out _);
 
             var protoBase = typeof(ProtoDynamicBase);
 
-            _getStreamLength = GetOrDie<Stream>(nameof(Stream.Length));
-            _getStreamPosition = GetOrDie<Stream>(nameof(Stream.Position));
+            var stream = typeof(Stream);
 
-            _readStreamByte = typeof(Stream).GetMethodOrDie(nameof(Stream.ReadByte));
-            _readStreamBytes = typeof(Stream).GetMethodOrDie(nameof(Stream.Read));
+            _getStreamLength = stream.GetterOrDie(nameof(Stream.Length), out _);
+            _copyStreamTo = stream.GetMethodOrDie(nameof(Stream.CopyTo), stream);
+            _setStreamLength = stream.GetMethodOrDie(nameof(Stream.SetLength));
+            _getStreamPosition = stream.GetterOrDie(nameof(Stream.Position), out _);
+            _setStreamPosition = stream.SetterOrDie(nameof(Stream.Position));
 
-            _writeStreamByte = typeof(Stream).GetMethodOrDie(nameof(Stream.WriteByte));
-            _unsafeStackByte = typeof(ProtoBufWriter).GetMethodOrDie(
-                nameof(ProtoBufWriter.UnsafeStackByte), Public);
+            _readStreamByte = stream.GetMethodOrDie(nameof(Stream.ReadByte));
+            _readStreamBytes = stream.GetMethodOrDie(nameof(Stream.Read));
 
-            _getPositiveInt32 = protoBase.GetMethodOrDie(nameof(ProtoDynamicBase.GetPositiveInt32),
-                PublicStatic);
-            _getPositiveInt64 = protoBase.GetMethodOrDie(nameof(ProtoDynamicBase.GetPositiveInt64),
-                PublicStatic);
-            _getInt32 = protoBase.GetMethodOrDie(nameof(ProtoDynamicBase.GetInt32),
-                PublicStatic);
-            _getInt64 = protoBase.GetMethodOrDie(nameof(ProtoDynamicBase.GetInt64),
-                PublicStatic);
-            _getColumnIndex = protoBase.GetMethodOrDie(nameof(ProtoDynamicBase.GetColumnIndex),
-                PublicStatic);
+            _writeStreamByte = stream.GetMethodOrDie(nameof(Stream.WriteByte));
+
+            _unsafeStackByte = writer.GetMethodOrDie(
+                nameof(ProtoBufWriter.UnsafeStackByte), Const.PublicInstance);
+
+            _getPositiveInt32 = protoBase.GetPublicStaticMethodOrDie(
+                nameof(ProtoDynamicBase.GetPositiveInt32));
+            _getPositiveInt64 = protoBase.GetPublicStaticMethodOrDie(nameof(ProtoDynamicBase.GetPositiveInt64));
+            
+            //_getInt16 = protoBase.GetPublicStaticMethodOrDie(nameof(ProtoDynamicBase.GetInt16));
+            _getInt32 = protoBase.GetPublicStaticMethodOrDie(nameof(ProtoDynamicBase.GetInt32));
+            _getInt64 = protoBase.GetPublicStaticMethodOrDie(nameof(ProtoDynamicBase.GetInt64));
+            
+            _getColumnIndex = protoBase.GetPublicStaticMethodOrDie(nameof(ProtoDynamicBase.GetColumnIndex));
              
 
-            _bytesToSingle = typeof(BitConverter).GetMethodOrDie(nameof(BitConverter.ToSingle),
-                PublicStatic, typeof(Byte[]), typeof(Int32));
+            _bytesToSingle = bitConverter.GetPublicStaticMethodOrDie(nameof(BitConverter.ToSingle),
+                typeof(Byte[]), typeof(Int32));
 
-            _bytesToDouble = typeof(BitConverter).GetMethodOrDie(nameof(BitConverter.ToDouble),
-                PublicStatic, typeof(Byte[]), typeof(Int32));
+            _bytesToDouble = bitConverter.GetPublicStaticMethodOrDie(nameof(BitConverter.ToDouble),
+                typeof(Byte[]), typeof(Int32));
 
             _bytesToString = typeof(Encoding).GetMethodOrDie(nameof(Encoding.GetString), 
                 typeof(Byte[]), typeof(Int32), typeof(Int32));
@@ -173,33 +219,80 @@ namespace Das.Serializer.ProtoBuf
             _debugWriteline = typeof(ProtoDynamicBase).GetMethodOrDie(
                 nameof(ProtoDynamicBase.DebugWriteline));
 
-            _readBytes = typeof(ProtoDynamicBase).GetField(nameof(_readBytes), NonPublicStatic)
-                         ?? throw new InvalidOperationException();
+            _readBytes = protoDynBase.GetStaticFieldOrDie(nameof(_readBytes));
+
+            _extractPackedInt16Itar =protoDynBase.GetPublicStaticMethodOrDie(
+                nameof(ProtoDynamicBase.ExtractPacked16));
+            _extractPackedInt32Itar = protoDynBase.GetPublicStaticMethodOrDie(
+                nameof(ProtoDynamicBase.ExtractPacked32));
+            _extractPackedInt64Itar = protoDynBase.GetPublicStaticMethodOrDie(
+                nameof(ProtoDynamicBase.ExtractPacked64));
 
         }
 
-        public IProtoProxy<T> GetProtoProxy<T>() where T: class
+        //private static MethodInfo GetOrDie<TTYpe>(String property, BindingFlags flags = Const.PublicInstance)
+        //{
+        //    return typeof(TTYpe).GetProperty(property, flags)?.GetGetMethod() ??
+        //           throw new InvalidOperationException();
+        //}
+
+
+        public IProtoProxy<T> GetProtoProxy<T>(Boolean allowReadOnly) 
+            where T: class
         {
             var forType = typeof(T);
 
             _lookupLock.EnterUpgradeableReadLock();
-            if (!_objects.TryGetValue(forType, out var found))
+
+            try
             {
+                if (_proxiesByDtoType.TryGetValue(forType, out var proxyType))
+                    return InstantiateProxyInstance<T>(proxyType);
+
                 _lookupLock.EnterWriteLock();
-                var ctor = _instantiator.GetDefaultConstructor<T>();
-                found = BuildProtoDynamicObject(ctor);
-                _objects[forType] = found;
-                _lookupLock.ExitWriteLock();
+
+                var dynamicType = CreateProxyType<T>(allowReadOnly);
+                _proxiesByDtoType[forType] = dynamicType;
+                return InstantiateProxyInstance<T>(dynamicType);
+
             }
-            _lookupLock.ExitUpgradeableReadLock();
-            return (ProtoDynamicBase<T>)found;
+            finally
+            {
+                if (_lookupLock.IsWriteLockHeld)
+                    _lookupLock.ExitWriteLock();
+                _lookupLock.ExitUpgradeableReadLock();
+            }
+
+            //if (!_objects.TryGetValue(forType, out var found) || 
+            //    found.IsReadOnly&& !allowReadOnly)
+            //{
+            //    _lookupLock.EnterWriteLock();
+            //    if (!_instantiator.TryGetDefaultConstructorDelegate<T>(out var ctor) &&
+            //        !allowReadOnly)
+            //    {
+            //        throw new InvalidProgramException($"No valid constructor found for {typeof(T)}");
+            //    }
+
+            //    found = BuildProtoDynamicObject(ctor)!;
+            //    _objects[forType] = found;
+            //    _lookupLock.ExitWriteLock();
+            //}
+            //_lookupLock.ExitUpgradeableReadLock();
+            //return (ProtoDynamicBase<T>)found!;
         }
 
-        private ProtoDynamicBase BuildProtoDynamicObject<T>(Func<T> ctor)
+        private Type CreateProxyType<T>(Boolean allowReadOnly)
+            where T: class
         {
             var type = typeof(T);
             var fields = GetProtoFields(type);
             var typeName = type.FullName ?? throw new InvalidOperationException();
+
+            if (!_instantiator.TryGetDefaultConstructor<T>(out var ctor) &&
+                !allowReadOnly)
+            {
+                throw new InvalidProgramException($"No valid constructor found for {typeof(T)}");
+            }
 
             var bldr = _moduleBuilder.DefineType(typeName.Replace(".", "_"),
                 TypeAttributes.Public | TypeAttributes.Class);
@@ -208,91 +301,91 @@ namespace Das.Serializer.ProtoBuf
 
             var genericParent = typeof(ProtoDynamicBase<>).MakeGenericType(type);
 
-            AddConstructor(bldr, utf, genericParent);
+            AddConstructor(bldr, utf, genericParent, ctor);
 
             AddPrintMethod(type, bldr, genericParent, utf, fields);
-            AddScanMethod(type, bldr, genericParent, fields);
-            
+
+            if (ctor != null)
+            {
+                var example = ctor.Invoke(new Object[0]);
+                AddScanMethod(type, bldr, genericParent, fields, example!);
+                AddDtoInstantiator<T>(type, bldr, genericParent, ctor);
+            }
 
             bldr.SetParent(genericParent);
 
-            var dynamicType = bldr.CreateType();
+            var dType =  bldr.CreateType();
 
+            //DumpProxies();
+            
 
-            ////////////////////////////////
+            return dType;
+        }
+
+        
+#if DEBUG
+
+        public void DumpProxies()
+        {
 #if NET45 || NET40
             _asmBuilder.Save("protoTest.dll");
 #endif
-            ////////////////////////////////
-
-
-            if (dynamicType == null)
-                return default;
-
-            return (ProtoDynamicBase)Activator.CreateInstance(dynamicType, ctor);
         }
 
-        private void AddConstructor(TypeBuilder bldr, FieldInfo utfField, Type genericBase)
+#endif
+
+        private ProtoDynamicBase<TDto> InstantiateProxyInstance<TDto>(Type proxyType)
         {
-            var baseCtors = genericBase.GetConstructors(BindingFlags.Public |
-                                                        BindingFlags.NonPublic |
-                                                        BindingFlags.Instance |
-                                                        BindingFlags.FlattenHierarchy);
-
-            foreach (var ctor in baseCtors)
-                BuildOverrideConstructor(ctor, bldr, utfField);
+            var instance = (ProtoDynamicBase<TDto>)Activator.CreateInstance(proxyType, this);
+            return instance;
         }
 
-        private void BuildOverrideConstructor(ConstructorInfo baseCtor, TypeBuilder builder,
-            FieldInfo utfField)
-        {
-            var paramList = new List<Type>();
-            paramList.AddRange(baseCtor.GetParameters().Select(p => p.ParameterType));
 
-            var ctorParams = paramList.ToArray();
+//        private ProtoDynamicBase? BuildProtoDynamicObject<T>(Func<T>? ctor)
+//        {
+//            var type = typeof(T);
+//            var fields = GetProtoFields(type);
+//            var typeName = type.FullName ?? throw new InvalidOperationException();
 
-            var ctor = builder.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard,
-                ctorParams);
+//            var bldr = _moduleBuilder.DefineType(typeName.Replace(".", "_"),
+//                TypeAttributes.Public | TypeAttributes.Class);
 
-            var il = ctor.GetILGenerator();
+//            var utf = bldr.DefineField("_utf8", typeof(Encoding), FieldAttributes.Private);
 
-            il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Ldarg_1);
+//            var genericParent = typeof(ProtoDynamicBase<>).MakeGenericType(type);
 
-            il.Emit(OpCodes.Call, baseCtor);
+//            AddConstructor(bldr, utf, genericParent);
 
-            var getUtf8 = GetOrDie<Encoding>(nameof(Encoding.UTF8),
-                PublicStatic);                
-               
-            var utf = il.DeclareLocal(typeof(Encoding));
+//            AddPrintMethod(type, bldr, genericParent, utf, fields);
 
-            il.Emit(OpCodes.Call, getUtf8);
-            il.Emit(OpCodes.Stloc, utf);
+//            if (ctor != null)
+//            {
+//                var example = ctor();
+//                AddScanMethod(type, bldr, genericParent, fields, example!);
+//                AddDtoInstantiator(type, bldr, genericParent, ctor);
+//            }
 
-            il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Ldloc, utf);
-            il.Emit(OpCodes.Stfld, utfField);
+//            bldr.SetParent(genericParent);
+
+//            var dynamicType = bldr.CreateType();
 
 
-            il.Emit(OpCodes.Nop);
-            il.Emit(OpCodes.Nop);
+//            ////////////////////////////////
+////#if NET45 || NET40
+//            //_asmBuilder.Save("protoTest.dll");
+////#endif
+//            ////////////////////////////////
 
-            il.Emit(OpCodes.Ret);
-        }
 
-        private static MethodInfo GetOrDie<TTYpe>(String property, BindingFlags flags = Public)
-        {
-            return typeof(TTYpe).GetProperty(property, flags)?.GetGetMethod() ??
-                   throw new InvalidOperationException();
-        }
+//            if (dynamicType == null)
+//                return default;
 
-        private static MethodInfo GetOrDie(Type tType, String property, 
-            BindingFlags flags = Public)
-        {
-            return tType.GetProperty(property, flags)?.GetGetMethod() ??
-                   throw new InvalidOperationException();
-        }
+//            return (ProtoDynamicBase)Activator.CreateInstance(dynamicType, ctor)!;
+//        }
 
+       
+
+     
 
         private static IEnumerable<Byte> GetBytes(Int32 value)
         {
@@ -326,47 +419,123 @@ namespace Das.Serializer.ProtoBuf
 
         
 
-        private IList<IProtoField> GetProtoFields(Type type)
+        private List<IProtoFieldAccessor> GetProtoFields(Type type)
         {
-            var res = new List<IProtoField>();
+            var res = new List<IProtoFieldAccessor>();
             foreach (var prop in _types.GetPublicProperties(type))
+            {
+                if (TryGetProtoField(prop, true, out var protoField))
+                    res.Add(protoField);
+
+                //var attribs = prop.GetCustomAttributes(typeof(TPropertyAttribute), true)
+                //    .OfType<TPropertyAttribute>().ToArray();
+                //if (attribs.Length == 0)
+                //    continue;
+
+                //var pType = prop.PropertyType;
+
+                //var isCollection = _types.IsCollection(pType);
+                //var index = _protoSettings.GetIndex(attribs[0]);
+
+               
+                //var wire = ProtoBufSerializer.GetWireType(pType);
+
+                //var header = (Int32)wire + (index << 3);
+                //var tc = Type.GetTypeCode(pType);
+
+
+                //var getter = _types.CreatePropertyGetter(type, prop);
+
+                //var protoField = new ProtoField(prop.Name, pType, wire, 
+                //    index, header, getter, tc,
+                //    _types.IsLeaf(pType, true), isCollection);
+
+                //res.Add(protoField);
+            }
+
+            return res;
+        }
+
+        public Boolean TryGetProtoField(PropertyInfo prop, Boolean isRequireAttribute,
+            out ProtoField field)
+        {
+            var index = 0;
+
+            if (isRequireAttribute)
             {
                 var attribs = prop.GetCustomAttributes(typeof(TPropertyAttribute), true)
                     .OfType<TPropertyAttribute>().ToArray();
                 if (attribs.Length == 0)
-                    continue;
+                {
+                    field = default!;
+                    return false;
+                }
 
-                var pType = prop.PropertyType;
-
-                var isCollection = _types.IsCollection(pType);
-                var index = _protoSettings.GetIndex(attribs[0]);
-
-               
-                var wire = ProtoBufSerializer.GetWireType(
-                    pType);
-                // var wire = ProtoBufSerializer.GetWireType(
-                //     isCollection ? _types.GetGermaneType(pType) : pType);
-                    
-               
-                var header = (Int32)wire + (index << 3);
-                var tc = Type.GetTypeCode(pType);
-
-                var isValidLengthDelim = wire == ProtoWireTypes.LengthDelimited
-                                         && pType != Const.StrType 
-                                         && pType != Const.ByteArrayType;
-
-                //isCollection = isValidLengthDelim && _types.IsCollection(pType);
-
-                var getter = _types.CreatePropertyGetter(type, prop);
-
-                var protoField = new ProtoField(prop.Name, pType, wire, 
-                    index, header, getter, tc,
-                    _types.IsLeaf(pType, true), isCollection);
-
-                res.Add(protoField);
+                index = _protoSettings.GetIndex(attribs[0]);
             }
 
-            return res;
+            var pType = prop.PropertyType;
+
+            var isCollection = _types.IsCollection(pType);
+            
+
+               
+            var wire = ProtoBufSerializer.GetWireType(pType);
+
+            var header = (Int32)wire + (index << 3);
+            var tc = Type.GetTypeCode(pType);
+
+
+
+            var getter = prop.GetGetMethod();
+            var setter = prop.CanWrite ? prop.GetSetMethod(true) : default!;
+                //_types.CreatePropertyGetter(prop.DeclaringType, prop);
+
+            var headerBytes = GetBytes(header).ToArray();
+
+            var fieldAction = GetProtoFieldAction(prop.PropertyType);
+
+            field = new ProtoField(prop.Name, pType, wire, 
+                index, header, getter, tc,
+                _types.IsLeaf(pType, true), isCollection, fieldAction, 
+                headerBytes, setter);
+
+            return true;
+        }
+
+        public ProtoFieldAction GetProtoFieldAction(Type pType)
+        {
+            if (pType.IsPrimitive)
+            {
+                return pType == typeof(Int32) ||
+                       pType == typeof(Int16) ||
+                       pType == typeof(Int64)
+                    ? ProtoFieldAction.VarInt
+                    : ProtoFieldAction.Primitive;
+            }
+
+            if (pType == Const.StrType)
+                return ProtoFieldAction.String;
+
+            if (pType == Const.ByteArrayType)
+                return ProtoFieldAction.ByteArray;
+
+            if (GetPackedArrayType(pType) != null)
+                return ProtoFieldAction.PackedArray;
+
+            if (typeof(IDictionary).IsAssignableFrom(pType))
+                return ProtoFieldAction.Dictionary;
+
+            if (_types.IsCollection(pType))
+            {
+                return pType.IsArray 
+                    ? ProtoFieldAction.ChildObjectArray 
+                    : ProtoFieldAction.ChildObjectCollection;
+                
+            }
+
+            return ProtoFieldAction.ChildObject;
+
         }
     }
 }

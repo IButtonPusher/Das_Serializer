@@ -30,7 +30,9 @@ namespace Das.Serializer
             }
         }
 
-        public Byte[] ToBytes<TObject>(TObject o) => ToBytes(o, typeof(TObject));
+        public Byte[] ToBytes<TObject>(TObject o) => o == null 
+            ? throw new ArgumentNullException(nameof(o)) 
+            : ToBytes(o, typeof(TObject));
 
 
         // ReSharper disable once UnusedMember.Global
@@ -55,7 +57,7 @@ namespace Das.Serializer
         public void ToBytes<TTarget>(Object o, FileInfo fileName)
         {
             var obj = (TTarget) o;
-            ToBytes(obj, fileName);
+            ToBytes(obj!, fileName);
         }
     }
 }

@@ -334,28 +334,7 @@ namespace Das.Types
             return dynam;
         }
 
-        ///// <summary>
-        ///// Gets a delegate to add an object to a generic collection
-        ///// </summary>		
-        //public VoidMethod CreateAddDelegate<T>(IEnumerable<T> collection)
-        //{
-        //    var colType = collection.GetType();
-
-        //    if (_cachedAdders.TryGetValue(colType, out var res))
-        //        return res;
-
-        //    var method = GetAddMethod(collection);
-        //    if (method != null)
-        //    {
-        //        var dynam = CreateMethodCaller(method, true);
-        //        res = (VoidMethod) dynam.CreateDelegate(typeof(VoidMethod));
-        //    }
-
-        //    _cachedAdders.TryAdd(colType, res);
-
-        //    return res;
-        //}
-
+   
         public VoidMethod GetAdder(Type collectionType, Object exampleValue)
         {
             if (_cachedAdders.TryGetValue(collectionType, out var res))
@@ -421,6 +400,29 @@ namespace Das.Types
             return res;
         }
 
+        /// <summary>
+        /// Gets a delegate to add an object to a generic collection
+        /// </summary>		
+        public VoidMethod CreateAddDelegate<T>(IEnumerable<T> collection)
+        {
+            var colType = collection.GetType();
+
+            if (_cachedAdders.TryGetValue(colType, out var res))
+                return res;
+
+            var method = GetAddMethod(collection);
+            if (method != null)
+            {
+                var dynam = CreateMethodCaller(method, true);
+                res = (VoidMethod)dynam.CreateDelegate(typeof(VoidMethod));
+            }
+
+            _cachedAdders.TryAdd(colType, res);
+
+            return res;
+        }
+
+
         private VoidMethod CreateAddDelegate(ICollection collection, Type type)
         {
             var colType = collection.GetType();
@@ -474,6 +476,18 @@ namespace Das.Types
 
         public MethodInfo GetAddMethod(Type cType)
         {
+            var adder = GetAddMethodImpl(cType);
+            return adder ?? throw new MissingMethodException(cType.FullName, "Add");
+        }
+
+        public Boolean TryGetAddMethod(Type collectionType, out MethodInfo addMethod)
+        {
+            addMethod = GetAddMethodImpl(collectionType)!;
+            return addMethod != null;
+        }
+
+        private MethodInfo? GetAddMethodImpl(Type cType)
+        {
             var germane = GetGermaneType(cType);
 
             if (cType.TryGetMethod(nameof(ICollection<Object>.Add), out var adder, germane))
@@ -488,7 +502,7 @@ namespace Das.Types
             if (typeof(Queue<>).IsAssignableFrom(cType))
                 return cType.GetMethodOrDie(nameof(Queue<Object>.Enqueue));
 
-            throw new MissingMethodException(cType.FullName, "Add");
+            return default;
         }
 
         public Type GetPropertyType(Type classType, String propName)

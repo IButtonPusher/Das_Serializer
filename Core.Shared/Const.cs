@@ -49,5 +49,13 @@ namespace Das.Serializer
         public const Int32 LengthDelimited = 2;
 
         public const BindingFlags NonPublic = BindingFlags.Instance | BindingFlags.NonPublic;
+
+        public const BindingFlags PrivateStatic = BindingFlags.Static | BindingFlags.NonPublic;
+
+        public const BindingFlags PublicStatic = BindingFlags.Static | BindingFlags.Public;
+
+        public const BindingFlags PublicInstance = BindingFlags.Instance | BindingFlags.Public;
+
+        public const BindingFlags AnyInstance = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
     }
 }

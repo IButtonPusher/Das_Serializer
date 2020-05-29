@@ -35,7 +35,7 @@ namespace Das.Serializer
         public String FindJsonValue(String input, String toFind)
         {
             var hold = 0;
-            return FindValue(input, toFind, ref hold);
+            return FindJsonValue(input, toFind, ref hold);
         }
 
         public IEnumerable<String> EnumerateJsonValues(String input, String key)
@@ -44,7 +44,7 @@ namespace Das.Serializer
 
             while (true)
             {
-                var res = FindValue(input, key, ref hold);
+                var res = FindJsonValue(input, key, ref hold);
                 if (res == null)
                     yield break;
                 yield return res;
@@ -68,7 +68,7 @@ namespace Das.Serializer
         public Double FindJsonDouble(String input, String toFind)
         {
             var hold = 0;
-            var val = FindValue(input, toFind, ref hold);
+            var val = FindJsonValue(input, toFind, ref hold);
             return GetDouble(val);
         }
 
@@ -262,7 +262,9 @@ namespace Das.Serializer
             return input.Substring(leftIndex, rightIndex - leftIndex);
         }
 
-        public String After(String inText, String afterFound)
+        String ITextParser.After(String inText, String afterFound) => After(inText, afterFound);
+        
+        public static String After(String inText, String afterFound)
         {
             var index = inText.IndexOf(afterFound, StringComparison.Ordinal);
             if (index == -1)
@@ -385,12 +387,12 @@ namespace Das.Serializer
         private Boolean TryFindValueWithRetry(String json, String item,
             ref Int32 startIndex, out String result)
         {
-            result = FindValue(json, item, ref startIndex);
+            result = FindJsonValue(json, item, ref startIndex);
             if (startIndex != -1)
                 return true;
 
             startIndex = 0;
-            result = FindValue(json, item, ref startIndex);
+            result = FindJsonValue(json, item, ref startIndex);
             if (startIndex == -1)
                 return false;
 
@@ -442,7 +444,7 @@ namespace Das.Serializer
             var index = 0;
             do
             {
-                var found = FindValue(json, item, ref index);
+                var found = FindJsonValue(json, item, ref index);
                 if (found == null)
                     yield break;
 
@@ -450,7 +452,7 @@ namespace Das.Serializer
             } while (index >= 0);
         }
 
-        public String FindValue(String json, String item, ref Int32 startIndex)
+        public String FindJsonValue(String json, String item, ref Int32 startIndex)
         {
             var pos = json.IndexOf("\"" + item + "\":", startIndex, StringComparison.Ordinal);
             if (pos == -1)

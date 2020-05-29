@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Das.Serializer.Scanners
+namespace Das.Serializer
 {
     internal class BinaryNode : BaseNode<IBinaryNode>, IBinaryNode
     {

@@ -48,7 +48,7 @@ namespace Serializer.Tests.ProtocolBuffers
             }
         }
 
-        //[TestMethod]
+        
         [Fact]
         public void SimpleIntegerTest()
         {
@@ -96,7 +96,7 @@ namespace Serializer.Tests.ProtocolBuffers
         }
 
 
-        //[TestMethod]
+        
         [Fact]
             public void SimpleDoubleTest()
         {
@@ -149,7 +149,7 @@ namespace Serializer.Tests.ProtocolBuffers
         }
 
 
-        //[TestMethod]
+        
         [Fact]public void SimpleStringTest()
         {
             var fromDas = DasStringMessage();
@@ -208,6 +208,9 @@ namespace Serializer.Tests.ProtocolBuffers
 
             var o = TypeProvider.GetProtoProxy<CollectionsPropertyMessage>();
 
+            //var o = new Serializer_Tests_ProtocolBuffers_CollectionsPropertyMessage(() =>
+            //    new CollectionsPropertyMessage());
+
             //var lol = new Serializer_Tests_ProtocolBuffers_CollectionsPropertyMessage(
             //    () => new CollectionsPropertyMessage());
 
@@ -232,8 +235,46 @@ namespace Serializer.Tests.ProtocolBuffers
             {
                 ProtoBuf.Serializer.Serialize(ms, mc1);
                 
+                Debug.WriteLine("PNET\r\n-----------------------------------");
+                PrintMemoryStream(ms);
                 ms.Position = 0;
                 return ProtoBuf.Serializer.Deserialize<CollectionsPropertyMessage>(ms);
+            }
+        }
+
+        [Benchmark]
+        public PackedArrayTest DasPackedArray()
+        {
+            var mc1 = PackedArrayTest.DefaultValue;
+
+            var proxy = TypeProvider.GetProtoProxy<PackedArrayTest>();
+            //var proxy = new Serializer_Tests_ProtocolBuffers_PackedArrayTest(() => 
+            //    new PackedArrayTest());
+
+            using (var ms = new MemoryStream())
+            {
+                proxy.OutStream = ms;
+                proxy.Print(mc1);
+                Debug.WriteLine("DAS\r\n-----------------------------------");
+                PrintMemoryStream(ms);
+                ms.Position = 0;
+                return proxy.Scan(ms);
+            }
+        }
+
+        [Benchmark]
+        public PackedArrayTest ProtoPackedArray()
+        {
+            var mc1 = PackedArrayTest.DefaultValue;
+
+            using (var ms = new MemoryStream())
+            {
+                ProtoBuf.Serializer.Serialize(ms, mc1);
+                
+                Debug.WriteLine("PNET\r\n-----------------------------------");
+                PrintMemoryStream(ms);
+                ms.Position = 0;
+                return ProtoBuf.Serializer.Deserialize<PackedArrayTest>(ms);
             }
         }
 
@@ -244,7 +285,16 @@ namespace Serializer.Tests.ProtocolBuffers
                 Debug.WriteLine(arr[c]);
         }
 
-        //[TestMethod]
+        [Fact]
+        public void PackedRepeatedTest()
+        {
+            var fromNet = ProtoPackedArray();
+            
+            var fromDas = DasPackedArray();
+
+            Assert.True(SlowEquality.AreEqual(fromNet, fromDas));
+        }
+        
         [Fact]public void CollectionsTest()
         {
             var fromNet = ProtoCollections();
@@ -265,7 +315,7 @@ namespace Serializer.Tests.ProtocolBuffers
             Assert.True(equal);
         }
 
-        //[TestMethod]
+        
         [Fact]public void DictionaryTest()
         {
             var fromNet = ProtoNetObjectDictionary();
@@ -313,7 +363,7 @@ namespace Serializer.Tests.ProtocolBuffers
             }
         }
 
-        //[TestMethod]
+        
         [Fact]public void DynamicTypeTest()
         {
             var simpleTest = TypeProvider.GetProtoProxy<SimpleMessage>();
@@ -321,7 +371,7 @@ namespace Serializer.Tests.ProtocolBuffers
         }
 
 
-        //[TestMethod]
+        
         [Fact]public void NegativeIntegerTest()
         {
             //prop A: index = 2, wire type = varint = 0, val = -150
@@ -385,7 +435,7 @@ namespace Serializer.Tests.ProtocolBuffers
         }
 
 
-        //[TestMethod]
+        
         [Fact]public void MultiPropTest()
         {
             var fromDas = DasMultiProperties();
@@ -437,7 +487,7 @@ namespace Serializer.Tests.ProtocolBuffers
             }
         }
 
-        //[TestMethod]
+        
         [Fact]public void ComposedTest()
         {
             var fromNet = ProtoNetComposedMessage();
@@ -492,7 +542,7 @@ namespace Serializer.Tests.ProtocolBuffers
 
       
 
-        //[TestMethod]
+        
         [Fact]public void ByteArrayTest()
         {
             var fromNet = ProtoNetByteArray();

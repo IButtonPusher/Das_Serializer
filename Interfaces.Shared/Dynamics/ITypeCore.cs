@@ -12,13 +12,15 @@ namespace Das.Serializer
 
         Boolean IsCollection(Type type);
 
-        Boolean IsUseless(Type t);
+        Boolean IsUseless(Type? t);
 
         Boolean IsNumeric(Type myType);
 
         Boolean IsInstantiable(Type t);
 
         Boolean HasEmptyConstructor(Type t);
+
+        Boolean TryGetEmptyConstructor(Type t, out ConstructorInfo ctor);
 
         /// <summary>
         /// if this is a generic collection of T or T[] it will return typeof(T)

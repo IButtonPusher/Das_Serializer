@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Das.Serializer.Scanners
+namespace Das.Serializer
 {
     internal class TextNode : BaseNode<ITextNode>, ITextNode
     {

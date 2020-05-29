@@ -57,9 +57,11 @@ namespace Das
 
             var outObj = _instantiate.BuildDefault(outType, settings.CacheTypeConstructors);
             _currentNodeType = _nodeTypes.GetNodeType(outType, settings.SerializationDepth);
-            References.Value.Clear();
-            
-            outObj = Copy(obj, ref outObj);
+
+            var refs = References.Value;
+            refs.Clear();
+
+            outObj = Copy(obj, ref outObj, refs);
 
             return (T) outObj;
         }
@@ -102,14 +104,16 @@ namespace Das
             _currentNodeType = _nodeTypes.GetNodeType(typeof(T), depth);
             var o = (Object)to;
 
-            References.Value.Clear();
+            var refs = References.Value;
+            refs.Clear();
 
-            Copy(from, ref o);
+            Copy(from, ref o, refs);
 
             to = (T) o;
         }
 
-        private Object Copy(Object from, ref Object to)
+        private Object Copy(Object from, ref Object to,
+            Dictionary<object, object> references)
         {
             var settings = _currentSettings;
 
@@ -131,10 +135,10 @@ namespace Das
                     return Convert.ChangeType(from, toType);
                 case NodeTypes.Object:
                 case NodeTypes.Dynamic:
-                    to = CopyObjects(from, ref to, toType);
+                    to = CopyObjects(from, ref to, toType, references);
                     break;
                 case NodeTypes.Collection:
-                    to = CopyLists(from, to, toType);
+                    to = CopyLists(from, to, toType, references);
                     break;
                 case NodeTypes.PropertiesToConstructor:
 
@@ -148,7 +152,7 @@ namespace Das
                             settings.SerializationDepth);
                         var toProp = _instantiate.BuildDefault(prop.PropertyType,
                             settings.CacheTypeConstructors);
-                        toProp = Copy(fromProp, ref toProp);
+                        toProp = Copy(fromProp, ref toProp, references);
                         props.Add(prop.Name, toProp);
                     }
 
@@ -176,9 +180,10 @@ namespace Das
             return to;
         }
 
-        private Object CopyObjects(Object from, ref Object to, Type toType)
+        private Object CopyObjects(Object from, ref Object to, Type toType,
+            Dictionary<object, object> references)
         {
-            var references = References.Value;
+            //var references = References.Value;
 
             foreach (var propInfo in _dynamicFacade.TypeManipulator.GetPropertiesToSerialize(toType,
                 _currentSettings))
@@ -220,7 +225,7 @@ namespace Das
                     _currentSettings.CacheTypeConstructors);
                 
                 references.Add(nextFrom, nextTo);
-                nextTo = Copy(nextFrom, ref nextTo);
+                nextTo = Copy(nextFrom, ref nextTo, references);
                 references[nextFrom] = nextTo;
 
                 ObjectManipulator.SetPropertyValue(ref to, propInfo.Name, nextTo);
@@ -229,7 +234,8 @@ namespace Das
             return to;
         }
 
-        private Object CopyLists(Object from, Object to, Type toType)
+        private Object CopyLists(Object from, Object to, Type toType, 
+            Dictionary<object, object> references)
         {
             var toListType = TypeInferrer.GetGermaneType(toType);
             var fromList = from as IEnumerable;
@@ -244,7 +250,7 @@ namespace Das
             {
                 var toItem = _instantiate.BuildDefault(toListType, 
                     _currentSettings.CacheTypeConstructors);
-                toItem = Copy(fromItem, ref toItem);
+                toItem = Copy(fromItem, ref toItem, references);
                 if (toItem != null)
                     tempTo.Add(toItem);
             }
@@ -255,7 +261,7 @@ namespace Das
         }
 
         public Object SpawnCollection(Object[] objects, Type collectionType,
-            ISerializerSettings settings, Type collectionGenericArgs = null)
+            ISerializerSettings settings, Type? collectionGenericArgs = null)
         {
             _currentSettings = settings;
             var itemType = collectionGenericArgs ?? TypeInferrer.GetGermaneType(collectionType);
@@ -274,10 +280,6 @@ namespace Das
 
 
             var ctor = collectionType.GetConstructor(new[] {itemType}) ;
-                //?? collectionType.GetConstructor(new[]
-                //{
-                //    typeof(IEnumerable<>).MakeGenericType(itemType)
-                //});
 
             if (ctor != null)
                 return Activator.CreateInstance(collectionType, objects);

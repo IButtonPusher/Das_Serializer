@@ -8,9 +8,9 @@ namespace Das.Serializer.ProtoBuf
 {
     public class ProtoDictionaryInfo
     {
-        public IProtoField Key { get; }
+        public IProtoFieldAccessor Key { get; }
 
-        public IProtoField Value { get; }
+        public IProtoFieldAccessor Value { get; }
 
         public IEnumerable<IProtoField> KeyValueFields
         {
@@ -21,58 +21,71 @@ namespace Das.Serializer.ProtoBuf
             }
         }
 
-        public Type KeyType { get; }
+        public Type KeyType => Key.Type;
 
-        public Type ValueType { get; }
+        public Type ValueType => Value.Type;
 
         public Type KeyValuePairType { get; }
 
-        public TypeCode KeyTypeCode { get; }
+        public TypeCode KeyTypeCode => Key.TypeCode;
 
-        public TypeCode ValueTypeCode { get; }
+        public TypeCode ValueTypeCode => Value.TypeCode;
 
-        public ProtoWireTypes KeyWireType { get; }
+        public ProtoWireTypes KeyWireType => Key.WireType;
 
-        public ProtoWireTypes ValueWireType { get; }
+        public ProtoWireTypes ValueWireType => Value.WireType;
 
-        public Int32 KeyHeader { get; }
+        public Int32 KeyHeader => Key.Header;
 
-        public Int32 ValueHeader { get; }
+        public Int32 ValueHeader => Value.Header;  
 
-        public ProtoDictionaryInfo(Type type, ITypeManipulator types)
+        public ProtoDictionaryInfo(Type type, ITypeManipulator types, 
+            IProtoProvider protoProvider)
         {
             if (type == null || !typeof(IDictionary).IsAssignableFrom(type))
                 throw new TypeLoadException(type?.Name);
 
-            var gargs = type.GetGenericArguments();
-            KeyType = gargs[0];
-            ValueType = gargs[1];
+            var keyProp = KeyValuePairType.GetProperty(nameof(KeyValuePair<Object, Object>.Key));
+            var valProp = KeyValuePairType.GetProperty(nameof(KeyValuePair<Object, Object>.Value));
 
-            KeyTypeCode = Type.GetTypeCode(KeyType);
-            ValueTypeCode = Type.GetTypeCode(ValueType);
+            protoProvider.TryGetProtoField(keyProp, false, out var keyField);
+            protoProvider.TryGetProtoField(valProp, false, out var valField);
 
-            KeyWireType = ProtoBufSerializer.GetWireType(KeyType);
-            ValueWireType = ProtoBufSerializer.GetWireType(ValueType);
+            Key = keyField;
+            Value = valField;
 
-            KeyHeader = (Int32) KeyWireType + (1 << 3);
-            ValueHeader = (Int32)ValueWireType + (1 << 3);
+            //var gargs = type.GetGenericArguments();
+            //KeyType = gargs[0];
+            //ValueType = gargs[1];
+
+            //KeyTypeCode = Type.GetTypeCode(KeyType);
+            //ValueTypeCode = Type.GetTypeCode(ValueType);
+
+            //KeyWireType = ProtoBufSerializer.GetWireType(KeyType);
+            //ValueWireType = ProtoBufSerializer.GetWireType(ValueType);
+
+            //KeyHeader = (Int32) KeyWireType + (1 << 3);
+            //ValueHeader = (Int32)ValueWireType + (1 << 3);
 
             KeyValuePairType = typeof(KeyValuePair<,>).
                 MakeGenericType(KeyType, ValueType);
 
-            KeyGetter = KeyValuePairType.GetterOrDie(nameof(Key));
-            ValueGetter = KeyValuePairType.GetterOrDie(nameof(Value));
 
+            //KeyGetter = KeyValuePairType.GetterOrDie(nameof(Key), out _);
+            //ValueGetter = KeyValuePairType.GetterOrDie(nameof(Value), out _);
 
-            Key = new ProtoField(nameof(Key), KeyType, KeyWireType, 0, KeyHeader,
-                null, KeyTypeCode, types.IsLeaf(KeyType, false), false);
+            //var keyAction = protoProvider.GetProtoFieldAction(KeyType);
+            //var valueAction = protoProvider.GetProtoFieldAction(KeyType);
 
-            Value= new ProtoField(nameof(Value), ValueType, ValueWireType, 0, ValueHeader,
-                null, ValueTypeCode, types.IsLeaf(ValueType, false), false);
+            //Key = new ProtoField(nameof(Key), KeyType, KeyWireType, 0, KeyHeader,
+            //    null, KeyTypeCode, types.IsLeaf(KeyType, false), false, keyAction);
+
+            //Value= new ProtoField(nameof(Value), ValueType, ValueWireType, 0, ValueHeader,
+            //    null, ValueTypeCode, types.IsLeaf(ValueType, false), false, valueAction);
         }
 
-        public MethodInfo ValueGetter { get; }
+        public MethodInfo ValueGetter => Value.GetMethod;
 
-        public MethodInfo KeyGetter { get; }
+        public MethodInfo KeyGetter => Key.GetMethod;
     }
 }

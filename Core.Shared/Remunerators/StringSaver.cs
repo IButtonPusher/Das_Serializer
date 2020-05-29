@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Das.Extensions;
-using Das.Serializer.Scanners;
+
 // ReSharper disable UnusedMember.Global
 
 namespace Das.Serializer
@@ -56,8 +56,7 @@ namespace Das.Serializer
         public void Append(String data)
         {
             var len = _sb.Length + data.Length;
-            if (len > _sb.Capacity)
-                TryGetBiggerBackingBuilder(len);
+            EnsureCapacity(len);
 
             _sb.Append(data);
         }
@@ -72,8 +71,7 @@ namespace Das.Serializer
         public void Append(String data1, String data2)
         {
             var len = _sb.Length + data1.Length + data2.Length;
-            if (len > _sb.Capacity)
-                TryGetBiggerBackingBuilder(len);
+            EnsureCapacity(len);
 
             _sb.Append(data1);
             _sb.Append(data2);
@@ -138,8 +136,7 @@ namespace Das.Serializer
         public void Append(String data1, String data2, String data3)
         {
             var len = _sb.Length + data1.Length + data2.Length + data3.Length;
-            if (len > _sb.Capacity)
-                TryGetBiggerBackingBuilder(len);
+            EnsureCapacity(len);
 
             _sb.Append(data1);
             _sb.Append(data2);
@@ -151,11 +148,24 @@ namespace Das.Serializer
         public void Append(Char data1, String data2)
         {
             var len = _sb.Length + 1 + data2.Length;
-            if (len > _sb.Capacity)
-                TryGetBiggerBackingBuilder(len);
+            EnsureCapacity(len);
 
             _sb.Append(data1);
             _sb.Append(data2);
+        }
+
+        private void EnsureCapacity(Int32 len)
+        {
+            if (len > _sb.Capacity)
+                TryGetBiggerBackingBuilder(len);
+        }
+
+        public void Append(ITextAccessor txt)
+        {
+            var len = _sb.Length + 1 + txt.Length;
+            EnsureCapacity(len);
+
+            _sb.Append(txt);
         }
 
         public Boolean Append<T>(IList<T> items, Char separator)
@@ -211,8 +221,7 @@ namespace Das.Serializer
                 return;
 
             var len = 0;
-            if (len > _sb.Capacity)
-                TryGetBiggerBackingBuilder(len);
+            EnsureCapacity(len);
 
             for (var c = 0; c < datas.Length; c++)
             {
@@ -241,7 +250,7 @@ namespace Das.Serializer
         public void Dispose()
         {
             Recycle(_sb);
-            _sb = null;
+            _sb = null!;
         }
 
         public void Undispose()

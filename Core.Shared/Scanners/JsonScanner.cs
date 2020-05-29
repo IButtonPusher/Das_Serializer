@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Das.Serializer.Scanners
+namespace Das.Serializer
 {
     internal class JsonScanner : TextScanner
     {

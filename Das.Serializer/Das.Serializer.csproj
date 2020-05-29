@@ -33,6 +33,7 @@ Single dll (fw/core) to keep it simple</Description>
 <PropertyGroup>
    <LangVersion>8.0</LangVersion>
    <Nullable>enable</Nullable>
+   <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
 </PropertyGroup>
 
 

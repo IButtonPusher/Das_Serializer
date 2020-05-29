@@ -13,7 +13,8 @@ namespace Das.Serializer
     public class ObjectInstantiator : TypeCore, IInstantiator
     {
         private static readonly ConcurrentDictionary<Type, InstantiationTypes> InstantionTypes;
-        private static readonly ConcurrentDictionary<Type, Func<Object>> Constructors;
+        private static readonly ConcurrentDictionary<Type, Func<Object>> ConstructorDelegates;
+        private static readonly ConcurrentDictionary<Type, ConstructorInfo> Constructors;
         
         private static readonly ConcurrentDictionary<Type, Boolean> KnownOnDeserialize;
         private readonly ITypeInferrer _typeInferrer;
@@ -25,7 +26,8 @@ namespace Das.Serializer
         static ObjectInstantiator()
         {
             InstantionTypes = new ConcurrentDictionary<Type, InstantiationTypes>();
-            Constructors = new ConcurrentDictionary<Type, Func<Object>>();
+            ConstructorDelegates = new ConcurrentDictionary<Type, Func<Object>>();
+            Constructors = new ConcurrentDictionary<Type, ConstructorInfo>();
             KnownOnDeserialize = new ConcurrentDictionary<Type, Boolean>();
         }
 
@@ -101,10 +103,62 @@ namespace Das.Serializer
                 ? genericArguments.Take(genericArguments.Count - 1).ToArray()
                 : Type.EmptyTypes;
 
-            return type.GetConstructor(argTypes);
+            var ctor = type.GetConstructor(Const.AnyInstance, null, argTypes, null);
+            return ctor;
         }
 
-        public Delegate GetConstructorDelegate(Type type, Type delegateType)
+        public TDelegate GetConstructorDelegate<TDelegate>(Type type)
+        where TDelegate : Delegate
+        {
+            if (TryGetConstructorDelegate<TDelegate>(type, out var res))
+                return res;
+
+            throw new InvalidProgramException(
+                $"Type '{type.Name}' doesn't have the requested constructor.");
+        }
+
+        public bool TryGetConstructorDelegate<TDelegate>(Type type, out TDelegate result)
+            where TDelegate : Delegate
+        {
+            if (TryGetConstructorDelegate(type, typeof(TDelegate), out var maybe)
+                && (maybe is TDelegate td))
+            {
+                result = td;
+                return true;
+            }
+
+            result = default;
+            return false;
+
+            //if (type == null)
+            //    throw new ArgumentNullException(nameof(type));
+
+            //var delegateType = typeof(TDelegate);
+
+            //if (delegateType == null)
+            //    throw new ArgumentNullException(nameof(delegateType));
+
+            //var genericArguments = delegateType.GetGenericArguments();
+            //var constructor = GetConstructor(type, genericArguments, out var argTypes);
+
+            //if (constructor == null)
+            //{
+            //    result = default!;
+            //    return false;
+            //}
+
+            //var dynamicMethod = new DynamicMethod("DM$_" + type.Name, type, argTypes, type);
+            //var ilGen = dynamicMethod.GetILGenerator();
+            //for (var i = 0; i < argTypes.Length; i++)
+            //    ilGen.Emit(OpCodes.Ldarg, i);
+
+            //ilGen.Emit(OpCodes.Newobj, constructor);
+            //ilGen.Emit(OpCodes.Ret);
+            //result = (TDelegate)dynamicMethod.CreateDelegate(delegateType);
+            //return true;
+        }
+
+        public bool TryGetConstructorDelegate(Type type, Type delegateType, out Delegate result)
         {
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
@@ -117,8 +171,8 @@ namespace Das.Serializer
 
             if (constructor == null)
             {
-                throw new InvalidProgramException(
-                    $"Type '{type.Name}' doesn't have the requested constructor.");
+                result = default!;
+                return false;
             }
 
             var dynamicMethod = new DynamicMethod("DM$_" + type.Name, type, argTypes, type);
@@ -128,19 +182,27 @@ namespace Das.Serializer
 
             ilGen.Emit(OpCodes.Newobj, constructor);
             ilGen.Emit(OpCodes.Ret);
-            return dynamicMethod.CreateDelegate(delegateType);
+            result = dynamicMethod.CreateDelegate(delegateType);
+            return true;
         }
+
+
 
 
         public Func<Object> GetConstructorDelegate(Type type)
         {
             var delType = typeof(Func<>).MakeGenericType(type);
 
-            return (Func<Object>) GetConstructorDelegate(type, delType);
+            if (TryGetConstructorDelegate(type, delType, out var res))
+                return (Func<Object>)res;
+
+            throw new InvalidProgramException(
+                $"Type '{type.Name}' doesn't have the requested constructor.");
+            //return (Func<Object>) GetConstructorDelegate(type, delType);
         }
 
         public Func<T> GetConstructorDelegate<T>()
-            => (Func<T>) GetConstructorDelegate(typeof(T), typeof(Func<T>));
+            => GetConstructorDelegate<Func<T>>(typeof(T));
 
         public void OnDeserialized(IValueNode node, ISerializationDepth depth)
         {
@@ -156,7 +218,8 @@ namespace Das.Serializer
         }
 
 
-       
+      
+
         public T CreatePrimitiveObject<T>(Byte[] rawValue, Type objType)
         {
             if (rawValue.Length == 0)
@@ -203,22 +266,63 @@ namespace Das.Serializer
 
         public Func<Object> GetDefaultConstructor(Type type)
         {
-            if (!Constructors.TryGetValue(type, out var constructor))
+            if (!ConstructorDelegates.TryGetValue(type, out var constructor))
             {
                 constructor = GetConstructorDelegate(type);
-                Constructors.TryAdd(type, constructor);
+                ConstructorDelegates.TryAdd(type, constructor);
             }
 
             return constructor;
         }
 
+        public bool TryGetDefaultConstructor<T>(out ConstructorInfo ctor) where T : class
+        {
+            var type = typeof(T);
+            if (Constructors.TryGetValue(type, out ctor))
+            {
+                if (ctor.GetParameters().Length == 0)
+                    return true;
+
+                ctor = GetConstructor(type, new List<Type>(), out _);
+                goto byeNow;
+            }
+
+            ctor = GetConstructor(type, new List<Type>(), out _);
+            Constructors.TryAdd(type, ctor);
+
+            byeNow:
+            return ctor != null;
+        }
+
+        public bool TryGetDefaultConstructorDelegate<T>(out Func<T> res) where T : class
+        {
+            var type = typeof(T);
+            if (ConstructorDelegates.TryGetValue(type, out var constructor))
+            {
+                res = constructor as Func<T>;
+                return true;
+            }
+
+            if (!TryGetConstructorDelegate<Func<T>>(typeof(T), out var del))
+            {
+                res = default;
+                return false;
+            }
+
+            constructor = (Func<Object>) del;
+            ConstructorDelegates.TryAdd(type, constructor);
+
+            res = constructor as Func<T>;
+            return true;
+        }
+
         public Func<T> GetDefaultConstructor<T>() where T: class
         {
             var type = typeof(T);
-            if (!Constructors.TryGetValue(type, out var constructor))
+            if (!ConstructorDelegates.TryGetValue(type, out var constructor))
             {
                 constructor = GetConstructorDelegate<T>();
-                Constructors.TryAdd(type, constructor);
+                ConstructorDelegates.TryAdd(type, constructor);
             }
 
             return constructor as Func<T>;
@@ -227,14 +331,14 @@ namespace Das.Serializer
 
         private Object CreateInstanceCacheConstructor(Type type)
         {
-            if (Constructors.TryGetValue(type, out var constructor))
+            if (ConstructorDelegates.TryGetValue(type, out var constructor))
                 return constructor();
 
             if (IsAnonymousType(type))
                 return CreateInstanceDetectConstructor(type);
 
             constructor = GetConstructorDelegate(type);
-            Constructors.TryAdd(type, constructor);
+            ConstructorDelegates.TryAdd(type, constructor);
             return constructor();
         }
 

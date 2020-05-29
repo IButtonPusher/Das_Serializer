@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Das.Serializer.Types;
 
-namespace Das.Serializer.Scanners
+namespace Das.Serializer
 {
     public class NullNode : ITextNode, IBinaryNode, IEquatable<INode>
     {

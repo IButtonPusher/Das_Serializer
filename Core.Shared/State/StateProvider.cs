@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using Das.Serializer.Scanners;
+
 using Das.Serializer.State;
 
 namespace Das.Serializer

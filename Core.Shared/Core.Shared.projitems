@@ -85,7 +85,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)TextCommon\StringAccessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TextCommon\StringBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TypeStructure.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Types\DoubleConcurrentDictionary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\DoubleDictionary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\InstantiationTypes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\InvalidCollection.cs" />

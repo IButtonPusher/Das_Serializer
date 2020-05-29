@@ -3,7 +3,7 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 
 
-namespace Das.Serializer.Scanners
+namespace Das.Serializer
 {
     internal class BinaryPrimitiveScanner : SerializerCore, IBinaryPrimitiveScanner
     {

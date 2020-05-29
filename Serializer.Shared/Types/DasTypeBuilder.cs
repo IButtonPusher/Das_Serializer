@@ -393,50 +393,101 @@ namespace Das.Types
 
         private static void CreateProperty(TypeBuilder tb, DasProperty prop)
         {
-            var propertyName = prop.Name;
-            var propertyType = prop.Type;
+            var propBuilder = CreateProperty(tb, prop.Name, prop.Type, out _, true);
 
-            var fieldBuilder = tb.DefineField("_" + propertyName, propertyType, FieldAttributes.Private);
+            //var propertyName = prop.Name;
+            //var propertyType = prop.Type;
+
+            //var backingfield = tb.DefineField("_" + propertyName, propertyType, FieldAttributes.Private);
+
+            //var propBuilder = tb.DefineProperty(propertyName, PropertyAttributes.HasDefault,
+            //    propertyType, null);
+            //var getPropMthdBldr = tb.DefineMethod("get_" + propertyName,
+            //    AccessorAttributes,
+            //    //MethodAttributes.Public | MethodAttributes.SpecialName |
+            //    //MethodAttributes.HideBySig | MethodAttributes.Virtual, 
+            //    propertyType, Type.EmptyTypes);
+            //var getIl = getPropMthdBldr.GetILGenerator();
+
+            //getIl.Emit(OpCodes.Ldarg_0);
+            //getIl.Emit(OpCodes.Ldfld, backingfield);
+            //getIl.Emit(OpCodes.Ret);
+
+            //var setPropMthdBldr =
+            //    tb.DefineMethod("set_" + propertyName,
+            //        AccessorAttributes,
+            //        //MethodAttributes.Public |
+            //        //MethodAttributes.SpecialName |
+            //        //MethodAttributes.HideBySig | MethodAttributes.Virtual,
+            //        null, new[] {propertyType});
+
+            //var setIl = setPropMthdBldr.GetILGenerator();
+            //var modifyProperty = setIl.DefineLabel();
+            //var exitSet = setIl.DefineLabel();
+
+            //setIl.MarkLabel(modifyProperty);
+            //setIl.Emit(OpCodes.Ldarg_0);
+            //setIl.Emit(OpCodes.Ldarg_1);
+            //setIl.Emit(OpCodes.Stfld, backingfield);
+
+            //setIl.Emit(OpCodes.Nop);
+            //setIl.MarkLabel(exitSet);
+            //setIl.Emit(OpCodes.Ret);
+
+            //propBuilder.SetGetMethod(getPropMthdBldr);
+            //propBuilder.SetSetMethod(setPropMthdBldr);
+
+            if (prop.Attributes?.Length > 0)
+                AddAttributes(propBuilder, prop.Attributes);
+        }
+
+        public static PropertyBuilder CreateProperty(TypeBuilder tb, 
+            String propertyName, Type propertyType, out FieldInfo backingfield,
+            Boolean addSetter)
+        {
+            //var propertyName = prop.Name;
+            //var propertyType = prop.Type;
+
+            backingfield = tb.DefineField("_" + propertyName, propertyType, FieldAttributes.Private);
 
             var propBuilder = tb.DefineProperty(propertyName, PropertyAttributes.HasDefault,
                 propertyType, null);
             var getPropMthdBldr = tb.DefineMethod("get_" + propertyName,
                 AccessorAttributes,
-                //MethodAttributes.Public | MethodAttributes.SpecialName |
-                //MethodAttributes.HideBySig | MethodAttributes.Virtual, 
                 propertyType, Type.EmptyTypes);
             var getIl = getPropMthdBldr.GetILGenerator();
 
             getIl.Emit(OpCodes.Ldarg_0);
-            getIl.Emit(OpCodes.Ldfld, fieldBuilder);
+            getIl.Emit(OpCodes.Ldfld, backingfield);
             getIl.Emit(OpCodes.Ret);
 
-            var setPropMthdBldr =
-                tb.DefineMethod("set_" + propertyName,
-                    AccessorAttributes,
-                    //MethodAttributes.Public |
-                    //MethodAttributes.SpecialName |
-                    //MethodAttributes.HideBySig | MethodAttributes.Virtual,
-                    null, new[] {propertyType});
-
-            var setIl = setPropMthdBldr.GetILGenerator();
-            var modifyProperty = setIl.DefineLabel();
-            var exitSet = setIl.DefineLabel();
-
-            setIl.MarkLabel(modifyProperty);
-            setIl.Emit(OpCodes.Ldarg_0);
-            setIl.Emit(OpCodes.Ldarg_1);
-            setIl.Emit(OpCodes.Stfld, fieldBuilder);
-
-            setIl.Emit(OpCodes.Nop);
-            setIl.MarkLabel(exitSet);
-            setIl.Emit(OpCodes.Ret);
-
             propBuilder.SetGetMethod(getPropMthdBldr);
-            propBuilder.SetSetMethod(setPropMthdBldr);
 
-            if (prop.Attributes?.Length > 0)
-                AddAttributes(propBuilder, prop.Attributes);
+            if (addSetter)
+            {
+                var setPropMthdBldr =
+                    tb.DefineMethod("set_" + propertyName,
+                        AccessorAttributes,
+                        null, new[] {propertyType});
+
+                var setIl = setPropMthdBldr.GetILGenerator();
+                var modifyProperty = setIl.DefineLabel();
+                var exitSet = setIl.DefineLabel();
+
+                setIl.MarkLabel(modifyProperty);
+                setIl.Emit(OpCodes.Ldarg_0);
+                setIl.Emit(OpCodes.Ldarg_1);
+                setIl.Emit(OpCodes.Stfld, backingfield);
+
+                setIl.Emit(OpCodes.Nop);
+                setIl.MarkLabel(exitSet);
+                setIl.Emit(OpCodes.Ret);
+
+                propBuilder.SetSetMethod(setPropMthdBldr);
+            }
+
+
+            return propBuilder;
         }
 
         private static void AddAttributes(PropertyBuilder propBuilder,

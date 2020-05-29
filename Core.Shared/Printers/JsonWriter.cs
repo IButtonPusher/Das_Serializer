@@ -85,9 +85,15 @@ namespace Serializer.Printers
             sb.Append(" ]");
         }
 
-        protected static void Text(ITextRemunerable sb, String key, String value)
+        protected static void Text(ITextRemunerable sb, String key, ITextAccessor value)
         {
-            sb.Append("\"" + key + "\": \"" + value + "\"");
+            sb.Append('\"');
+            sb.Append(key);
+            sb.Append("\": \"");
+            sb.Append(value);
+            sb.Append('\"');
+
+            //sb.Append("\"" + key + "\": \"" + value + "\"");
         }
 
         protected void Texts(ITextRemunerable sb, IDictionary<String, String> texts)

@@ -71,6 +71,8 @@ namespace Das.Serializer
             return true;
         }
 
+        
+
         public Type GetGermaneType(Type ownerType)
         {
             if (_cachedGermane.TryGetValue(ownerType, out var typ))
@@ -184,13 +186,19 @@ namespace Das.Serializer
         }
        
 
-        public Boolean IsUseless(Type t) => t == null || t == Const.ObjectType;
+        public Boolean IsUseless(Type? t) => t == null || t == Const.ObjectType;
 
         public Boolean IsNumeric(Type myType) => NumericTypes.Contains(
             Nullable.GetUnderlyingType(myType) ?? myType);
 
         public Boolean HasEmptyConstructor(Type t)
             => t.GetConstructor(Type.EmptyTypes) != null;
+
+        public bool TryGetEmptyConstructor(Type t, out ConstructorInfo ctor)
+        {
+            ctor = t.GetConstructor(Const.AnyInstance, null, Type.EmptyTypes, null);
+            return ctor != null;
+        }
 
         public Boolean IsInstantiable(Type t) =>
             !IsUseless(t) && !t.IsAbstract && !t.IsInterface;

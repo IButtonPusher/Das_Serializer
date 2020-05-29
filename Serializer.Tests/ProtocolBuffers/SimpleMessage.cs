@@ -154,4 +154,20 @@ namespace Serializer.Tests.ProtocolBuffers
             };
     }
 
+    [ProtoContract]
+    public class PackedArrayTest
+    {
+        [ProtoMember(4, IsPacked = true)] public Int32[] Array1 { get; set; }
+
+
+        public static PackedArrayTest DefaultValue { get; } =
+            new PackedArrayTest
+            {
+                Array1 = new[]
+                {
+                    3, 270, 86942
+                }
+            };
+    }
+
 }

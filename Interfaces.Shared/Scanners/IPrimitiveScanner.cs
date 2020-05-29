@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Das.Serializer.Scanners
+namespace Das.Serializer
 {
     public interface IPrimitiveScanner<in T>
     {

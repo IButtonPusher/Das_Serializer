@@ -27,7 +27,7 @@ namespace Serializer.Benchmarks
         }
 
         [ThreadStatic]
-        private static Byte[] _rdrr;
+        private static Byte[]? _rdrr;
 
         private unsafe static void RunManyTimes()
         {

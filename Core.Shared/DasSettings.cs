@@ -1,4 +1,6 @@
 ﻿using System;
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+// ReSharper disable UnusedMember.Global
 
 namespace Das.Serializer
 {
@@ -77,13 +79,13 @@ namespace Das.Serializer
         public static DasSettings Default
         {
             get => (DasSettings) _default.MemberwiseClone();
-            private set => _default = value;
+//            private set => _default = value;
         }
 
 
         static DasSettings()
         {
-            Default = new DasSettings();
+            _default = new DasSettings();
         }
     }
 }

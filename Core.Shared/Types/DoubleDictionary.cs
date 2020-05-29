@@ -46,5 +46,10 @@ namespace Das.Serializer.Types
             value = default;
             return false;
         }
+
+        public void Clear()
+        {
+            _backing.Clear();
+        }
     }
 }

@@ -1,13 +1,18 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace Das.Serializer.ProtoBuf
 {
     public interface IProtoProxy<T>
     {
-        Stream OutStream { get; set; }
+        Boolean IsReadOnly { get; }
 
-        void Print(T obj);
+        //Stream OutStream { get; set; }
+
+        void Print(T obj, Stream target);
 
         T Scan(Stream stream);
+
+        T Scan(Stream stream, Int64 byteCount);
     }
 }

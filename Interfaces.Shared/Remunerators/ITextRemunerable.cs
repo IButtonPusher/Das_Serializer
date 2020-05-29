@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 
 namespace Das.Serializer
@@ -7,7 +8,7 @@ namespace Das.Serializer
     {
         void Append(Char data1, String data2);
 
-        //void Append(Object obj);
+        void Append(ITextAccessor txt);
 
         new void Append(Char item);
 
@@ -19,6 +20,8 @@ namespace Das.Serializer
         void Remove(Int32 startIndex, Int32 length);
 
         void Undispose();
+
+        ITextAccessor ToImmutable();
     }
 
     public interface IStringRemunerable : IRemunerable<String>

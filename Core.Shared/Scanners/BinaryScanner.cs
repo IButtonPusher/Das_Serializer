@@ -1,7 +1,7 @@
 ﻿using Das.Streamers;
 using System;
 
-namespace Das.Serializer.Scanners
+namespace Das.Serializer
 {
     internal class BinaryScanner : SerializerCore, IBinaryScanner
     {
@@ -12,8 +12,9 @@ namespace Das.Serializer.Scanners
             _nodeManipulator = state.ScanNodeManipulator;
         }
 
-        private IBinaryFeeder _feeder;
-        private IBinaryNode _rootNode;
+        private IBinaryFeeder Feeder => _feeder ?? throw new NullReferenceException(nameof(_feeder));
+        private IBinaryFeeder? _feeder;
+        private IBinaryNode? _rootNode;
         protected readonly IBinaryContext _state;
         protected readonly IBinaryNodeProvider _nodes;
 
@@ -43,7 +44,7 @@ namespace Das.Serializer.Scanners
             if (_rootNode.Value != null)
                 _state.ObjectInstantiator.OnDeserialized(_rootNode, Settings);
 
-            return (T) _rootNode.Value;
+            return (T) _rootNode.Value!;
         }
 
 
@@ -58,7 +59,7 @@ namespace Das.Serializer.Scanners
                 case 1:
                     //a reference object with a size of 1 byte is
                     //a circular reference pointer
-                    var distanceFromRoot = _feeder.GetCircularReferenceIndex();
+                    var distanceFromRoot = Feeder.GetCircularReferenceIndex();
                     _nodes.ResolveCircularReference(node, ref distanceFromRoot);
                     return;
             }
@@ -72,7 +73,7 @@ namespace Das.Serializer.Scanners
 
                 if (IsLeaf(propType, true))
                 {
-                    var val = _feeder.GetPrimitive(propType);
+                    var val = Feeder.GetPrimitive(propType);
 
                     _nodes.Sealer.Imbue(node, prop.Name, val);
                 }
@@ -88,7 +89,7 @@ namespace Das.Serializer.Scanners
         {
             var fbType = node.Type;
             var nodeSize = node.BlockSize;
-            var val = _feeder.GetFallback(fbType, ref nodeSize);
+            var val = Feeder.GetFallback(fbType, ref nodeSize);
             node.Value = val;
             node.BlockSize = nodeSize;
         }
@@ -96,15 +97,16 @@ namespace Das.Serializer.Scanners
         private void BuildCollection(ref IBinaryNode node)
         {
             var germane = TypeInferrer.GetGermaneType(node.Type);
+            var feeder = Feeder;
 
             var index = 0;
             var blockEnd = node.BlockStart + node.BlockSize;
 
             if (IsLeaf(germane, true))
             {
-                while (_feeder.Index < blockEnd)
+                while (feeder.Index < blockEnd)
                 {
-                    var res = _feeder.GetPrimitive(germane);
+                    var res = feeder.GetPrimitive(germane);
                     _nodes.Sealer.Imbue(node, index.ToString(), res);
                     index++;
                 }
@@ -112,7 +114,7 @@ namespace Das.Serializer.Scanners
                 return;
             }
 
-            while (_feeder.Index < blockEnd)
+            while (feeder.Index < blockEnd)
             {
                 var child = NewNode(index.ToString(), node, germane);
                 BuildNext(ref child);
@@ -123,30 +125,32 @@ namespace Das.Serializer.Scanners
         private IBinaryNode NewNode(String name, [NotNull]IBinaryNode parent, Type type)
         {
             var child = _nodes.Get(name, parent, type);
-            child.BlockStart = _feeder.Index;
+            var feeder = Feeder;
+
+            child.BlockStart = feeder.Index;
             if (child.NodeType == NodeTypes.Primitive &&
                 Settings.TypeSpecificity != TypeSpecificity.All)
                 return child;
 
             //reference type - read size prefix
-            child.BlockSize = _feeder.GetNextBlockSize();
-            var isUnwrapped = _feeder.GetPrimitive<Boolean>();
+            child.BlockSize = feeder.GetNextBlockSize();
+            var isUnwrapped = feeder.GetPrimitive<Boolean>();
 
             child.BlockSize -= 5;
 
             if (!isUnwrapped)
                 return child;
 
-            var sizeStart = _feeder.Index;
+            var sizeStart = feeder.Index;
 
             //envelope is providing type explicitly.  Re-calibrate
-            child.Type = _feeder.GetNextType();
+            child.Type = feeder.GetNextType();
             child.NodeType = NodeTypes.None;
 
             //substract the type wrapping from the effective size of the block
-            child.BlockSize -= _feeder.Index - sizeStart;
+            child.BlockSize -= feeder.Index - sizeStart;
             //adjust starting point to after the size/type decl the 
-            child.BlockStart = _feeder.Index;
+            child.BlockStart = feeder.Index;
             _nodeManipulator.EnsureNodeType(child);
 
             return child;
@@ -174,7 +178,7 @@ namespace Das.Serializer.Scanners
                     return;
 
                 case NodeTypes.Primitive:
-                    node.Value = _feeder.GetPrimitive(node.Type);
+                    node.Value = Feeder.GetPrimitive(node.Type);
 
                     break;
             }
@@ -185,7 +189,10 @@ namespace Das.Serializer.Scanners
 
         public void Invalidate()
         {
-            _nodes.Put(_rootNode);
+            var rn = _rootNode;
+            if (rn == null)
+                return;
+            _nodes.Put(rn);
             _rootNode = default;
         }
     }

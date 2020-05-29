@@ -14,11 +14,19 @@ namespace Das.Serializer.Remunerators
         private Byte[] _array;
         private readonly Dictionary<Int32, Int32> _objects; 
         private readonly Dictionary<Int32, Int32> _parents; 
-        private Int32 _size;
-        private Int32 _head;
+        
+        
+        private static Int32 _size;
+        
+        
+        private static Int32 _head;
+        
+        
         private Int32 _bufferTail;
+
         protected Stream _outStream;
         protected Int32 _stackDepth;
+
         private Int32 _capacity;
         private Int32 _nextResize;
 
@@ -47,8 +55,12 @@ namespace Das.Serializer.Remunerators
         private static readonly Byte[] _negative32Fill = { Byte.MaxValue, Byte.MaxValue, 
             Byte.MaxValue, Byte.MaxValue, 1};
 
+        private Boolean _isReadOnly;
+
         public ProtoBufWriter(Int32 startSize)
         {
+            _isReadOnly = true;
+
             _outStream = base.OutStream;
             _capacity = startSize;
             _nextResize = startSize / 2;
@@ -213,7 +225,7 @@ namespace Das.Serializer.Remunerators
 
         public sealed override void WriteInt16(Int16 val)
         {
-            throw new NotImplementedException();
+            WriteInt32(val);
         }
 
         public sealed override void WriteInt16(UInt16 val)
@@ -221,7 +233,114 @@ namespace Das.Serializer.Remunerators
             throw new NotImplementedException();
         }
 
-       
+        public Int32 GetPackedArrayLength32<TCollection>(TCollection packedArray)
+            where TCollection : IEnumerable<Int32>
+        {
+            var counter = 0;
+            foreach (var val in packedArray)
+                GetVarIntLengthImpl(val, ref counter);
+            return counter;
+        }
+
+        public Int32 GetPackedArrayLength16<TCollection>(TCollection packedArray)
+            where TCollection : IEnumerable<Int16>
+        {
+            var counter = 0;
+            foreach (var val in packedArray)
+                GetVarIntLengthImpl(val, ref counter);
+            return counter;
+        }
+
+        public Int32 GetPackedArrayLength64<TCollection>(TCollection packedArray)
+            where TCollection : IEnumerable<Int64>
+        {
+            throw new NotImplementedException();
+            //var counter = 0;
+            //foreach (var val in packedArray)
+            //    GetVarIntLengthImpl(val, ref counter);
+            //return counter;
+        }
+
+        public void WritePacked32<TCollection>(TCollection packed)
+            where TCollection : IEnumerable<Int32>
+        {
+            foreach (var item in packed)
+                WriteInt32(item);
+        }
+
+        //public void WritePacked<TCollection, TItem>(TCollection packed)
+        //    where TCollection : IEnumerable<TItem>
+        //    where TItem : IConvertible
+        //{
+        //    foreach (var item in packed)
+        //        WriteInt32(Convert.ToInt32(item));
+        //}
+
+
+        public void WritePacked16<TCollection>(TCollection packed)
+            where TCollection : IEnumerable<Int16>
+        {
+            foreach (var item in packed)
+                WriteInt32(item);
+        }
+
+        public void WritePacked64<TCollection>(TCollection packed)
+            where TCollection : IEnumerable<Int64>
+        {
+            foreach (var item in packed)
+                WriteInt64(item);
+        }
+
+        [MethodImpl(256)]
+        public int GetVarIntLength(Int32 value)
+        {
+            var counter = 0;
+            GetVarIntLengthImpl(value, ref counter);
+            return counter;
+        }
+
+        private static void GetVarIntLengthImpl(Int32 value, ref Int32 counter)
+        {
+            if (value > 0)
+            {
+                if (value > 127)
+                {
+                    if (value > 16256)
+                    {
+                        if (value > 1040384)
+                        {
+                            if (value > 66584576)
+                            {
+                                if (value > 2130706432)
+                                {
+                                    counter += 5;
+                                    return;
+                                }
+
+                                counter += 5;
+                                return;
+                            }
+
+                            counter += 4;
+                            return;
+                        }
+
+                        counter +=  3;
+                        return;
+                    }
+
+                    counter +=  2;
+                    return;
+                }
+
+                counter +=  1;
+                //_outStream.WriteByte((Byte) (value & 127));
+
+                return;
+            }
+
+            counter +=  10; //negative
+        }
 
         public sealed override void WriteInt32(Int32 value)
         {
@@ -338,12 +457,14 @@ namespace Das.Serializer.Remunerators
 
         public void Write(Byte[] buffer, Int32 count) => Write(buffer, 0, count);
 
+        
+
+        
+
         public override void Write(Byte[] buffer, Int32 index, Int32 count)
         {
             if (_stackDepth == 0)
-            {
                 _outStream.Write(buffer, index, count);
-            }
             else
             {
                 Buffer.BlockCopy(buffer, index, _array, _size, count);
@@ -374,7 +495,6 @@ namespace Das.Serializer.Remunerators
             {
                 for (var c = 0; c <= 4; c++)
                 {
-                    
                     var current = (Byte)(value | 128);
                     value >>= 7;
                     WriteInt8(current);

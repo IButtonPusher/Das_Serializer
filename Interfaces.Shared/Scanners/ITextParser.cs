@@ -93,7 +93,7 @@ namespace Das.Serializer
 
         Boolean ContainsAll(String str, String[] list);
 
-        String FindValue(String json, String item, ref Int32 startIndex);
+        String FindJsonValue(String json, String item, ref Int32 startIndex);
 
         String AsUSString(Double amount, Int32 decimalPlaces);
 

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Das.Serializer.Scanners
+namespace Das.Serializer
 {
     public abstract class TextScanner : SerializerCore, ITextScanner
     {
@@ -35,7 +35,7 @@ namespace Das.Serializer.Scanners
 
         protected readonly INodeSealer<ITextNode> Sealer;
         protected readonly INodeManipulator Types;
-        private Type _resultType;
+        private Type? _resultType;
         private readonly IObjectConverter _converter;
 
         protected TextScanner(IConverterProvider converterProvider, ITextContext state)
@@ -81,7 +81,7 @@ namespace Das.Serializer.Scanners
                 if (!TextState.TypeInferrer.IsUseless(rootType) &&
                     TextState.TypeInferrer.IsUseless(RootNode.Type))
 
-                    CurrentNode.Type = _resultType;
+                    CurrentNode.Type = _resultType!;
             }
             else
             {

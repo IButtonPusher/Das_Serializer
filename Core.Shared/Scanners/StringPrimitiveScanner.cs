@@ -2,7 +2,7 @@
 using System.Globalization;
 
 
-namespace Das.Serializer.Scanners
+namespace Das.Serializer
 {
     public abstract class StringPrimitiveScanner : IStringPrimitiveScanner
     {

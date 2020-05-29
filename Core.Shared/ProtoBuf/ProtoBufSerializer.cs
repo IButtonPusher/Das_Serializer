@@ -2,18 +2,18 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Das.Serializer.ProtoBuf
 {
     public class ProtoBufSerializer : CoreContext, IProtoSerializer
     {
-        private static readonly ConcurrentDictionary<Type, ProtoWireTypes> _wireTypes;
-        private static readonly Type _enumType = typeof(Enum);
-
         static ProtoBufSerializer()
         {
             var wireTypes = new Dictionary<Type, ProtoWireTypes>
             {
+                {typeof(Int16), ProtoWireTypes.Varint},
                 {typeof(Int32), ProtoWireTypes.Varint},
                 {typeof(Int64), ProtoWireTypes.Varint},
                 {typeof(UInt32), ProtoWireTypes.Varint},
@@ -32,35 +32,60 @@ namespace Das.Serializer.ProtoBuf
 
         public ProtoBufSerializer(IStateProvider stateProvider,
             ISerializerSettings settings,
-            IProtoProvider typeProvider) 
+            IProtoProvider typeProvider)
             : base(stateProvider, settings)
         {
             StateProvider = stateProvider;
             TypeProvider = typeProvider;
         }
 
-        public IStateProvider StateProvider { get; }
-
-        protected IProtoProvider TypeProvider;
-
         public void ToProtoStream<TObject>(Stream stream, TObject o)
             where TObject : class
         {
-            var printer = TypeProvider.GetProtoProxy<TObject>();
-            printer.OutStream = stream;
-            printer.Print(o);
+            var printer = TypeProvider.GetProtoProxy<TObject>(true);
+            //printer.OutStream = stream;
+            printer.Print(o, stream);
         }
 
         public TObject FromProtoStream<TObject>(Stream stream)
             where TObject : class
         {
             var scanner = TypeProvider.GetProtoProxy<TObject>();
-
             return scanner.Scan(stream);
         }
 
+
+        public IProtoProxy<T> GetProtoProxy<T>(Boolean allowReadOnly = false) where T : class
+        {
+            var proxy = TypeProvider.GetProtoProxy<T>(allowReadOnly);
+            return proxy;
+        }
+
+        public bool TryGetProtoField(PropertyInfo prop, Boolean isRequireAttribute, out ProtoField field)
+        {
+            return TypeProvider.TryGetProtoField(prop, isRequireAttribute, out field);
+        }
+
+
+        public ProtoFieldAction GetProtoFieldAction(Type pType)
+        {
+            return TypeProvider.GetProtoFieldAction(pType);
+        }
+
+        #if DEBUG
+
+        public void DumpProxies()
+        {
+            TypeProvider.DumpProxies();
+        }
+
+#endif
+
+
         public override IScanNodeProvider ScanNodeProvider
             => StateProvider.BinaryContext.ScanNodeProvider;
+
+        public IStateProvider StateProvider { get; }
 
         public static ProtoWireTypes GetWireType(Type type)
         {
@@ -75,5 +100,10 @@ namespace Das.Serializer.ProtoBuf
 
             return wire;
         }
+
+        private static readonly ConcurrentDictionary<Type, ProtoWireTypes> _wireTypes;
+        private static readonly Type _enumType = typeof(Enum);
+
+        protected readonly IProtoProvider TypeProvider;
     }
 }

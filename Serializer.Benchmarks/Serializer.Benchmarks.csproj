@@ -14,10 +14,9 @@
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup>
-   <LangVersion>8.0</LangVersion>
-   <Nullable>enable</Nullable>
-</PropertyGroup>
-
+    <LangVersion>8.0</LangVersion>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
@@ -28,7 +27,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
-    <CodeAnalysisRuleSet>Serializer.Benchmarks.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\Serializer.ruleset</CodeAnalysisRuleSet>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
