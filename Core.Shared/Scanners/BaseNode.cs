@@ -30,9 +30,9 @@ namespace Das.Serializer
             set => _parent = value;
         }
 
-        public Type Type { get; set; }
+        public Type? Type { get; set; }
 
-        public Object Value { get; set; }
+        public Object? Value { get; set; }
 
         public IDictionary<String, String> Attributes { get; }
         public IDictionary<String, Object> DynamicProperties { get; }

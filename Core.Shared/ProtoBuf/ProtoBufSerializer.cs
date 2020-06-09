@@ -61,7 +61,8 @@ namespace Das.Serializer.ProtoBuf
             return proxy;
         }
 
-        public bool TryGetProtoField(PropertyInfo prop, Boolean isRequireAttribute, out ProtoField field)
+        public bool TryGetProtoField(PropertyInfo prop, Boolean isRequireAttribute, 
+            out IProtoFieldAccessor field)
         {
             return TypeProvider.TryGetProtoField(prop, isRequireAttribute, out field);
         }

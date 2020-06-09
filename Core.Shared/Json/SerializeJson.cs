@@ -19,7 +19,7 @@ namespace Das.Serializer
 
         public void ToJson<TTarget>(Object o, FileInfo fileName)
         {
-            var obj = ObjectManipulator.CastDynamic<TTarget>(o);
+            var obj = ObjectManipulator.CastDynamic<TTarget>(o)!;
             ToJson(obj, fileName);
         }
 
@@ -46,12 +46,11 @@ namespace Das.Serializer
         /// <param name="o">The object to serialize</param>
         public String ToJson(Object o) => ToJson(o, o.GetType());
 
-        public String ToJson<TObject>(TObject o) => ToJson(o, typeof(TObject));
+        public String ToJson<TObject>(TObject o) => ToJson(o!, typeof(TObject));
 
         [MethodImpl(256)]
         private String ToJson(Object obj, Type asType)
         {
-            //using (var sp = new StringSaver())
             using (var sp = _escapeSaver.Value)
             {
                 using (var state = StateProvider.BorrowJson(Settings))

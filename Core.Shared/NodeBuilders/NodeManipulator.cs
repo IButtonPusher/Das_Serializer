@@ -50,7 +50,7 @@ namespace Das.Serializer
 
             var dType = _serializationCore.DynamicTypes.GetDynamicType(
                 typeName.ToString(), propTypes.ToArray(), true, Enumerable.Empty<EventInfo>(),
-                null, parentTypes);
+                null!, parentTypes);
 
             return dType;
         }
@@ -116,7 +116,7 @@ namespace Das.Serializer
 
         protected virtual Boolean TryGetExplicitType(INode node, out Type type)
         {
-            type = default;
+            type = default!;
             return false;
         }
 

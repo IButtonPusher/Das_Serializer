@@ -8,6 +8,50 @@ namespace Das.Serializer.ProtoBuf
     // ReSharper disable once UnusedTypeParameter
     public partial class ProtoDynamicProvider<TPropertyAttribute>
     {
+
+        private void PrintVarInt(ProtoPrintState s)
+        {
+            var pv = s.CurrentField;
+
+            var code = pv.TypeCode;
+            var il = s.IL;
+
+            PrintHeaderBytes(pv.HeaderBytes, s);
+            
+            //s.LoadProxyToStack();
+            s.LoadCurrentFieldValueToStack();
+            il.Emit(OpCodes.Ldarg_2);
+
+            switch (code)
+            {
+                case TypeCode.Int32:
+                    il.Emit(OpCodes.Call, _writeInt32);
+                    break;
+
+                case TypeCode.Int64:
+                    il.Emit(OpCodes.Call, _writeInt64);
+                    break;
+
+                case TypeCode.Int16:
+                    il.Emit(OpCodes.Call, _writeInt16);
+                    break;
+
+                case TypeCode.Byte:
+                    il.Emit(OpCodes.Call, _writeInt8);
+                    break;
+
+                case TypeCode.Boolean:
+                    il.Emit(OpCodes.Call, _writeInt32);
+                    break;
+
+                default:
+                    throw new NotImplementedException();
+                // if (!Print(pv.Value, code))
+                //     throw new InvalidOperationException();
+
+            }
+        }
+
         private void PrintPrimitive(ProtoPrintState s)
         {
             var pv = s.CurrentField;
@@ -17,45 +61,28 @@ namespace Das.Serializer.ProtoBuf
 
             PrintHeaderBytes(pv.HeaderBytes, s);
             
-            s.LoadProxyToStack();
+            //s.LoadProxyToStack();
             s.LoadCurrentFieldValueToStack();
 
             switch (code)
             {
-                case TypeCode.Int32:
-                    il.Emit(OpCodes.Callvirt, _writeInt32);
-                    break;
-
-                case TypeCode.Int64:
-                    il.Emit(OpCodes.Callvirt, _writeInt64);
-                    break;
-
-                case TypeCode.Int16:
-                    il.Emit(OpCodes.Callvirt, _writeInt16);
-                    break;
-
                 case TypeCode.Single:
                     il.Emit(OpCodes.Call, _getSingleBytes);
-                    il.Emit(OpCodes.Callvirt, _writeBytes);
+                    il.Emit(OpCodes.Ldarg_2);
+                    il.Emit(OpCodes.Call, _writeBytes);
                     break;
 
                 case TypeCode.Double:
                     il.Emit(OpCodes.Call, _getDoubleBytes);
-                    il.Emit(OpCodes.Callvirt, _writeBytes);
+                    il.Emit(OpCodes.Ldarg_2);
+                    il.Emit(OpCodes.Call, _writeBytes);
                     break;
 
                 case TypeCode.Decimal:
                     il.Emit(OpCodes.Call, _getDoubleBytes);
-                    il.Emit(OpCodes.Callvirt, _writeBytes);
+                    il.Emit(OpCodes.Ldarg_2);
+                    il.Emit(OpCodes.Call, _writeBytes);
                     break;
-
-                case TypeCode.Byte:
-                    il.Emit(OpCodes.Callvirt, _writeInt8);
-                    break;
-
-                    case TypeCode.Boolean:
-                        il.Emit(OpCodes.Callvirt, _writeInt32);
-                        break;
 
                 default:
                     throw new NotImplementedException();
@@ -86,9 +113,10 @@ namespace Das.Serializer.ProtoBuf
 
             il.Emit(OpCodes.Ldloc, s.LocalBytes);
             il.Emit(OpCodes.Call, _getArrayLength);
-            il.Emit(OpCodes.Call, _writeInt32);
+            s.WriteInt32();
+            //il.Emit(OpCodes.Call, _writeInt32);
 
-            il.Emit(OpCodes.Ldarg_0);
+            //il.Emit(OpCodes.Ldarg_0);
             il.Emit(OpCodes.Ldloc, s.LocalBytes);
             il.Emit(OpCodes.Call, _writeBytes);
         }

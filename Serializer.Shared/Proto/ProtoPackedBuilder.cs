@@ -261,108 +261,112 @@ namespace Das.Serializer.ProtoBuf
             return true;
         }
 
-        private Boolean TryPrintAsPackedArray(ProtoPrintState s)
+        private void PrintAsPackedArray(ProtoPrintState s)
         {
             var type = s.CurrentField.Type;
             var il = s.IL;
+
+            
 
             PrintHeaderBytes(s.CurrentField.HeaderBytes, s);
             
             s.LoadParentToStack();
 
-            if (GetPackedArrayType(type) is {} packType)
+            if (!(GetPackedArrayType(type) is {} packType)) 
+                throw new InvalidOperationException("Cannot print " + type + " as a packed repeated field");
+
+
+            /////////////////////////////////////
+            // var arrayLocalField = obj.Property;
+            /////////////////////////////////////
+            var arrayLocalField = il.DeclareLocal(type);
+
+            il.Emit(OpCodes.Call, s.CurrentField.GetMethod);
+            il.Emit(OpCodes.Stloc, arrayLocalField);
+            /////////////////////////////////////
+
+                
+
+            /////////////////////////////////////
+            // WriteInt32(GetPackedArrayLength(ienum)); 
+            /////////////////////////////////////
+            MethodInfo getPackedArrayLength = null!;
+
+            if (packType == typeof(Int32))
+                getPackedArrayLength = _getPackedInt32Length.MakeGenericMethod(type);
+            else if (packType == typeof(Int16))
+                getPackedArrayLength = _getPackedInt16Length.MakeGenericMethod(type);
+            else if (packType == typeof(Int64))
+                getPackedArrayLength = _getPackedInt64Length.MakeGenericMethod(type);
+
+            //il.Emit(OpCodes.Ldarg_0);
+
+
+            //il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Ldloc, arrayLocalField);
+            il.Emit(OpCodes.Call, getPackedArrayLength);
+                
+            s.WriteInt32();
+            //il.Emit(OpCodes.Call, _writeInt32);
+
+            /////////////////////////////////////
+
+            /////////////////////////////////////
+            // WriteInt32(GetPackedArrayLength(ienum)); 
+            /////////////////////////////////////
+            MethodInfo writePackedArray = null!;
+                
+            if (packType == typeof(Int32))
+                writePackedArray = _writePacked32.MakeGenericMethod(type);
+            else if (packType == typeof(Int16))
+                writePackedArray = _writePacked16.MakeGenericMethod(type);
+            else if (packType == typeof(Int64))
+                writePackedArray = _writePacked64.MakeGenericMethod(type);
+
+                
+            il.Emit(OpCodes.Ldloc, arrayLocalField);
+            il.Emit(OpCodes.Ldarg_2);
+            il.Emit(OpCodes.Call, writePackedArray);
+
+            return;
+
+
+            /////////////////////////////////////
+            // WriteInt32(GetPackedArrayLength(ienum)); 
+            /////////////////////////////////////
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Ldloc, arrayLocalField);
+
+                
+            //il.Emit(OpCodes.Ldarg_1);
+            //il.Emit(OpCodes.Call, getPackedArrayLength);
+            //il.Emit(OpCodes.Call, _writeInt32);
+
+            // WritePacked(ienum);
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Ldloc, arrayLocalField);
+
+            if (typeof(IEnumerable<Int32>).IsAssignableFrom(type))
             {
-                /////////////////////////////////////
-                // var arrayLocalField = obj.Property;
-                /////////////////////////////////////
-                var arrayLocalField = il.DeclareLocal(type);
-
-                il.Emit(OpCodes.Call, s.CurrentField.GetMethod);
-                il.Emit(OpCodes.Stloc, arrayLocalField);
-                /////////////////////////////////////
-
-                
-
-                /////////////////////////////////////
-                // WriteInt32(GetPackedArrayLength(ienum)); 
-                /////////////////////////////////////
-                MethodInfo getPackedArrayLength = null;
-
-                if (packType == typeof(Int32))
-                    getPackedArrayLength = _getPackedInt32Length.MakeGenericMethod(type);
-                else if (packType == typeof(Int16))
-                    getPackedArrayLength = _getPackedInt16Length.MakeGenericMethod(type);
-                else if (packType == typeof(Int64))
-                    getPackedArrayLength = _getPackedInt64Length.MakeGenericMethod(type);
-
-                il.Emit(OpCodes.Ldarg_0);
-
-
-                il.Emit(OpCodes.Ldarg_0);
-                il.Emit(OpCodes.Ldloc, arrayLocalField);
-                il.Emit(OpCodes.Call, getPackedArrayLength);
-                
-
-                il.Emit(OpCodes.Call, _writeInt32);
-
-                /////////////////////////////////////
-
-                /////////////////////////////////////
-                // WriteInt32(GetPackedArrayLength(ienum)); 
-                /////////////////////////////////////
-                MethodInfo writePackedArray = null;
-                
-                if (packType == typeof(Int32))
-                    writePackedArray = _writePacked32.MakeGenericMethod(type);
-                else if (packType == typeof(Int16))
-                    writePackedArray = _writePacked16.MakeGenericMethod(type);
-                else if (packType == typeof(Int64))
-                    writePackedArray = _writePacked64.MakeGenericMethod(type);
-
-                il.Emit(OpCodes.Ldarg_0);
-                il.Emit(OpCodes.Ldloc, arrayLocalField);
-                il.Emit(OpCodes.Call, writePackedArray);
-
-                return true;
-
-
-                /////////////////////////////////////
-                // WriteInt32(GetPackedArrayLength(ienum)); 
-                /////////////////////////////////////
-                il.Emit(OpCodes.Ldarg_0);
-                il.Emit(OpCodes.Ldloc, arrayLocalField);
-
-                
-                //il.Emit(OpCodes.Ldarg_1);
-                //il.Emit(OpCodes.Call, getPackedArrayLength);
-                //il.Emit(OpCodes.Call, _writeInt32);
-
-                // WritePacked(ienum);
-                il.Emit(OpCodes.Ldarg_0);
-                il.Emit(OpCodes.Ldloc, arrayLocalField);
-
-                if (typeof(IEnumerable<Int32>).IsAssignableFrom(type))
-                {
-                    var methos = _writePacked32.MakeGenericMethod(type);
-                    il.Emit(OpCodes.Call, methos);
-                }
-
-                else if (typeof(IEnumerable<Int16>).IsAssignableFrom(type))
-                {
-                    var methos = _writePacked16.MakeGenericMethod(type);
-                    il.Emit(OpCodes.Call, methos);
-                }
-
-                else if (typeof(IEnumerable<Int64>).IsAssignableFrom(type))
-                {
-                    var methos = _writePacked64.MakeGenericMethod(type);
-                    il.Emit(OpCodes.Call, methos);
-                }
-
-                return true;
+                var methos = _writePacked32.MakeGenericMethod(type);
+                il.Emit(OpCodes.Call, methos);
             }
 
-            return false;
+            else if (typeof(IEnumerable<Int16>).IsAssignableFrom(type))
+            {
+                var methos = _writePacked16.MakeGenericMethod(type);
+                il.Emit(OpCodes.Call, methos);
+            }
+
+            else if (typeof(IEnumerable<Int64>).IsAssignableFrom(type))
+            {
+                var methos = _writePacked64.MakeGenericMethod(type);
+                il.Emit(OpCodes.Call, methos);
+            }
+
+            //return true;
+
+            //return false;
         }
 
         private static Type? GetPackedArrayType(Type propertyType)

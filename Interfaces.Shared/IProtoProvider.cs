@@ -8,7 +8,8 @@ namespace Das.Serializer.ProtoBuf
         IProtoProxy<T> GetProtoProxy<T>(Boolean allowReadOnly = false) 
             where T: class;
 
-        Boolean TryGetProtoField(PropertyInfo prop, Boolean isRequireAttribute, out ProtoField field);
+        Boolean TryGetProtoField(PropertyInfo prop, Boolean isRequireAttribute, 
+            out IProtoFieldAccessor field);
 
         ProtoFieldAction GetProtoFieldAction(Type pType);
 

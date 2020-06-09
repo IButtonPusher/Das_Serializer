@@ -20,8 +20,7 @@ namespace Serializer.Tests.ProtocolBuffers
             SimpleMessage outMsg2;
             using (var ms = new MemoryStream())
             {
-                o.OutStream = ms;
-                o.Print(msg);
+                o.Print(msg, ms);
 
                 //ProtoSerializer.ToProtoStream(ms, msg);
 
@@ -74,8 +73,7 @@ namespace Serializer.Tests.ProtocolBuffers
             var o = TypeProvider.GetProtoProxy<DoubleMessage>();
             using (var ms = new MemoryStream())
             {
-                o.OutStream = ms;
-                o.Print(msg);               
+                o.Print(msg, ms);
                
                 ms.Position = 0;
                 return o.Scan(ms);                
@@ -127,8 +125,7 @@ namespace Serializer.Tests.ProtocolBuffers
             var o = TypeProvider.GetProtoProxy<StringMessage>();
             using (var ms = new MemoryStream())
             {
-                o.OutStream = ms;
-                o.Print(msg);
+                o.Print(msg, ms);
                 
                 ms.Position = 0;
                 return o.Scan(ms);
@@ -180,8 +177,7 @@ namespace Serializer.Tests.ProtocolBuffers
 
             using (var ms = new MemoryStream())
             {
-                o.OutStream = ms;
-                o.Print(mc1);
+                o.Print(mc1, ms);
 
                 ms.Position = 0;
                 return o.Scan(ms);
@@ -216,9 +212,7 @@ namespace Serializer.Tests.ProtocolBuffers
 
             using (var ms = new MemoryStream())
             {
-               
-                o.OutStream = ms;
-                o.Print(mc1);
+                o.Print(mc1, ms);
                 Debug.WriteLine("DAS\r\n-----------------------------------");
                 PrintMemoryStream(ms);
                 ms.Position = 0;
@@ -253,8 +247,7 @@ namespace Serializer.Tests.ProtocolBuffers
 
             using (var ms = new MemoryStream())
             {
-                proxy.OutStream = ms;
-                proxy.Print(mc1);
+                proxy.Print(mc1, ms);
                 Debug.WriteLine("DAS\r\n-----------------------------------");
                 PrintMemoryStream(ms);
                 ms.Position = 0;
@@ -343,8 +336,7 @@ namespace Serializer.Tests.ProtocolBuffers
             var o = TypeProvider.GetProtoProxy<IntPropMessage>();
             using (var ms = new MemoryStream())
             {
-                o.OutStream = ms;
-                o.Print(msg);
+                o.Print(msg, ms);
                 
                 ms.Position = 0;
                 return o.Scan(ms);                
@@ -410,8 +402,7 @@ namespace Serializer.Tests.ProtocolBuffers
 
             using (var ms = new MemoryStream())
             {
-                o.OutStream = ms;
-                o.Print(msg);
+                o.Print(msg, ms);
                 
                 ms.Position = 0;
                 return o.Scan(ms);
@@ -463,8 +454,7 @@ namespace Serializer.Tests.ProtocolBuffers
 
             using (var ms = new MemoryStream())
             {
-                o.OutStream = ms;
-                o.Print(msg);
+                o.Print(msg, ms);
                 ms.Position = 0;
                 var okThen = o.Scan(ms);
                 return okThen;
@@ -513,8 +503,7 @@ namespace Serializer.Tests.ProtocolBuffers
 
             using (var ms = new MemoryStream())
             {
-                o.OutStream = ms;
-                o.Print(msg);
+                o.Print(msg, ms);
 
                 ms.Position = 0;
                 return o.Scan(ms);                

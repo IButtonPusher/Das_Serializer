@@ -15,7 +15,7 @@ namespace Das.Serializer.Proto
         public ProtoScanState(ILGenerator il, IProtoFieldAccessor[] fields, 
             IProtoFieldAccessor currentField, 
             Type parentType, Action<ILGenerator> loadReturnValueOntoStack, 
-            LocalBuilder byteBufferField, 
+            //LocalBuilder byteBufferField, 
             LocalBuilder lastByteLocal, Object exampleObject, ProtoArrayInfo arrayCounters, 
             //LocalBuilder streamLengthField, 
             FieldInfo utfField, 

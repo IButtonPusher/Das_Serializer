@@ -36,7 +36,7 @@ namespace Das.Serializer.ProtoBuf
             var streamLength = il.DeclareLocal(typeof(Int64));
             var lastByte = il.DeclareLocal(typeof(Int32));
 
-            var fieldByteArray = il.DeclareLocal(typeof(Byte[]));
+            //var fieldByteArray = il.DeclareLocal(typeof(Byte[]));
             var endLabel = il.DefineLabel();
             var instantiated = il.DefineLabel();
 
@@ -50,8 +50,8 @@ namespace Das.Serializer.ProtoBuf
             il.Emit(OpCodes.Stsfld, _readBytes);
 
             il.MarkLabel(instantiated);
-            il.Emit(OpCodes.Ldsfld, _readBytes);
-            il.Emit(OpCodes.Stloc, fieldByteArray);
+            //il.Emit(OpCodes.Ldsfld, _readBytes);
+            //il.Emit(OpCodes.Stloc, fieldByteArray);
             ////////////////////////////
 
             //////////////////////////////
@@ -72,8 +72,8 @@ namespace Das.Serializer.ProtoBuf
 
             /////////////////////////////
             AddPropertiesToScanMethod(fieldArr, parentType, il,
-                ilg => ilg.Emit(OpCodes.Ldloc, returnValue),
-                endLabel, fieldByteArray, lastByte, streamLength,
+                ilg => ilg.Emit(OpCodes.Ldloc, returnValue), endLabel, //fieldByteArray, 
+                lastByte, streamLength,
                 arrayCounters, exampleObject);
             /////////////////////////////
 
@@ -87,14 +87,15 @@ namespace Das.Serializer.ProtoBuf
 
         private void AddPropertiesToScanMethod(IEnumerable<IProtoFieldAccessor> fields,
             Type parentType, ILGenerator il, Action<ILGenerator> loadObject,
-            Label afterPropertyLabel, LocalBuilder fieldByteArray, 
+            Label afterPropertyLabel, //LocalBuilder fieldByteArray, 
             LocalBuilder lastByte, LocalBuilder streamLength, 
             ProtoArrayInfo arrayCounters, Object exampleObject)
         {
             var fieldArr = fields.ToArray();
 
             var state = new ProtoScanState(il, fieldArr, null, parentType, loadObject,
-                fieldByteArray, lastByte, exampleObject, arrayCounters, 
+                //fieldByteArray, 
+                lastByte, exampleObject, arrayCounters, 
                 //streamLength, 
                 _utf8, _types);
 

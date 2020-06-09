@@ -1,13 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Das.Serializer.Remunerators
 {
-    public interface IProtoWriter : IBinaryWriter
+    public interface IProtoWriter //: IBinaryWriter
     {
-        IProtoWriter Push();
+        //IProtoWriter Push();
 
-        void Write(Byte[] bytes, Int32 count);
+        void Write(Byte[] bytes, Int32 count, Stream outStream);
+
+        void WriteInt8(Byte value, Stream outStream);
+
+        void WriteInt8(SByte value, Stream outStream);
+
+        void WriteInt16(Int16 val, Stream outStream);
+
+        void WriteInt16(UInt16 val, Stream outStream);
+
+        void Write(Byte[] values, Stream outStream);
+
+        void WriteInt32(Int32 value, Stream outStream);
+
+        void WriteInt32(Int64 val, Stream outStream);
+
+        void WriteInt64(Int64 val, Stream outStream);
+
+        void WriteInt64(UInt64 val, Stream outStream);
 
         /// <summary>
         /// The amount of bytes the int would need for serialization
@@ -26,13 +45,13 @@ namespace Das.Serializer.Remunerators
             where TCollection : IEnumerable<Int64>;
 
 
-        void WritePacked32<TCollection>(TCollection packed)
+        void WritePacked32<TCollection>(TCollection packed, Stream _outStream)
             where TCollection : IEnumerable<Int32>;
 
-        void WritePacked16<TCollection>(TCollection packed)
+        void WritePacked16<TCollection>(TCollection packed, Stream _outStream)
             where TCollection : IEnumerable<Int16>;
 
-        void WritePacked64<TCollection>(TCollection packed)
+        void WritePacked64<TCollection>(TCollection packed, Stream _outStream)
             where TCollection : IEnumerable<Int64>;
     }
 }

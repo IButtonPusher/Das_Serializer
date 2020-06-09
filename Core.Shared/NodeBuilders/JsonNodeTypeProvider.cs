@@ -20,7 +20,7 @@ namespace Das.Serializer
                 node.Attributes.Remove(Const.TypeWrap);
             }
 
-            else type = default;
+            else type = default!;
 
             return type != null;
         }

@@ -35,8 +35,7 @@ namespace Das.Serializer.ProtoBuf
             throw new NotSupportedException();
         }
 
-        //private readonly Func<T> _defaultConstructor;
-        
+
     }
 
     public abstract class ProtoDynamicBase : ProtoBufWriter
@@ -51,20 +50,33 @@ namespace Das.Serializer.ProtoBuf
             Utf8 = Encoding.UTF8;
         }
 
-        public IEnumerable<TChild> GetChildren<TChild>(Stream stream,
+        public static IEnumerable<TChild> GetChildren<TChild>(Stream stream,
             IProtoProxy<TChild> proxy)
         {
-            var length = GetPositiveInt32(stream);
+            var nextItemLength = GetPositiveInt32(stream);
+
+            if (nextItemLength > stream.Length)
+            {
+                yield break; //TODO:
+            }
 
             var positionWas = stream.Position;
-            var endPosition = positionWas + length;
+            var endPosition = positionWas + nextItemLength; //+ byteCount;//length;
 
-            while (positionWas < endPosition)
+            while (positionWas < endPosition && endPosition <= stream.Length)
             {
-                yield return proxy.Scan(stream);
+                yield return proxy.Scan(stream, nextItemLength);
                 positionWas = stream.Position;
             }
         }
+
+        public static void CopyMemoryStream(MemoryStream copyFrom,  
+            Stream  destination)
+        {
+            destination.Write(copyFrom.GetBuffer(), 0, (Int32)copyFrom.Length);
+            
+        }
+
 
         protected ProtoDynamicBase(Int32 startSize, IProtoProvider proxyProvider) : base(startSize)
         {
@@ -98,7 +110,8 @@ namespace Das.Serializer.ProtoBuf
         {
             var end = stream.Position + bytesToUse;
 
-            while (end > stream.Position) yield return GetInt64(stream);
+            while (end > stream.Position) 
+                yield return GetInt64(stream);
         }
 
         public static Int32 GetColumnIndex(Stream stream)
@@ -109,6 +122,8 @@ namespace Das.Serializer.ProtoBuf
             while (true)
             {
                 var currentByte = stream.ReadByte();
+                if (currentByte == -1)
+                    return 0;
 
                 result += (currentByte & 0x7F) << push;
 

@@ -76,7 +76,7 @@ namespace Das.Serializer
                 return;
 
             var addDelegate = _facade.TypeManipulator.GetAdder(
-                propValue as IEnumerable);
+                (propValue as IEnumerable)!);
 
             foreach (var child in enumerable)
                 addDelegate(propValue, child);
@@ -137,7 +137,7 @@ namespace Das.Serializer
 
                 var addDelegate = _facade.TypeManipulator.GetAdder(node.Type, 
                     node.DynamicProperties.Values.First()) 
-                    ?? _facade.TypeManipulator.GetAdder(node.Value as IEnumerable);
+                    ?? _facade.TypeManipulator.GetAdder((node.Value as IEnumerable)!);
 
                 if (addDelegate == null)
                     return;

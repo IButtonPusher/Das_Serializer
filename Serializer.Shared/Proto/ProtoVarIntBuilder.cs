@@ -206,41 +206,41 @@ namespace Das.Serializer.ProtoBuf
                     {
                         case TypeCode.Int32:
                             loadValue(il);
-                            il.Emit(OpCodes.Callvirt, _writeInt32);
+                            il.Emit(OpCodes.Call, _writeInt32);
 
                             break;
                         case TypeCode.Int64:
                             loadValue(il);
-                            il.Emit(OpCodes.Callvirt, _writeInt64);
+                            il.Emit(OpCodes.Call, _writeInt64);
                             break;
                         case TypeCode.Single:
 
                             loadValue(il);
                             il.Emit(OpCodes.Call, _getSingleBytes);
-                            il.Emit(OpCodes.Callvirt, _writeBytes);
+                            il.Emit(OpCodes.Call, _writeBytes);
 
                             break;
                         case TypeCode.Double:
                             loadValue(il);
                             il.Emit(OpCodes.Call, _getDoubleBytes);
-                            il.Emit(OpCodes.Callvirt, _writeBytes);
+                            il.Emit(OpCodes.Call, _writeBytes);
                             break;
 
                         case TypeCode.Int16:
                             loadValue(il);
                             il.Emit(OpCodes.Conv_I4);
-                            il.Emit(OpCodes.Callvirt, _writeInt32);
+                            il.Emit(OpCodes.Call, _writeInt32);
                             break;
 
                         case TypeCode.Decimal:
                             loadValue(il);
                             il.Emit(OpCodes.Call, _getDoubleBytes);
-                            il.Emit(OpCodes.Callvirt, _writeBytes);
+                            il.Emit(OpCodes.Call, _writeBytes);
                             break;
 
                         case TypeCode.Byte:
                             loadValue(il);
-                            il.Emit(OpCodes.Callvirt, _writeInt8);
+                            il.Emit(OpCodes.Call, _writeInt8);
                             break;
                         default:
                             throw new NotImplementedException();

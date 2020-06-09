@@ -12,6 +12,7 @@ namespace Das.Serializer.Proto
     public class ProtoPrintState : ProtoStateBase, IEnumerable<ProtoPrintState>
     {
         private readonly Action<ILGenerator> _loadObject;
+        private readonly MethodInfo _writeInt32;
 
         public Boolean IsArrayMade { get; set; }
 
@@ -30,9 +31,9 @@ namespace Das.Serializer.Proto
         public LocalBuilder? ChildObjectStream { get; }
 
         public ProtoPrintState(ProtoPrintState s, ICollection<IProtoFieldAccessor> subFields,
-            Type parentType,Action<ILGenerator> loadObject,ITypeCore typeCore)
+            Type parentType,Action<ILGenerator> loadObject,ITypeCore typeCore, MethodInfo writeInt32)
         : this(s.IL, s.IsArrayMade, s.LocalString, s.FieldByteArray, s.LocalBytes,
-            subFields, parentType, s.UtfField, loadObject, s.HasPushed ,typeCore, s.ChildProxies)
+            subFields, parentType, s.UtfField, loadObject, s.HasPushed ,typeCore, writeInt32, s.ChildProxies)
         {
             
         }
@@ -42,8 +43,7 @@ namespace Das.Serializer.Proto
             LocalBuilder fieldByteArray, LocalBuilder? localBytes,
             ICollection<IProtoFieldAccessor> fields, Type parentType,
             FieldInfo utfField, Action<ILGenerator> loadObject,
-            Boolean hasPushed, ITypeCore typeCore, 
-            Dictionary<IProtoFieldAccessor, LocalBuilder>? childProxies = null) 
+            Boolean hasPushed, ITypeCore typeCore, MethodInfo writeInt32, Dictionary<IProtoFieldAccessor, LocalBuilder>? childProxies = null) 
             : base(il, fields, typeCore, childProxies)
         {
             _loadObject = loadObject;
@@ -55,6 +55,7 @@ namespace Das.Serializer.Proto
             ParentType = parentType;
             UtfField = utfField;
             HasPushed = hasPushed;
+            _writeInt32 = writeInt32;
             Fields = fields.ToArray();
 
             if (ChildProxies.Count > 0 && childProxies == null)
@@ -93,6 +94,12 @@ namespace Das.Serializer.Proto
         public IProtoFieldAccessor[] Fields { get; }
 
         public IProtoFieldAccessor CurrentField { get; set; }
+
+        public void WriteInt32()
+        {
+            IL.Emit(OpCodes.Ldarg_2);
+            IL.Emit(OpCodes.Call, _writeInt32);
+        }
 
         public IEnumerator<ProtoPrintState> GetEnumerator()
         {

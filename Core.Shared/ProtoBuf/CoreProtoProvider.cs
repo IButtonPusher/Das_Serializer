@@ -10,7 +10,7 @@ namespace Das.Serializer.ProtoBuf
             throw new NotImplementedException();
         }
 
-        public bool TryGetProtoField(PropertyInfo prop, Boolean isRequireAttribute, out ProtoField field)
+        public bool TryGetProtoField(PropertyInfo prop, Boolean isRequireAttribute, out IProtoFieldAccessor field)
         {
             throw new NotImplementedException();
         }

@@ -14,7 +14,7 @@ namespace Das.Serializer
         [NotNull]
         INode Parent { get; }
 
-        new Object Value { get; set; }
+        new Object? Value { get; set; }
 
         Boolean IsForceNullValue { get; set; }
 

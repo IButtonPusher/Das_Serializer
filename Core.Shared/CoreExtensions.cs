@@ -308,25 +308,25 @@ namespace Das.Extensions
         public static MethodInfo GetPublicStaticMethodOrDie(
             this Type classType,
             String methodName,
-            Type p1)
+            params Type[] prms)
 
         {
             return classType.GetMethod(methodName, Const.PublicStatic,
-                       null, new[] {p1}, null)
+                       null, prms, null)
                    ?? Die(classType, methodName);
         }
 
-        public static MethodInfo GetPublicStaticMethodOrDie(
-            this Type classType,
-            String methodName,
-            Type p1,
-            Type p2)
+        //public static MethodInfo GetPublicStaticMethodOrDie(
+        //    this Type classType,
+        //    String methodName,
+        //    Type p1,
+        //    Type p2)
 
-        {
-            return classType.GetMethod(methodName, Const.PublicStatic,
-                       null, new[] {p1, p2}, null)
-                   ?? Die(classType, methodName);
-        }
+        //{
+        //    return classType.GetMethod(methodName, Const.PublicStatic,
+        //               null, new[] {p1, p2}, null)
+        //           ?? Die(classType, methodName);
+        //}
 
         public static MethodInfo GetMethodOrDie(
             this Type classType,

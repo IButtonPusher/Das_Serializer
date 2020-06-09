@@ -34,7 +34,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)ObjectConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Printers\BinaryPrinter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Printers\JsonPrinter.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Printers\JsonWriter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Printers\PrinterBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Printers\StackFormat.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Printers\TextPrinter.cs" />

@@ -38,8 +38,8 @@ namespace Das.Serializer.ProtoBuf
             il.Emit(OpCodes.Call, _getPositiveInt32);
             il.Emit(OpCodes.Pop);
 
-            LocalBuilder keyLocal = null;
-            LocalBuilder valueLocal = null;
+            LocalBuilder keyLocal = null!;
+            LocalBuilder valueLocal = null!;
 
             var holdCurrentProp = s.CurrentField;
 
@@ -75,56 +75,56 @@ namespace Das.Serializer.ProtoBuf
 
         }
 
-         private Boolean TryPrintAsDictionary(ProtoPrintState s,
-             LocalBuilder enumeratorCurrentValue)
-        {
+        // private Boolean TryPrintAsDictionary(ProtoPrintState s,
+        //     LocalBuilder enumeratorCurrentValue)
+        //{
 
-            var pv = s.CurrentField;
-            var il = s.IL;
+        //    var pv = s.CurrentField;
+        //    var il = s.IL;
 
-            if (!typeof(IDictionary).IsAssignableFrom(pv.Type)) 
-                return false;
+        //    if (!typeof(IDictionary).IsAssignableFrom(pv.Type)) 
+        //        return false;
 
-            il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Callvirt, _push);
-            il.Emit(OpCodes.Pop);
-            s.HasPushed = true;
+        //    il.Emit(OpCodes.Ldarg_0);
+        //    il.Emit(OpCodes.Callvirt, _push);
+        //    il.Emit(OpCodes.Pop);
+        //    s.HasPushed = true;
 
-            var info = new ProtoDictionaryInfo(pv.Type, _types, this);
+        //    var info = new ProtoDictionaryInfo(pv.Type, _types, this);
 
-            /////////////////////////////////////
-            // PRINT KEY'S HEADER / KEY'S VALUE
-            /////////////////////////////////////
-            il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Ldc_I4, info.KeyHeader);
-            il.Emit(OpCodes.Callvirt, _writeInt32);
+        //    /////////////////////////////////////
+        //    // PRINT KEY'S HEADER / KEY'S VALUE
+        //    /////////////////////////////////////
+        //    il.Emit(OpCodes.Ldarg_0);
+        //    il.Emit(OpCodes.Ldc_I4, info.KeyHeader);
+        //    il.Emit(OpCodes.Callvirt, _writeInt32);
 
-            var holdProp = s.CurrentField;
+        //    var holdProp = s.CurrentField;
 
-            s.CurrentField = info.Key;
+        //    s.CurrentField = info.Key;
 
-            AddGettableValueToPrintMethod(s, info.KeyGetter,
-                ilg => ilg.Emit(OpCodes.Ldloca, enumeratorCurrentValue));
-            /////////////////////////////////////
+        //    AddGettableValueToPrintMethod(s, info.KeyGetter,
+        //        ilg => ilg.Emit(OpCodes.Ldloca, enumeratorCurrentValue));
+        //    /////////////////////////////////////
                 
 
-            /////////////////////////////////////
-            // PRINT VALUE'S HEADER / VALUE'S VALUE
-            /////////////////////////////////////
-            il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Ldc_I4, info.ValueHeader);
-            il.Emit(OpCodes.Callvirt, _writeInt32);
+        //    /////////////////////////////////////
+        //    // PRINT VALUE'S HEADER / VALUE'S VALUE
+        //    /////////////////////////////////////
+        //    il.Emit(OpCodes.Ldarg_0);
+        //    il.Emit(OpCodes.Ldc_I4, info.ValueHeader);
+        //    il.Emit(OpCodes.Callvirt, _writeInt32);
 
-            s.CurrentField = info.Value;
+        //    s.CurrentField = info.Value;
 
-            AddGettableValueToPrintMethod(s, info.ValueGetter,
-                ilg => ilg.Emit(OpCodes.Ldloca, enumeratorCurrentValue));
+        //    AddGettableValueToPrintMethod(s, info.ValueGetter,
+        //        ilg => ilg.Emit(OpCodes.Ldloca, enumeratorCurrentValue));
 
-            s.CurrentField = holdProp;
+        //    s.CurrentField = holdProp;
 
-            return true;
+        //    return true;
 
-        }
+        //}
 
          private void PrintDictionary(ProtoPrintState s)
          {
@@ -156,54 +156,55 @@ namespace Das.Serializer.ProtoBuf
 
 
              il.Emit(OpCodes.Ldarg_0);
-             il.Emit(OpCodes.Callvirt, _push);
-             il.Emit(OpCodes.Pop);
-             s.HasPushed = true;
+             throw new NotImplementedException();
+             //il.Emit(OpCodes.Callvirt, _push);
+             //il.Emit(OpCodes.Pop);
+             //s.HasPushed = true;
 
-             var info = new ProtoDictionaryInfo(pv.Type, _types, this);
+             //var info = new ProtoDictionaryInfo(pv.Type, _types, this);
 
-             /////////////////////////////////////
-             // PRINT KEY'S HEADER / KEY'S VALUE
-             /////////////////////////////////////
-             il.Emit(OpCodes.Ldarg_0);
-             il.Emit(OpCodes.Ldc_I4, info.KeyHeader);
-             il.Emit(OpCodes.Callvirt, _writeInt32);
+             ///////////////////////////////////////
+             //// PRINT KEY'S HEADER / KEY'S VALUE
+             ///////////////////////////////////////
+             //il.Emit(OpCodes.Ldarg_0);
+             //il.Emit(OpCodes.Ldc_I4, info.KeyHeader);
+             //il.Emit(OpCodes.Callvirt, _writeInt32);
 
-             var holdProp = s.CurrentField;
+             //var holdProp = s.CurrentField;
 
-             s.CurrentField = info.Key;
+             //s.CurrentField = info.Key;
 
-             AddGettableValueToPrintMethod(s, info.KeyGetter,
-                 ilg => ilg.Emit(OpCodes.Ldloca, enumeratorCurrentValue));
-             //il, ref isArrayMade, s.ByteBufferField,
-             //    ref s.localBytes,
-             //    ilg => ilg.Emit(OpCodes.Ldloca, enumeratorCurrentValue),
-             //    ref localString, utfField,
-             //    Type.GetTypeCode(info.KeyType), info.KeyWireType, info.KeyType,
-             //    info.KeyGetter, ref hasPushed);
-             /////////////////////////////////////
-
-
-             /////////////////////////////////////
-             // PRINT VALUE'S HEADER / VALUE'S VALUE
-             /////////////////////////////////////
-             il.Emit(OpCodes.Ldarg_0);
-             il.Emit(OpCodes.Ldc_I4, info.ValueHeader);
-             il.Emit(OpCodes.Callvirt, _writeInt32);
-
-             s.CurrentField = info.Value;
-
-             AddGettableValueToPrintMethod(s, info.ValueGetter,
-                 ilg => ilg.Emit(OpCodes.Ldloca, enumeratorCurrentValue));
-             //il, ref isArrayMade, s.ByteBufferField,
-             //ref localBytes,
-             //ilg => ilg.Emit(OpCodes.Ldloca, enumeratorCurrentValue),
-             //ref localString, utfField,
-             //Type.GetTypeCode(info.ValueType), info.ValueWireType,
-             //info.ValueType, info.ValueGetter, ref hasPushed);
+             //AddGettableValueToPrintMethod(s, info.KeyGetter,
+             //    ilg => ilg.Emit(OpCodes.Ldloca, enumeratorCurrentValue));
+             ////il, ref isArrayMade, s.ByteBufferField,
+             ////    ref s.localBytes,
+             ////    ilg => ilg.Emit(OpCodes.Ldloca, enumeratorCurrentValue),
+             ////    ref localString, utfField,
+             ////    Type.GetTypeCode(info.KeyType), info.KeyWireType, info.KeyType,
+             ////    info.KeyGetter, ref hasPushed);
+             ///////////////////////////////////////
 
 
-             s.CurrentField = holdProp;
+             ///////////////////////////////////////
+             //// PRINT VALUE'S HEADER / VALUE'S VALUE
+             ///////////////////////////////////////
+             //il.Emit(OpCodes.Ldarg_0);
+             //il.Emit(OpCodes.Ldc_I4, info.ValueHeader);
+             //il.Emit(OpCodes.Callvirt, _writeInt32);
+
+             //s.CurrentField = info.Value;
+
+             //AddGettableValueToPrintMethod(s, info.ValueGetter,
+             //    ilg => ilg.Emit(OpCodes.Ldloca, enumeratorCurrentValue));
+             ////il, ref isArrayMade, s.ByteBufferField,
+             ////ref localBytes,
+             ////ilg => ilg.Emit(OpCodes.Ldloca, enumeratorCurrentValue),
+             ////ref localString, utfField,
+             ////Type.GetTypeCode(info.ValueType), info.ValueWireType,
+             ////info.ValueType, info.ValueGetter, ref hasPushed);
+
+
+             //s.CurrentField = holdProp;
          }
 
        
@@ -245,7 +246,7 @@ namespace Das.Serializer.ProtoBuf
 
              var proxyLocal = s.ChildProxies[s.CurrentField];
 
-             il.Emit(OpCodes.Ldarg_0);
+             //il.Emit(OpCodes.Ldarg_0);
             il.Emit(OpCodes.Ldarg_1);  //arg1 = input stream!
             il.Emit(OpCodes.Ldloc, proxyLocal);
             il.Emit(OpCodes.Call, getChildrenMethod);
@@ -475,10 +476,11 @@ namespace Das.Serializer.ProtoBuf
             il.Emit(OpCodes.Call, s.CurrentField.GetMethod);
             il.Emit(OpCodes.Stloc, s.LocalBytes);
 
-            il.Emit(OpCodes.Ldarg_0);
+            //il.Emit(OpCodes.Ldarg_0);
             il.Emit(OpCodes.Ldloc, s.LocalBytes);
             il.Emit(OpCodes.Call, _getArrayLength);
-            il.Emit(OpCodes.Call, _writeInt32);
+            s.WriteInt32();
+            //il.Emit(OpCodes.Call, _writeInt32);
 
             il.Emit(OpCodes.Ldloc, s.LocalBytes);
             il.Emit(OpCodes.Call, _writeBytes);

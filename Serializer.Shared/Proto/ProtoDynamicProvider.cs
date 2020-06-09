@@ -55,9 +55,9 @@ namespace Das.Serializer.ProtoBuf
 
         private readonly MethodInfo _getArrayLength;
 
-        private readonly MethodInfo _push;
-        private readonly MethodInfo _pop;
-        private readonly MethodInfo _flush;
+        //private readonly MethodInfo _push;
+        //private readonly MethodInfo _pop;
+        //private readonly MethodInfo _flush;
 
         
         ////////////////////////////////////////////////
@@ -69,9 +69,10 @@ namespace Das.Serializer.ProtoBuf
         private readonly MethodInfo _setStreamPosition;
         private readonly MethodInfo _readStreamByte;
         private readonly MethodInfo _writeStreamByte;
-        private readonly MethodInfo _unsafeStackByte;
+        //private readonly MethodInfo _unsafeStackByte;
         private readonly MethodInfo _readStreamBytes;
         private readonly MethodInfo _copyStreamTo;
+        private readonly MethodInfo _copyMemoryStream;
         private readonly MethodInfo _setStreamLength;
 
         private readonly MethodInfo _getPositiveInt32;
@@ -91,7 +92,7 @@ namespace Das.Serializer.ProtoBuf
         private readonly FieldInfo _utf8;
         private readonly FieldInfo _readBytes;
         //private readonly FieldInfo _outStreamField;
-        private readonly FieldInfo _stackDepthField;
+        //private readonly FieldInfo _stackDepthField;
 
         private readonly FieldInfo _proxyProviderField;
 
@@ -138,32 +139,36 @@ namespace Das.Serializer.ProtoBuf
             var writer = typeof(ProtoBufWriter);
             var bitConverter = typeof(BitConverter);
 
-            _writeInt8 = writer.GetMethodOrDie(nameof(IProtoWriter.WriteInt8), typeof(Byte));
-            _writeInt16 = writer.GetMethodOrDie(nameof(IProtoWriter.WriteInt16), typeof(Int16));
-            _writeInt32 = writer.GetMethodOrDie(nameof(IProtoWriter.WriteInt32), typeof(Int32));
-            _writeInt64 = writer.GetMethodOrDie(nameof(IProtoWriter.WriteInt64), typeof(Int64));
-            _writeBytes = writer.GetMethodOrDie(nameof(IProtoWriter.Write), typeof(Byte[]));
-            _writeSomeBytes = writer.GetMethodOrDie(nameof(IProtoWriter.Write), typeof(Byte[]), 
-                typeof(Int32));
+            var stream = typeof(Stream);
+
+            _writeInt8 = writer.GetPublicStaticMethodOrDie(
+                nameof(ProtoBufWriter.WriteInt8), typeof(Byte), stream);
+            _writeInt16 = writer.GetPublicStaticMethodOrDie(nameof(ProtoBufWriter.WriteInt16),
+                typeof(Int16), stream);
+            _writeInt32 = writer.GetPublicStaticMethodOrDie(nameof(ProtoBufWriter.WriteInt32), typeof(Int32), stream);
+            _writeInt64 = writer.GetPublicStaticMethodOrDie(nameof(ProtoBufWriter.WriteInt64), typeof(Int64), stream);
+            _writeBytes = writer.GetPublicStaticMethodOrDie(nameof(ProtoBufWriter.Write), typeof(Byte[]), stream);
+            _writeSomeBytes = writer.GetPublicStaticMethodOrDie(nameof(ProtoBufWriter.Write),
+                typeof(Byte[]), typeof(Int32), stream);
             
-            _writePacked16 = writer.GetMethodOrDie(nameof(IProtoWriter.WritePacked16));
-            _writePacked32 = writer.GetMethodOrDie(nameof(IProtoWriter.WritePacked32));
-            _writePacked64 = writer.GetMethodOrDie(nameof(IProtoWriter.WritePacked64));
+            _writePacked16 = writer.GetPublicStaticMethodOrDie(nameof(ProtoBufWriter.WritePacked16));
+            _writePacked32 = writer.GetPublicStaticMethodOrDie(nameof(ProtoBufWriter.WritePacked32));
+            _writePacked64 = writer.GetPublicStaticMethodOrDie(nameof(ProtoBufWriter.WritePacked64));
 
-            _getPackedInt32Length= writer.GetMethodOrDie(nameof(IProtoWriter.GetPackedArrayLength32));
-            _getPackedInt16Length= writer.GetMethodOrDie(nameof(IProtoWriter.GetPackedArrayLength16));
-            _getPackedInt64Length= writer.GetMethodOrDie(nameof(IProtoWriter.GetPackedArrayLength64));
+            _getPackedInt32Length= writer.GetPublicStaticMethodOrDie(nameof(ProtoBufWriter.GetPackedArrayLength32));
+            _getPackedInt16Length= writer.GetPublicStaticMethodOrDie(nameof(ProtoBufWriter.GetPackedArrayLength16));
+            _getPackedInt64Length= writer.GetPublicStaticMethodOrDie(nameof(ProtoBufWriter.GetPackedArrayLength64));
 
-            _push = writer.GetMethodOrDie(nameof(IProtoWriter.Push), Type.EmptyTypes);
-            _pop = writer.GetMethodOrDie(nameof(IProtoWriter.Pop), Type.EmptyTypes);
-            _flush = writer.GetMethodOrDie(nameof(IProtoWriter.Flush), Type.EmptyTypes);
+            //_push = writer.GetMethodOrDie(nameof(IProtoWriter.Push), Type.EmptyTypes);
+            //_pop = writer.GetMethodOrDie(nameof(IProtoWriter.Pop), Type.EmptyTypes);
+            //_flush = writer.GetMethodOrDie(nameof(IProtoWriter.Flush), Type.EmptyTypes);
 
             var protoDynBase = typeof(ProtoDynamicBase);
 
             _utf8 = protoDynBase.GetStaticFieldOrDie("Utf8");
 
             //_outStreamField = writer.GetInstanceFieldOrDie("_outStream");
-            _stackDepthField= writer.GetInstanceFieldOrDie("_stackDepth");
+            //_stackDepthField= writer.GetInstanceFieldOrDie("_stackDepth");
             _proxyProviderField = protoDynBase.GetInstanceFieldOrDie("_proxyProvider");
             _getProtoProxy = typeof(IProtoProvider).GetMethod(nameof(IProtoProvider.GetProtoProxy));
 
@@ -180,10 +185,10 @@ namespace Das.Serializer.ProtoBuf
 
             var protoBase = typeof(ProtoDynamicBase);
 
-            var stream = typeof(Stream);
-
             _getStreamLength = stream.GetterOrDie(nameof(Stream.Length), out _);
-            _copyStreamTo = stream.GetMethodOrDie(nameof(Stream.CopyTo), stream);
+            _copyStreamTo = stream.GetMethodOrDie(nameof(Stream.CopyTo), stream, typeof(Int32));
+            _copyMemoryStream = protoDynBase.GetPublicStaticMethodOrDie(
+                nameof(ProtoDynamicBase.CopyMemoryStream));
             _setStreamLength = stream.GetMethodOrDie(nameof(Stream.SetLength));
             _getStreamPosition = stream.GetterOrDie(nameof(Stream.Position), out _);
             _setStreamPosition = stream.SetterOrDie(nameof(Stream.Position));
@@ -193,8 +198,8 @@ namespace Das.Serializer.ProtoBuf
 
             _writeStreamByte = stream.GetMethodOrDie(nameof(Stream.WriteByte));
 
-            _unsafeStackByte = writer.GetMethodOrDie(
-                nameof(ProtoBufWriter.UnsafeStackByte), Const.PublicInstance);
+            //_unsafeStackByte = writer.GetMethodOrDie(
+            //    nameof(ProtoBufWriter.UnsafeStackByte), Const.PublicInstance);
 
             _getPositiveInt32 = protoBase.GetPublicStaticMethodOrDie(
                 nameof(ProtoDynamicBase.GetPositiveInt32));
@@ -237,7 +242,7 @@ namespace Das.Serializer.ProtoBuf
         //}
 
 
-        public IProtoProxy<T> GetProtoProxy<T>(Boolean allowReadOnly) 
+        public IProtoProxy<T> GetProtoProxy<T>(Boolean allowReadOnly = false) 
             where T: class
         {
             var forType = typeof(T);
@@ -336,8 +341,9 @@ namespace Das.Serializer.ProtoBuf
 
         private ProtoDynamicBase<TDto> InstantiateProxyInstance<TDto>(Type proxyType)
         {
-            var instance = (ProtoDynamicBase<TDto>)Activator.CreateInstance(proxyType, this);
-            return instance;
+            var res = Activator.CreateInstance(proxyType, this) 
+                      ?? throw new Exception(proxyType.Name);
+            return (ProtoDynamicBase<TDto>) res;
         }
 
 
@@ -456,6 +462,20 @@ namespace Das.Serializer.ProtoBuf
             return res;
         }
 
+        Boolean IProtoProvider.TryGetProtoField(PropertyInfo prop, Boolean isRequireAttribute,
+            out IProtoFieldAccessor field)
+        {
+
+            if (TryGetProtoField(prop, isRequireAttribute, out var f))
+            {
+                field = f;
+                return true;
+            }
+
+            field = default!;
+            return false;
+        }
+
         public Boolean TryGetProtoField(PropertyInfo prop, Boolean isRequireAttribute,
             out ProtoField field)
         {
@@ -509,7 +529,9 @@ namespace Das.Serializer.ProtoBuf
             {
                 return pType == typeof(Int32) ||
                        pType == typeof(Int16) ||
-                       pType == typeof(Int64)
+                       pType == typeof(Int64) ||
+                       pType == typeof(Byte) || 
+                       pType == typeof(Boolean)
                     ? ProtoFieldAction.VarInt
                     : ProtoFieldAction.Primitive;
             }
