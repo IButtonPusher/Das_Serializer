@@ -493,14 +493,23 @@ namespace Das.Types
             if (cType.TryGetMethod(nameof(ICollection<Object>.Add), out var adder, germane))
                 return adder;
 
-            if (typeof(List<>).IsAssignableFrom(cType) || typeof(IDictionary).IsAssignableFrom(cType))
+            if (typeof(List<>).IsAssignableFrom(cType) ||
+                typeof(Dictionary<,>).IsAssignableFrom(cType))
+            {
                 return cType.GetMethodOrDie(nameof(List<Object>.Add));
+            }
 
             if (typeof(Stack<>).IsAssignableFrom(cType))
                 return cType.GetMethodOrDie(nameof(Stack<Object>.Push));
 
             if (typeof(Queue<>).IsAssignableFrom(cType))
                 return cType.GetMethodOrDie(nameof(Queue<Object>.Enqueue));
+
+            if (typeof(IDictionary).IsAssignableFrom(cType))
+            {
+                var gDic = typeof(IDictionary<,>).MakeGenericType(cType.GetGenericArguments());
+                return gDic.GetMethodOrDie(nameof(IDictionary<Object, Object>.Add));
+            }
 
             return default;
         }

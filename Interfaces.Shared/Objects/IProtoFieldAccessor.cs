@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Das.Serializer
 {
-    public interface IProtoFieldAccessor : IProtoField
+    public interface IProtoFieldAccessor : IProtoField, IEquatable<ParameterInfo>
     {
         ProtoFieldAction FieldAction { get; }
 

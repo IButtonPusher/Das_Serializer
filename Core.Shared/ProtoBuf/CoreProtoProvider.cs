@@ -5,7 +5,12 @@ namespace Das.Serializer.ProtoBuf
 {
     public class CoreProtoProvider : IProtoProvider
     {
-        public IProtoProxy<T> GetProtoProxy<T>(Boolean allowReadOnly = false) where T : class
+        public IProtoProxy<T> GetProtoProxy<T>(Boolean allowReadOnly = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IProtoProxy<T> GetAutoProtoProxy<T>(Boolean allowReadOnly = false)
         {
             throw new NotImplementedException();
         }
@@ -19,6 +24,11 @@ namespace Das.Serializer.ProtoBuf
 
 
         public ProtoFieldAction GetProtoFieldAction(Type pType)
+        {
+            throw new NotImplementedException();
+        }
+
+        public T BuildDefaultValue<T>()
         {
             throw new NotImplementedException();
         }

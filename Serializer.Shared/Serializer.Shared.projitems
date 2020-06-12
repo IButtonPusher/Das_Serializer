@@ -14,6 +14,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)DynamicFacade.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoArrayInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoAutoProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoPrimitiveBuilder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoPrintState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoScanState.cs" />
@@ -22,7 +23,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoEnumerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoPackedBuilder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoPrintBuilder.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoProxyConstructors.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoProxyConstruction.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoScanBuilder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoStateBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoVarIntBuilder.cs" />

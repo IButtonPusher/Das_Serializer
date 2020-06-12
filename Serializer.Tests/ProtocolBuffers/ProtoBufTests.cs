@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using BenchmarkDotNet.Attributes;
+using Das.Serializer.ProtoBuf;
+using Das.Serializer.Remunerators;
 using Xunit;
 
 namespace Serializer.Tests.ProtocolBuffers
@@ -123,6 +127,9 @@ namespace Serializer.Tests.ProtocolBuffers
         {
             var msg = new StringMessage {S = "hello world"};
             var o = TypeProvider.GetProtoProxy<StringMessage>();
+
+            //TypeProvider.DumpProxies();
+
             using (var ms = new MemoryStream())
             {
                 o.Print(msg, ms);
@@ -175,9 +182,14 @@ namespace Serializer.Tests.ProtocolBuffers
 
             var o = TypeProvider.GetProtoProxy<DictionaryPropertyMessage>();
 
+            //TypeProvider.DumpProxies();
+
             using (var ms = new MemoryStream())
             {
                 o.Print(mc1, ms);
+
+                Debug.WriteLine("DAS\r\n-----------------------------------");
+                PrintMemoryStream(ms);
 
                 ms.Position = 0;
                 return o.Scan(ms);
@@ -192,6 +204,9 @@ namespace Serializer.Tests.ProtocolBuffers
             {
                 ProtoBuf.Serializer.Serialize(ms, msg);
 
+                Debug.WriteLine("PNET\r\n-----------------------------------");
+                PrintMemoryStream(ms);
+
                 ms.Position = 0;
                 return ProtoBuf.Serializer.Deserialize<DictionaryPropertyMessage>(ms);
             }
@@ -203,6 +218,8 @@ namespace Serializer.Tests.ProtocolBuffers
             var mc1 = CollectionsPropertyMessage.DefaultValue;
 
             var o = TypeProvider.GetProtoProxy<CollectionsPropertyMessage>();
+
+            //TypeProvider.DumpProxies();
 
             //var o = new Serializer_Tests_ProtocolBuffers_CollectionsPropertyMessage(() =>
             //    new CollectionsPropertyMessage());
@@ -311,6 +328,7 @@ namespace Serializer.Tests.ProtocolBuffers
         
         [Fact]public void DictionaryTest()
         {
+
             var fromNet = ProtoNetObjectDictionary();
             
             var fromDas = DasDictionary();
@@ -437,6 +455,8 @@ namespace Serializer.Tests.ProtocolBuffers
 
             var fromNet = ProtoNetMultiProperties();
 
+            TypeProvider.DumpProxies();
+
             var equal = SlowEquality.AreEqual(fromDas, fromNet);
             equal &= SlowEquality.AreEqual(fromDas2, fromNet);
             equal &= SlowEquality.AreEqual(fromDas3, fromNet);
@@ -451,6 +471,8 @@ namespace Serializer.Tests.ProtocolBuffers
         {
             var msg = ComposedMessage.Default;
             var o = TypeProvider.GetProtoProxy<ComposedMessage>();
+
+            //TypeProvider.DumpProxies();
 
             using (var ms = new MemoryStream())
             {
@@ -501,6 +523,8 @@ namespace Serializer.Tests.ProtocolBuffers
 
             var o = TypeProvider.GetProtoProxy<ByteArrayMessage>();
 
+            //TypeProvider.DumpProxies();
+
             using (var ms = new MemoryStream())
             {
                 o.Print(msg, ms);
@@ -547,5 +571,9 @@ namespace Serializer.Tests.ProtocolBuffers
         }
 
     }
+
+
+
+
 }
 

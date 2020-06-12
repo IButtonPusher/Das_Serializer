@@ -27,8 +27,10 @@ namespace Das.Serializer
         Boolean TryGetDefaultConstructorDelegate<T>(out Func<T> res) 
             where T : class;
 
-        Boolean TryGetDefaultConstructor<T>(out ConstructorInfo ctor) 
-            where T : class;
+        Boolean TryGetDefaultConstructor(Type type, out ConstructorInfo ctor);
+
+        Boolean TryGetDefaultConstructor<T>(out ConstructorInfo ctor);
+            
 
         T CreatePrimitiveObject<T>(Byte[] rawValue, Type objType);
 

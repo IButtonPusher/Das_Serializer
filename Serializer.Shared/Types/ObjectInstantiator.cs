@@ -275,11 +275,13 @@ namespace Das.Serializer
             return constructor;
         }
 
-        public bool TryGetDefaultConstructor<T>(out ConstructorInfo ctor) where T : class
+        public bool TryGetDefaultConstructor(Type type, out ConstructorInfo ctor)
         {
-            var type = typeof(T);
             if (Constructors.TryGetValue(type, out ctor))
             {
+                if (ctor == null)
+                    return false;
+
                 if (ctor.GetParameters().Length == 0)
                     return true;
 
@@ -292,6 +294,13 @@ namespace Das.Serializer
 
             byeNow:
             return ctor != null;
+        }
+
+        public bool TryGetDefaultConstructor<T>(out ConstructorInfo ctor)
+        {
+            var type = typeof(T);
+
+            return TryGetDefaultConstructor(type, out ctor);
         }
 
         public bool TryGetDefaultConstructorDelegate<T>(out Func<T> res) where T : class

@@ -15,7 +15,7 @@ namespace Das.Serializer.ProtoBuf
             IProtoProvider proxyProvider)
             : base(256, proxyProvider)
         {
-         
+            
         }
 
         public abstract void Print(T obj, Stream target);

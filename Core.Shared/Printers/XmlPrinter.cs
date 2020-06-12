@@ -201,12 +201,10 @@ namespace Das.Printers
             if (!knownEmpty)
             {
                 var germane = _stateProvider.TypeInferrer.GetGermaneType(node.Type);
-                //_formatStack.Peek().Tabs++;
+                
 
                 PrintSeries(ExplodeList(node.Value as IEnumerable, germane),
                     PrintCollectionObject);
-
-                //_formatStack.Peek().Tabs--;
             }
 
             _formatStack.Push(parent);

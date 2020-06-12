@@ -10,7 +10,9 @@ namespace Das.Serializer.ProtoBuf
 {
     public partial class ProtoDynamicProvider<TPropertyAttribute>
     {
-        private void ScanPackedAddRange(ProtoScanState s, MethodInfo addRange)
+        private void ScanPackedAddRange(ProtoScanState s, 
+            Action<ILGenerator> setCurrentValue, 
+            MethodInfo addRange)
         {
             var il = s.IL;
             var currentProp = s.CurrentField;
@@ -18,7 +20,7 @@ namespace Das.Serializer.ProtoBuf
             if (!(GetPackedArrayType(currentProp.Type) is {} packType))
                 return ;
 
-            var willAddToExisting = TryLoadTargetReference(s);
+            var willAddToExisting = TryLoadTargetReference(s, setCurrentValue);
 
             //if (!willAddToExisting)
             //    holdForSet ??= il.DeclareLocal(currentProp.Type);
@@ -112,6 +114,7 @@ namespace Das.Serializer.ProtoBuf
         }
 
         private Boolean TryScanAsPackedArray(ProtoScanState s,
+            Action<ILGenerator>? setCurrentValue,
                 ref LocalBuilder holdForSet)
         {
             var currentProp = s.CurrentField;
@@ -123,7 +126,7 @@ namespace Das.Serializer.ProtoBuf
             if (pv.Type.TryGetMethod(nameof(List<object>.AddRange),
                 out var addRange2))
             {
-                ScanPackedAddRange(s, addRange2);
+                ScanPackedAddRange(s, setCurrentValue, addRange2);
                 return true;
             }
 
@@ -142,7 +145,7 @@ namespace Das.Serializer.ProtoBuf
             //////////////////////////////////////////////////////////
             //// GET OUR IEnumerable[TPack] ONTO THE STACK if it's an updatable type
             //////////////////////////////////////////////////////////
-            var willAddToExisting = TryLoadTargetReference(s);
+            var willAddToExisting = TryLoadTargetReference(s, setCurrentValue);
 
             if (!willAddToExisting)
                 holdForSet ??= il.DeclareLocal(currentProp.Type);
@@ -178,8 +181,8 @@ namespace Das.Serializer.ProtoBuf
                 //il.Emit(OpCodes.Ldloc, ienum);
                 il.Emit(OpCodes.Call, linqToArray);
 
-                if (willAddToExisting && s.SetCurrentValue != null)
-                    s.SetCurrentValue(il);
+                if (willAddToExisting && setCurrentValue != null)
+                    setCurrentValue(il);
                 else
                     il.Emit(OpCodes.Stloc, holdForSet);
 
@@ -253,8 +256,8 @@ namespace Das.Serializer.ProtoBuf
                     "Unable to reconstruct from packed repeated");
 
 
-            if (s.SetCurrentValue != null)
-                s.SetCurrentValue(il);
+            if (setCurrentValue != null)
+                setCurrentValue(il);
             else
                 il.Emit(OpCodes.Stloc, holdForSet);
 
@@ -265,8 +268,6 @@ namespace Das.Serializer.ProtoBuf
         {
             var type = s.CurrentField.Type;
             var il = s.IL;
-
-            
 
             PrintHeaderBytes(s.CurrentField.HeaderBytes, s);
             
@@ -386,9 +387,11 @@ namespace Das.Serializer.ProtoBuf
         /// <summary>
         /// Puts the value of a property onto the stack if it can be updated
         /// </summary>
-        private Boolean TryLoadTargetReference(ProtoScanState s)
+        private Boolean TryLoadTargetReference(ProtoScanState s, 
+            Action<ILGenerator>? setCurrentValue)
         {
-            if (s.SetCurrentValue == null || String.IsNullOrEmpty(s.CurrentField.Name))
+            if (setCurrentValue == null || String.IsNullOrEmpty(s.CurrentField?.Name) || 
+                s.LoadCurrentValueOntoStack == null)
                 return false;
 
             s.LoadCurrentValueOntoStack(s.IL);

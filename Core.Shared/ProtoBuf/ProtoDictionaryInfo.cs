@@ -21,9 +21,9 @@ namespace Das.Serializer.ProtoBuf
             }
         }
 
-        public Type KeyType => Key.Type;
+        public Type KeyType { get; }
 
-        public Type ValueType => Value.Type;
+        public Type ValueType { get; }
 
         public Type KeyValuePairType { get; }
 
@@ -45,6 +45,13 @@ namespace Das.Serializer.ProtoBuf
             if (type == null || !typeof(IDictionary).IsAssignableFrom(type))
                 throw new TypeLoadException(type?.Name);
 
+            var gargs = type.GetGenericArguments();
+            KeyType = gargs[0];
+            ValueType = gargs[1];
+
+            KeyValuePairType = typeof(KeyValuePair<,>).
+                MakeGenericType(KeyType, ValueType);
+
             var keyProp = KeyValuePairType.GetProperty(nameof(KeyValuePair<Object, Object>.Key));
             var valProp = KeyValuePairType.GetProperty(nameof(KeyValuePair<Object, Object>.Value));
 
@@ -53,6 +60,9 @@ namespace Das.Serializer.ProtoBuf
 
             Key = keyField;
             Value = valField;
+
+            KeyValuePairType = typeof(KeyValuePair<,>).
+                MakeGenericType(KeyType, ValueType);
 
             //var gargs = type.GetGenericArguments();
             //KeyType = gargs[0];
@@ -67,8 +77,7 @@ namespace Das.Serializer.ProtoBuf
             //KeyHeader = (Int32) KeyWireType + (1 << 3);
             //ValueHeader = (Int32)ValueWireType + (1 << 3);
 
-            KeyValuePairType = typeof(KeyValuePair<,>).
-                MakeGenericType(KeyType, ValueType);
+            
 
 
             //KeyGetter = KeyValuePairType.GetterOrDie(nameof(Key), out _);

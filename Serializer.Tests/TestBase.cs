@@ -15,10 +15,7 @@ namespace Serializer.Tests
 
         public TestBase()
         {
-            Settings = new ProtoBufOptions<ProtoMemberAttribute>(
-                p => p.Tag 
-                    //,p => p.IsPacked
-                );
+            Settings = new ProtoBufOptions<ProtoMemberAttribute>(p => p.Tag);
             ProtoSerializer = Serializer.GetProtoSerializer(Settings);
             TypeProvider = new ProtoDynamicProvider<ProtoMemberAttribute>(Settings,
                 Serializer.TypeManipulator, Serializer.ObjectInstantiator);

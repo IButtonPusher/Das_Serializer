@@ -10,46 +10,85 @@ namespace Das.Serializer.Proto
 {
     public abstract class ProtoStateBase
     {
-        public Dictionary<IProtoFieldAccessor, LocalBuilder> ChildProxies { get; }
-        public ILGenerator IL { get; }
+        public IDictionary<IProtoFieldAccessor, FieldBuilder> ChildProxies { get; }
 
-        protected  ProtoStateBase(ILGenerator il, IEnumerable<IProtoFieldAccessor> fields,
-            ITypeCore typeCore, Dictionary<IProtoFieldAccessor, LocalBuilder> childProxies)
+        public ILGenerator IL => _il;
+        public Type ParentType { get; }
+        protected ILGenerator _il;
+
+        protected  ProtoStateBase(ILGenerator il,
+            ITypeCore typeCore, IDictionary<IProtoFieldAccessor, FieldBuilder> childProxies, 
+            Type parentType, Action<ILGenerator>? loadCurrentValueOntoStack)
         {
-            IL = il;
+            _il = il;
 
-            ChildProxies = childProxies ?? new Dictionary<IProtoFieldAccessor, LocalBuilder>();
+            ChildProxies = childProxies;// ?? new Dictionary<IProtoFieldAccessor, LocalBuilder>();
+            ParentType = parentType;
+            LoadCurrentValueOntoStack = loadCurrentValueOntoStack;
 
-            var _getProtoProxy = typeof(IProtoProvider).GetMethod(nameof(IProtoProvider.GetProtoProxy));
-            var protoDynBase = typeof(ProtoDynamicBase);
-            var _proxyProviderField = protoDynBase.GetField("_proxyProvider", Const.NonPublic);
+            //var _getProtoProxy = typeof(IProtoProvider).GetMethod(nameof(IProtoProvider.GetProtoProxy));
+            //var protoDynBase = typeof(ProtoDynamicBase);
+            //var _proxyProviderField = protoDynBase.GetField("_proxyProvider", Const.NonPublic);
 
-            if (ChildProxies.Count > 0)
-                return;
+            //if (ChildProxies.Count > 0)
+            //    return;
 
-            foreach (var field in fields)
-            {
-                switch (field.FieldAction)
-                {
-                    case ProtoFieldAction.ChildObject:
-                        var bldr = CreateLocalProxy(il, field.Type, 
-                            _getProtoProxy, _proxyProviderField);
+            //foreach (var field in fields)
+            //{
+            //    switch (field.FieldAction)
+            //    {
+            //        case ProtoFieldAction.ChildObject:
+            //            var bldr = CreateLocalProxy(il, field.Type, 
+            //                _getProtoProxy, _proxyProviderField);
 
-                        ChildProxies[field] = bldr;
-                        break;
+            //            ChildProxies[field] = bldr;
+            //            break;
 
-                    case ProtoFieldAction.ChildObjectArray:
-                    case ProtoFieldAction.ChildObjectCollection:
-                        var germane = typeCore.GetGermaneType(field.Type);
-                        var bldr2 = CreateLocalProxy(il, germane, 
-                            _getProtoProxy, _proxyProviderField);
+            //        case ProtoFieldAction.ChildObjectArray:
+            //        case ProtoFieldAction.ChildObjectCollection:
+            //            var germane = typeCore.GetGermaneType(field.Type);
+            //            var bldr2 = CreateLocalProxy(il, germane, 
+            //                _getProtoProxy, _proxyProviderField);
 
-                        ChildProxies[field] = bldr2;
+            //            ChildProxies[field] = bldr2;
 
-                        break;
-                }
-            }
+            //            break;
+            //    }
+            //}
         }
+
+        public void LoadParentToStack()
+        {
+            //_loadObject(IL);
+            LoadCurrentValueOntoStack(_il);
+        }
+
+        public void LoadCurrentFieldValueToStack()
+        {
+            LoadParentToStack();
+            var call = ParentType.IsValueType ? OpCodes.Call : OpCodes.Callvirt;
+            IL.Emit(call, CurrentField.GetMethod);
+        }
+
+        public Action<ILGenerator>? LoadCurrentValueOntoStack { get; }
+
+        /// <summary>
+        /// Leaves the field on the stack
+        /// </summary>
+        public FieldInfo LoadFieldProxy(IProtoFieldAccessor field)
+        {
+            if (!ChildProxies.TryGetValue(field, out var proxyField))
+                throw new KeyNotFoundException($"No proxy created for {proxyField}");
+
+            _il.Emit(OpCodes.Ldarg_0);
+            _il.Emit(OpCodes.Ldfld, proxyField);
+
+            return proxyField;
+
+        }
+
+
+        public IProtoFieldAccessor? CurrentField { get; set; }
 
         private static LocalBuilder CreateLocalProxy(ILGenerator il, Type germane,
             MethodInfo _getProtoProxy, FieldInfo _proxyProviderField)

@@ -120,6 +120,7 @@ namespace Serializer.Tests.ProtocolBuffers
                     {5, "hello"},
                     {10, "world"}
                 },
+
                 Dictionary2 = new ConcurrentDictionary<Int64, Single>
                 (
                     new Dictionary<Int64, Single>

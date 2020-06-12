@@ -15,7 +15,9 @@ namespace Das.Serializer.ProtoBuf
     public partial class ProtoDynamicProvider<TPropertyAttribute>
     {
         private void AddPrintMethod(Type parentType, TypeBuilder bldr, Type genericParent,
-            FieldInfo utfField, ICollection<IProtoFieldAccessor> fields)
+            //FieldInfo utfField, 
+            IEnumerable<IProtoFieldAccessor> fields,
+            IDictionary<IProtoFieldAccessor, FieldBuilder> childProxyFields)
         {
             var abstractMethod = genericParent.GetMethod(
                                      nameof(ProtoDynamicBase<Object>.Print))
@@ -26,50 +28,134 @@ namespace Das.Serializer.ProtoBuf
 
             var il = method.GetILGenerator();
 
-            var fieldByteArray = il.DeclareLocal(typeof(Byte[]));
+            //var fieldByteArray = il.DeclareLocal(typeof(Byte[]));
 
-            var localBytes = il.DeclareLocal(typeof(Byte[]));
+            //var localBytes = il.DeclareLocal(typeof(Byte[]));
 
-            LocalBuilder? localString = null;
+            //LocalBuilder? localString = null;
 
-            var isArrayMade = false;
-            var isPushed = false;
+            var instruction = parentType.IsValueType
+                ? OpCodes.Ldarga
+                : OpCodes.Ldarg;
 
-            var state = new ProtoPrintState(il, isArrayMade, localString, fieldByteArray,
-                localBytes, fields, parentType, utfField, ilg => ilg.Emit(OpCodes.Ldarg_1),
-                isPushed, _types, _writeInt32);
+            Action<ILGenerator> loadDto = ilg => ilg.Emit(instruction, 1);
+
+            var state = new ProtoPrintState(il, false, //localString, fieldByteArray, 
+                fields, parentType, //utfField, 
+                loadDto,
+                false, _types, _writeInt32, this, childProxyFields);
+
+
+            if (childProxyFields.Count > 0)
+                state.EnsureChildObjectStream();
 
             ////////////
             
             
-            foreach (var s in state)
+            foreach (var protoField in state)
             {
-                //s.CurrentField = pv;
-
-                AddFieldToPrintMethod(s, ilg => ilg.Emit(OpCodes.Ldarg_1));
-                //il, parentType, pv, ref isArrayMade, fieldByteArray,
-                //ref localBytes, loadObject, ref localString, utfField, ref hasPushed);
+                /////////////////////////////
+                AddFieldToPrintMethod(protoField, loadDto);
+                /////////////////////////////
             }
-            
-            //AddFieldsToPrintMethod(state, ilg => ilg.Emit(OpCodes.Ldarg_1));
-                //il, ref isArrayMade, ref localString, fieldByteArray,
-                //ref localBytes, fields, parentType, utfField, ilg => ilg.Emit(OpCodes.Ldarg_1),
-                //ref isPushed);
-            ////////////
-
-            //il.Emit(OpCodes.Ldarg_0);
-            //il.Emit(OpCodes.Callvirt, _flush);
 
             il.Emit(OpCodes.Ret);
 
             bldr.DefineMethodOverride(method, abstractMethod);
         }
 
+         private void AddFieldToPrintMethod(ProtoPrintState s, 
+                Action<ILGenerator> loadObject)
+        {
+            var pv = s.CurrentField;
+
+            var ifFalse2 = VerifyValueIsNonDefault(s, pv.GetMethod);
+
+            switch (pv.FieldAction)
+            {
+                case ProtoFieldAction.VarInt:
+                    PrintVarInt(s);
+                    break;
+
+                case ProtoFieldAction.Primitive:
+                    PrintPrimitive(s);
+                    break;
+
+                case ProtoFieldAction.String:
+                    PrintString(s, (_s) => _s.LoadCurrentFieldValueToStack()); //P_0.StringField);
+                    break;
+
+                case ProtoFieldAction.ByteArray:
+                    PrintByteArray(s);
+                    break;
+
+                case ProtoFieldAction.PackedArray:
+                    PrintAsPackedArray(s);
+                    break;
+
+                case ProtoFieldAction.ChildObject:
+                    PrintChildObject(s, s.CurrentField.HeaderBytes,
+                        _ => s.LoadCurrentFieldValueToStack());
+                    break;
+
+                case ProtoFieldAction.ChildObjectCollection:
+                    case ProtoFieldAction.ChildPrimitiveCollection:
+                    PrintCollection(s, PrintEnumeratorCurrent);
+                    break;
+
+                case ProtoFieldAction.Dictionary:
+                    PrintCollection(s, PrintKeyValuePair);
+                    //PrintDictionary(s);
+                    break;
+
+                case ProtoFieldAction.ChildObjectArray:
+                case ProtoFieldAction.ChildPrimitiveArray:
+                    TryPrintAsArray(s, pv.HeaderBytes);
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            s.IL.MarkLabel(ifFalse2);
+
+            //return;
+
+
+            //var pvProp = s.ParentType.GetProperty(pv.Name) ?? throw new InvalidOperationException();
+            //var getMethod = pvProp.GetGetMethod();
+
+            //var headerBytes = GetBytes(pv.Header).ToArray();
+
+            //// primitive or packed array
+            //if (!_types.IsCollection(pv.Type) ||
+            //    typeof(IEnumerable<Byte>).IsAssignableFrom(pv.Type) ||
+            //    GetPackedArrayType(pv.Type) != null)
+            //{
+            //    var ifFalse = VerifyValueIsNonDefault(s, getMethod);
+
+            //    PrintHeaderBytes(headerBytes, s);
+            //        //il, ref isArrayMade, fieldByteArray, hasPushed);
+
+            //        AddGettableValueToPrintMethod(s, getMethod, loadObject);
+            //        //il, ref isArrayMade, fieldByteArray, ref localBytes,
+            //        //loadObject, ref localString, utfField, pv.TypeCode, pv.WireType,
+            //        //pv.Type, getMethod, ref hasPushed);
+
+            //    s.IL.MarkLabel(ifFalse);
+            //}
+
+            //else
+            //{
+            //    PrintCollectionProperty(s, getMethod, headerBytes);
+            //    //pv, il, headerBytes, ref isArrayMade,
+            //    //fieldByteArray, getMethod, ref localBytes, ref localString, utfField,
+            //    //ref hasPushed);
+            //}
+        }
+
         private void PrintHeaderBytes(Byte[] headerBytes,
             ProtoPrintState s)
-            //ILGenerator il,
-            //ref Boolean isArrayMade, LocalBuilder fieldByteArray,
-            //Boolean? isPushed)
         {
             var il = s.IL;
             var fieldByteArray = s.FieldByteArray;
@@ -381,102 +467,10 @@ namespace Das.Serializer.ProtoBuf
         //    }
         //}
 
-        private void AddFieldToPrintMethod(ProtoPrintState s, 
-                Action<ILGenerator> loadObject)
-            //ILGenerator il, Type parentType, IProtoField pv,
-            //ref Boolean isArrayMade, LocalBuilder fieldByteArray, ref LocalBuilder? localBytes,
-            //Action<ILGenerator> loadObject, ref LocalBuilder? localString, FieldInfo utfField,
-            //ref Boolean hasPushed)
-        {
-            var pv = s.CurrentField;
-
-            var ifFalse2 = VerifyValueIsNonDefault(s, pv.GetMethod);
-
-            switch (pv.FieldAction)
-            {
-                case ProtoFieldAction.VarInt:
-                    PrintVarInt(s);
-                    break;
-
-                case ProtoFieldAction.Primitive:
-                    PrintPrimitive(s);
-                    break;
-
-                case ProtoFieldAction.String:
-                    PrintString(s);
-                    break;
-
-                case ProtoFieldAction.ByteArray:
-                    PrintByteArray(s);
-                    break;
-
-                case ProtoFieldAction.PackedArray:
-                    PrintAsPackedArray(s);
-                    break;
-
-                case ProtoFieldAction.ChildObject:
-                    PrintChildObject(s, s.CurrentField.HeaderBytes,
-                        _ => s.LoadCurrentFieldValueToStack());
-                    break;
-
-                case ProtoFieldAction.ChildObjectCollection:
-                    PrintCollection(s);
-                    break;
-
-                case ProtoFieldAction.Dictionary:
-                    PrintDictionary(s);
-                    break;
-
-                case ProtoFieldAction.ChildObjectArray:
-                    TryPrintAsArray(s, pv.HeaderBytes);
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
-            s.IL.MarkLabel(ifFalse2);
-
-            //return;
-
-
-            //var pvProp = s.ParentType.GetProperty(pv.Name) ?? throw new InvalidOperationException();
-            //var getMethod = pvProp.GetGetMethod();
-
-            //var headerBytes = GetBytes(pv.Header).ToArray();
-
-            //// primitive or packed array
-            //if (!_types.IsCollection(pv.Type) ||
-            //    typeof(IEnumerable<Byte>).IsAssignableFrom(pv.Type) ||
-            //    GetPackedArrayType(pv.Type) != null)
-            //{
-            //    var ifFalse = VerifyValueIsNonDefault(s, getMethod);
-
-            //    PrintHeaderBytes(headerBytes, s);
-            //        //il, ref isArrayMade, fieldByteArray, hasPushed);
-
-            //        AddGettableValueToPrintMethod(s, getMethod, loadObject);
-            //        //il, ref isArrayMade, fieldByteArray, ref localBytes,
-            //        //loadObject, ref localString, utfField, pv.TypeCode, pv.WireType,
-            //        //pv.Type, getMethod, ref hasPushed);
-
-            //    s.IL.MarkLabel(ifFalse);
-            //}
-
-            //else
-            //{
-            //    PrintCollectionProperty(s, getMethod, headerBytes);
-            //    //pv, il, headerBytes, ref isArrayMade,
-            //    //fieldByteArray, getMethod, ref localBytes, ref localString, utfField,
-            //    //ref hasPushed);
-            //}
-        }
+       
 
         private static Label VerifyValueIsNonDefault(ProtoPrintState s,
             MethodInfo propertyGetter)
-            //ILGenerator il,
-            //MethodInfo propertyGetter,
-            //Type propertyType)
         {
             var il = s.IL;
             var propertyType = s.CurrentField.Type;
@@ -485,8 +479,9 @@ namespace Das.Serializer.ProtoBuf
 
             if (propertyType.IsPrimitive)
             {
-                il.Emit(OpCodes.Ldarg_1);
-                il.Emit(OpCodes.Callvirt, propertyGetter);
+                s.LoadCurrentFieldValueToStack();
+                //il.Emit(OpCodes.Ldarg_1);
+                //il.Emit(OpCodes.Callvirt, propertyGetter);
 
                 if (propertyType == typeof(Double))
                 {
@@ -506,8 +501,10 @@ namespace Das.Serializer.ProtoBuf
             if (countProp == null || !(countProp.GetGetMethod() is { } countGetter))
                 goto done;
 
-            il.Emit(OpCodes.Ldarg_1);
-            il.Emit(OpCodes.Callvirt, propertyGetter);
+            s.LoadCurrentFieldValueToStack();
+
+            //il.Emit(OpCodes.Ldarg_1);
+            //il.Emit(OpCodes.Callvirt, propertyGetter);
             il.Emit(OpCodes.Callvirt, countGetter);
             il.Emit(OpCodes.Brfalse, gotoIfFalse);
 
@@ -757,8 +754,8 @@ namespace Das.Serializer.ProtoBuf
             //PrintHeaderBytes(s.CurrentField.HeaderBytes, s);
             PrintHeaderBytes(headerBytes, s);
 
-            var proxyLocal = s.ChildProxies[s.CurrentField];
-            var proxyType = proxyLocal.LocalType;
+            var proxyField = s.ChildProxies[s.CurrentField];
+            var proxyType = proxyField.FieldType;
 
 
             ////////////////////////////////////////////
@@ -776,7 +773,8 @@ namespace Das.Serializer.ProtoBuf
             ////////////////////////////////////////////
             var printMethod = proxyType.GetMethodOrDie(nameof(IProtoProxy<Object>.Print));
 
-            il.Emit(OpCodes.Ldloc, proxyLocal);
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Ldfld, proxyField);
             loadObject(il);
 
             il.Emit(OpCodes.Ldloc, s.ChildObjectStream);
@@ -860,8 +858,8 @@ namespace Das.Serializer.ProtoBuf
                             loadValue(il);
                             il.Emit(OpCodes.Stloc, localString);
 
-                            il.Emit(OpCodes.Ldarg_0);
-                            il.Emit(OpCodes.Ldfld, s.UtfField);
+                            //il.Emit(OpCodes.Ldarg_0);
+                            il.Emit(OpCodes.Ldsfld, _utf8);
                             il.Emit(OpCodes.Ldloc, localString);
 
                             il.Emit(OpCodes.Callvirt, _getStringBytes);
@@ -912,7 +910,8 @@ namespace Das.Serializer.ProtoBuf
                             il.Emit(OpCodes.Pop);
 
                             var state = new ProtoPrintState(s, subFields, type, 
-                                ilg => ilg.Emit(OpCodes.Ldloc, localForPropVal), _types, _writeInt32);
+                                ilg => ilg.Emit(OpCodes.Ldloc, localForPropVal), _types, _writeInt32,
+                                this);
 
                             foreach (var sub in state)
                             {

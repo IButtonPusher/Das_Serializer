@@ -54,6 +54,15 @@ namespace Das.Serializer.ProtoBuf
             return other.Header == Header && other.Name == Name;
         }
 
+        public bool Equals(ParameterInfo other)
+        {
+            if (ReferenceEquals(null, other))
+                return false;
+
+            return other.ParameterType == Type &&
+                   String.Equals(other.Name, Name, StringComparison.OrdinalIgnoreCase);
+        }
+
         public override Int32 GetHashCode() => Header;
         
 

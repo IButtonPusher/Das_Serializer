@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
 using Das.Extensions;
@@ -11,13 +12,15 @@ namespace Das.Serializer.ProtoBuf
 {
     public partial class ProtoDynamicProvider<TPropertyAttribute>
     {
-        private Boolean TryScanAsDictionary(ProtoScanState s)
+        private Boolean TryScanAsDictionary(ProtoScanState s, Action<ILGenerator>? setCurrentValue)
         {
             var il = s.IL;
             var currentProp = s.CurrentField;
 
             if (!typeof(IDictionary).IsAssignableFrom(currentProp.Type))
                 return false;
+
+            return false;
 
             var info = new ProtoDictionaryInfo(currentProp.Type, _types, this);
 
@@ -45,7 +48,7 @@ namespace Das.Serializer.ProtoBuf
 
             s.CurrentField = info.Key;
 
-            PopulateScanField(s, ref keyLocal);
+            PopulateScanField(s, setCurrentValue, ref keyLocal);
 
 
             //discard value header?
@@ -55,7 +58,7 @@ namespace Das.Serializer.ProtoBuf
 
             s.CurrentField = info.Value;
 
-            PopulateScanField(s, ref valueLocal);
+            PopulateScanField(s, setCurrentValue, ref valueLocal);
 
             s.CurrentField = holdCurrentProp;
                
@@ -131,17 +134,21 @@ namespace Das.Serializer.ProtoBuf
              var pv = s.CurrentField;
 
              var ienum = new ProtoEnumerator<ProtoPrintState>(s, pv.Type, pv.GetMethod);
-             var shallPush = true;
+             //var shallPush = true;
 
              ienum.ForEach(PrintKeyValuePair, pv.HeaderBytes);
          }
 
-         private void PrintCollection(ProtoPrintState s)
+         private void PrintCollection(ProtoPrintState s,
+             Action<LocalBuilder, ProtoPrintState, ILGenerator, Byte[]> action)
          {
              var pv = s.CurrentField;
              var ienum = new ProtoEnumerator<ProtoPrintState>(s, pv.Type, pv.GetMethod);
 
-             ienum.ForEach(PrintEnumeratorCurrent, pv.HeaderBytes);
+
+             ienum.ForEach(action, pv.HeaderBytes);
+
+             //ienum.ForEach(PrintEnumeratorCurrent, pv.HeaderBytes);
          }
 
          private void PrintKeyValuePair(LocalBuilder enumeratorCurrentValue, 
@@ -152,60 +159,66 @@ namespace Das.Serializer.ProtoBuf
          {
 
              var pv = s.CurrentField;
-             
+
+            s.PrintFieldViaProxy(pv, 
+                ilg => ilg.Emit(OpCodes.Ldloc, enumeratorCurrentValue));
+
+
+             return;
 
 
              il.Emit(OpCodes.Ldarg_0);
+
              throw new NotImplementedException();
-             //il.Emit(OpCodes.Callvirt, _push);
-             //il.Emit(OpCodes.Pop);
-             //s.HasPushed = true;
+            //il.Emit(OpCodes.Callvirt, _push);
+            //il.Emit(OpCodes.Pop);
+            //s.HasPushed = true;
 
-             //var info = new ProtoDictionaryInfo(pv.Type, _types, this);
+            //var info = new ProtoDictionaryInfo(pv.Type, _types, this);
 
-             ///////////////////////////////////////
-             //// PRINT KEY'S HEADER / KEY'S VALUE
-             ///////////////////////////////////////
-             //il.Emit(OpCodes.Ldarg_0);
-             //il.Emit(OpCodes.Ldc_I4, info.KeyHeader);
-             //il.Emit(OpCodes.Callvirt, _writeInt32);
+            ///////////////////////////////////////
+            //// PRINT KEY'S HEADER / KEY'S VALUE
+            ///////////////////////////////////////
+            //il.Emit(OpCodes.Ldarg_0);
+            //il.Emit(OpCodes.Ldc_I4, info.KeyHeader);
+            //il.Emit(OpCodes.Callvirt, _writeInt32);
 
-             //var holdProp = s.CurrentField;
+            //var holdProp = s.CurrentField;
 
-             //s.CurrentField = info.Key;
+            //s.CurrentField = info.Key;
 
-             //AddGettableValueToPrintMethod(s, info.KeyGetter,
-             //    ilg => ilg.Emit(OpCodes.Ldloca, enumeratorCurrentValue));
-             ////il, ref isArrayMade, s.ByteBufferField,
-             ////    ref s.localBytes,
-             ////    ilg => ilg.Emit(OpCodes.Ldloca, enumeratorCurrentValue),
-             ////    ref localString, utfField,
-             ////    Type.GetTypeCode(info.KeyType), info.KeyWireType, info.KeyType,
-             ////    info.KeyGetter, ref hasPushed);
-             ///////////////////////////////////////
-
-
-             ///////////////////////////////////////
-             //// PRINT VALUE'S HEADER / VALUE'S VALUE
-             ///////////////////////////////////////
-             //il.Emit(OpCodes.Ldarg_0);
-             //il.Emit(OpCodes.Ldc_I4, info.ValueHeader);
-             //il.Emit(OpCodes.Callvirt, _writeInt32);
-
-             //s.CurrentField = info.Value;
-
-             //AddGettableValueToPrintMethod(s, info.ValueGetter,
-             //    ilg => ilg.Emit(OpCodes.Ldloca, enumeratorCurrentValue));
-             ////il, ref isArrayMade, s.ByteBufferField,
-             ////ref localBytes,
-             ////ilg => ilg.Emit(OpCodes.Ldloca, enumeratorCurrentValue),
-             ////ref localString, utfField,
-             ////Type.GetTypeCode(info.ValueType), info.ValueWireType,
-             ////info.ValueType, info.ValueGetter, ref hasPushed);
+            //AddGettableValueToPrintMethod(s, info.KeyGetter,
+            //    ilg => ilg.Emit(OpCodes.Ldloca, enumeratorCurrentValue));
+            ////il, ref isArrayMade, s.ByteBufferField,
+            ////    ref s.localBytes,
+            ////    ilg => ilg.Emit(OpCodes.Ldloca, enumeratorCurrentValue),
+            ////    ref localString, utfField,
+            ////    Type.GetTypeCode(info.KeyType), info.KeyWireType, info.KeyType,
+            ////    info.KeyGetter, ref hasPushed);
+            ///////////////////////////////////////
 
 
-             //s.CurrentField = holdProp;
-         }
+            ///////////////////////////////////////
+            //// PRINT VALUE'S HEADER / VALUE'S VALUE
+            ///////////////////////////////////////
+            //il.Emit(OpCodes.Ldarg_0);
+            //il.Emit(OpCodes.Ldc_I4, info.ValueHeader);
+            //il.Emit(OpCodes.Callvirt, _writeInt32);
+
+            //s.CurrentField = info.Value;
+
+            //AddGettableValueToPrintMethod(s, info.ValueGetter,
+            //    ilg => ilg.Emit(OpCodes.Ldloca, enumeratorCurrentValue));
+            ////il, ref isArrayMade, s.ByteBufferField,
+            ////ref localBytes,
+            ////ilg => ilg.Emit(OpCodes.Ldloca, enumeratorCurrentValue),
+            ////ref localString, utfField,
+            ////Type.GetTypeCode(info.ValueType), info.ValueWireType,
+            ////info.ValueType, info.ValueGetter, ref hasPushed);
+
+
+            //s.CurrentField = holdProp;
+        }
 
        
 
@@ -214,144 +227,244 @@ namespace Das.Serializer.ProtoBuf
             ProtoPrintState s,
             ILGenerator il,
             Byte[] headerBytes)
-        {
-            PrintChildObject(s, headerBytes, 
-                ilg => ilg.Emit(OpCodes.Ldloc, enumeratorCurrentValue));
-        }
-       
+          {
+              var germane = _types.GetGermaneType(s.CurrentField.Type);
+              var subAction = GetProtoFieldAction(germane);
 
-         /// <summary>
-        /// ICollection[TProperty] where TProperty : ProtoContract
-        /// for a collection of proto contracts by way of a property of a parent contract
-        /// </summary>
-        private Boolean TryScanAsNestedCollection(ProtoScanState s)
-         {
-             var il = s.IL;
-             var pv = s.CurrentField;
+              switch (subAction)
+              {
+                  case ProtoFieldAction.ChildObject:
+                      PrintChildObject(s, headerBytes, 
+                          ilg => ilg.Emit(OpCodes.Ldloc, enumeratorCurrentValue));
+                      break;
 
-             var canAddRange = pv.Type.TryGetMethod(nameof(List<object>.AddRange),
-                 out var addRange);
-             var canAdd = _types.TryGetAddMethod(pv.Type, out var adder);
+                  case ProtoFieldAction.String:
+                      PrintString(s, 
+                          xs => xs.IL.Emit(OpCodes.Ldloc, enumeratorCurrentValue));
+                      break;
 
-             if (canAddRange)
-             {
-                 s.LoadCurrentValueOntoStack(il);
-                 il.Emit(OpCodes.Callvirt, pv.GetMethod);
-             }
-
-             var germane = _types.GetGermaneType(pv.Type);
-
-             var coreMethod = typeof(ProtoDynamicBase).GetMethod(nameof(ProtoDynamicBase.GetChildren));
-             var getChildrenMethod = coreMethod.MakeGenericMethod(germane);
-
-             var proxyLocal = s.ChildProxies[s.CurrentField];
-
-             //il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Ldarg_1);  //arg1 = input stream!
-            il.Emit(OpCodes.Ldloc, proxyLocal);
-            il.Emit(OpCodes.Call, getChildrenMethod);
-            
-
-            if (canAddRange)
-                il.Emit(OpCodes.Callvirt, addRange);
-            
-            else if (canAdd)
-            {
-                var returnRef = il.DeclareLocal(getChildrenMethod.ReturnType);
-
-                var enumerator = new ProtoEnumerator<ProtoScanState>(s, getChildrenMethod.ReturnType, returnRef);
-
-                enumerator.ForEach((current, ss, ilg, hdr) => 
-                {
-                    s.LoadCurrentValueOntoStack(ilg);
-                    ilg.Emit(OpCodes.Ldloc, current);
-                    ilg.Emit(OpCodes.Callvirt, adder);
-
-                }, s.CurrentField.HeaderBytes);
-            }
-            
+                  default:
+                      throw new NotImplementedException();
+              }
 
             
-            
-            
-            /////////////////////////////////////////////////////////
-            //// CREATE A LOCAL FIELD FOR THE PROXY AND SET ITS VALUE
-            /////////////////////////////////////////////////////////
-            //var proxyType = typeof(IProtoProxy<>).MakeGenericType(germane);
-            
-            //var localProxyRef = il.DeclareLocal(proxyType);
-            
-            ////_proxyProvider.GetProtoProxy<T>(false);
-            //var getProxyInstance = _getProtoProxy.MakeGenericMethod(germane);
-            //il.Emit(OpCodes.Ldarg_0);
-            //il.Emit(OpCodes.Ldfld, _proxyProviderField);
-            //il.Emit(OpCodes.Ldc_I4_0);
-            //il.Emit(OpCodes.Callvirt, getProxyInstance);
-            
-            ////var localProxyRef = _proxyProvider.GetProtoProxy<T>(false);
-            //il.Emit(OpCodes.Stloc, localProxyRef);
-
-
-            /////////////////////////////////////////////////////////
-            //// SET THE PROXY'S OUTSTREAM TO OUR OUTSTREAM
-            /////////////////////////////////////////////////////////
-
-            //var streamSetter = proxyType.SetterOrDie(nameof(IProtoProxy<Object>.OutStream));
-
-
-            //il.Emit(OpCodes.Ldloc, localProxyRef);
-            
-            //il.Emit(OpCodes.Ldarg_1);
-            //il.Emit(OpCodes.Callvirt, streamSetter);
-
-            return true;
-
-            var wire = ProtoBufSerializer.GetWireType(germane);
-            var isValidLengthDelim = wire == ProtoWireTypes.LengthDelimited
-                                     && germane != Const.StrType
-                                     && germane != Const.ByteArrayType;
-
-            var isCollection = isValidLengthDelim && _types.IsCollection(germane);
-
-            var fieldAction = GetProtoFieldAction(germane);
-
-            var asGermane = new ProtoField(String.Empty,
-                germane, wire, 0, 0, null, Type.GetTypeCode(germane),
-                _types.IsLeaf(germane, false), isCollection, fieldAction, new Byte[0], null);
-
-            LocalBuilder itemLocal = null;
-
-            var parentType = s.ParentType;
-            //var fieldByteArray = s.ByteBufferField;
-            
-
-
-            var setter = parentType.SetterOrDie(pv.Name);
-            s.SetCurrentValue = ill => ill.Emit(OpCodes.Callvirt, setter);
-
-            PopulateScanField(s, ref itemLocal);
-                //il, asGermane, fieldByteArray,
-                //lastByte, 
-                
-                //loadObject,
-                //ill => ill.Emit(OpCodes.Callvirt, setter),
-                //currentProp.Type, arrayCounters, exampleObject);
-
-            var getter = parentType.GetterOrDie(pv.Name, out _);
-            //
-            s.LoadCurrentValueOntoStack(il);
-            il.Emit(OpCodes.Callvirt, getter);
-
-            il.Emit(OpCodes.Ldloc, itemLocal);
-
-            il.Emit(OpCodes.Call, adder);
-            if (adder.ReturnType != typeof(void))
-                il.Emit(OpCodes.Pop);
-
-            return true;
         }
 
-        private Boolean TryPrintAsArray(ProtoPrintState s, Byte[] headerBytes)
+          private void AddSingleValue(IProtoFieldAccessor pv, ILGenerator il)
+          {
+              var canAdd = _types.TryGetAddMethod(pv.Type, out var adder);
+
+              if (!canAdd)
+                  throw new NotImplementedException();
+
+              il.Emit(OpCodes.Callvirt, adder);
+          }
+
+          private void AddKeyValuePair(IProtoFieldAccessor pv, ILGenerator il)
+          {
+              var canAdd = _types.TryGetAddMethod(pv.Type, out var adder);
+
+              if (!canAdd)
+                  throw new NotImplementedException();
+
+
+              var germane = _types.GetGermaneType(pv.Type);
+
+              var kvp = il.DeclareLocal(germane);
+
+              il.Emit(OpCodes.Stloc, kvp);
+
+              var getKey = germane.GetProperty(nameof(KeyValuePair<object, object>.Key)).GetGetMethod();
+              var getValue = germane.GetProperty(nameof(KeyValuePair<object, object>.Value)).GetGetMethod();
+
+              il.Emit(OpCodes.Ldloca, kvp);
+              il.Emit(OpCodes.Call, getKey);
+
+              il.Emit(OpCodes.Ldloca, kvp);
+              il.Emit(OpCodes.Call, getValue);
+
+              il.Emit(OpCodes.Callvirt, adder);
+          }
+
+          /// <summary>
+          /// ICollection[TProperty] where TProperty : ProtoContract
+          /// for a collection of proto contracts by way of a property of a parent contract
+          /// </summary>
+          private Boolean TryScanAsNestedCollection(ProtoScanState s,
+              Action<IProtoFieldAccessor, ILGenerator> addValue)
+          {
+              var il = s.IL;
+              var pv = s.CurrentField;
+
+              //var canAddRange = pv.Type.TryGetMethod(nameof(List<object>.AddRange),
+              //    out var addRange);
+              var canAdd = _types.TryGetAddMethod(pv.Type, out var adder);
+
+            if (!canAdd)
+                throw new NotImplementedException();
+
+            //if (canAddRange)
+            //{
+            //    s.LoadCurrentValueOntoStack(il);
+            //    il.Emit(OpCodes.Callvirt, pv.GetMethod);
+            //}
+
+            var germane = _types.GetGermaneType(pv.Type);
+              var action = GetProtoFieldAction(germane);
+
+              switch (action)
+              {
+
+                case ProtoFieldAction.String:
+                    s.LoadCurrentValueOntoStack(il);
+                    s.IL.Emit(OpCodes.Callvirt, s.CurrentField.GetMethod);
+
+                    s.LoadNextString();
+
+                    il.Emit(OpCodes.Callvirt, adder);
+
+
+                    return true;
+
+                  case ProtoFieldAction.ChildObject:
+                      
+
+                    //ScanChildObject(s, null,);
+
+                      //var coreMethod = typeof(ProtoDynamicBase).GetMethod(nameof(ProtoDynamicBase.GetChildren));
+                      //var getChildrenMethod = coreMethod.MakeGenericMethod(germane);
+
+                    s.LoadCurrentFieldValueToStack();
+
+                    //s.LoadCurrentValueOntoStack(il);
+
+                    var fieldInfo = s.LoadFieldProxy(s.CurrentField);
+                    var proxyType = fieldInfo.FieldType;
+
+                    var scanMethod = proxyType.GetMethodOrDie(nameof(IProtoProxy<Object>.Scan),
+                        typeof(Stream), typeof(Int64));
+
+
+                    il.Emit(OpCodes.Ldarg_1);  //arg1 = input stream!
+            
+                    il.Emit(OpCodes.Ldarg_1);
+                    il.Emit(OpCodes.Call, _getPositiveInt64);
+
+                    il.Emit(OpCodes.Call, scanMethod);
+
+                    addValue(pv, il);
+
+                    //il.Emit(OpCodes.Callvirt, adder);
+
+
+                    //il.Emit(OpCodes.Ldarg_1); //arg1 = input stream!
+                    //il.Emit(OpCodes.Ldfld, proxyLocal);
+                    //il.Emit(OpCodes.Call, getChildrenMethod);
+
+
+
+                    //if (canAdd)
+                    //{
+                    //    var returnRef = il.DeclareLocal(getChildrenMethod.ReturnType);
+
+                    //    var enumerator = new ProtoEnumerator<ProtoScanState>(s,
+                    //        getChildrenMethod.ReturnType, returnRef);
+
+                    //    enumerator.ForEach((current, ss, ilg, hdr) =>
+                    //    {
+                    //        s.LoadCurrentValueOntoStack(ilg);
+                    //        ilg.Emit(OpCodes.Ldloc, current);
+                    //        ilg.Emit(OpCodes.Callvirt, adder);
+
+                    //    }, s.CurrentField.HeaderBytes);
+                    //}
+                    break;
+              }
+
+              return true;
+
+
+
+
+
+              ///////////////////////////////////////////////////////////
+              ////// CREATE A LOCAL FIELD FOR THE PROXY AND SET ITS VALUE
+              ///////////////////////////////////////////////////////////
+              ////var proxyType = typeof(IProtoProxy<>).MakeGenericType(germane);
+
+              ////var localProxyRef = il.DeclareLocal(proxyType);
+
+              //////_proxyProvider.GetProtoProxy<T>(false);
+              ////var getProxyInstance = _getProtoProxy.MakeGenericMethod(germane);
+              ////il.Emit(OpCodes.Ldarg_0);
+              ////il.Emit(OpCodes.Ldfld, _proxyProviderField);
+              ////il.Emit(OpCodes.Ldc_I4_0);
+              ////il.Emit(OpCodes.Callvirt, getProxyInstance);
+
+              //////var localProxyRef = _proxyProvider.GetProtoProxy<T>(false);
+              ////il.Emit(OpCodes.Stloc, localProxyRef);
+
+
+              ///////////////////////////////////////////////////////////
+              ////// SET THE PROXY'S OUTSTREAM TO OUR OUTSTREAM
+              ///////////////////////////////////////////////////////////
+
+              ////var streamSetter = proxyType.SetterOrDie(nameof(IProtoProxy<Object>.OutStream));
+
+
+              ////il.Emit(OpCodes.Ldloc, localProxyRef);
+
+              ////il.Emit(OpCodes.Ldarg_1);
+              ////il.Emit(OpCodes.Callvirt, streamSetter);
+
+              //return true;
+
+              //var wire = ProtoBufSerializer.GetWireType(germane);
+              //var isValidLengthDelim = wire == ProtoWireTypes.LengthDelimited
+              //                         && germane != Const.StrType
+              //                         && germane != Const.ByteArrayType;
+
+              //var isCollection = isValidLengthDelim && _types.IsCollection(germane);
+
+              //var fieldAction = GetProtoFieldAction(germane);
+
+              //var asGermane = new ProtoField(String.Empty,
+              //    germane, wire, 0, 0, null, Type.GetTypeCode(germane),
+              //    _types.IsLeaf(germane, false), isCollection, fieldAction, new Byte[0], null);
+
+              //LocalBuilder itemLocal = null;
+
+              //var parentType = s.ParentType;
+              ////var fieldByteArray = s.ByteBufferField;
+
+
+
+              //var setter = parentType.SetterOrDie(pv.Name);
+              //s.SetCurrentValue = ill => ill.Emit(OpCodes.Callvirt, setter);
+
+              //PopulateScanField(s, ref itemLocal);
+              ////il, asGermane, fieldByteArray,
+              ////lastByte, 
+
+              ////loadObject,
+              ////ill => ill.Emit(OpCodes.Callvirt, setter),
+              ////currentProp.Type, arrayCounters, exampleObject);
+
+              //var getter = parentType.GetterOrDie(pv.Name, out _);
+              ////
+              //s.LoadCurrentValueOntoStack(il);
+              //il.Emit(OpCodes.Callvirt, getter);
+
+              //il.Emit(OpCodes.Ldloc, itemLocal);
+
+              //il.Emit(OpCodes.Call, adder);
+              //if (adder.ReturnType != typeof(void))
+              //    il.Emit(OpCodes.Pop);
+
+              //return true;
+          }
+
+          private Boolean TryPrintAsArray(ProtoPrintState s, Byte[] headerBytes)
             
             //IProtoField pv, ILGenerator il, Byte[] headerBytes,
             //ref Boolean isArrayMade, LocalBuilder fieldByteArray, MethodInfo getMethod,
@@ -459,13 +572,16 @@ namespace Das.Serializer.ProtoBuf
             il.Emit(OpCodes.Pop);
 
 
-            if (s.SetCurrentValue != null)
-            {
-                il.Emit(OpCodes.Ldloc, holdForSet);
-                s.SetCurrentValue(il);
-            }
+            //if (s.SetCurrentValue != null)
+            //{
+            //    s.LoadCurrentValueOntoStack(il);
+
+            //    il.Emit(OpCodes.Ldloc, holdForSet);
+            //    s.SetCurrentValue(il);
+            //}
 
         }
+
 
         private void PrintByteArray(ProtoPrintState s)
         {
@@ -473,16 +589,19 @@ namespace Das.Serializer.ProtoBuf
 
             var il = s.IL;
 
+            s.LoadParentToStack();
+
             il.Emit(OpCodes.Call, s.CurrentField.GetMethod);
             il.Emit(OpCodes.Stloc, s.LocalBytes);
 
-            //il.Emit(OpCodes.Ldarg_0);
             il.Emit(OpCodes.Ldloc, s.LocalBytes);
             il.Emit(OpCodes.Call, _getArrayLength);
             s.WriteInt32();
-            //il.Emit(OpCodes.Call, _writeInt32);
+            
 
             il.Emit(OpCodes.Ldloc, s.LocalBytes);
+            
+            il.Emit(OpCodes.Ldarg_2);
             il.Emit(OpCodes.Call, _writeBytes);
         }
        

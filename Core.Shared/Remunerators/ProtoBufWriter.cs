@@ -243,7 +243,7 @@ namespace Das.Serializer.Remunerators
             _outStream.Write(buffer, index, count);
         }
 
-        public static void WriteInt64(Int64 value, Stream _outStream)
+        public static void WriteInt64(Int64 value, Stream outStream)
         {
             if (value >= 0)
             {
@@ -253,7 +253,7 @@ namespace Das.Serializer.Remunerators
                     value >>= 7;
                     if (value > 0)
                         current += 128; //8th bit to specify more bytes remain
-                    WriteInt8(current, _outStream);
+                    WriteInt8(current, outStream);
                 } while (value > 0);
             }
             else
@@ -262,9 +262,9 @@ namespace Das.Serializer.Remunerators
                 {
                     var current = (Byte)(value | 128);
                     value >>= 7;
-                    WriteInt8(current, _outStream);
+                    WriteInt8(current, outStream);
                 }
-                Write(_negative32Fill, 0, 5, _outStream);
+                Write(_negative32Fill, 0, 5, outStream);
             }
         }
 

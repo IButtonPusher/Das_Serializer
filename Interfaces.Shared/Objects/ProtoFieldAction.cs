@@ -10,8 +10,13 @@ namespace Das.Serializer
         ByteArray,
         PackedArray,
         ChildObject,
+
         ChildObjectCollection,
         ChildObjectArray,
+
+        ChildPrimitiveCollection,
+        ChildPrimitiveArray,
+
         Dictionary
     }
 }

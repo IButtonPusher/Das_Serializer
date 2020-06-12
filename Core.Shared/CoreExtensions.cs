@@ -243,9 +243,6 @@ namespace Das.Extensions
                     if (wot != null)
                         break;
                 }
-
-                //wot = classType.GetMethod(methodName, BindingFlags.FlattenHierarchy
-                //| BindingFlags.NonPublic);
             }
 
             return wot ?? throw new MissingMethodException(classType.Name, methodName);

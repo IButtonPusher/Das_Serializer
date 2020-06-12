@@ -13,22 +13,17 @@ namespace Das.Serializer.ProtoBuf
     public partial class ProtoDynamicProvider<TPropertyAttribute>
     {
         private void AddScanMethod(Type parentType, TypeBuilder bldr,
-            Type genericParent, IEnumerable<IProtoFieldAccessor> fields, Object exampleObject)
+            Type genericParent, IEnumerable<IProtoFieldAccessor> fields, 
+            Object? exampleObject,
+            IDictionary<IProtoFieldAccessor, FieldBuilder> childProxies,
+            Boolean canSetValuesInline, MethodBase buildReturnValue)
         {
             var fieldArr = fields.ToArray();
 
-            var buildDefault = genericParent.GetMethodOrDie(
-                nameof(ProtoDynamicBase<Object>.BuildDefault));
 
-            var methodArgs = new[] {typeof(Stream), typeof(Int64)};
+            var method = PrepareScanMethod(bldr, genericParent, parentType, 
+                out var abstractMethod, out var il);
 
-            var abstractMethod = genericParent.GetMethodOrDie(
-                nameof(ProtoDynamicBase<Object>.Scan), Const.PublicInstance, methodArgs);
-
-            var method = bldr.DefineMethod(nameof(ProtoDynamicBase<Object>.Scan),
-                MethodOverride, parentType, methodArgs);
-
-            var il = method.GetILGenerator();
 
             ///////////////
             // VARIABLES
@@ -38,29 +33,18 @@ namespace Das.Serializer.ProtoBuf
 
             //var fieldByteArray = il.DeclareLocal(typeof(Byte[]));
             var endLabel = il.DefineLabel();
-            var instantiated = il.DefineLabel();
-
-            //local threadstatic byte[] buffer
-            il.Emit(OpCodes.Ldsfld, _readBytes);
-            il.Emit(OpCodes.Brtrue_S, instantiated);
-
-            il.Emit(OpCodes.Ldc_I4, 256);
-            il.Emit(OpCodes.Newarr, typeof(Byte));
-
-            il.Emit(OpCodes.Stsfld, _readBytes);
-
-            il.MarkLabel(instantiated);
-            //il.Emit(OpCodes.Ldsfld, _readBytes);
-            //il.Emit(OpCodes.Stloc, fieldByteArray);
-            ////////////////////////////
+           
+            EnsureThreadLocalByteArray(il);
 
             //////////////////////////////
             // INSTANTIATE RETURN VALUE
             /////////////////////////////
             var arrayCounters = new ProtoArrayInfo(_getStreamPosition, _types, _getPositiveInt32);
 
-            il.Emit(OpCodes.Ldarg_0);
-            var returnValue = InstantiateObjectToDefault(il, parentType, buildDefault, fieldArr,
+            if (canSetValuesInline)
+                il.Emit(OpCodes.Ldarg_0);
+
+            var returnValue = InstantiateObjectToDefault(il, parentType, buildReturnValue, fieldArr,
                 arrayCounters, exampleObject);
 
             il.Emit(OpCodes.Ldarg_2);
@@ -70,34 +54,93 @@ namespace Das.Serializer.ProtoBuf
             il.Emit(OpCodes.Stloc, streamLength);
             /////////////////////////////
 
+            Action<ILGenerator> loadCurrentValue = null;
+            if (canSetValuesInline)
+                loadCurrentValue = ilg => ilg.Emit(OpCodes.Ldloc, returnValue);
+
+
+            var state = new ProtoScanState(il, fieldArr, null, parentType, loadCurrentValue,
+                lastByte, exampleObject, arrayCounters, childProxies, this, _types, _readBytesField);
+
+
             /////////////////////////////
-            AddPropertiesToScanMethod(fieldArr, parentType, il,
-                ilg => ilg.Emit(OpCodes.Ldloc, returnValue), endLabel, //fieldByteArray, 
-                lastByte, streamLength,
-                arrayCounters, exampleObject);
+            AddPropertiesToScanMethod(state, endLabel, canSetValuesInline, streamLength);
+                
+                //fieldArr, parentType, il,
+                //loadCurrentValue, endLabel,
+                //lastByte, streamLength,
+                //arrayCounters, exampleObject, childProxies, canSetValuesInline);
             /////////////////////////////
 
             il.MarkLabel(endLabel);
 
-            il.Emit(OpCodes.Ldloc, returnValue);
+            if (!canSetValuesInline)
+                InstantiateFromLocals(state, buildReturnValue);
+            else
+                il.Emit(OpCodes.Ldloc, returnValue);
+
             il.Emit(OpCodes.Ret);
 
             bldr.DefineMethodOverride(method, abstractMethod);
         }
 
-        private void AddPropertiesToScanMethod(IEnumerable<IProtoFieldAccessor> fields,
-            Type parentType, ILGenerator il, Action<ILGenerator> loadObject,
-            Label afterPropertyLabel, //LocalBuilder fieldByteArray, 
-            LocalBuilder lastByte, LocalBuilder streamLength, 
-            ProtoArrayInfo arrayCounters, Object exampleObject)
+        private static MethodInfo PrepareScanMethod(
+            TypeBuilder bldr, 
+            Type genericParent,
+            Type parentType,
+            out MethodInfo abstractMethod,
+            out ILGenerator il)
         {
-            var fieldArr = fields.ToArray();
+            var methodArgs = new[] {typeof(Stream), typeof(Int64)};
 
-            var state = new ProtoScanState(il, fieldArr, null, parentType, loadObject,
-                //fieldByteArray, 
-                lastByte, exampleObject, arrayCounters, 
-                //streamLength, 
-                _utf8, _types);
+            abstractMethod = genericParent.GetMethodOrDie(
+                nameof(ProtoDynamicBase<Object>.Scan), Const.PublicInstance, methodArgs);
+
+            var method = bldr.DefineMethod(nameof(ProtoDynamicBase<Object>.Scan),
+                MethodOverride, parentType, methodArgs);
+
+            il = method.GetILGenerator();
+
+            return method;
+        }
+
+        private void EnsureThreadLocalByteArray(ILGenerator il)
+        {
+            var instantiated = il.DefineLabel();
+
+            //local threadstatic byte[] buffer
+            il.Emit(OpCodes.Ldsfld, _readBytesField);
+            il.Emit(OpCodes.Brtrue_S, instantiated);
+
+            il.Emit(OpCodes.Ldc_I4, 256);
+            il.Emit(OpCodes.Newarr, typeof(Byte));
+
+            il.Emit(OpCodes.Stsfld, _readBytesField);
+
+            il.MarkLabel(instantiated);
+        }
+
+        //private void AddPropertiesToScanMethod(IEnumerable<IProtoFieldAccessor> fields,
+        //    Type parentType, ILGenerator il, 
+        //    Action<ILGenerator>? loadObject,
+        //    Label afterPropertyLabel, 
+        //    LocalBuilder lastByte, LocalBuilder streamLength, 
+        //    ProtoArrayInfo arrayCounters, Object? exampleObject,
+        //    IDictionary<IProtoFieldAccessor, FieldBuilder> childProxies,
+        //    Boolean canSetValuesInline)
+        private void AddPropertiesToScanMethod(
+            ProtoScanState state,
+            Label afterPropertyLabel,
+            Boolean canSetValuesInline,
+            LocalBuilder streamLength)
+        {
+            var il = state.IL;
+            var fieldArr = state.Fields;
+
+            
+            if (!canSetValuesInline)
+                state.EnsureLocalFields();
+
 
             var switchFieldIndexLabel = il.DefineLabel();
             var whileLabel = il.DefineLabel();
@@ -116,11 +159,14 @@ namespace Das.Serializer.ProtoBuf
             foreach (var currentProp in fieldArr)
             {
                 state.CurrentField = currentProp;
-                //////////////////////////////////////////////////////////////////
-                var lbl = AddScanProperty(state, whileLabel);
-                //////////////////////////////////////////////////////////////////
 
-                labelFarm[currentProp.Index] = lbl;
+                //////////////////////////////////////////////////////////////////
+                //////////////////////////////////////////////////////////////////
+                var switchLabel = AddScanProperty(state, whileLabel, canSetValuesInline);
+                //////////////////////////////////////////////////////////////////
+                //////////////////////////////////////////////////////////////////
+                
+                labelFarm[currentProp.Index] = switchLabel;
                 max = Math.Max(max, currentProp.Index);
             }
             //////////////////////////////////////////////////////////////////
@@ -149,42 +195,75 @@ namespace Das.Serializer.ProtoBuf
 
             il.Emit(OpCodes.Ldarg_1);
             il.Emit(OpCodes.Callvirt, _getStreamPosition);
-            //il.Emit(OpCodes.Ldarg_2);
+            
             il.Emit(OpCodes.Ldloc, streamLength);
 
             il.Emit(OpCodes.Blt,getNextColumnIndexLabel);
             il.Emit(OpCodes.Br, afterPropertyLabel);
         }
 
-        private static LocalBuilder InstantiateObjectToDefault(ILGenerator il, Type type,
-            MethodBase buildDefault, IEnumerable<IProtoField> fields, 
-            ProtoArrayInfo arrayBuilders, Object exampleObject)
+        private void InstantiateFromLocals(ProtoScanState s,
+            MethodBase buildReturnValue)
+        {
+            if (!(buildReturnValue is ConstructorInfo ctor))
+                throw new InvalidOperationException();
+
+            var ctorParams = ctor.GetParameters();
+
+            for (var c = 0; c < ctorParams.Length; c++)
+            {
+                var current = ctorParams[c];
+
+                var local = s.GetLocalForParameter(current);
+
+                //var lode = local.LocalType.IsValueType ? OpCodes.Ldloca : OpCodes.Ldloc;
+
+                s.IL.Emit(OpCodes.Ldloc, local);
+            }
+
+            s.IL.Emit(OpCodes.Newobj, ctor);
+        }
+
+        private LocalBuilder InstantiateObjectToDefault(ILGenerator il, Type type,
+            MethodBase? buildDefault, IEnumerable<IProtoFieldAccessor> fields, 
+            ProtoArrayInfo arrayBuilders, Object? exampleObject)
         {
             var returnValue = il.DeclareLocal(type);
 
             switch (buildDefault)
             {
-                case ConstructorInfo ctor:
+                case ConstructorInfo ctor when ctor.GetParameters().Length == 0:
                     il.Emit(OpCodes.Newobj, ctor);
                     break;
+
+                case ConstructorInfo _: //can't instantiate yet
+                    return returnValue;
+
                 case MethodInfo bdor:
                     il.Emit(OpCodes.Callvirt, bdor);
                     break;
+
+                case null:
+                    return returnValue;
+
                 default:
                     throw new InvalidOperationException();
             }
 
             il.Emit(OpCodes.Stloc, returnValue);
 
+            if (exampleObject == null)
+                return returnValue;
+
             foreach (var field in fields)
             {
                 if (!field.IsRepeatedField)
                     continue;
 
-                if (field.Type.IsArray)
+                //if (field.Type.IsArray)
+                if (field.FieldAction == ProtoFieldAction.ChildObjectArray)
                 {
-                    //if (!typeof(IEnumerable<Int32>).IsAssignableFrom(field.Type))
-                        arrayBuilders.Add(field, il);
+                    arrayBuilders.Add(field, il);
                     continue;
                 }
 
@@ -199,35 +278,49 @@ namespace Das.Serializer.ProtoBuf
 
                 var setter = type.SetterOrDie(field.Name);
 
-                var fieldCtor = field.Type.GetDefaultConstructorOrDie();
 
-                il.Emit(OpCodes.Ldloc, returnValue);
-                il.Emit(OpCodes.Newobj, fieldCtor);
-                il.Emit(OpCodes.Callvirt, setter);
+                if (_instantiator.TryGetDefaultConstructor(field.Type, out var fieldCtor))
+                {
+
+                    il.Emit(OpCodes.Ldloc, returnValue);
+                    il.Emit(OpCodes.Newobj, fieldCtor);
+                    il.Emit(OpCodes.Callvirt, setter);
+                }
             }
 
             return returnValue;
         }
 
-        private Label AddScanProperty(ProtoScanState s, Label afterPropertyLabel)
+        private Label AddScanProperty(ProtoScanState s, Label afterPropertyLabel,
+            Boolean canSetValueInline)
         {
             var il = s.IL;
-            var currentProp = s.CurrentField;
+            var currentProp = s.CurrentField ?? throw new NullReferenceException(nameof(s.CurrentField));
 
-            var setter = s.ParentType.SetterOrDie(currentProp.Name);
+            var setter = canSetValueInline
+                ? s.ParentType.SetterOrDie(currentProp.Name)
+                : null;
 
-            LocalBuilder holdForSet = null;
+            var holdForSet = canSetValueInline
+                ? null
+                : s.GetLocalForField(currentProp);
 
             var caseEntryForThisProperty = s.IL.DefineLabel();
             s.IL.MarkLabel(caseEntryForThisProperty);
 
-            s.SetCurrentValue = ill => ill.Emit(OpCodes.Callvirt, setter);
+            //s.SetCurrentValue = ill => ill.Emit(OpCodes.Callvirt, setter);
+
+            Action<ILGenerator>? setCurrentValue = null;
+            if (canSetValueInline && setter != null)
+                setCurrentValue  = ill => ill.Emit(OpCodes.Callvirt, setter);
+
 
             //////////////////////////////////////////////////////////////////
-            PopulateScanField(s, ref holdForSet!);
+            PopulateScanField(s, setCurrentValue, ref holdForSet!);
             //////////////////////////////////////////////////////////////////
 
-            if (holdForSet != null)
+            if (canSetValueInline && holdForSet != null && 
+                s.LoadCurrentValueOntoStack != null && setter != null)
             {
                 s.LoadCurrentValueOntoStack(il);
                 il.Emit(OpCodes.Ldloc, holdForSet);
@@ -240,23 +333,25 @@ namespace Das.Serializer.ProtoBuf
         }
 
         private void PopulateScanField(ProtoScanState s, 
+            Action<ILGenerator>? setCurrentValue,
                 ref LocalBuilder holdForSet)
         {
-            var pv = s.CurrentField;
+            var currentProp = s.CurrentField ?? throw new NullReferenceException(nameof(s.CurrentField));
 
-            var wireType = s.CurrentField.WireType;
+
+            var wireType = currentProp.WireType;
             var il = s.IL;
-            var currentProp = s.CurrentField;
 
-            switch (pv.FieldAction)
+
+            switch (currentProp.FieldAction)
             {
                 case ProtoFieldAction.VarInt:
                 case ProtoFieldAction.Primitive:
-                    TryScanAsVarInt(s, ref holdForSet);
+                    TryScanAsVarInt(s, setCurrentValue, ref holdForSet);
                     return;
 
                 case ProtoFieldAction.String:
-                    ScanString(s);
+                    ScanString(s, setCurrentValue, ref holdForSet);
                     return;
 
                 case ProtoFieldAction.ByteArray:
@@ -264,23 +359,26 @@ namespace Das.Serializer.ProtoBuf
                     return;
 
                 case ProtoFieldAction.PackedArray:
-                    TryScanAsPackedArray(s, ref holdForSet);
+                    TryScanAsPackedArray(s, setCurrentValue, ref holdForSet);
                     return;
 
                 case ProtoFieldAction.ChildObject:
-                    s.LoadCurrentValueOntoStack(il);
-                    ScanChildObject(s);
-                    s.SetCurrentValue(il);
+                    ScanChildObject(s, setCurrentValue, ref holdForSet);
                     return;
 
                 case ProtoFieldAction.ChildObjectCollection:
-                    TryScanAsNestedCollection(s);
+                case ProtoFieldAction.ChildPrimitiveCollection:
+                    TryScanAsNestedCollection(s, AddSingleValue);
                     return;
 
                 case ProtoFieldAction.ChildObjectArray:
-                    break;
+                case ProtoFieldAction.ChildPrimitiveArray:
+                    throw new NotImplementedException();
+                
+
                 case ProtoFieldAction.Dictionary:
-                    break;
+                    TryScanAsNestedCollection(s, AddKeyValuePair);
+                    return;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -291,12 +389,7 @@ namespace Das.Serializer.ProtoBuf
                 case Const.VarInt:
                 case ProtoWireTypes.Int64: //64-bit zb double
                 case ProtoWireTypes.Int32:
-                    TryScanAsVarInt(s,
-                        //currentProp, fieldByteArray, lastByte,
-                        ref holdForSet!);
-                        //loadObject,
-                        //setValue,
-                        //parentType, arrayCounters, exampleObject);
+                    TryScanAsVarInt(s, setCurrentValue, ref holdForSet!);
                     break;
 
                 case ProtoWireTypes.LengthDelimited when currentProp.Type.IsPrimitive:
@@ -323,7 +416,7 @@ namespace Das.Serializer.ProtoBuf
                             
                             //read bytes into buffer field
                             //il.Emit(OpCodes.Ldloc, s.ByteBufferField);
-                            il.Emit(OpCodes.Ldsfld, _readBytes);
+                            il.Emit(OpCodes.Ldsfld, _readBytesField);
                             il.Emit(OpCodes.Ldc_I4_0);
                             il.Emit(OpCodes.Ldloc, s.LastByteLocal);
                             il.Emit(OpCodes.Callvirt, _readStreamBytes);
@@ -333,7 +426,7 @@ namespace Das.Serializer.ProtoBuf
                             il.Emit(OpCodes.Ldarg_0);
                             il.Emit(OpCodes.Ldfld, _utf8);
                             //il.Emit(OpCodes.Ldloc, s.ByteBufferField);
-                            il.Emit(OpCodes.Ldsfld, _readBytes);
+                            il.Emit(OpCodes.Ldsfld, _readBytesField);
                             il.Emit(OpCodes.Ldc_I4_0);
                             il.Emit(OpCodes.Ldloc, s.LastByteLocal);
                             il.Emit(OpCodes.Call, _bytesToString);
@@ -368,10 +461,9 @@ namespace Das.Serializer.ProtoBuf
 
                                 il.Emit(OpCodes.Pop);
 
-                                break;
                             }
 
-                            else if (TryScanAsPackedArray(s, ref holdForSet))
+                            else if (TryScanAsPackedArray(s, setCurrentValue, ref holdForSet))
                                 //il, currentProp, lastByte, 
                                 //s.LoadCurrentValueOntoStack,
                                 //setValue, ref holdForSet, exampleObject, parentType))
@@ -383,7 +475,7 @@ namespace Das.Serializer.ProtoBuf
                             ///////////////////////
                             else if (!currentProp.IsRepeatedField)
                             {
-                                var willAddToExisting = TryLoadTargetReference(s);
+                                var willAddToExisting = TryLoadTargetReference(s, setCurrentValue);
                                     //il, currentProp, loadObject, setValue,
                                     //parentType);
 
@@ -430,7 +522,7 @@ namespace Das.Serializer.ProtoBuf
 
                                 il.Emit(OpCodes.Bge, endOfPropLabel);
 
-                                var holdForSetCopy = holdForSet;
+                                //var holdForSetCopy = holdForSet;
 
                                 throw new NotImplementedException();
 
@@ -439,7 +531,7 @@ namespace Das.Serializer.ProtoBuf
                                 //    fieldByteArray, lastByte, propLength, arrayCounters,
                                 //    exampleObject);
 
-                                il.MarkLabel(endOfPropLabel);
+                                //il.MarkLabel(endOfPropLabel);
                             }
 
                             //////////////
@@ -458,7 +550,7 @@ namespace Das.Serializer.ProtoBuf
                                 //////////////
                                 // DICTIONARY
                                 //////////////
-                                else if (TryScanAsDictionary(s))
+                                else if (TryScanAsDictionary(s, setCurrentValue))
                                     //il, currentProp, fieldByteArray,
                                     //lastByte, loadObject, parentType, arrayCounters, exampleObject))
                                     break;
@@ -468,7 +560,7 @@ namespace Das.Serializer.ProtoBuf
                                     // OTHER COLLECTIONS
                                     ////////////////////
 
-                                    TryScanAsNestedCollection(s);
+                                    TryScanAsNestedCollection(s, AddSingleValue);
                                     //il, currentProp, 
                                     //fieldByteArray, lastByte, ref holdForSet, loadObject, setValue, 
                                     //parentType, arrayCounters, exampleObject);
@@ -486,12 +578,17 @@ namespace Das.Serializer.ProtoBuf
         /// Leaves a reference on the stack!
         /// </summary>
         
-        private void ScanChildObject(ProtoScanState s)
+        private void ScanChildObject(
+            ProtoScanState s, 
+            Action<ILGenerator>? setCurrentValue,
+            ref LocalBuilder holdForSet)
         {
             var il = s.IL;
 
+            
+
             var proxyLocal = s.ChildProxies[s.CurrentField];
-            var proxyType = proxyLocal.LocalType;
+            var proxyType = proxyLocal.FieldType;
 
             ////////////////////////////////////////////
             // PROXY->OUTSTREAM = MY STREAM
@@ -507,13 +604,33 @@ namespace Das.Serializer.ProtoBuf
             ////////////////////////////////////////////
             // PROXY->SCAN(CURRENT)
             ////////////////////////////////////////////
-            var scanMethod = proxyType.GetMethodOrDie(nameof(IProtoProxy<Object>.Scan));
+            var scanMethod = proxyType.GetMethodOrDie(nameof(IProtoProxy<Object>.Scan),
+                typeof(Stream), typeof(Int64));
 
-            il.Emit(OpCodes.Ldloc, proxyLocal);
+
+            if (setCurrentValue != null)
+                s.LoadCurrentValueOntoStack(il);
+            else
+                holdForSet = holdForSet ??  il.DeclareLocal(s.CurrentField.Type);
+
+            //s.LoadCurrentValueOntoStack(il);
+
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Ldfld, proxyLocal); //protoProxy
             il.Emit(OpCodes.Ldarg_1);  //arg1 = input stream!
             
-            //il.Emit(OpCodes.Ldloc, enumeratorCurrentValue);
+            il.Emit(OpCodes.Ldarg_1);
+            il.Emit(OpCodes.Call, _getPositiveInt64);
+
             il.Emit(OpCodes.Call, scanMethod);
+
+
+            if (setCurrentValue != null)
+                setCurrentValue(il);
+            else
+                il.Emit(OpCodes.Stloc, holdForSet);
+
+            //setCurrentValue(il);
         }
 
         private void ExtractInt64FromArg1Stream(ILGenerator il,

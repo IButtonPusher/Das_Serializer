@@ -26,6 +26,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ObjectPools\INodePool.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\ProtoFieldAction.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\IProtoProxy.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\IStreamAccessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\IBinaryWriter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\IProtoWriter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\IRemunerable.cs" />

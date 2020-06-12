@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Reflection.Emit;
 using Das.Serializer.Proto;
 
@@ -9,17 +10,9 @@ namespace Das.Serializer.ProtoBuf
     public partial class ProtoDynamicProvider<TPropertyAttribute>
     {
 
-        private Boolean TryScanAsVarInt(ProtoScanState s,
+        private void TryScanAsVarInt(ProtoScanState s,
+            Action<ILGenerator>? setCurrentValue,
                 ref LocalBuilder holdForSet)
-            
-            //ILGenerator il,
-            //IProtoField currentProp,LocalBuilder fieldByteArray,
-            //LocalBuilder lastByte, ref LocalBuilder holdForSet,
-            //Action<ILGenerator> loadObject, 
-            //Action<ILGenerator>? setValue,
-            //Type parentType, 
-            //ProtoArrayInfo arrayCounters,
-            //Object exampleObject)
         {
             var currentProp = s.CurrentField;
             var il = s.IL;
@@ -40,17 +33,16 @@ namespace Das.Serializer.ProtoBuf
                         case TypeCode.Int32:
                         case TypeCode.Boolean:
                             
-                            if (s.SetCurrentValue != null)
+                            if (setCurrentValue != null)
                                 s.LoadCurrentValueOntoStack(il);
                             else
                                 holdForSet = holdForSet ?? il.DeclareLocal(typeof(Int32));
 
                             il.Emit(OpCodes.Ldarg_1);
-
                             il.Emit(OpCodes.Call, _getInt32);
                             
-                            if (s.SetCurrentValue != null)
-                                s.SetCurrentValue(il);
+                            if (setCurrentValue != null)
+                                setCurrentValue(il);
                             else
                                 il.Emit(OpCodes.Stloc, holdForSet);
                             break;
@@ -61,7 +53,7 @@ namespace Das.Serializer.ProtoBuf
                         case TypeCode.Int16:
                             //holdForSet = holdForSet ?? il.DeclareLocal(typeof(Int16));
 
-                            if (s.SetCurrentValue != null)
+                            if (setCurrentValue != null)
                                 s.LoadCurrentValueOntoStack(il);
                             else
                                 holdForSet = holdForSet ?? il.DeclareLocal(typeof(Int16));
@@ -71,8 +63,8 @@ namespace Das.Serializer.ProtoBuf
                             il.Emit(OpCodes.Call, _getInt32);
                             il.Emit(OpCodes.Conv_I4);
 
-                            if (s.SetCurrentValue != null)
-                                s.SetCurrentValue(il);
+                            if (setCurrentValue != null)
+                                setCurrentValue(il);
                             else
                                 il.Emit(OpCodes.Stloc, holdForSet);
 
@@ -99,7 +91,7 @@ namespace Das.Serializer.ProtoBuf
                             break;
                     }
 
-                    return true;
+                    break;
 
                 case ProtoWireTypes.Int64: //64-bit zb double
                 case ProtoWireTypes.Int32:
@@ -116,14 +108,14 @@ namespace Das.Serializer.ProtoBuf
                             holdForSet = holdForSet ?? il.DeclareLocal(typeof(Single));
 
                             //il.Emit(OpCodes.Ldloc, s.ByteBufferField);
-                            il.Emit(OpCodes.Ldsfld, _readBytes);
+                            il.Emit(OpCodes.Ldsfld, _readBytesField);
                             il.Emit(OpCodes.Ldc_I4_0);
                             il.Emit(OpCodes.Ldc_I4_4);
                             il.Emit(OpCodes.Callvirt, _readStreamBytes);
                             il.Emit(OpCodes.Pop);
 
                             //il.Emit(OpCodes.Ldloc, s.ByteBufferField);
-                            il.Emit(OpCodes.Ldsfld, _readBytes);
+                            il.Emit(OpCodes.Ldsfld, _readBytesField);
 
                             il.Emit(OpCodes.Ldc_I4_0);
                             il.Emit(OpCodes.Call, _bytesToSingle);
@@ -135,7 +127,7 @@ namespace Das.Serializer.ProtoBuf
                         /////////////
                         case TypeCode.Double:
 
-                            if (s.SetCurrentValue != null)
+                            if (setCurrentValue != null)
                                 s.LoadCurrentValueOntoStack(il);
                             else
                                 holdForSet = holdForSet ?? il.DeclareLocal(typeof(Int16));
@@ -147,7 +139,7 @@ namespace Das.Serializer.ProtoBuf
 
                             //read bytes from stream into local array
                             //il.Emit(OpCodes.Ldloc, s.ByteBufferField);
-                            il.Emit(OpCodes.Ldsfld, _readBytes);
+                            il.Emit(OpCodes.Ldsfld, _readBytesField);
                             il.Emit(OpCodes.Ldc_I4_0);
                             il.Emit(OpCodes.Ldc_I4_8);
                             il.Emit(OpCodes.Callvirt, _readStreamBytes);
@@ -162,28 +154,28 @@ namespace Das.Serializer.ProtoBuf
                             //    holdForSet = holdForSet ?? il.DeclareLocal(typeof(Double));
 
                             //il.Emit(OpCodes.Ldloc, s.ByteBufferField);
-                            il.Emit(OpCodes.Ldsfld, _readBytes);
+                            il.Emit(OpCodes.Ldsfld, _readBytesField);
                             il.Emit(OpCodes.Ldc_I4_0);
                             il.Emit(OpCodes.Call, _bytesToDouble);
 
-                            if (s.SetCurrentValue != null)
-                                s.SetCurrentValue(il);
+                            if (setCurrentValue != null)
+                                setCurrentValue(il);
                             else
                                 il.Emit(OpCodes.Stloc, holdForSet);
                             //il.Emit(OpCodes.Callvirt, setter);
 
 
-                            return true;
+                            return ;
                         default:
                             throw new NotImplementedException();
                     }
 
                     break;
                 default:
-                    return false;
+                    return;
             }
 
-            return true;
+            return;
         }
 
         private Boolean TryPrintAsVarInt(ProtoPrintState s, Action<ILGenerator> loadValue)
@@ -255,5 +247,7 @@ namespace Das.Serializer.ProtoBuf
 
             return false;
         }
+
+       
     }
 }
