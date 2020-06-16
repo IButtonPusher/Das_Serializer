@@ -14,47 +14,48 @@ namespace Das.Serializer.Proto
 {
     public class ProtoPrintState : ProtoStateBase, IEnumerable<ProtoPrintState>
     {
-        public ProtoPrintState(
-            ProtoPrintState s,
-            IEnumerable<IProtoFieldAccessor> subFields,
-            Type parentType,
-            Action<ILGenerator> loadObject,
-            ITypeCore typeCore,
-            MethodInfo writeInt32,
-            IStreamAccessor streamAccessor)
-            : this(s.IL, s.IsArrayMade, //s.LocalString, s.FieldByteArray,
-                subFields, parentType, //s.UtfField, 
-                loadObject, s.HasPushed, typeCore, writeInt32, streamAccessor, s.ChildProxies)
-        {
-            LocalString = s.LocalString;
-            FieldByteArray = s.FieldByteArray;
-        }
+        //public ProtoPrintState(
+        //    ProtoPrintState s,
+        //    IEnumerable<IProtoFieldAccessor> subFields,
+        //    Type parentType,
+        //    Action<ILGenerator> loadObject,
+        //    ITypeCore typeCore,
+        //    MethodInfo writeInt32,
+        //    IStreamAccessor streamAccessor,
+        //    IProtoFieldAccessor currentField)
+        //    : this(s.IL, s.IsArrayMade,
+        //        subFields, parentType, 
+        //        loadObject, s.HasPushed, 
+        //        typeCore, writeInt32, 
+        //        streamAccessor, s.ChildProxies, currentField)
+        //{
+        //    LocalString = s.LocalString;
+        //    FieldByteArray = s.FieldByteArray;
+        //}
 
         public ProtoPrintState(
             ILGenerator il,
             Boolean isArrayMade,
-            //LocalBuilder? localString,
-            //LocalBuilder fieldByteArray,
             IEnumerable<IProtoFieldAccessor> fields,
             Type parentType,
-            //FieldInfo utfField, 
             Action<ILGenerator> loadObject,
             Boolean hasPushed,
             ITypeCore typeCore,
             MethodInfo writeInt32,
             IStreamAccessor streamAccessor,
-            IDictionary<IProtoFieldAccessor, FieldBuilder> childProxies)
-            : base(il, typeCore, childProxies, parentType, loadObject)
+            IDictionary<IProtoFieldAccessor, FieldBuilder> childProxies,
+            IProtoFieldAccessor currentField,
+            IDictionary<Type, FieldBuilder> proxies)
+            : base(il, currentField, childProxies, 
+                parentType, loadObject,proxies)
         {
-            _loadObject = loadObject;
             _typeCore = typeCore;
 
             IsArrayMade = isArrayMade;
-            // LocalString = localString;
+            
             FieldByteArray = il.DeclareLocal(typeof(Byte[]));
             LocalBytes = il.DeclareLocal(typeof(Byte[]));
-            //ParentType = parentType;
-            //UtfField = utfField;
+            
             HasPushed = hasPushed;
             _writeInt32 = writeInt32;
             _streamAccessor = streamAccessor;
@@ -122,10 +123,6 @@ namespace Das.Serializer.Proto
                 throw new NullReferenceException(nameof(ChildObjectStream));
         }
 
-        private void LoadOutputStream()
-        {
-            _il.Emit(OpCodes.Ldarg_2);
-        }
 
         public void MergeLocals(ProtoPrintState s)
         {
@@ -202,8 +199,6 @@ namespace Das.Serializer.Proto
             IL.Emit(OpCodes.Call, _writeInt32);
         }
 
-        private readonly Action<ILGenerator> _loadObject;
-
         private readonly IStreamAccessor _streamAccessor;
         private readonly ITypeCore _typeCore;
 
@@ -212,6 +207,6 @@ namespace Das.Serializer.Proto
         /// </summary>
         private readonly MethodInfo _writeInt32;
 
-        private LocalBuilder _childObjectStream;
+        private LocalBuilder? _childObjectStream;
     }
 }

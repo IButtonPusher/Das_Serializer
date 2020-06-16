@@ -33,7 +33,7 @@ namespace Das.Serializer
             var propTypes = new List<DasProperty>();
             foreach (var prop in node.DynamicProperties)
             {
-                propTypes.Add(new DasProperty(prop.Key, prop.Value.GetType()));
+                propTypes.Add(new DasProperty(prop.Key, prop.Value.GetType(), new DasAttribute[0]));
             }
 
             //we have to build a type here because we only now know all the properties						
@@ -85,7 +85,7 @@ namespace Das.Serializer
             return node.Value != null;
         }
 
-        public Type GetChildType(INode parent, INode child)
+        public Type? GetChildType(INode parent, INode child)
         {
             if (parent.Type == null)
             {
@@ -126,7 +126,7 @@ namespace Das.Serializer
                 !_types.IsInstantiable(node.Type))
             {
                 if (foundType == null && NullNode != node.Parent)
-                    foundType = GetChildType(node.Parent, node);
+                    foundType = GetChildType(node.Parent, node)!;
 
                 if (foundType == null && node.Name != Const.Empty
                     && Settings.PropertySearchDepth > TextPropertySearchDepths.ResolveByPropertyName)

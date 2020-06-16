@@ -113,6 +113,46 @@ namespace Das.Serializer.ProtoBuf
             //il.Emit(OpCodes.Callvirt, addRange);
         }
 
+        private void ScanAsPackedArray(ILGenerator il,
+            Type fieldType
+            //ProtoScanState s
+            )
+        {
+            //var currentProp = s.CurrentField;
+            //var pv = currentProp;
+
+            if (!(GetPackedArrayType(fieldType) is {} packType))
+                throw new NotSupportedException();
+
+            //var il = s.IL;
+
+            ////////////////////////////////////////////////////////
+            // EXTRACT COLLECTION FROM STREAM
+            ////////////////////////////////////////////////////////
+
+            //Get the number of bytes we will be using
+            il.Emit(OpCodes.Ldarg_1);
+            il.Emit(OpCodes.Ldarg_1);
+            il.Emit(OpCodes.Call, _getPositiveInt32);
+
+            if (packType == typeof(Int32))
+                il.Emit(OpCodes.Call, _extractPackedInt32Itar);
+
+            else if (packType == typeof(Int16))
+                il.Emit(OpCodes.Call, _extractPackedInt16Itar);
+
+            else if (packType == typeof(Int64))
+                il.Emit(OpCodes.Call, _extractPackedInt64Itar);
+
+            //convert the value on the stack to an array for direct assignment
+            var linqToArray = typeof(Enumerable).GetMethodOrDie(
+                nameof(Enumerable.ToArray), Const.PublicStatic);
+            linqToArray = linqToArray.MakeGenericMethod(packType);
+
+            il.Emit(OpCodes.Call, linqToArray);
+        }
+
+
         private Boolean TryScanAsPackedArray(ProtoScanState s,
             Action<ILGenerator>? setCurrentValue,
                 ref LocalBuilder holdForSet)

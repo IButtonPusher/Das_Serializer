@@ -1,11 +1,13 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
     public interface ITextRemunerable : IRemunerable<String, Char>, IStringRemunerable
     {
+        Int32 Length { get; }
+
         void Append(Char data1, String data2);
 
         void Append(ITextAccessor txt);
@@ -15,13 +17,11 @@ namespace Das.Serializer
         Boolean Append<T>(IEnumerable<T> items, Char separator)
             where T : IConvertible;
 
-        Int32 Length { get; }
-
         void Remove(Int32 startIndex, Int32 length);
 
-        void Undispose();
-
         ITextAccessor ToImmutable();
+
+        void Undispose();
     }
 
     public interface IStringRemunerable : IRemunerable<String>

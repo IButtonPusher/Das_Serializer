@@ -1,4 +1,7 @@
-﻿namespace Das.Serializer
+﻿using System;
+using System.Threading.Tasks;
+
+namespace Das.Serializer
 {
     public interface ISettingsUser
     {

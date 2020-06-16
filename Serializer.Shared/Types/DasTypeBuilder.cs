@@ -56,7 +56,8 @@ namespace Das.Types
             {
                 if (!uniqueProps.Add(pi.Name))
                     continue;
-                var cooked = new DasProperty(pi.Name, pi.PropertyType);
+                var cooked = new DasProperty(pi.Name, pi.PropertyType,
+                    new DasAttribute[0]);
                 propTypes.Add(cooked);
             }
 
@@ -211,7 +212,7 @@ namespace Das.Types
             foreach (var o in attributes)
             {
                 var valu = new ValueNode(o);
-                var attr = new DasAttribute {Type = o.GetType()};
+                var attr = new DasAttribute(o.GetType());
 
                 foreach (var propVal in _objectManipulator.GetPropertyResults(valu, Settings))
                     attr.PropertyValues.Add(propVal.Name, propVal.Value);
@@ -230,10 +231,8 @@ namespace Das.Types
                 if (addedProperties.Contains(prop.Name))
                     continue;
 
-                var dasProp = new DasProperty(prop.Name, prop.PropertyType)
-                {
-                    Attributes = Copy(prop.GetCustomAttributes(true))
-                };
+                var dasProp = new DasProperty(prop.Name, prop.PropertyType,
+                    Copy(prop.GetCustomAttributes(true)));
 
                 if (!interfaceType.IsClass || IsAbstract(prop))
                     CreateProperty(typeBuilder, dasProp);

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Text;
+using System.Runtime.InteropServices;
 using Das.Extensions;
 using Das.Types;
 
@@ -15,9 +15,11 @@ namespace Das.Serializer.ProtoBuf
         
         private Dictionary<IProtoFieldAccessor, FieldBuilder> CreateProxyFields(
             TypeBuilder bldr,
-            IEnumerable<IProtoFieldAccessor> fields)
+            IEnumerable<IProtoFieldAccessor> fields, 
+            out Dictionary<Type, FieldBuilder> typeProxies)
         {
             var childProxies = new Dictionary<IProtoFieldAccessor, FieldBuilder>();
+            typeProxies = new Dictionary<Type, FieldBuilder>();
 
             foreach (var field in fields)
             {
@@ -25,6 +27,7 @@ namespace Das.Serializer.ProtoBuf
                 {
                     case ProtoFieldAction.ChildObject:
                         var local = CreateLocalProxy(field, bldr, field.Type);
+                        typeProxies[field.Type] = local;
 
                         childProxies[field] = local;
                         break;
@@ -36,6 +39,7 @@ namespace Das.Serializer.ProtoBuf
                         var bldr2 = CreateLocalProxy(field, bldr, germane);
 
                         childProxies[field] = bldr2;
+                        typeProxies[germane] = bldr2;
 
                         break;
                 }
@@ -44,27 +48,12 @@ namespace Das.Serializer.ProtoBuf
             return childProxies;
         }
 
-        private static FieldBuilder CreateLocalProxy(IProtoFieldAccessor field, TypeBuilder builder, Type germane)
+        private static FieldBuilder CreateLocalProxy(IProtoFieldAccessor field, TypeBuilder builder, 
+            Type germane)
         {
             var proxyType = typeof(IProtoProxy<>).MakeGenericType(germane);
 
             return builder.DefineField($"_{field.Name}Proxy", proxyType, FieldAttributes.Private);
-
-
-            //var localProxyRef = il.DeclareLocal(proxyType);
-
-            //var getProxyInstance = _getProtoProxy.MakeGenericMethod(germane);
-            //il.Emit(OpCodes.Ldarg_0);
-            //il.Emit(OpCodes.Ldfld, _proxyProviderField);
-            //il.Emit(OpCodes.Ldc_I4_0);
-            //il.Emit(OpCodes.Callvirt, getProxyInstance);
-
-
-            //il.Emit(OpCodes.Stloc, localProxyRef);
-
-
-
-            //return localProxyRef;
         }
 
         private ConstructorInfo AddConstructors(TypeBuilder bldr, 
@@ -164,13 +153,7 @@ namespace Das.Serializer.ProtoBuf
                     default:
                         throw new NotImplementedException();
                 }
-                
-               
 
-
-                //isProxyReadOnly = _types.TryGetEmptyConstructor(garg, out _)
-                //    ? OpCodes.Ldc_I4_0
-                //    : OpCodes.Ldc_I4_1;
 
                 var getProxyInstance = getProxyMethod.MakeGenericMethod(garg);
                 il.Emit(OpCodes.Ldarg_0);
@@ -272,7 +255,7 @@ namespace Das.Serializer.ProtoBuf
                 il.Emit(OpCodes.Stloc, ctorType);
 
                 var invoke = typeof(ConstructorInfo).GetMethod(nameof(ConstructorInfo.Invoke),
-                    new Type[] {typeof(Object[])});
+                    new[] {typeof(Object[])});
 
                 il.Emit(OpCodes.Ldloc, ctorType);
                 il.Emit(OpCodes.Ldnull);

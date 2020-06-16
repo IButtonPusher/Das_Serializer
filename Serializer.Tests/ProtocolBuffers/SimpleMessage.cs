@@ -139,6 +139,8 @@ namespace Serializer.Tests.ProtocolBuffers
 
         [ProtoMember(2)] public Int32[] Array1 { get; set; }
 
+        [ProtoMember(3)] public String[] Array2 { get; set; }
+
 
         public static CollectionsPropertyMessage DefaultValue { get; } =
             new CollectionsPropertyMessage
@@ -151,7 +153,8 @@ namespace Serializer.Tests.ProtocolBuffers
                 Array1 = new[]
                 {
                     Int32.MaxValue, 734, 54354
-                }
+                },
+                Array2 = new []{"I", "come", "from", "the", "land", "down", "under"}
             };
     }
 

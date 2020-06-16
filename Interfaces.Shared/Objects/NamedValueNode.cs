@@ -1,16 +1,29 @@
 ﻿using System;
 using System.Collections;
+using System.Threading.Tasks;
 
 namespace Das.Serializer.Objects
 {
     /// <summary>
-    /// A named type/value association
+    ///     A named type/value association
     /// </summary>
     public class NamedValueNode : ValueNode, INamedValue
     {
-        private readonly Action<NamedValueNode> _returnToSender;
-        protected Int32 _isEmptyInitialized;
-        protected String _name;
+        public NamedValueNode(Action<NamedValueNode> returnToSender,
+            String name, Object value, Type type)
+            : this(name, value, type)
+        {
+            _returnToSender = returnToSender;
+        }
+
+        protected NamedValueNode()
+        {
+        }
+
+        protected NamedValueNode(String name, Object value, Type type) : base(value, type)
+        {
+            Set(name, value, type);
+        }
 
         public Boolean IsEmptyInitialized
         {
@@ -28,19 +41,20 @@ namespace Das.Serializer.Objects
                 }
             }
         }
-        
-        public NamedValueNode(Action<NamedValueNode> returnToSender, 
-            String name, Object value, Type type) 
-            : this(name, value, type)
+
+        public virtual void Dispose()
         {
-            _returnToSender = returnToSender;
+            _returnToSender(this);
         }
 
-        protected NamedValueNode(){}
+        public String Name => _name;
 
-        protected NamedValueNode(String name, Object value, Type type) : base(value, type)
+        public Boolean Equals(INamedField other)
         {
-            Set(name, value, type);
+            if (ReferenceEquals(other, null))
+                return false;
+
+            return other.Type == Type && other.Name == Name;
         }
 
         public void Set(String name, Object value, Type type)
@@ -51,21 +65,13 @@ namespace Das.Serializer.Objects
             _value = value;
         }
 
-        public Boolean Equals(INamedField other)
+        public override String ToString()
         {
-            if (ReferenceEquals(other, null))
-                return false;
-
-            return other.Type == Type && other.Name == Name;
+            return "[" + Name + "]  " + base.ToString();
         }
 
-        public override String ToString() => "[" + Name + "]  " + base.ToString();
-        public virtual void Dispose()
-        {
-            _returnToSender(this);
-        }
-
-        public String Name => _name;
-
+        private readonly Action<NamedValueNode> _returnToSender;
+        protected Int32 _isEmptyInitialized;
+        protected String _name;
     }
 }

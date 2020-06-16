@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Reflection;
 using System.Reflection.Emit;
 using Das.Serializer.Proto;
 
 namespace Das.Serializer.ProtoBuf
 {
-    // ReSharper disable once UnusedType.Global
-    // ReSharper disable once UnusedTypeParameter
     public partial class ProtoDynamicProvider<TPropertyAttribute>
     {
 
-        private void TryScanAsVarInt(ProtoScanState s,
+        private void ScanAsVarInt(ProtoScanState s,
             Action<ILGenerator>? setCurrentValue,
                 ref LocalBuilder holdForSet)
         {
@@ -36,7 +33,7 @@ namespace Das.Serializer.ProtoBuf
                             if (setCurrentValue != null)
                                 s.LoadCurrentValueOntoStack(il);
                             else
-                                holdForSet = holdForSet ?? il.DeclareLocal(typeof(Int32));
+                                holdForSet ??= il.DeclareLocal(typeof(Int32));
 
                             il.Emit(OpCodes.Ldarg_1);
                             il.Emit(OpCodes.Call, _getInt32);
@@ -132,28 +129,17 @@ namespace Das.Serializer.ProtoBuf
                             else
                                 holdForSet = holdForSet ?? il.DeclareLocal(typeof(Int16));
 
-                            //arg_1 = stream
+                          
                             il.Emit(OpCodes.Ldarg_1);
 
-                            //holdForSet = holdForSet ?? il.DeclareLocal(typeof(Double));
-
-                            //read bytes from stream into local array
-                            //il.Emit(OpCodes.Ldloc, s.ByteBufferField);
+                          
                             il.Emit(OpCodes.Ldsfld, _readBytesField);
                             il.Emit(OpCodes.Ldc_I4_0);
                             il.Emit(OpCodes.Ldc_I4_8);
                             il.Emit(OpCodes.Callvirt, _readStreamBytes);
                             il.Emit(OpCodes.Pop);
 
-                            //il.Emit(OpCodes.Ldloc, holdForSet);
-
-                            //output.Property = BitConverter.ToDouble(fieldByteArray);
-                            //if (s.SetCurrentValue != null)
-                            //    s.LoadCurrentValueOntoStack(il);
-                            //else
-                            //    holdForSet = holdForSet ?? il.DeclareLocal(typeof(Double));
-
-                            //il.Emit(OpCodes.Ldloc, s.ByteBufferField);
+                            
                             il.Emit(OpCodes.Ldsfld, _readBytesField);
                             il.Emit(OpCodes.Ldc_I4_0);
                             il.Emit(OpCodes.Call, _bytesToDouble);
@@ -174,18 +160,121 @@ namespace Das.Serializer.ProtoBuf
                 default:
                     return;
             }
-
-            return;
         }
 
+        private void ScanAsVarInt(
+            ILGenerator il,
+            TypeCode typeCode,
+            ProtoWireTypes wireType)
+        {
+            //var currentProp = s.CurrentField;
+            
+
+            //var wireType = currentProp.WireType;
+
+            switch (wireType)
+            {
+                /////////////
+                // VARINT
+                /////////////
+                case Const.VarInt:
+                    switch (typeCode)
+                    {
+                        ///////////////
+                        // INT32
+                        ///////////////
+                        case TypeCode.Int32:
+                        case TypeCode.Boolean:
+
+                            il.Emit(OpCodes.Ldarg_1);
+                            il.Emit(OpCodes.Call, _getInt32);
+                            break;
+
+                        ///////////////
+                        // INT16
+                        ///////////////
+                        case TypeCode.Int16:
+                            il.Emit(OpCodes.Ldarg_1);
+                            il.Emit(OpCodes.Call, _getInt32);
+                            il.Emit(OpCodes.Conv_I4);
+                            break;
+
+                        ///////////////
+                        // SINGLE BYTE
+                        ///////////////
+                        case TypeCode.Byte:
+                            il.Emit(OpCodes.Ldarg_1);
+                            il.Emit(OpCodes.Callvirt, _readStreamByte);
+                            break;
+
+                        ///////////////
+                        // INT64
+                        ///////////////
+                        case TypeCode.Int64:
+                            il.Emit(OpCodes.Ldarg_1);
+                            il.Emit(OpCodes.Call, _getInt64);
+                            break;
+                    }
+
+                    break;
+
+                case ProtoWireTypes.Int64: //64-bit zb double
+                case ProtoWireTypes.Int32:
+
+                    //single, double
+                    switch (typeCode)
+                    {
+                        /////////////
+                        // SINGLE
+                        /////////////
+                        case TypeCode.Single:
+                            il.Emit(OpCodes.Ldarg_1);
+
+                            //il.Emit(OpCodes.Ldloc, s.ByteBufferField);
+                            il.Emit(OpCodes.Ldsfld, _readBytesField);
+                            il.Emit(OpCodes.Ldc_I4_0);
+                            il.Emit(OpCodes.Ldc_I4_4);
+                            il.Emit(OpCodes.Callvirt, _readStreamBytes);
+                            il.Emit(OpCodes.Pop);
+
+                            il.Emit(OpCodes.Ldsfld, _readBytesField);
+
+                            il.Emit(OpCodes.Ldc_I4_0);
+                            il.Emit(OpCodes.Call, _bytesToSingle);
+                            
+                            break;
+
+                        /////////////
+                        // DOUBLE
+                        /////////////
+                        case TypeCode.Double:
+
+                            il.Emit(OpCodes.Ldarg_1);
+
+                          
+                            il.Emit(OpCodes.Ldsfld, _readBytesField);
+                            il.Emit(OpCodes.Ldc_I4_0);
+                            il.Emit(OpCodes.Ldc_I4_8);
+                            il.Emit(OpCodes.Callvirt, _readStreamBytes);
+                            il.Emit(OpCodes.Pop);
+
+                            il.Emit(OpCodes.Ldsfld, _readBytesField);
+                            il.Emit(OpCodes.Ldc_I4_0);
+                            il.Emit(OpCodes.Call, _bytesToDouble);
+
+                            return ;
+                        default:
+                            throw new NotImplementedException();
+                    }
+
+                    break;
+                default:
+                    return;
+            }
+        }
+
+
         private Boolean TryPrintAsVarInt(ProtoPrintState s, Action<ILGenerator> loadValue)
-            //ILGenerator il,
-            //ref Boolean isArrayMade, LocalBuilder fieldByteArray,
-            //ref LocalBuilder? localBytes,
-            //ref LocalBuilder localString, FieldInfo utfField,
-            //TypeCode code, ProtoWireTypes wireType, Type type,
-            //Action<ILGenerator> loadValue, Action<ILGenerator> loadObject,
-            //ref Boolean hasPushed)
         {
             var il = s.IL;
 
@@ -236,8 +325,6 @@ namespace Das.Serializer.ProtoBuf
                             break;
                         default:
                             throw new NotImplementedException();
-                        // if (!Print(pv.Value, code))
-                        //     throw new InvalidOperationException();
 
                     }
 

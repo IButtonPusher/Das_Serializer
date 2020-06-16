@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
@@ -8,7 +8,6 @@ namespace Das.Serializer
         IScannerBase<Char[]>,
         ISerializationDepth
     {
-        [NotNull]
-        ITextNode RootNode { get; }
+        [NotNull] ITextNode RootNode { get; }
     }
 }

@@ -209,6 +209,38 @@ namespace Das.Serializer.ProtoBuf
             //setCurrentValue(il);
         }
 
+
+        private void ScanString(ProtoScanState s)
+        {
+            var il = s.IL;
+
+            
+            il.Emit(OpCodes.Ldarg_1);
+
+            //Get length of string's bytes
+            il.Emit(OpCodes.Ldarg_1);
+            il.Emit(OpCodes.Call, _getPositiveInt32);
+            il.Emit(OpCodes.Stloc, s.LastByteLocal);
+                            
+            //read bytes into buffer field
+            il.Emit(OpCodes.Ldsfld, _readBytesField);
+
+
+            il.Emit(OpCodes.Ldc_I4_0);
+            il.Emit(OpCodes.Ldloc, s.LastByteLocal);
+            il.Emit(OpCodes.Callvirt, _readStreamBytes);
+            il.Emit(OpCodes.Pop);
+           
+
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Ldfld, _utf8);
+            
+            il.Emit(OpCodes.Ldsfld, _readBytesField);
+            il.Emit(OpCodes.Ldc_I4_0);
+            il.Emit(OpCodes.Ldloc, s.LastByteLocal);
+            il.Emit(OpCodes.Call, _bytesToString);
+        }
+
         private void ScanStringIntoField(ProtoScanState s, Action<ILGenerator> setCurrentValue)
         {
             var il = s.IL;

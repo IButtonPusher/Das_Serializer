@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Das.Serializer.Objects
 {
     /// <summary>
-    /// A type/value association
+    ///     A type/value association
     /// </summary>
     public class ValueNode : IValueNode
     {
@@ -11,18 +12,14 @@ namespace Das.Serializer.Objects
         {
         }
 
-        protected ValueNode(){}
+        protected ValueNode()
+        {
+        }
 
         public ValueNode(Object value, Type type)
         {
             _value = value;
-            _type= type;
-        }
-
-        protected void Set(Object value, Type type)
-        {
-            _value = value;
-            _type= type;
+            _type = type;
         }
 
         public Object Value => _value;
@@ -33,9 +30,19 @@ namespace Das.Serializer.Objects
             set => _type = value;
         }
 
-        public override String ToString() => (Type?.Name ?? "?") + ": = " + Value;
+        protected void Set(Object value, Type type)
+        {
+            _value = value;
+            _type = type;
+        }
+
+        public override String ToString()
+        {
+            return (Type?.Name ?? "?") + ": = " + Value;
+        }
+
+        protected Type _type;
 
         protected Object _value;
-        protected Type _type;
     }
 }

@@ -18,7 +18,7 @@ namespace Das.Serializer
     {
         private readonly ILGenerator _il;
         private readonly LocalBuilder _enumeratorLocal;
-        private readonly MethodInfo _enumeratorDisposeMethod;
+        private readonly MethodInfo? _enumeratorDisposeMethod;
         private readonly Type _enumeratorType;
         private readonly MethodInfo _enumeratorMoveNext;
         private readonly MethodInfo _enumeratorCurrent;
@@ -106,18 +106,17 @@ namespace Das.Serializer
                 /////////////////////////////////////
                 // !enumerator.HasNext() -> EXIT LOOP
                 /////////////////////////////////////
-                if (_enumeratorType.IsValueType)
-                    _il.Emit(OpCodes.Ldloca, _enumeratorLocal);
-                else
-                    _il.Emit(OpCodes.Ldloc, _enumeratorLocal);
+                _il.Emit(_enumeratorType.IsValueType 
+                    ? OpCodes.Ldloca 
+                    : OpCodes.Ldloc, _enumeratorLocal);
+
                 _il.Emit(OpCodes.Call, _enumeratorMoveNext);
                 _il.Emit(OpCodes.Brfalse, allDone);
 
+                _il.Emit(_enumeratorType.IsValueType 
+                    ? OpCodes.Ldloca 
+                    : OpCodes.Ldloc, _enumeratorLocal);
 
-                if (_enumeratorType.IsValueType)
-                    _il.Emit(OpCodes.Ldloca, _enumeratorLocal);
-                else
-                    _il.Emit(OpCodes.Ldloc, _enumeratorLocal);
                 _il.Emit(OpCodes.Callvirt, _enumeratorCurrent);
 
                 _il.Emit(OpCodes.Stloc, _enumeratorCurrentValue);

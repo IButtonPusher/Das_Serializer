@@ -28,7 +28,7 @@ namespace Das.Serializer
 
                 node.Attributes.Remove(Const.XmlType);
             }
-            else type = default;
+            else type = default!;
 
             return type != null;
         }

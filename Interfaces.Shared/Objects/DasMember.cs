@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
@@ -13,10 +14,10 @@ namespace Das.Serializer
             Type = type;
         }
 
-        private readonly Int32 _hash;
-
         public String Name { get; }
+
         public Type Type { get; set; }
+
         public Boolean Equals(INamedField other)
         {
             if (ReferenceEquals(other, null))
@@ -25,10 +26,17 @@ namespace Das.Serializer
             return other.Type == Type && other.Name == Name;
         }
 
-        public override String ToString() => $"{Type.Name} {Name}";
-        
 
-        public override Int32 GetHashCode() => _hash;
+        public override Int32 GetHashCode()
+        {
+            return _hash;
+        }
 
+        public override String ToString()
+        {
+            return $"{Type.Name} {Name}";
+        }
+
+        private readonly Int32 _hash;
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
@@ -9,31 +10,31 @@ namespace Das.Serializer
 
         T BuildDefault<T>(Boolean isCacheConstructors);
 
+
+        T CreatePrimitiveObject<T>(Byte[] rawValue, Type objType);
+
+        Object CreatePrimitiveObject(Byte[] rawValue, Type objType);
+
         TDelegate GetConstructorDelegate<TDelegate>(Type type)
             where TDelegate : Delegate;
-
-        Boolean TryGetConstructorDelegate<TDelegate>(Type type,
-            out TDelegate result) 
-            where TDelegate : Delegate;
-
-        void OnDeserialized(IValueNode node, ISerializationDepth depth);
-
-        Boolean TryGetPropertiesConstructor(Type type, out ConstructorInfo constr);
 
         Func<Object> GetDefaultConstructor(Type type);
 
         Func<T> GetDefaultConstructor<T>() where T : class;
 
-        Boolean TryGetDefaultConstructorDelegate<T>(out Func<T> res) 
-            where T : class;
+        void OnDeserialized(IValueNode node, ISerializationDepth depth);
+
+        Boolean TryGetConstructorDelegate<TDelegate>(Type type,
+            out TDelegate result)
+            where TDelegate : Delegate;
 
         Boolean TryGetDefaultConstructor(Type type, out ConstructorInfo ctor);
 
         Boolean TryGetDefaultConstructor<T>(out ConstructorInfo ctor);
-            
 
-        T CreatePrimitiveObject<T>(Byte[] rawValue, Type objType);
+        Boolean TryGetDefaultConstructorDelegate<T>(out Func<T> res)
+            where T : class;
 
-        Object CreatePrimitiveObject(Byte[] rawValue, Type objType);
+        Boolean TryGetPropertiesConstructor(Type type, out ConstructorInfo constr);
     }
 }

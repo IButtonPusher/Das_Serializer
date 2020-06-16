@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -290,7 +291,7 @@ namespace Das.Serializer.ProtoBuf
             //return dType;
         }
 
-        private Type CreateProxyTypeImpl<T>(
+        private Type? CreateProxyTypeImpl<T>(
             ConstructorInfo dtoCtor, 
             IEnumerable<IProtoFieldAccessor> fields,
             Boolean canSetValuesInline,
@@ -308,20 +309,21 @@ namespace Das.Serializer.ProtoBuf
 
             var genericParent = typeof(ProtoDynamicBase<>).MakeGenericType(type);
 
-            var childProxies = CreateProxyFields(bldr, fArr);
+            var childProxies = CreateProxyFields(bldr, fArr, out var typeProxies);
 
 
             var ctor = AddConstructors(bldr, dtoCtor, 
                 genericParent, childProxies, allowReadOnly);
 
             AddPrintMethod(type, bldr, genericParent, //utf, 
-                fArr, childProxies);
+                fArr, childProxies, typeProxies);
 
             if (ctor != null)
             {
                 var example = canSetValuesInline ? ctor.Invoke(new Object[0]) : default;
                 AddScanMethod(type, bldr, genericParent, fArr, 
-                    example!, childProxies, canSetValuesInline, buildReturnValue);
+                    example!, childProxies, canSetValuesInline, 
+                    buildReturnValue, typeProxies);
                 
                 if (canSetValuesInline)
                     AddDtoInstantiator(type, bldr, genericParent, ctor);
@@ -339,8 +341,17 @@ namespace Das.Serializer.ProtoBuf
 
 #if DEBUG
 
+        private Int32 _dumpCount;
+
+
         public void DumpProxies()
         {
+            if (Interlocked.Increment(ref _dumpCount) > 1)
+            {
+                Debug.WriteLine("WARNING:  Proxies already dumped");
+                return;
+            }
+
 #if NET45 || NET40
             _asmBuilder.Save("protoTest.dll");
 #endif
@@ -598,8 +609,8 @@ namespace Das.Serializer.ProtoBuf
         private const MethodAttributes MethodOverride = MethodAttributes.Public |
                                                         MethodAttributes.HideBySig |
                                                         MethodAttributes.Virtual |
-                                                        MethodAttributes.CheckAccessOnOverride
-                                                        | MethodAttributes.Final;
+                                                        MethodAttributes.CheckAccessOnOverride |
+                                                        MethodAttributes.Final;
 #if NET45 || NET40
         // ReSharper disable once StaticMemberInGenericType
         private static readonly String SaveFile = $"{AssemblyName}.dll";
@@ -739,13 +750,13 @@ namespace Das.Serializer.ProtoBuf
 
         public MethodInfo GetStringFromBytes => _bytesToString;
 
-        private delegate void ScanMethod(
-            Type parentType, 
-            TypeBuilder bldr,
-            Type genericParent, 
-            IEnumerable<IProtoFieldAccessor> fields,
-            Object? exampleObject,
-            IDictionary<IProtoFieldAccessor, FieldBuilder> childProxies,
-            Boolean canSetValuesInline);
+        //private delegate void ScanMethod(
+        //    Type parentType, 
+        //    TypeBuilder bldr,
+        //    Type genericParent, 
+        //    IEnumerable<IProtoFieldAccessor> fields,
+        //    Object? exampleObject,
+        //    IDictionary<IProtoFieldAccessor, FieldBuilder> childProxies,
+        //    Boolean canSetValuesInline);
     }
 }

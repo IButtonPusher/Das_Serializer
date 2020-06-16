@@ -1,14 +1,16 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
     public class DasProperty : DasMember
     {
-
-        public DasAttribute[] Attributes { get; set; }
-
-        public DasProperty(String name, Type type) : base(name, type)
+        public DasProperty(String name, Type type, DasAttribute[] attributes) 
+            : base(name, type)
         {
+            Attributes = attributes;
         }
+
+        public DasAttribute[] Attributes { get; }
     }
 }

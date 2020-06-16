@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    public interface IPrintNode :  INamedValue
+    public interface IPrintNode : INamedValue
     {
-        NodeTypes NodeType { get; set; }
         Boolean IsWrapping { get; set; }
+
+        NodeTypes NodeType { get; set; }
     }
 }

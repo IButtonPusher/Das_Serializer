@@ -1,12 +1,11 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Das.Serializer.Objects;
 
 namespace Das.Serializer.Printers
 {
     public class PrintNode : NamedValueNode, IPrintNode
     {
-        private readonly Action<PrintNode> _returnToSender;
-
         public PrintNode(Action<PrintNode> returnToSender,
             String name, Object value, Type type, NodeTypes nodeType,
             Boolean isWrapping = false)
@@ -21,6 +20,15 @@ namespace Das.Serializer.Printers
             INamedValue valu, NodeTypes nodeType)
             : this(returnToSender, valu.Name, valu.Value, valu.Type, nodeType)
         {
+        }
+
+        public NodeTypes NodeType { get; set; }
+
+        public Boolean IsWrapping { get; set; }
+
+        public override void Dispose()
+        {
+            _returnToSender(this);
         }
 
         public void Set(INamedValue valu, NodeTypes nodeType)
@@ -38,16 +46,12 @@ namespace Das.Serializer.Printers
             _value = value;
         }
 
-        public NodeTypes NodeType { get; set; }
-
-        public Boolean IsWrapping { get; set; }
-
-        public override String ToString() => NodeType + "\\" + 
-                                             IsWrapping + "/ " + base.ToString();
-
-        public override void Dispose()
+        public override String ToString()
         {
-            _returnToSender(this);
+            return NodeType + "\\" +
+                   IsWrapping + "/ " + base.ToString();
         }
+
+        private readonly Action<PrintNode> _returnToSender;
     }
 }

@@ -1,19 +1,20 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
     public interface IStateProvider : ISerializationContext, IConverterProvider
     {
-        IBinaryLoaner BorrowBinary(ISerializerSettings settings);
-
-        IXmlLoaner BorrowXml(ISerializerSettings settings);
-
-        IJsonLoaner BorrowJson(ISerializerSettings settings);
-
-        ITextContext XmlContext { get; }
+        IBinaryContext BinaryContext { get; }
 
         ITextContext JsonContext { get; }
 
-        IBinaryContext BinaryContext { get; }
+        ITextContext XmlContext { get; }
+
+        IBinaryLoaner BorrowBinary(ISerializerSettings settings);
+
+        IJsonLoaner BorrowJson(ISerializerSettings settings);
+
+        IXmlLoaner BorrowXml(ISerializerSettings settings);
     }
 }

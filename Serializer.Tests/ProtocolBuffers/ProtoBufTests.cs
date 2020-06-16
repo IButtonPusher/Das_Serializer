@@ -20,6 +20,8 @@ namespace Serializer.Tests.ProtocolBuffers
             msg.A = 150;
 
             var o = TypeProvider.GetProtoProxy<SimpleMessage>();
+
+            TypeProvider.DumpProxies();
             
             SimpleMessage outMsg2;
             using (var ms = new MemoryStream())
@@ -182,7 +184,7 @@ namespace Serializer.Tests.ProtocolBuffers
 
             var o = TypeProvider.GetProtoProxy<DictionaryPropertyMessage>();
 
-            //TypeProvider.DumpProxies();
+            TypeProvider.DumpProxies();
 
             using (var ms = new MemoryStream())
             {
@@ -219,7 +221,7 @@ namespace Serializer.Tests.ProtocolBuffers
 
             var o = TypeProvider.GetProtoProxy<CollectionsPropertyMessage>();
 
-            //TypeProvider.DumpProxies();
+            TypeProvider.DumpProxies();
 
             //var o = new Serializer_Tests_ProtocolBuffers_CollectionsPropertyMessage(() =>
             //    new CollectionsPropertyMessage());
@@ -523,7 +525,7 @@ namespace Serializer.Tests.ProtocolBuffers
 
             var o = TypeProvider.GetProtoProxy<ByteArrayMessage>();
 
-            //TypeProvider.DumpProxies();
+            TypeProvider.DumpProxies();
 
             using (var ms = new MemoryStream())
             {

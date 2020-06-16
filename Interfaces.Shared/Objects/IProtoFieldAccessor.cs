@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
@@ -9,12 +10,12 @@ namespace Das.Serializer
 
         MethodInfo GetMethod { get; }
 
-        MethodInfo? SetMethod { get; }
-
         /// <summary>
-        /// Wire type | field index
+        ///     Wire type | field index
         /// </summary>
         Byte[] HeaderBytes { get; }
+
+        MethodInfo? SetMethod { get; }
 
         //Object GetValue(Object from);
     }

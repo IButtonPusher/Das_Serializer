@@ -55,9 +55,11 @@ namespace Das.Serializer
                             return;
                         }
 
-                        var type = _typeManipulator.GetPropertyType(node.Type, attr.Key);
+                        var type = node.Type != null 
+                            ? _typeManipulator.GetPropertyType(node.Type, attr.Key)
+                            : null;
 
-                        if (type == null)
+                        if (type == null || node.Type == null)
                             continue;
 
                         var str = attr.Value;
@@ -77,14 +79,14 @@ namespace Das.Serializer
 
                 case NodeTypes.Primitive:
 
-                    #region build primitive
+           
 
                     var nodeText = node.Text;
-                    if (!String.IsNullOrWhiteSpace(nodeText))
+                    if (node.Type != null && !String.IsNullOrWhiteSpace(nodeText))
                         node.Value = _scanner.GetValue(nodeText, node.Type);
                     break;
 
-                #endregion
+               
 
                 case NodeTypes.PropertiesToConstructor:
                     ConstructFromProperties(ref node);
@@ -169,9 +171,10 @@ namespace Das.Serializer
 
                     var isGoodReturnType = !_facade.TypeInferrer.IsUseless(node.Type);
 
-                    node.Value = _scanner.GetValue(txt, node.Type);
+                    if (node.Type != null)
+                        node.Value = _scanner.GetValue(txt, node.Type);
                         
-                    if (isGoodReturnType)
+                    if (isGoodReturnType && node.Value != null)
                         Imbue(node.Parent, node.Name, node.Value);
 
                     break;
@@ -208,7 +211,7 @@ namespace Das.Serializer
                 _values.TryBuildValue(current);
 
             node.Value = current.Value;
-            if (NullNode != node.Parent)
+            if (NullNode != node.Parent && node.Value != null)
                 Imbue(node.Parent, node.Name, node.Value);
         }
 
@@ -224,7 +227,7 @@ namespace Das.Serializer
                 return true;
             }
 
-            if (node.Children.TryGetValue(propKey, out var child))
+            if (node.Children.TryGetValue(propKey, out var child) && child.Value != null)
             {
                 val = child.Value;
                 return true;

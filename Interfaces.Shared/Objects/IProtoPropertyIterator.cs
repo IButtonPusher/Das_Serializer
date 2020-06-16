@@ -1,16 +1,17 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Das.Serializer.Objects
 {
     public interface IProtoPropertyIterator : IPropertyValueIterator<IProtoProperty>,
         IProtoField
     {
-        Boolean MoveNext(ref IProtoPropertyIterator propertyValues);
+        IProtoPropertyIterator Parent { get; set; }
 
-        IProtoPropertyIterator Push();
+        Boolean MoveNext(ref IProtoPropertyIterator propertyValues);
 
         IProtoPropertyIterator Pop();
 
-        IProtoPropertyIterator Parent { get; set; }
+        IProtoPropertyIterator Push();
     }
 }

@@ -1,11 +1,10 @@
 ﻿#if !NET40
-using Das.Serializer.ProtoBuf;
 #endif
 
+using Das.Serializer.ProtoBuf;
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Das.Serializer.ProtoBuf;
 
 namespace Das.Serializer
 {
