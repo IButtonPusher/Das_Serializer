@@ -18,8 +18,6 @@ namespace Das.Serializer.Proto
             Type parentType,
             Action<ILGenerator>? loadReturnValueOntoStack,
             LocalBuilder lastByteLocal,
-            Object? exampleObject,
-            ProtoArrayInfo arrayCounters,
             IDictionary<IProtoFieldAccessor, FieldBuilder> childProxies,
             IStreamAccessor streamAccessor,
             FieldInfo readBytesField,
@@ -34,18 +32,13 @@ namespace Das.Serializer.Proto
             CurrentField = currentField;
 
             LastByteLocal = lastByteLocal;
-            ExampleObject = exampleObject;
-            ArrayCounters = arrayCounters;
 
-            UtfField = streamAccessor.Utf8;
             _loadReturnValueOntoStack = loadReturnValueOntoStack;
             _streamAccessor = streamAccessor;
 
             _readBytesField = readBytesField;
             _types = types;
             _instantiator = instantiator;
-
-            _proxyProviderField = typeof(ProtoDynamicBase).GetInstanceFieldOrDie("_proxyProvider");
 
             EnsureLocalFieldsForProperties(fields);
 
@@ -78,13 +71,6 @@ namespace Das.Serializer.Proto
             Boolean canSetValueInline)
         {
             Action<IProtoFieldAccessor, ProtoScanState> res;
-
-            //if (!canSetValueInline)
-            //{
-            //    var local = GetLocalForField(field);
-            //    res = (f, s) => s.IL.Emit(OpCodes.Ldloc, local);
-            //    return res;
-            //}
 
             switch (field.FieldAction)
             {
@@ -242,11 +228,6 @@ namespace Das.Serializer.Proto
         }
 
 
-        public ProtoArrayInfo ArrayCounters { get; }
-
-
-        public Object? ExampleObject { get; }
-
         public IProtoFieldAccessor[] Fields { get; }
 
 
@@ -258,8 +239,6 @@ namespace Das.Serializer.Proto
         ///     For values that will be ctor injected
         /// </summary>
         public Dictionary<IProtoFieldAccessor, LocalBuilder> LocalFieldValues { get; }
-
-        public FieldInfo UtfField { get; }
 
 
         /// <summary>
@@ -381,7 +360,6 @@ namespace Das.Serializer.Proto
             _il.Emit(OpCodes.Call, _streamAccessor.GetPositiveInt32);
         }
 
-        private readonly FieldInfo _proxyProviderField;
         private readonly FieldInfo _readBytesField;
         private readonly ITypeManipulator _types;
 

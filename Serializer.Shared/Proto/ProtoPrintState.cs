@@ -14,32 +14,12 @@ namespace Das.Serializer.Proto
 {
     public class ProtoPrintState : ProtoStateBase, IEnumerable<ProtoPrintState>
     {
-        //public ProtoPrintState(
-        //    ProtoPrintState s,
-        //    IEnumerable<IProtoFieldAccessor> subFields,
-        //    Type parentType,
-        //    Action<ILGenerator> loadObject,
-        //    ITypeCore typeCore,
-        //    MethodInfo writeInt32,
-        //    IStreamAccessor streamAccessor,
-        //    IProtoFieldAccessor currentField)
-        //    : this(s.IL, s.IsArrayMade,
-        //        subFields, parentType, 
-        //        loadObject, s.HasPushed, 
-        //        typeCore, writeInt32, 
-        //        streamAccessor, s.ChildProxies, currentField)
-        //{
-        //    LocalString = s.LocalString;
-        //    FieldByteArray = s.FieldByteArray;
-        //}
-
         public ProtoPrintState(
             ILGenerator il,
             Boolean isArrayMade,
             IEnumerable<IProtoFieldAccessor> fields,
             Type parentType,
             Action<ILGenerator> loadObject,
-            Boolean hasPushed,
             ITypeCore typeCore,
             MethodInfo writeInt32,
             IStreamAccessor streamAccessor,
@@ -55,8 +35,7 @@ namespace Das.Serializer.Proto
             
             FieldByteArray = il.DeclareLocal(typeof(Byte[]));
             LocalBytes = il.DeclareLocal(typeof(Byte[]));
-            
-            HasPushed = hasPushed;
+
             _writeInt32 = writeInt32;
             _streamAccessor = streamAccessor;
             Fields = fields.ToArray();
@@ -90,17 +69,9 @@ namespace Das.Serializer.Proto
 
         public IProtoFieldAccessor[] Fields { get; }
 
-        //public Type ParentType { get; }
-
-        //public FieldInfo UtfField { get; }
-
-        public Boolean HasPushed { get; set; }
-
         public Boolean IsArrayMade { get; set; }
 
-        public LocalBuilder? LocalBytes { get; set; }
-
-        public LocalBuilder? LocalString { get; set; }
+        public LocalBuilder LocalBytes { get; }
 
 
         private LocalBuilder DeclareAndInstantiateChildStream()
@@ -121,15 +92,6 @@ namespace Das.Serializer.Proto
             var s = ChildObjectStream;
             if (s == null)
                 throw new NullReferenceException(nameof(ChildObjectStream));
-        }
-
-
-        public void MergeLocals(ProtoPrintState s)
-        {
-            IsArrayMade |= s.IsArrayMade;
-            HasPushed |= s.HasPushed;
-            LocalBytes ??= s.LocalBytes;
-            LocalString ??= s.LocalString;
         }
 
         public void PrintFieldHeader(IProtoFieldAccessor protoField)

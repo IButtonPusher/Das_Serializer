@@ -9,6 +9,7 @@
     <Import_RootNamespace>Das.Serializer</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)NaiveMemoryStream.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DasSerializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DynamicExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DynamicFacade.cs" />

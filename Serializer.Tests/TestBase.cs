@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using Das.Serializer;
 using Das.Serializer.ProtoBuf;
 using ProtoBuf;
@@ -11,7 +12,8 @@ namespace Serializer.Tests
         protected DasSerializer Serializer => _serializer ?? (_serializer = new DasSerializer());
 
         protected IProtoSerializer ProtoSerializer;
-        protected ProtoDynamicProvider<ProtoMemberAttribute> TypeProvider;
+
+        public ProtoDynamicProvider<ProtoMemberAttribute> TypeProvider;
 
         public TestBase()
         {

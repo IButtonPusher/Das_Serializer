@@ -7,12 +7,6 @@ using Das.Serializer.Proto;
 
 namespace Das.Serializer
 {
-    //public delegate void OnCollectionItem(
-    //    LocalBuilder enumeratorCurrentValue, 
-    //    ProtoPrintState s,
-    //    ILGenerator il,
-    //    Byte[] headerBytes);
-
 
     public class ProtoEnumerator<TState> where TState : ProtoStateBase
     {
@@ -24,20 +18,6 @@ namespace Das.Serializer
         private readonly MethodInfo _enumeratorCurrent;
         private readonly LocalBuilder _enumeratorCurrentValue;
         private readonly TState _protoBuildState;
-
-        public ProtoEnumerator(TState s, Type ienumerableType,
-            LocalBuilder enumeratorReferencee) : this(s, ienumerableType)
-        {
-            var getEnumeratorMethod = 
-                enumeratorReferencee.LocalType
-                .GetMethodOrDie(nameof(IEnumerable.GetEnumerator));
-            
-            _il.Emit(OpCodes.Ldloc, enumeratorReferencee);
-            _il.Emit(OpCodes.Callvirt, getEnumeratorMethod);
-            
-            _il.Emit(OpCodes.Stloc, _enumeratorLocal);
-        }
-
 
         public ProtoEnumerator(TState s, Type ienumerableType,
             MethodInfo getMethod) : this(s, ienumerableType)

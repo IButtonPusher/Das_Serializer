@@ -10,6 +10,7 @@ using Das.Serializer.Proto;
 namespace Das.Serializer.ProtoBuf
 {
     // ReSharper disable once UnusedTypeParameter
+    // ReSharper disable once UnusedType.Global
     public partial class ProtoDynamicProvider<TPropertyAttribute>
     {
         /// <summary>
@@ -65,7 +66,7 @@ namespace Das.Serializer.ProtoBuf
             var first = fieldArr[0];
 
             var state = new ProtoScanState(il, fieldArr, first, parentType, loadCurrentValue,
-                lastByte, exampleObject, arrayCounters, childProxies, this, _readBytesField,
+                lastByte, childProxies, this, _readBytesField,
                 _types, _instantiator, proxies);
 
             /////////////////////////////
@@ -219,7 +220,7 @@ namespace Das.Serializer.ProtoBuf
             s.IL.Emit(OpCodes.Newobj, ctor);
         }
 
-        private void SetPropertiesFromLocals(ProtoScanState state, LocalBuilder returnValue)
+        private static void SetPropertiesFromLocals(ProtoScanState state, LocalBuilder returnValue)
         {
             var il = state.IL;
 
@@ -233,8 +234,9 @@ namespace Das.Serializer.ProtoBuf
                 if (converter != null)
                     il.Emit(OpCodes.Callvirt, converter);
 
+                var setter = kvp.Key.SetMethod ?? throw new InvalidOperationException(kvp.Key.Name);
 
-                il.Emit(OpCodes.Callvirt, kvp.Key.SetMethod);
+                il.Emit(OpCodes.Callvirt, setter);
             }
         }
 
@@ -275,7 +277,6 @@ namespace Das.Serializer.ProtoBuf
                 if (!field.IsRepeatedField)
                     continue;
 
-                //if (field.Type.IsArray)
                 if (field.FieldAction == ProtoFieldAction.ChildObjectArray)
                 {
                     arrayBuilders.Add(field, il);
@@ -314,222 +315,75 @@ namespace Das.Serializer.ProtoBuf
             var il = s.IL;
             var currentProp = s.CurrentField;
 
-            var initValueTarget = s.GetFieldSetInit(currentProp, canSetValueInline);
-            var storeValue = s.GetFieldSetCompletion(currentProp, canSetValueInline);
-
 
             var caseEntryForThisProperty = s.IL.DefineLabel();
             s.IL.MarkLabel(caseEntryForThisProperty);
 
-
+            //load value's destination
+            var initValueTarget = s.GetFieldSetInit(currentProp, canSetValueInline);
             initValueTarget(currentProp, s);
 
+            //load value
             //////////////////////////////////////////////////////////////////
-            PopulateScanField(s, il, currentProp.Type, currentProp.TypeCode, 
+            ScanValueToStack(s, il, currentProp.Type, currentProp.TypeCode, 
                 currentProp.WireType, currentProp.FieldAction);
             //////////////////////////////////////////////////////////////////
 
+            //assign value to destination
+            var storeValue = s.GetFieldSetCompletion(currentProp, canSetValueInline);
             storeValue(currentProp, s);
-          
 
             il.Emit(OpCodes.Br, afterPropertyLabel);
 
             return caseEntryForThisProperty;
         }
+
+         
 
         /// <summary>
-        /// 3.
+        /// Can be an actual field or an instance of a collection field.  Leaves the value on the stack
         /// </summary>
-        private Label AddScanProperty2(ProtoScanState s, Label afterPropertyLabel,
-            Boolean canSetValueInline)
-        {
-            var il = s.IL;
-            var currentProp = s.CurrentField;
-
-            var initValueTarget = s.GetFieldSetInit(currentProp, canSetValueInline);
-            var storeValue = s.GetFieldSetCompletion(currentProp, canSetValueInline);
-
-
-            var canSetFieldInline = canSetValueInline &&
-                                    (!currentProp.Type.IsArray ||
-                                     currentProp.FieldAction == ProtoFieldAction.PackedArray);
-
-            var setter = canSetValueInline
-                ? s.ParentType.SetterOrDie(currentProp.Name)
-                : null;
-
-            var holdForSet = canSetFieldInline
-                ? null
-                : s.GetLocalForField(currentProp);
-
-            var caseEntryForThisProperty = s.IL.DefineLabel();
-            s.IL.MarkLabel(caseEntryForThisProperty);
-
-            Action<ILGenerator>? setCurrentValue = null;
-            if (canSetValueInline && setter != null)
-                setCurrentValue  = ill => ill.Emit(OpCodes.Callvirt, setter);
-
-            //////////////////////////////////////////////////////////////////
-            PopulateScanField(s, setCurrentValue, ref holdForSet!,
-                initValueTarget, storeValue);
-            //////////////////////////////////////////////////////////////////
-
-            if (canSetValueInline && holdForSet != null && 
-                s.LoadCurrentValueOntoStack != null && setter != null)
-            {
-                s.LoadCurrentValueOntoStack(il);
-                il.Emit(OpCodes.Ldloc, holdForSet);
-                il.Emit(OpCodes.Callvirt, setter);
-            }
-
-            il.Emit(OpCodes.Br, afterPropertyLabel);
-
-            return caseEntryForThisProperty;
-        }
-
-        private void PopulateScanField(ProtoScanState s, 
-            Action<ILGenerator>? setCurrentValue,
-                ref LocalBuilder holdForSet,
-            Action<IProtoFieldAccessor, ProtoScanState> initValueTarget,
-            Action<IProtoFieldAccessor, ProtoScanState> storeValue)
-        {
-            var currentProp = s.CurrentField ?? throw new NullReferenceException(nameof(s.CurrentField));
-
-            var il = s.IL;
-            var typeCode = currentProp.TypeCode;
-            var wireType = currentProp.WireType;
-            var fieldType = currentProp.Type;
-
-            switch (currentProp.FieldAction)
-            {
-                case ProtoFieldAction.VarInt:
-                case ProtoFieldAction.Primitive:
-                    
-                    //TryScanAsVarInt(s, setCurrentValue, ref holdForSet);
-                    ScanAsVarInt(il,typeCode, wireType);
-
-                    return;
-
-                case ProtoFieldAction.String:
-                    
-                    //ScanString(s, setCurrentValue, ref holdForSet);
-                    //ScanString(s);
-                    s.LoadNextString();
-
-                    return;
-
-                case ProtoFieldAction.ByteArray:
-                    
-                    //ScanByteArray(s, ref holdForSet);
-                    ScanByteArray(il, s.LastByteLocal);
-                    
-                    return;
-
-                case ProtoFieldAction.PackedArray:
-                    //TryScanAsPackedArray(s, setCurrentValue, ref holdForSet);
-                    ScanAsPackedArray(il, fieldType);
-                    return;
-
-                case ProtoFieldAction.ChildObject:
-                    
-                    //ScanChildObject(s, setCurrentValue, ref holdForSet);
-                    ScanChildObject(fieldType, s);
-
-                    return;
-
-                case ProtoFieldAction.ChildObjectCollection:
-                case ProtoFieldAction.ChildPrimitiveCollection:
-
-                    //ScanCollection(fieldType, s);
-
-                    TryScanAsNestedCollection(s,
-                        LoadCurrentFieldAsCollection,
-                        AddSingleValue);
-
-                    return;
-
-                case ProtoFieldAction.ChildObjectArray:
-                case ProtoFieldAction.ChildPrimitiveArray:
-                    TryScanAsNestedCollection(s, 
-                        LoadLocalListForArray,
-                        AddSingleValue);
-                    break;
-
-                case ProtoFieldAction.Dictionary:
-                    TryScanAsNestedCollection(s,
-                        LoadCurrentFieldAsCollection,
-                        AddKeyValuePair);
-                    return;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-
-         private void PopulateScanField(
-             IValueExtractor s,
-             ILGenerator il, 
-             Type fieldType,
-             TypeCode typeCode,
-             ProtoWireTypes wireType,
-             ProtoFieldAction fieldAction)
+        private void ScanValueToStack(
+            IValueExtractor s,
+            ILGenerator il,
+            Type fieldType,
+            TypeCode typeCode,
+            ProtoWireTypes wireType,
+            ProtoFieldAction fieldAction)
         {
             switch (fieldAction)
             {
                 case ProtoFieldAction.VarInt:
                 case ProtoFieldAction.Primitive:
-                    
-                    //TryScanAsVarInt(s, setCurrentValue, ref holdForSet);
-                    ScanAsVarInt(il,typeCode, wireType);
-
+                    ScanAsVarInt(il, typeCode, wireType);
                     return;
 
                 case ProtoFieldAction.String:
-                    
-                    //ScanString(s, setCurrentValue, ref holdForSet);
-                    //ScanString(s);
                     s.LoadNextString();
-
                     return;
 
                 case ProtoFieldAction.ByteArray:
-                    
-                    //ScanByteArray(s, ref holdForSet);
                     ScanByteArray(il, s.LastByteLocal);
-                    
                     return;
 
                 case ProtoFieldAction.PackedArray:
-                    //TryScanAsPackedArray(s, setCurrentValue, ref holdForSet);
                     ScanAsPackedArray(il, fieldType);
                     return;
 
                 case ProtoFieldAction.ChildObject:
-                    
-                    //ScanChildObject(s, setCurrentValue, ref holdForSet);
                     ScanChildObject(fieldType, s);
 
                     return;
 
                 case ProtoFieldAction.ChildObjectCollection:
                 case ProtoFieldAction.ChildPrimitiveCollection:
-                    
                     ScanCollection(fieldType, s);
-
-                    //TryScanAsNestedCollection(s, 
-                    //    LoadCurrentFieldAsCollection,
-                    //    AddSingleValue);
-
                     return;
 
                 case ProtoFieldAction.ChildObjectArray:
                 case ProtoFieldAction.ChildPrimitiveArray:
-                    
                     ScanCollection(fieldType, s);
-
-                    //TryScanAsNestedCollection(s, 
-                    //    LoadLocalListForArray,
-                    //    AddSingleValue);
-                    break;
+                    return;
 
                 case ProtoFieldAction.Dictionary:
                     ScanCollection(fieldType, s);
@@ -540,66 +394,10 @@ namespace Das.Serializer.ProtoBuf
             }
         }
 
-        private void LoadCurrentFieldAsCollection(ProtoScanState s, IProtoFieldAccessor pv)
-        {
-            s.LoadCurrentFieldValueToStack();
-        }
-
-        /// <summary>
-        /// Leaves a reference on the stack!
-        /// </summary>
-        
-        private void ScanChildObject(
-            ProtoScanState s, 
-            Action<ILGenerator>? setCurrentValue,
-            ref LocalBuilder holdForSet)
+        private void ScanChildObject(Type type, IValueExtractor s)
         {
             var il = s.IL;
 
-            var pv = s.CurrentField ?? throw new NullReferenceException(nameof(s.CurrentField));
-
-            var proxyLocal = s.ChildProxies[pv];
-            var proxyType = proxyLocal.FieldType;
-
-            
-            ////////////////////////////////////////////
-            // PROXY->SCAN(CURRENT)
-            ////////////////////////////////////////////
-            var scanMethod = proxyType.GetMethodOrDie(nameof(IProtoProxy<Object>.Scan),
-                typeof(Stream), typeof(Int64));
-
-
-            if (setCurrentValue != null)
-                s.LoadCurrentValueOntoStack(il);
-            else
-                holdForSet ??= il.DeclareLocal(pv.Type);
-
-
-            il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Ldfld, proxyLocal); //protoProxy
-            il.Emit(OpCodes.Ldarg_1);  //arg1 = input stream!
-            
-            il.Emit(OpCodes.Ldarg_1);
-            il.Emit(OpCodes.Call, _getPositiveInt64);
-
-            il.Emit(OpCodes.Call, scanMethod);
-
-
-            if (setCurrentValue != null)
-                setCurrentValue(il);
-            else
-                il.Emit(OpCodes.Stloc, holdForSet);
-        }
-
-        private void ScanChildObject(
-            Type type,
-            IValueExtractor s)
-        {
-            var il = s.IL;
-
-            //var pv = s.CurrentField ?? throw new NullReferenceException(nameof(s.CurrentField));
-
-            //var proxyLocal = s.ChildProxies[pv];
             var proxyLocal = s.GetProxy(type);
             var proxyType = proxyLocal.FieldType;
 
@@ -619,14 +417,6 @@ namespace Das.Serializer.ProtoBuf
             il.Emit(OpCodes.Call, scanMethod);
         }
 
-        private void ExtractInt64FromArg1Stream(ILGenerator il,
-            ref LocalBuilder holdForSet)
-        {
-            holdForSet = holdForSet ?? il.DeclareLocal(typeof(Int64));
-            il.Emit(OpCodes.Ldarg_1);
-            il.Emit(OpCodes.Call, _getInt64);
-            il.Emit(OpCodes.Stloc, holdForSet);
-        }
 
         /// <summary>
         /// Puts the next field index on the stack.  Jumps to <param name="goNextLabel" />

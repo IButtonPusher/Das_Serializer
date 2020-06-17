@@ -50,6 +50,7 @@ namespace Das.Serializer.ProtoBuf
             Utf8 = Encoding.UTF8;
         }
 
+        // ReSharper disable once UnusedMember.Global
         public static IEnumerable<TChild> GetChildren<TChild>(Stream stream,
             IProtoProxy<TChild> proxy)
         {
@@ -213,6 +214,7 @@ namespace Das.Serializer.ProtoBuf
 
         protected static Encoding Utf8;
 
-        [ThreadStatic] protected static Byte[] _readBytes;
+        // ReSharper disable once UnusedMember.Global
+        [ThreadStatic] protected static Byte[]? _readBytes;
     }
 }

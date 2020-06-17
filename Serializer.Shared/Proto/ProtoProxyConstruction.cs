@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Runtime.InteropServices;
 using Das.Extensions;
 using Das.Types;
 
 namespace Das.Serializer.ProtoBuf
 {
-    public partial class ProtoDynamicProvider<TPropertyAttribute> :
-        IProtoProvider where TPropertyAttribute : Attribute
+    // ReSharper disable once UnusedType.Global
+    // ReSharper disable once UnusedTypeParameter
+    public partial class ProtoDynamicProvider<TPropertyAttribute> 
+        where TPropertyAttribute : Attribute
     {
         
         private Dictionary<IProtoFieldAccessor, FieldBuilder> CreateProxyFields(
@@ -214,11 +215,14 @@ namespace Das.Serializer.ProtoBuf
                 var genericArg = il.DeclareLocal(typeof(Type));
                 var localType = il.DeclareLocal(typeof(Type));
                 var ctorType = il.DeclareLocal(typeof(ConstructorInfo));
-                var baseTypeGetter = typeof(Type).GetProperty(nameof(Type.BaseType)).GetGetMethod();
+
+                var baseTypeGetter = typeof(Type).GetterOrDie(nameof(Type.BaseType), out _);
+
+                //var baseTypeGetter = typeof(Type).GetProperty(nameof(Type.BaseType)).GetGetMethod();
 
 
                 il.Emit(OpCodes.Ldarg_0);
-                var getTypeMethod = typeof(Object).GetMethod(nameof(Object.GetType));
+                var getTypeMethod = typeof(Object).GetMethodOrDie(nameof(Object.GetType));
                 il.Emit(OpCodes.Callvirt, getTypeMethod);
                 il.Emit(OpCodes.Stloc, localType);
 
@@ -226,7 +230,7 @@ namespace Das.Serializer.ProtoBuf
                 il.Emit(OpCodes.Callvirt, baseTypeGetter);
                 il.Emit(OpCodes.Stloc, localType);
 
-                var getArgs = typeof(Type).GetMethod(nameof(Type.GetGenericArguments));
+                var getArgs = typeof(Type).GetMethodOrDie(nameof(Type.GetGenericArguments));
 
                 il.Emit(OpCodes.Ldloc, localType);
                 il.Emit(OpCodes.Callvirt, getArgs);
@@ -240,11 +244,12 @@ namespace Das.Serializer.ProtoBuf
                     {
                         typeof(BindingFlags), typeof(Binder), typeof(Type[]),
                         typeof(ParameterModifier[])
-                    });
+                    }) ?? throw new InvalidOperationException();
 
-                var emptyFields = typeof(Type).GetField(nameof(Type.EmptyTypes));
+                var emptyFields = typeof(Type).GetField(nameof(Type.EmptyTypes)) ?? throw new InvalidOperationException();
                 var nonPublicField = typeof(ProtoDynamicBase).GetField(
-                    nameof(ProtoDynamicBase.InstanceNonPublic));
+                    nameof(ProtoDynamicBase.InstanceNonPublic))
+                                     ?? throw new InvalidOperationException();
 
                 il.Emit(OpCodes.Ldloc, genericArg);
                 il.Emit(OpCodes.Ldsfld, nonPublicField);
@@ -255,7 +260,7 @@ namespace Das.Serializer.ProtoBuf
                 il.Emit(OpCodes.Stloc, ctorType);
 
                 var invoke = typeof(ConstructorInfo).GetMethod(nameof(ConstructorInfo.Invoke),
-                    new[] {typeof(Object[])});
+                    new[] {typeof(Object[])})?? throw new InvalidOperationException();
 
                 il.Emit(OpCodes.Ldloc, ctorType);
                 il.Emit(OpCodes.Ldnull);

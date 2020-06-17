@@ -21,7 +21,7 @@ namespace Das.Serializer.Proto
 
             CurrentField = currentField;
 
-            ChildProxies = childProxies; // ?? new Dictionary<IProtoFieldAccessor, LocalBuilder>();
+            ChildProxies = childProxies;
             ParentType = parentType;
             LoadCurrentValueOntoStack = loadCurrentValueOntoStack;
         }
@@ -43,25 +43,6 @@ namespace Das.Serializer.Proto
 
         public Type ParentType { get; }
 
-        //private static LocalBuilder CreateLocalProxy(ILGenerator il, Type germane,
-        //    MethodInfo _getProtoProxy, FieldInfo _proxyProviderField)
-        //{
-        //    var proxyType = typeof(IProtoProxy<>).MakeGenericType(germane);
-
-        //    var localProxyRef = il.DeclareLocal(proxyType);
-
-        //    var getProxyInstance = _getProtoProxy.MakeGenericMethod(germane);
-        //    il.Emit(OpCodes.Ldarg_0);
-        //    il.Emit(OpCodes.Ldfld, _proxyProviderField);
-        //    il.Emit(OpCodes.Ldc_I4_0);
-        //    il.Emit(OpCodes.Callvirt, getProxyInstance);
-
-        //    //var localProxyRef = _proxyProvider.GetProtoProxy<T>(false);
-        //    il.Emit(OpCodes.Stloc, localProxyRef);
-
-
-        //    return localProxyRef;
-        //}
 
         public void LoadCurrentFieldValueToStack()
         {
@@ -86,10 +67,12 @@ namespace Das.Serializer.Proto
 
         public void LoadParentToStack()
         {
-            LoadCurrentValueOntoStack(_il);
+            var lode = LoadCurrentValueOntoStack ?? throw new NullReferenceException(nameof(LoadCurrentValueOntoStack));
+
+            lode(_il);
         }
 
-        protected ILGenerator _il;
+        protected readonly ILGenerator _il;
         private readonly IDictionary<Type, FieldBuilder> _proxies;
     }
 }

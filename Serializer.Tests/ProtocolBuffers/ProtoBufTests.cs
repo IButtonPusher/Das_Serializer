@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Serializer.Tests.ProtocolBuffers
 {
-    //[TestClass]
+    
     public class ProtoBufTests : TestBase
     {
         [Benchmark]
@@ -21,14 +21,10 @@ namespace Serializer.Tests.ProtocolBuffers
 
             var o = TypeProvider.GetProtoProxy<SimpleMessage>();
 
-            TypeProvider.DumpProxies();
-            
             SimpleMessage outMsg2;
             using (var ms = new MemoryStream())
             {
                 o.Print(msg, ms);
-
-                //ProtoSerializer.ToProtoStream(ms, msg);
 
                 ms.Position = 0;
                 
@@ -184,14 +180,14 @@ namespace Serializer.Tests.ProtocolBuffers
 
             var o = TypeProvider.GetProtoProxy<DictionaryPropertyMessage>();
 
-            TypeProvider.DumpProxies();
+            //TypeProvider.DumpProxies();
 
             using (var ms = new MemoryStream())
             {
                 o.Print(mc1, ms);
 
                 Debug.WriteLine("DAS\r\n-----------------------------------");
-                PrintMemoryStream(ms);
+                //PrintMemoryStream(ms);
 
                 ms.Position = 0;
                 return o.Scan(ms);
@@ -207,7 +203,7 @@ namespace Serializer.Tests.ProtocolBuffers
                 ProtoBuf.Serializer.Serialize(ms, msg);
 
                 Debug.WriteLine("PNET\r\n-----------------------------------");
-                PrintMemoryStream(ms);
+                //PrintMemoryStream(ms);
 
                 ms.Position = 0;
                 return ProtoBuf.Serializer.Deserialize<DictionaryPropertyMessage>(ms);
@@ -221,7 +217,7 @@ namespace Serializer.Tests.ProtocolBuffers
 
             var o = TypeProvider.GetProtoProxy<CollectionsPropertyMessage>();
 
-            TypeProvider.DumpProxies();
+            //TypeProvider.DumpProxies();
 
             //var o = new Serializer_Tests_ProtocolBuffers_CollectionsPropertyMessage(() =>
             //    new CollectionsPropertyMessage());
@@ -233,7 +229,7 @@ namespace Serializer.Tests.ProtocolBuffers
             {
                 o.Print(mc1, ms);
                 Debug.WriteLine("DAS\r\n-----------------------------------");
-                PrintMemoryStream(ms);
+                //PrintMemoryStream(ms);
                 ms.Position = 0;
                 return o.Scan(ms);
             }
@@ -249,7 +245,7 @@ namespace Serializer.Tests.ProtocolBuffers
                 ProtoBuf.Serializer.Serialize(ms, mc1);
                 
                 Debug.WriteLine("PNET\r\n-----------------------------------");
-                PrintMemoryStream(ms);
+                //PrintMemoryStream(ms);
                 ms.Position = 0;
                 return ProtoBuf.Serializer.Deserialize<CollectionsPropertyMessage>(ms);
             }
@@ -268,7 +264,7 @@ namespace Serializer.Tests.ProtocolBuffers
             {
                 proxy.Print(mc1, ms);
                 Debug.WriteLine("DAS\r\n-----------------------------------");
-                PrintMemoryStream(ms);
+                //PrintMemoryStream(ms);
                 ms.Position = 0;
                 return proxy.Scan(ms);
             }
@@ -284,12 +280,13 @@ namespace Serializer.Tests.ProtocolBuffers
                 ProtoBuf.Serializer.Serialize(ms, mc1);
                 
                 Debug.WriteLine("PNET\r\n-----------------------------------");
-                PrintMemoryStream(ms);
+                //PrintMemoryStream(ms);
                 ms.Position = 0;
                 return ProtoBuf.Serializer.Deserialize<PackedArrayTest>(ms);
             }
         }
 
+        [Conditional("DEBUG")]
         private static void PrintMemoryStream(MemoryStream ms)
         {
             var arr = ms.ToArray();
@@ -457,7 +454,7 @@ namespace Serializer.Tests.ProtocolBuffers
 
             var fromNet = ProtoNetMultiProperties();
 
-            TypeProvider.DumpProxies();
+            //TypeProvider.DumpProxies();
 
             var equal = SlowEquality.AreEqual(fromDas, fromNet);
             equal &= SlowEquality.AreEqual(fromDas2, fromNet);
@@ -525,7 +522,7 @@ namespace Serializer.Tests.ProtocolBuffers
 
             var o = TypeProvider.GetProtoProxy<ByteArrayMessage>();
 
-            TypeProvider.DumpProxies();
+            //TypeProvider.DumpProxies();
 
             using (var ms = new MemoryStream())
             {

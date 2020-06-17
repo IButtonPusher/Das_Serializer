@@ -47,15 +47,17 @@ namespace Serializer.Benchmarks
 
                     for (var c = 0; c < 10000; c++)
                     {
-                        
-                        buff.DasByteArray();
-                        buff.DasComposedMessage();
+                        buff.DasSimpleMessage();
+                        buff.DasDoubleMessage();
+                        buff.DasStringMessage();
                         buff.DasDictionary();
-                         buff.DasMultiProperties();
-                         buff.DasNegativeIntegerMessage();
-                         buff.DasDoubleMessage();
-                         buff.DasSimpleMessage();
-                         buff.DasStringMessage();
+                        buff.DasNegativeIntegerMessage();
+                        buff.DasMultiProperties();
+                        buff.DasComposedMessage();
+
+                        buff.DasByteArray();
+
+                        //buff.TypeProvider.DumpProxies();
                     }
 
 

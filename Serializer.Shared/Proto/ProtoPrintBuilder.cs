@@ -9,6 +9,8 @@ using Das.Serializer.Proto;
 
 namespace Das.Serializer.ProtoBuf
 {
+    // ReSharper disable once UnusedType.Global
+    // ReSharper disable once UnusedTypeParameter
     public partial class ProtoDynamicProvider<TPropertyAttribute>
     {
         private void AddPrintMethod(Type parentType, TypeBuilder bldr, Type genericParent,
@@ -41,7 +43,7 @@ namespace Das.Serializer.ProtoBuf
 
             var state = new ProtoPrintState(il, false,
                 fArr, parentType,
-                loadDto, false, _types,
+                loadDto, _types,
                 _writeInt32, this, childProxyFields, startField,
                 typeProxies);
 
@@ -53,18 +55,16 @@ namespace Das.Serializer.ProtoBuf
             foreach (var protoField in state)
             {
                 /////////////////////////////////////////
-                AddFieldToPrintMethod(protoField, loadDto);
+                AddFieldToPrintMethod(protoField);
                 /////////////////////////////////////////
             }
 
-            
             endOfMethod:
             il.Emit(OpCodes.Ret);
             bldr.DefineMethodOverride(method, abstractMethod);
         }
 
-        private void AddFieldToPrintMethod(ProtoPrintState s,
-            Action<ILGenerator> loadObject)
+        private void AddFieldToPrintMethod(ProtoPrintState s)
         {
             var pv = s.CurrentField;
 
@@ -112,7 +112,7 @@ namespace Das.Serializer.ProtoBuf
 
                 case ProtoFieldAction.ChildPrimitiveArray:
                     PrintCollection(s, PrintEnumeratorCurrent);
-                    //TryPrintAsArray(s, pv.HeaderBytes);
+                    
                     break;
 
                 default:
@@ -229,22 +229,10 @@ namespace Das.Serializer.ProtoBuf
         {
             var il = s.IL;
 
-            //PrintHeaderBytes(s.CurrentField.HeaderBytes, s);
             PrintHeaderBytes(headerBytes, s);
 
             var proxyField = s.ChildProxies[s.CurrentField];
             var proxyType = proxyField.FieldType;
-
-
-            ////////////////////////////////////////////
-            // PROXY->OUTSTREAM = CHILDSTREAM
-            ////////////////////////////////////////////
-            //var streamSetter = proxyType.SetterOrDie(nameof(IProtoProxy<Object>.OutStream));
-
-            //il.Emit(OpCodes.Ldloc, proxyLocal);
-            //il.Emit(OpCodes.Ldloc, s.ChildObjectStream);
-            //il.Emit(OpCodes.Callvirt, streamSetter);
-
 
             ////////////////////////////////////////////
             // PROXY->PRINT(CURRENT)
@@ -263,7 +251,6 @@ namespace Das.Serializer.ProtoBuf
             ////////////////////////////////////////////
             // PRINT LENGTH OF CHILD STREAM
             ////////////////////////////////////////////
-            //il.Emit(OpCodes.Ldarg_0);
             il.Emit(OpCodes.Ldloc, s.ChildObjectStream);
             il.Emit(OpCodes.Callvirt, _getStreamLength);
             il.Emit(OpCodes.Ldarg_2);
@@ -277,139 +264,15 @@ namespace Das.Serializer.ProtoBuf
             il.Emit(OpCodes.Ldc_I8, 0L);
             il.Emit(OpCodes.Callvirt, _setStreamPosition);
 
-
             il.Emit(OpCodes.Ldloc, s.ChildObjectStream);
 
             il.Emit(OpCodes.Ldarg_2);
-
-            //il.Emit(OpCodes.Ldc_I4, 4096);
             il.Emit(OpCodes.Call, _copyMemoryStream);
-            //il.Emit(OpCodes.Callvirt, _copyStreamTo);
 
 
             il.Emit(OpCodes.Ldloc, s.ChildObjectStream);
             il.Emit(OpCodes.Ldc_I8, 0L);
             il.Emit(OpCodes.Callvirt, _setStreamLength);
-        }
-
-
-        private void AddObtainableValueToPrintMethod(ProtoPrintState s,
-                Action<ILGenerator> loadValue)
-        {
-            var il = s.IL;
-
-            il.Emit(OpCodes.Ldarg_0);
-
-            if (TryPrintAsVarInt(s, loadValue))
-                //il, ref isArrayMade, fieldByteArray,
-                //ref localBytes,
-                //ref localString, utfField,
-                //code, wireType, type,
-                //loadValue, loadObject, ref hasPushed))
-                return;
-
-            var localBytes = s.LocalBytes;
-            var type = s.CurrentField.Type;
-
-            switch (s.CurrentField.WireType)
-            {
-
-                case ProtoWireTypes.LengthDelimited:
-                    switch (s.CurrentField.TypeCode)
-                    {
-
-                        case TypeCode.String:
-                            ////////////
-                            // STRING
-                            ///////////
-                            s.LocalString ??= il.DeclareLocal(typeof(String));
-
-                            var localString = s.LocalString;
-
-                            loadValue(il);
-                            il.Emit(OpCodes.Stloc, localString);
-
-                            //il.Emit(OpCodes.Ldarg_0);
-                            il.Emit(OpCodes.Ldsfld, _utf8);
-                            il.Emit(OpCodes.Ldloc, localString);
-
-                            il.Emit(OpCodes.Callvirt, _getStringBytes);
-                            il.Emit(OpCodes.Stloc, localBytes);
-
-                            il.Emit(OpCodes.Ldloc, localBytes);
-                            il.Emit(OpCodes.Call, _getArrayLength);
-                            s.WriteInt32();
-                            //il.Emit(OpCodes.Call, _writeInt32);
-
-                            il.Emit(OpCodes.Ldarg_0);
-                            il.Emit(OpCodes.Ldloc, localBytes);
-                            il.Emit(OpCodes.Call, _writeBytes);
-
-                            break;
-                        case TypeCode.Object:
-
-                            ///////////
-                            // BYTE [ARRAY]
-                            ///////////
-                            if (type == Const.ByteArrayType)
-                            {
-                                loadValue(il);
-                                il.Emit(OpCodes.Stloc, localBytes);
-
-                                il.Emit(OpCodes.Ldarg_0);
-                                il.Emit(OpCodes.Ldloc, localBytes);
-                                il.Emit(OpCodes.Call, _getArrayLength);
-                                s.WriteInt32();
-                                //il.Emit(OpCodes.Call, _writeInt32);
-
-                                il.Emit(OpCodes.Ldloc, localBytes);
-                                il.Emit(OpCodes.Call, _writeBytes);
-
-                                break;
-                            }
-
-                            var localForPropVal = il.DeclareLocal(type);
-
-                            loadValue(il);
-                            il.Emit(OpCodes.Stloc, localForPropVal);
-
-                            //var subFields = GetProtoFields(type);
-
-                            s.HasPushed = true;
-                            throw new NotImplementedException();
-                            //il.Emit(OpCodes.Callvirt, _push);
-                            //il.Emit(OpCodes.Pop);
-
-                            //var state = new ProtoPrintState(s, subFields, type,
-                            //    ilg => ilg.Emit(OpCodes.Ldloc, localForPropVal), _types, _writeInt32,
-                            //    this);
-
-                            //foreach (var sub in state)
-                            //{
-                            //    AddFieldToPrintMethod(sub, ilg => ilg.Emit(OpCodes.Ldloc, localForPropVal));
-                            //    s.MergeLocals(sub);
-                            //}
-
-                            ////AddFieldsToPrintMethod(s, ilg => ilg.Emit(OpCodes.Ldloc, localForPropVal));
-                            ////    //il, ref isArrayMade, ref localString,
-                            //////    fieldByteArray, ref localBytes, subFields, type, utfField,
-                            //////    ilg => ilg.Emit(OpCodes.Ldloc, localForPropVal),
-                            //////    ref hasPushed);
-
-                            //il.Emit(OpCodes.Ldarg_0);
-                            //throw new NotImplementedException();
-                            ////il.Emit(OpCodes.Callvirt, _pop);
-
-                            //il.Emit(OpCodes.Pop);
-
-
-                            break;
-                    }
-
-                    break;
-                default:
-                    throw new NotImplementedException();
-            }
         }
 
     }

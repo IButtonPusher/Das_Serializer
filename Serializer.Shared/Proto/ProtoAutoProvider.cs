@@ -4,12 +4,18 @@ using System.Reflection;
 
 namespace Das.Serializer.ProtoBuf
 {
+    // ReSharper disable once UnusedType.Global
+    // ReSharper disable once UnusedTypeParameter
     public partial class ProtoDynamicProvider<TPropertyAttribute> : IStreamAccessor, 
+        // ReSharper disable once RedundantExtendsListEntry
         IProtoProvider where TPropertyAttribute : Attribute
     {
         public IProtoProxy<T> GetAutoProtoProxy<T>(Boolean allowReadOnly = false)
         {
-            return GetProtoProxyImpl<T>(CreateAutoProxyType<T>, allowReadOnly);
+            return GetProtoProxyImpl<T>(
+                CreateAutoProxyTypeYesReadOnly,
+                CreateAutoProxyTypeNoReadOnly,
+                allowReadOnly);
         }
 
         public T BuildDefaultValue<T>()
@@ -17,12 +23,37 @@ namespace Das.Serializer.ProtoBuf
             return _instantiator.BuildDefault<T>(true);
         }
 
+        private Object CreateAutoProxyTypeYesReadOnly(Type type)
+        {
+            //var type = typeof(T);
+            var fields = GetProtoFields(type, out var ctor);
+
+            var ptype = CreateProxyTypeImpl(type, ctor, fields, false, true, ctor) ??
+                   throw new InvalidOperationException();
+
+            return InstantiateProxyInstance(ptype);
+
+        }
+
+        private Object CreateAutoProxyTypeNoReadOnly(Type type)
+        {
+            //var type = typeof(T);
+            var fields = GetProtoFields(type, out var ctor);
+
+            var ptype = CreateProxyTypeImpl(type, ctor, fields, false, false, ctor) ??
+                        throw new InvalidOperationException();
+
+            return InstantiateProxyInstance(ptype);
+        }
+
+
         private Type CreateAutoProxyType<T>(Boolean allowReadOnly)
         {
             var type = typeof(T);
             var fields = GetProtoFields(type, out var ctor);
 
-            return CreateProxyTypeImpl<T>(ctor, fields, false, allowReadOnly, ctor);
+            return CreateProxyTypeImpl(type, ctor, fields, false, allowReadOnly, ctor) ??
+                throw new InvalidOperationException();
 
         }
 
@@ -69,7 +100,9 @@ namespace Das.Serializer.ProtoBuf
             {
                 var current = useProperties[c];
 
-                if (TryGetProtoFieldImpl(current, true, p => c + 1, out var protoField))
+                var next = c + 1;
+
+                if (TryGetProtoFieldImpl(current, true, p => next, out var protoField))
                     protoFields.Add(protoField);
 
             }
