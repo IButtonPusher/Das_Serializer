@@ -45,7 +45,7 @@ namespace Das.Serializer
             
         }
 
-        public Object BuildDefault(Type type, Boolean isCacheConstructors)
+        public Object? BuildDefault(Type type, Boolean isCacheConstructors)
         {
             if (_typeSurrogates.ContainsKey(type))
                 type = _typeSurrogates[type];
@@ -93,7 +93,8 @@ namespace Das.Serializer
         public T BuildDefault<T>(Boolean isCacheConstructors)
         {
             var def = BuildDefault(typeof(T), isCacheConstructors);
-            return (T) def;
+            return def == null ? default! : (T) def;
+            
         }
 
         private static ConstructorInfo GetConstructor(Type type, IList<Type> genericArguments,
@@ -127,38 +128,11 @@ namespace Das.Serializer
                 return true;
             }
 
-            result = default;
+            result = default!;
             return false;
-
-            //if (type == null)
-            //    throw new ArgumentNullException(nameof(type));
-
-            //var delegateType = typeof(TDelegate);
-
-            //if (delegateType == null)
-            //    throw new ArgumentNullException(nameof(delegateType));
-
-            //var genericArguments = delegateType.GetGenericArguments();
-            //var constructor = GetConstructor(type, genericArguments, out var argTypes);
-
-            //if (constructor == null)
-            //{
-            //    result = default!;
-            //    return false;
-            //}
-
-            //var dynamicMethod = new DynamicMethod("DM$_" + type.Name, type, argTypes, type);
-            //var ilGen = dynamicMethod.GetILGenerator();
-            //for (var i = 0; i < argTypes.Length; i++)
-            //    ilGen.Emit(OpCodes.Ldarg, i);
-
-            //ilGen.Emit(OpCodes.Newobj, constructor);
-            //ilGen.Emit(OpCodes.Ret);
-            //result = (TDelegate)dynamicMethod.CreateDelegate(delegateType);
-            //return true;
         }
 
-        public bool TryGetConstructorDelegate(Type type, Type delegateType, out Delegate result)
+        private static bool TryGetConstructorDelegate(Type type, Type delegateType, out Delegate result)
         {
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
@@ -187,9 +161,7 @@ namespace Das.Serializer
         }
 
 
-
-
-        public Func<Object> GetConstructorDelegate(Type type)
+        private static Func<Object> GetConstructorDelegate(Type type)
         {
             var delType = typeof(Func<>).MakeGenericType(type);
 
@@ -198,7 +170,6 @@ namespace Das.Serializer
 
             throw new InvalidProgramException(
                 $"Type '{type.Name}' doesn't have the requested constructor.");
-            //return (Func<Object>) GetConstructorDelegate(type, delType);
         }
 
         public Func<T> GetConstructorDelegate<T>()
@@ -217,8 +188,6 @@ namespace Das.Serializer
                 KnownOnDeserialize.TryAdd(node.Type, dothProceed);
         }
 
-
-      
 
         public T CreatePrimitiveObject<T>(Byte[] rawValue, Type objType)
         {
@@ -306,22 +275,23 @@ namespace Das.Serializer
         public bool TryGetDefaultConstructorDelegate<T>(out Func<T> res) where T : class
         {
             var type = typeof(T);
-            if (ConstructorDelegates.TryGetValue(type, out var constructor))
+            if (ConstructorDelegates.TryGetValue(type, out var constructor)
+            && constructor is Func<T> good)
             {
-                res = constructor as Func<T>;
+                res = good;
                 return true;
             }
 
             if (!TryGetConstructorDelegate<Func<T>>(typeof(T), out var del))
             {
-                res = default;
+                res = default!;
                 return false;
             }
 
-            constructor = (Func<Object>) del;
+            constructor = del;
             ConstructorDelegates.TryAdd(type, constructor);
 
-            res = constructor as Func<T>;
+            res = (constructor as Func<T>)!;
             return true;
         }
 
@@ -334,7 +304,7 @@ namespace Das.Serializer
                 ConstructorDelegates.TryAdd(type, constructor);
             }
 
-            return constructor as Func<T>;
+            return (constructor as Func<T>)!;
         }
 
 

@@ -94,7 +94,7 @@ namespace Das.Types
         /// <param name="parentTypes">Can be a single unsealed class and/or 1-N interfaces</param>
         public IDynamicType GetDynamicType(String typeName, IEnumerable<DasProperty> properties,
             Boolean isCreatePropertyDelegates, IEnumerable<EventInfo> events,
-            IDictionary<MethodInfo, MethodInfo> methodReplacements,
+            IDictionary<MethodInfo, MethodInfo>? methodReplacements,
             params Type[] parentTypes)
             => GetDynamicTypeImpl(typeName, properties, isCreatePropertyDelegates,
                 methodReplacements, events, parentTypes);
@@ -103,7 +103,7 @@ namespace Das.Types
         private DasType GetDynamicTypeImpl(String typeName, 
             IEnumerable<DasProperty> properties,
             Boolean isCreatePropertyDelegates, 
-            IDictionary<MethodInfo, MethodInfo> methodReplacements,
+            IDictionary<MethodInfo, MethodInfo>? methodReplacements,
             IEnumerable<EventInfo> events,
             params Type[] parentTypes)
         {
@@ -154,7 +154,7 @@ namespace Das.Types
         /// interfaces</param>
         /// <returns></returns>
         public Type GetDynamicType(String typeName,
-            IDictionary<MethodInfo, MethodInfo> methodReplacements, 
+            IDictionary<MethodInfo, MethodInfo>? methodReplacements, 
             IEnumerable<DasProperty> properties, IEnumerable<EventInfo> events,
             params Type[] parentTypes)
         {
@@ -215,7 +215,7 @@ namespace Das.Types
                 var attr = new DasAttribute(o.GetType());
 
                 foreach (var propVal in _objectManipulator.GetPropertyResults(valu, Settings))
-                    attr.PropertyValues.Add(propVal.Name, propVal.Value);
+                    attr.PropertyValues.Add(propVal.Name, propVal.Value!);
             }
 
             return new DasAttribute[0];
@@ -223,7 +223,7 @@ namespace Das.Types
 
         private void ImplementParent(TypeBuilder typeBuilder,
             Type interfaceType, ISet<String> addedProperties,
-            IDictionary<MethodInfo, MethodInfo> methodReplacements,
+            IDictionary<MethodInfo, MethodInfo>? methodReplacements,
             ISet<String> addedMethods, ISet<String> addedEvents)
         {
             foreach (var prop in GetPublicProperties(interfaceType))
@@ -287,7 +287,7 @@ namespace Das.Types
      
 
         private static void CreateMethod(TypeBuilder tb, MethodInfo meth,
-            MethodInfo replacing = null)
+            MethodInfo? replacing = null)
         {
             var returnType = meth.ReturnType;
             var methName = replacing?.Name ?? meth.Name;

@@ -11,25 +11,21 @@ namespace Das.Serializer.Proto
         protected ProtoStateBase(
             ILGenerator il,
             IProtoFieldAccessor currentField,
-            IDictionary<IProtoFieldAccessor, FieldBuilder> childProxies,
             Type parentType, 
             Action<ILGenerator>? loadCurrentValueOntoStack,
-            IDictionary<Type, FieldBuilder> proxies)
+            IDictionary<Type, FieldBuilder> proxies,
+            ITypeCore types)
         {
             _il = il;
             _proxies = proxies;
+            _types = types;
 
             CurrentField = currentField;
-
-            ChildProxies = childProxies;
             ParentType = parentType;
             LoadCurrentValueOntoStack = loadCurrentValueOntoStack;
         }
 
-        public IDictionary<IProtoFieldAccessor, FieldBuilder> ChildProxies { get; }
 
-
-        
         public FieldBuilder GetProxy(Type type)
         {
             return _proxies[type];
@@ -56,8 +52,9 @@ namespace Das.Serializer.Proto
         /// </summary>
         public FieldInfo LoadFieldProxy(IProtoFieldAccessor field)
         {
-            if (!ChildProxies.TryGetValue(field, out var proxyField))
-                throw new KeyNotFoundException($"No proxy created for {proxyField}");
+            var germane = _types.GetGermaneType(field.Type);
+
+            var proxyField = GetProxy(germane);
 
             _il.Emit(OpCodes.Ldarg_0);
             _il.Emit(OpCodes.Ldfld, proxyField);
@@ -74,5 +71,6 @@ namespace Das.Serializer.Proto
 
         protected readonly ILGenerator _il;
         private readonly IDictionary<Type, FieldBuilder> _proxies;
+        private readonly ITypeCore _types;
     }
 }

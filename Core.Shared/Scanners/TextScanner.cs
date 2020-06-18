@@ -116,29 +116,6 @@ namespace Das.Serializer
                 PreProcessCharacter(ref current);
             }
 
-            //check for BOM
-            //https://stackoverflow.com/questions/1317700/strip-byte-order-mark-from-string-in-c-sharp
-            //using (var iterator = source.GetEnumerator())
-            {
-                //if (!iterator.MoveNext())
-                //    return default;
-
-                //var c = iterator.Current;
-
-                //if (c > Byte.MaxValue)
-                //{
-                //    if (!iterator.MoveNext())
-                //        return default;
-                //}
-
-                //do
-                //{
-                //    c = iterator.Current;
-                //    PreProcessCharacter(c);
-                //}
-                //while (iterator.MoveNext());
-            }
-
             return GetResult<T>();
         }
 

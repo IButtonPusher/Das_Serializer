@@ -6,8 +6,9 @@ namespace Das.Serializer
     public class ByteArray : IByteArray
     {
         private Byte[] _bytes;
-        [ThreadStatic] private static Byte[] _byteCache;
+        [ThreadStatic] private static Byte[]? _byteCache;
 
+        // ReSharper disable once UnusedMember.Global
         public Byte[] Bytes
         {
             get => _bytes;
@@ -22,7 +23,8 @@ namespace Das.Serializer
 
         public ByteArray(Byte[] array)
         {
-            Bytes = array;
+            _bytes = array;
+            _lastIndex = 0;
         }
 
         public Byte this[Int32 bytes]

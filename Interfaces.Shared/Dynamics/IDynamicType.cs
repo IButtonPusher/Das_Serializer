@@ -12,7 +12,7 @@ namespace Das.Serializer
 
         Dictionary<String, PropertySetter> PublicSetters { get; }
 
-        Type GetPropertyType(String propertyName);
+        Type? GetPropertyType(String propertyName);
 
         Boolean IsLegalValue(String forProperty, Object value);
     }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -23,11 +22,10 @@ namespace Das.Serializer.Proto
             ITypeCore typeCore,
             MethodInfo writeInt32,
             IStreamAccessor streamAccessor,
-            IDictionary<IProtoFieldAccessor, FieldBuilder> childProxies,
             IProtoFieldAccessor currentField,
             IDictionary<Type, FieldBuilder> proxies)
-            : base(il, currentField, childProxies, 
-                parentType, loadObject,proxies)
+            : base(il, currentField, 
+                parentType, loadObject,proxies, typeCore)
         {
             _typeCore = typeCore;
 
@@ -39,13 +37,6 @@ namespace Das.Serializer.Proto
             _writeInt32 = writeInt32;
             _streamAccessor = streamAccessor;
             Fields = fields.ToArray();
-
-            if (ChildProxies.Count > 0 && childProxies == null)
-            {
-                typeCore.TryGetEmptyConstructor(typeof(MemoryStream), out var ctor);
-                il.Emit(OpCodes.Newobj, ctor);
-                il.Emit(OpCodes.Stloc, ChildObjectStream);
-            }
         }
 
         public IEnumerator<ProtoPrintState> GetEnumerator()
@@ -76,9 +67,9 @@ namespace Das.Serializer.Proto
 
         private LocalBuilder DeclareAndInstantiateChildStream()
         {
-            var local = _il.DeclareLocal(typeof(MemoryStream));
+            var local = _il.DeclareLocal(typeof(NaiveMemoryStream));
 
-            _typeCore.TryGetEmptyConstructor(typeof(MemoryStream), out var ctor);
+            _typeCore.TryGetEmptyConstructor(local.LocalType, out var ctor);
             _il.Emit(OpCodes.Newobj, ctor);
             _il.Emit(OpCodes.Stloc, local);
 
@@ -104,7 +95,6 @@ namespace Das.Serializer.Proto
         public void PrintFieldViaProxy(IProtoFieldAccessor protoField,
             Action<ILGenerator> loadFieldValue)
         {
-
             PrintFieldHeader(protoField);
 
             var fieldInfo = LoadFieldProxy(protoField);
@@ -145,9 +135,8 @@ namespace Das.Serializer.Proto
 
             _il.Emit(OpCodes.Ldarg_2);
 
-            //il.Emit(OpCodes.Ldc_I4, 4096);
             _il.Emit(OpCodes.Call, _streamAccessor.CopyMemoryStream);
-            //il.Emit(OpCodes.Callvirt, _copyStreamTo);
+            
 
 
             _il.Emit(OpCodes.Ldloc, ChildObjectStream);

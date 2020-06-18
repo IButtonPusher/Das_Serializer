@@ -19,7 +19,6 @@ namespace Das.Serializer.ProtoBuf
         private void AddScanMethod(Type parentType, TypeBuilder bldr,
             Type genericParent, IEnumerable<IProtoFieldAccessor> fields,
             Object? exampleObject,
-            IDictionary<IProtoFieldAccessor, FieldBuilder> childProxies,
             Boolean canSetValuesInline, MethodBase buildReturnValue,
             IDictionary<Type, FieldBuilder> proxies)
         {
@@ -36,7 +35,7 @@ namespace Das.Serializer.ProtoBuf
 
             var endLabel = il.DefineLabel();
 
-            EnsureThreadLocalByteArray(il);
+            EnsureThreadLocalByteArray(il, fieldArr);
 
             //////////////////////////////
             // INSTANTIATE RETURN VALUE
@@ -66,7 +65,7 @@ namespace Das.Serializer.ProtoBuf
             var first = fieldArr[0];
 
             var state = new ProtoScanState(il, fieldArr, first, parentType, loadCurrentValue,
-                lastByte, childProxies, this, _readBytesField,
+                lastByte, this, _readBytesField,
                 _types, _instantiator, proxies);
 
             /////////////////////////////
@@ -109,8 +108,25 @@ namespace Das.Serializer.ProtoBuf
             return method;
         }
 
-        private void EnsureThreadLocalByteArray(ILGenerator il)
+        private void EnsureThreadLocalByteArray(ILGenerator il, IProtoFieldAccessor[] fields)
         {
+            var dothProceed = false;
+
+            foreach (var field in fields)
+            {
+                var germane = _types.GetGermaneType(field.Type);
+
+                if (!germane.IsIn(typeof(String), typeof(Double), typeof(Single))) 
+                    continue;
+
+                dothProceed = true;
+                break;
+            }
+
+            if (!dothProceed)
+                return;
+
+
             var instantiated = il.DefineLabel();
 
             //local threadstatic byte[] buffer

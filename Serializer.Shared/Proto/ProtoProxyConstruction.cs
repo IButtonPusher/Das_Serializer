@@ -14,39 +14,41 @@ namespace Das.Serializer.ProtoBuf
         where TPropertyAttribute : Attribute
     {
         
-        private Dictionary<IProtoFieldAccessor, FieldBuilder> CreateProxyFields(
+        private Dictionary<Type, FieldBuilder> CreateProxyFields(
             TypeBuilder bldr,
-            IEnumerable<IProtoFieldAccessor> fields, 
-            out Dictionary<Type, FieldBuilder> typeProxies)
+            IEnumerable<IProtoFieldAccessor> fields)
         {
-            var childProxies = new Dictionary<IProtoFieldAccessor, FieldBuilder>();
-            typeProxies = new Dictionary<Type, FieldBuilder>();
+            var typeProxies = new Dictionary<Type, FieldBuilder>();
 
             foreach (var field in fields)
             {
                 switch (field.FieldAction)
                 {
                     case ProtoFieldAction.ChildObject:
+                        if (typeProxies.ContainsKey(field.Type))
+                            continue;
+
                         var local = CreateLocalProxy(field, bldr, field.Type);
                         typeProxies[field.Type] = local;
-
-                        childProxies[field] = local;
                         break;
 
                     case ProtoFieldAction.ChildObjectArray:
                     case ProtoFieldAction.ChildObjectCollection:
                     case ProtoFieldAction.Dictionary:
                         var germane = _types.GetGermaneType(field.Type);
+
+                        if (typeProxies.ContainsKey(germane))
+                            continue;
+
                         var bldr2 = CreateLocalProxy(field, bldr, germane);
 
-                        childProxies[field] = bldr2;
                         typeProxies[germane] = bldr2;
 
                         break;
                 }
             }
 
-            return childProxies;
+            return typeProxies;
         }
 
         private static FieldBuilder CreateLocalProxy(IProtoFieldAccessor field, TypeBuilder builder, 
@@ -60,11 +62,9 @@ namespace Das.Serializer.ProtoBuf
         private ConstructorInfo AddConstructors(TypeBuilder bldr, 
             ConstructorInfo dtoCtor,
             Type genericBase,
-            Dictionary<IProtoFieldAccessor, FieldBuilder> childProxies,
+            ICollection<FieldBuilder> childProxies,
             Boolean isDtoReadOnly)
         {
-           
-
             var baseCtors = genericBase.GetConstructors(BindingFlags.Public |
                                                         BindingFlags.NonPublic |
                                                         BindingFlags.Instance |
@@ -74,23 +74,22 @@ namespace Das.Serializer.ProtoBuf
                 typeof(Boolean), false, out var fieldInfo);
 
             foreach (var ctor in baseCtors)
-                BuildOverrideConstructor(ctor, bldr, //utfField,
+                BuildOverrideConstructor(ctor, bldr, 
                     dtoCtor, fieldInfo, childProxies, isDtoReadOnly);
 
             return dtoCtor;
         }
 
-        private void BuildOverrideConstructor(ConstructorInfo baseCtor, TypeBuilder builder,
-            //FieldInfo utfField, 
+        private void BuildOverrideConstructor(
+            ConstructorInfo baseCtor, 
+            TypeBuilder builder,
             ConstructorInfo dtoCtor, FieldInfo readOnlyBackingField,
-            Dictionary<IProtoFieldAccessor, FieldBuilder> childProxies,
+            IEnumerable<FieldBuilder> childProxies,
             Boolean isDtoReadOnly)
         {
 
             var paramList = new List<Type>();
             paramList.AddRange(baseCtor.GetParameters().Select(p => p.ParameterType));
-
-            //paramList.Add(typeof(IProtoProvider));
 
             var ctorParams = paramList.ToArray();
 
@@ -114,13 +113,11 @@ namespace Das.Serializer.ProtoBuf
             {
                 il.Emit(OpCodes.Ldarg_0);
 
-                //var germane = _types.GetGermaneType(kvp.Value.FieldType);
-
-                var gargs = kvp.Value.FieldType.GetGenericArguments();
+                var gargs = kvp.FieldType.GetGenericArguments();
 
                 if (gargs.Length != 1)
                     throw new InvalidOperationException(
-                        $"{kvp.Value.FieldType} should have exactly one generic argument");
+                        $"{kvp.FieldType} should have exactly one generic argument");
 
                 var garg = gargs[0];
 
@@ -163,31 +160,13 @@ namespace Das.Serializer.ProtoBuf
                 il.Emit(OpCodes.Callvirt, getProxyInstance);
             
                 
-                il.Emit(OpCodes.Stfld, kvp.Value);
+                il.Emit(OpCodes.Stfld, kvp);
             }
-
-
-            //var getUtf8 = typeof(Encoding).GetterOrDie(nameof(Encoding.UTF8), out _,
-            //    Const.PublicStatic);
-
-            //var utf = il.DeclareLocal(typeof(Encoding));
-
-            //il.Emit(OpCodes.Call, getUtf8);
-            //il.Emit(OpCodes.Stloc, utf);
-
-            //il.Emit(OpCodes.Ldarg_0);
-            //il.Emit(OpCodes.Ldloc, utf);
-            //il.Emit(OpCodes.Stfld, utfField);
-
 
             il.Emit(OpCodes.Ldarg_0);
 
             il.Emit(allowReadOnly);
             il.Emit(OpCodes.Stfld, readOnlyBackingField);
-
-
-            //foreach (var kvp in )
-
 
             il.Emit(OpCodes.Nop);
             il.Emit(OpCodes.Nop);
@@ -210,16 +189,13 @@ namespace Das.Serializer.ProtoBuf
                 il.Emit(OpCodes.Newobj, ctor);
             else
             {
-                // instantiate via private constructor
+                // instantiate via private constructor = emit reflection =\
 
                 var genericArg = il.DeclareLocal(typeof(Type));
                 var localType = il.DeclareLocal(typeof(Type));
                 var ctorType = il.DeclareLocal(typeof(ConstructorInfo));
 
                 var baseTypeGetter = typeof(Type).GetterOrDie(nameof(Type.BaseType), out _);
-
-                //var baseTypeGetter = typeof(Type).GetProperty(nameof(Type.BaseType)).GetGetMethod();
-
 
                 il.Emit(OpCodes.Ldarg_0);
                 var getTypeMethod = typeof(Object).GetMethodOrDie(nameof(Object.GetType));
@@ -246,7 +222,9 @@ namespace Das.Serializer.ProtoBuf
                         typeof(ParameterModifier[])
                     }) ?? throw new InvalidOperationException();
 
-                var emptyFields = typeof(Type).GetField(nameof(Type.EmptyTypes)) ?? throw new InvalidOperationException();
+                var emptyFields = typeof(Type).GetField(nameof(Type.EmptyTypes)) 
+                                  ?? throw new InvalidOperationException();
+
                 var nonPublicField = typeof(ProtoDynamicBase).GetField(
                     nameof(ProtoDynamicBase.InstanceNonPublic))
                                      ?? throw new InvalidOperationException();

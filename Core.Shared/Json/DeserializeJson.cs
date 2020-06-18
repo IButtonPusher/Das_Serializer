@@ -13,7 +13,7 @@ namespace Das.Serializer
                 return state.Scanner.Deserialize<Object>(json);
         }
 
-        public T FromJson<T>(String json) //=> FromJsonCharArray<T>(json);
+        public T FromJson<T>(String json)
         {
             using (var state = StateProvider.BorrowJson(Settings))
             {

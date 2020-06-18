@@ -80,7 +80,7 @@ namespace Das.Serializer
 
             try
             {
-                if (!typeof(IEnumerable).IsAssignableFrom(ownerType))
+                if (!typeof(IEnumerable).IsAssignableFrom(ownerType) || ownerType == typeof(String))
                     return ownerType;
 
                 if (ownerType.IsArray)

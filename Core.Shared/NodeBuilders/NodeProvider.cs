@@ -18,7 +18,7 @@ namespace Das.Serializer
         private static readonly ThreadLocal<List<T>> LetsAdd
             = new ThreadLocal<List<T>>(() => new List<T>());
 
-        protected static Queue<T> Buffer => _buffer.Value;
+        protected static Queue<T> Buffer => _buffer.Value!;
 
         private static readonly ThreadLocal<Queue<T>> _buffer
             = new ThreadLocal<Queue<T>>(() => new Queue<T>());
@@ -30,7 +30,7 @@ namespace Das.Serializer
                 return;
 
             var buffer = Buffer;
-            var letsAdd = LetsAdd.Value;
+            var letsAdd = LetsAdd.Value!;
             
             letsAdd.AddRange(node);
 

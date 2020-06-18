@@ -6,7 +6,7 @@ namespace Das.Serializer
 {
     public interface IInstantiator
     {
-        Object BuildDefault(Type type, Boolean isCacheConstructors);
+        Object? BuildDefault(Type type, Boolean isCacheConstructors);
 
         T BuildDefault<T>(Boolean isCacheConstructors);
 

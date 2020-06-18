@@ -18,13 +18,13 @@ namespace Das.Serializer.Proto
             Type parentType,
             Action<ILGenerator>? loadReturnValueOntoStack,
             LocalBuilder lastByteLocal,
-            IDictionary<IProtoFieldAccessor, FieldBuilder> childProxies,
             IStreamAccessor streamAccessor,
             FieldInfo readBytesField,
-            ITypeManipulator types, IInstantiator instantiator,
+            ITypeManipulator types, 
+            IInstantiator instantiator,
             IDictionary<Type, FieldBuilder> proxies)
-            : base(il, currentField, childProxies, parentType, 
-                loadReturnValueOntoStack, proxies)
+            : base(il, currentField, parentType, 
+                loadReturnValueOntoStack, proxies, types)
         {
             LocalFieldValues = new Dictionary<IProtoFieldAccessor, LocalBuilder>();
 
@@ -41,7 +41,6 @@ namespace Das.Serializer.Proto
             _instantiator = instantiator;
 
             EnsureLocalFieldsForProperties(fields);
-
         }
 
         private void EnsureLocalFieldsForProperties(IEnumerable<IProtoFieldAccessor> fields)
@@ -82,8 +81,7 @@ namespace Das.Serializer.Proto
                 case ProtoFieldAction.PackedArray:
 
                     if (canSetValueInline)
-                        res = (f, s) => _loadReturnValueOntoStack(s.IL);
-                    
+                        res = (f, s) => _loadReturnValueOntoStack!(s.IL);
                     else
                         res = (f, s) => { };
 
@@ -289,21 +287,9 @@ namespace Das.Serializer.Proto
 
             if (_instantiator.TryGetDefaultConstructor(localType, out var fieldCtor))
             {
-                //_il.Emit(OpCodes.Ldloc, local);
                 _il.Emit(OpCodes.Newobj, fieldCtor);
                 _il.Emit(OpCodes.Stloc, local);
             }
-
-
-            //var buildDefault = typeof(IProtoProvider).GetMethodOrDie(
-            //    nameof(IProtoProvider.BuildDefaultValue));
-
-            //var buildDefaultClosed = buildDefault.MakeGenericMethod(localType);
-
-            //_il.Emit(OpCodes.Ldarg_0);
-            //_il.Emit(OpCodes.Ldfld, _proxyProviderField);
-            //_il.Emit(OpCodes.Callvirt, buildDefaultClosed);
-            //_il.Emit(OpCodes.Stloc, local);
 
             LocalFieldValues.Add(field, local);
 

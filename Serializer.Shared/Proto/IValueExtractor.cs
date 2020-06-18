@@ -8,8 +8,6 @@ namespace Das.Serializer.Proto
     {
         void LoadNextString();
 
-        IDictionary<IProtoFieldAccessor, FieldBuilder> ChildProxies { get; }
-
         FieldBuilder GetProxy(Type type);
 
         ILGenerator IL { get; }

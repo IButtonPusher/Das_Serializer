@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Das.Serializer.Proto;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -12,49 +13,39 @@ namespace Das.Serializer.ProtoBuf
     {
         public IProtoProxy<T> GetAutoProtoProxy<T>(Boolean allowReadOnly = false)
         {
-            return GetProtoProxyImpl<T>(
-                CreateAutoProxyTypeYesReadOnly,
-                CreateAutoProxyTypeNoReadOnly,
-                allowReadOnly);
+            return ProxyLookup<T>.Instance ??= allowReadOnly
+                ? CreateAutoProxyTypeYesReadOnly<T>()
+                : CreateAutoProxyTypeNoReadOnly<T>();
         }
 
         public T BuildDefaultValue<T>()
         {
             return _instantiator.BuildDefault<T>(true);
         }
-
-        private Object CreateAutoProxyTypeYesReadOnly(Type type)
+        
+        private IProtoProxy<T> CreateAutoProxyTypeYesReadOnly<T>()
         {
-            //var type = typeof(T);
+            var type = typeof(T);
+
             var fields = GetProtoFields(type, out var ctor);
 
             var ptype = CreateProxyTypeImpl(type, ctor, fields, false, true, ctor) ??
                    throw new InvalidOperationException();
 
-            return InstantiateProxyInstance(ptype);
+            return InstantiateProxyInstance<T>(ptype);
 
         }
 
-        private Object CreateAutoProxyTypeNoReadOnly(Type type)
+        private IProtoProxy<T> CreateAutoProxyTypeNoReadOnly<T>()
         {
-            //var type = typeof(T);
+            var type = typeof(T);
+
             var fields = GetProtoFields(type, out var ctor);
 
             var ptype = CreateProxyTypeImpl(type, ctor, fields, false, false, ctor) ??
                         throw new InvalidOperationException();
 
-            return InstantiateProxyInstance(ptype);
-        }
-
-
-        private Type CreateAutoProxyType<T>(Boolean allowReadOnly)
-        {
-            var type = typeof(T);
-            var fields = GetProtoFields(type, out var ctor);
-
-            return CreateProxyTypeImpl(type, ctor, fields, false, allowReadOnly, ctor) ??
-                throw new InvalidOperationException();
-
+            return InstantiateProxyInstance<T>(ptype);
         }
 
         private List<ProtoField> GetProtoFields(Type type, out ConstructorInfo useCtor)

@@ -71,10 +71,10 @@ namespace Das.Serializer.ProtoBuf
             }
         }
 
-        public static void CopyMemoryStream(MemoryStream copyFrom,  
+        public static void CopyMemoryStream(NaiveMemoryStream copyFrom,  
             Stream  destination)
         {
-            destination.Write(copyFrom.GetBuffer(), 0, (Int32)copyFrom.Length);
+            destination.Write(copyFrom._buffer, 0, copyFrom.IntLength);
             
         }
 

@@ -57,7 +57,11 @@ namespace Serializer.Benchmarks
 
                         buff.DasByteArray();
 
-                        //buff.TypeProvider.DumpProxies();
+                        #if DEBUG
+
+                        buff.TypeProvider.DumpProxies();
+
+#endif
                     }
 
 

@@ -24,7 +24,7 @@ namespace Das.Serializer
             => _properties.TryGetValue(forProperty, out var prop) &&
                prop.Type.IsInstanceOfType(value);
 
-        public Type GetPropertyType(String propertyName)
+        public Type? GetPropertyType(String propertyName)
             => _properties.TryGetValue(propertyName, out var prop) ? prop.Type : default;
 
         public static implicit operator Type(DasType das)
@@ -45,7 +45,7 @@ namespace Das.Serializer
         {
             if (!PublicGetters.TryGetValue(propertyName, out var getter))
             {
-                result = default;
+                result = default!;
                 return false;
             }
 

@@ -29,6 +29,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoScanBuilder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoStateBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoVarIntBuilder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Proto\ProxyLookup.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\DefaultStateProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\DasCodeGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\DasType.cs" />

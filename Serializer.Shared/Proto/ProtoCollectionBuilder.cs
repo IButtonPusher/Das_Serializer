@@ -15,7 +15,6 @@ namespace Das.Serializer.ProtoBuf
              var pv = s.CurrentField;
              var ienum = new ProtoEnumerator<ProtoPrintState>(s, pv.Type, pv.GetMethod);
 
-
              ienum.ForEach(action, pv.HeaderBytes);
          }
 

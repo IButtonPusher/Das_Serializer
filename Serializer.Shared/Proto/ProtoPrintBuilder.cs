@@ -15,7 +15,6 @@ namespace Das.Serializer.ProtoBuf
     {
         private void AddPrintMethod(Type parentType, TypeBuilder bldr, Type genericParent,
             IEnumerable<IProtoFieldAccessor> fields,
-            IDictionary<IProtoFieldAccessor, FieldBuilder> childProxyFields,
             IDictionary<Type, FieldBuilder> typeProxies)
         {
             var abstractMethod = genericParent.GetMethod(
@@ -44,13 +43,12 @@ namespace Das.Serializer.ProtoBuf
             var state = new ProtoPrintState(il, false,
                 fArr, parentType,
                 loadDto, _types,
-                _writeInt32, this, childProxyFields, startField,
+                _writeInt32, this, startField,
                 typeProxies);
 
 
-            if (childProxyFields.Count > 0)
+            if (typeProxies.Count > 0)
                 state.EnsureChildObjectStream();
-
 
             foreach (var protoField in state)
             {
@@ -231,7 +229,10 @@ namespace Das.Serializer.ProtoBuf
 
             PrintHeaderBytes(headerBytes, s);
 
-            var proxyField = s.ChildProxies[s.CurrentField];
+            var proxyField = s.GetProxy(s.CurrentField.Type);
+
+
+            //var proxyField = s.ChildProxies[s.CurrentField];
             var proxyType = proxyField.FieldType;
 
             ////////////////////////////////////////////

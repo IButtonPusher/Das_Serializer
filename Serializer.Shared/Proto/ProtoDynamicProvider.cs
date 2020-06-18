@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Das.Extensions;
+using Das.Serializer.Proto;
 using Das.Serializer.Remunerators;
 
 namespace Das.Serializer.ProtoBuf
@@ -24,10 +23,6 @@ namespace Das.Serializer.ProtoBuf
             _protoSettings = protoSettings;
             _types = typeManipulator;
             _instantiator = instantiator;
-            _lookupLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
-            _proxiesByDtoType = new Dictionary<Type, Type>();
-            _proxyInstancesByDtoType = new Dictionary<Type, object>();
-            _proxyInstancesByDtoType2 = new ConcurrentDictionary<Type, object>();
 
             var asmName = new AssemblyName("BOB.Stuff");
             // ReSharper disable once JoinDeclarationAndInitializer
@@ -36,10 +31,10 @@ namespace Das.Serializer.ProtoBuf
 
 #if NET45 || NET40
             access = AssemblyBuilderAccess.RunAndSave;
-            //access = AssemblyBuilderAccess.Run;
+            
             _asmBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, access);
             _moduleBuilder = _asmBuilder.DefineDynamicModule(AssemblyName, SaveFile);
-            //_moduleBuilder = _asmBuilder.DefineDynamicModule(AssemblyName);
+            
 #else
             access = AssemblyBuilderAccess.Run;
             _asmBuilder = AssemblyBuilder.DefineDynamicAssembly(asmName, access);
@@ -139,166 +134,27 @@ namespace Das.Serializer.ProtoBuf
 
         public IProtoProxy<T> GetProtoProxy<T>(Boolean allowReadOnly = false)
         {
-            return GetProtoProxyImpl<T>(
-                CreateProxyTypeYesReadOnly, 
-                CreateProxyTypeNoReadOnly,
-                allowReadOnly);
+            return ProxyLookup<T>.Instance ??= allowReadOnly
+                ? CreateProxyTypeYesReadOnly<T>()
+                : CreateProxyTypeNoReadOnly<T>();
+
         }
 
-        private object BuildInstanceNoReadOnly<T>(Type type)
-        {
-            var pType = CreateProxyType(type, false);
-            return InstantiateProxyInstance<T>(pType);
-        }
-
-        private object BuildInstanceYesReadOnly<T>(Type type)
-        {
-            var pType = CreateProxyType(type, true);
-            return InstantiateProxyInstance<T>(pType);
-        }
-
-        private IProtoProxy<T> GetProtoProxyImpl<T>(
-            Func<Type, Object> buildNewAllowReadOnly,
-            Func<Type, Object> buildNewNoReadOnly,
-            Boolean allowReadOnly = false)
-        {
-            var forType = typeof(T);
-
-
-            var rdrr2 = allowReadOnly
-                ? _proxyInstancesByDtoType2.GetOrAdd(
-                    forType, buildNewAllowReadOnly)
-                : _proxyInstancesByDtoType2.GetOrAdd(
-                    forType, buildNewNoReadOnly);
-
-
-            //var rdrr = allowReadOnly
-            //    ? _proxyInstancesByDtoType2.GetOrAdd(
-            //        forType, BuildInstanceYesReadOnly<T>)
-            //    : _proxyInstancesByDtoType2.GetOrAdd(
-            //        forType, BuildInstanceNoReadOnly<T>);
-
-            return (IProtoProxy<T>)rdrr2;
-
-
-            //var enterWrite = !_lookupLock.IsWriteLockHeld;
-            //var enterRead = !enterWrite && !_lookupLock.IsReadLockHeld;
-
-            //if (enterRead)
-            //    _lookupLock.EnterUpgradeableReadLock();
-
-            //try
-            //{
-            //    if (_proxyInstancesByDtoType.TryGetValue(forType, out var instance) &&
-            //        instance is IProtoProxy<T> ready)
-            //    {
-            //        enterWrite = false;
-            //        return ready;
-            //    }
-
-            //    if (_proxiesByDtoType.TryGetValue(forType, out var proxyType))
-            //    {
-            //        enterWrite = false;
-            //        return InstantiateProxyInstance<T>(proxyType);
-            //    }
-
-            //    if (enterWrite)
-            //        _lookupLock.EnterWriteLock();
-
-            //    ///////////////////////////////////////
-            //    var dynamicType = buildNew(allowReadOnly) ?? throw new InvalidOperationException();
-            //    ///////////////////////////////////////
-
-            //    _proxiesByDtoType[forType] = dynamicType;
-            //    ready = InstantiateProxyInstance<T>(dynamicType);
-            //    _proxyInstancesByDtoType[forType] = ready;
-
-            //    return ready;
-            //}
-            //finally
-            //{
-            //    if (enterWrite)
-            //        _lookupLock.ExitWriteLock();
-
-            //    if (enterRead)
-            //        _lookupLock.ExitUpgradeableReadLock();
-            //}
-        }
-
-        private IProtoProxy<T> GetProtoProxyImpl2<T>(
-            Func<Boolean, Type?> buildNew,
-            Boolean allowReadOnly = false)
-        {
-            var forType = typeof(T);
-
-            var enterWrite = !_lookupLock.IsWriteLockHeld;
-            var enterRead = !enterWrite && !_lookupLock.IsReadLockHeld;
-
-            if (enterRead)
-                _lookupLock.EnterUpgradeableReadLock();
-
-            try
-            {
-                if (_proxyInstancesByDtoType.TryGetValue(forType, out var instance) &&
-                    instance is IProtoProxy<T> ready)
-                {
-                    enterWrite = false;
-                    return ready;
-                }
-
-                if (_proxiesByDtoType.TryGetValue(forType, out var proxyType))
-                {
-                    enterWrite = false;
-                    return InstantiateProxyInstance<T>(proxyType);
-                }
-
-                if (enterWrite)
-                    _lookupLock.EnterWriteLock();
-
-                ///////////////////////////////////////
-                var dynamicType = buildNew(allowReadOnly) ?? throw new InvalidOperationException();
-                ///////////////////////////////////////
-
-                _proxiesByDtoType[forType] = dynamicType;
-                ready = InstantiateProxyInstance<T>(dynamicType);
-                _proxyInstancesByDtoType[forType] = ready;
-
-                return ready;
-            }
-            finally
-            {
-                if (enterWrite)
-                    _lookupLock.ExitWriteLock();
-
-                if (enterRead)
-                    _lookupLock.ExitUpgradeableReadLock();
-            }
-        }
-
-        private Object CreateProxyTypeYesReadOnly(Type type)
-        {
-            //var type = typeof(T);
-
-            var ptype =  CreateProxyType(type, true);
-            
-            return InstantiateProxyInstance(ptype);
-        }
-
-        private Object CreateProxyTypeNoReadOnly(Type type)
-        {
-            //var type = typeof(T);
-
-            var ptype =  CreateProxyType(type, false);
-            
-            return InstantiateProxyInstance(ptype);
-        }
-
-
-        private Type? CreateProxyType<T>(Boolean allowReadOnly)
+        private IProtoProxy<T> CreateProxyTypeYesReadOnly<T>()
         {
             var type = typeof(T);
 
-            return CreateProxyType(type, allowReadOnly);
+            var ptype =  CreateProxyType(type, true) ?? throw new TypeLoadException(type.Name);
+            
+            return InstantiateProxyInstance<T>(ptype);
+        }
+
+        private IProtoProxy<T> CreateProxyTypeNoReadOnly<T>()
+        {
+            var type = typeof(T);
+            var ptype = CreateProxyType(type, false) ?? throw new TypeLoadException(type.Name);
+            
+            return InstantiateProxyInstance<T>(ptype);
         }
 
         private Type? CreateProxyType(Type type, Boolean allowReadOnly)
@@ -333,20 +189,20 @@ namespace Das.Serializer.ProtoBuf
 
             var genericParent = typeof(ProtoDynamicBase<>).MakeGenericType(type);
 
-            var childProxies = CreateProxyFields(bldr, fArr, out var typeProxies);
-
+            var typeProxies = CreateProxyFields(bldr, fArr);
 
             var ctor = AddConstructors(bldr, dtoCtor, 
-                genericParent, childProxies, allowReadOnly);
+                genericParent, 
+                typeProxies.Values,
+                allowReadOnly);
 
-            AddPrintMethod(type, bldr, genericParent, //utf, 
-                fArr, childProxies, typeProxies);
+            AddPrintMethod(type, bldr, genericParent, fArr, typeProxies);
 
             if (ctor != null)
             {
                 var example = canSetValuesInline ? ctor.Invoke(new Object[0]) : default;
                 AddScanMethod(type, bldr, genericParent, fArr, 
-                    example!, childProxies, canSetValuesInline, 
+                    example!, canSetValuesInline, 
                     buildReturnValue, typeProxies);
                 
                 if (canSetValuesInline)
@@ -375,7 +231,7 @@ namespace Das.Serializer.ProtoBuf
             
 
 #if NET45 || NET40
-            if (Interlocked.Increment(ref _dumpCount) > 1)
+            if (System.Threading.Interlocked.Increment(ref _dumpCount) > 1)
             {
                 System.Diagnostics.Debug.WriteLine("WARNING:  Proxies already dumped");
                 return;
@@ -489,18 +345,12 @@ namespace Das.Serializer.ProtoBuf
             return res;
         }
 
-        private ProtoDynamicBase<TDto> InstantiateProxyInstance<TDto>(Type proxyType)
-        {
-            var res = Activator.CreateInstance(proxyType, this)
-                      ?? throw new Exception(proxyType.Name);
-            return (ProtoDynamicBase<TDto>) res;
-        }
 
-        private Object InstantiateProxyInstance(Type proxyType)
+        private IProtoProxy<T> InstantiateProxyInstance<T>(Type proxyType)
         {
             var res = Activator.CreateInstance(proxyType, this)
                       ?? throw new Exception(proxyType.Name);
-            return res;
+            return (IProtoProxy<T>)res;
         }
 
         private Int32 GetIndexFromAttribute(PropertyInfo prop)
@@ -632,15 +482,9 @@ namespace Das.Serializer.ProtoBuf
         private readonly MethodInfo _getStreamPosition;
         private readonly MethodInfo _getStringBytes;
         private readonly IInstantiator _instantiator;
-        private readonly ReaderWriterLockSlim _lookupLock;
         private readonly ModuleBuilder _moduleBuilder;
 
         private readonly ProtoBufOptions<TPropertyAttribute> _protoSettings;
-
-        private readonly Dictionary<Type, Type> _proxiesByDtoType;
-        private readonly Dictionary<Type, Object> _proxyInstancesByDtoType;
-
-        private readonly ConcurrentDictionary<Type, Object> _proxyInstancesByDtoType2;
 
         private readonly FieldInfo _proxyProviderField;
         

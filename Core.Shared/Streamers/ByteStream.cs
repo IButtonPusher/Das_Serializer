@@ -9,7 +9,7 @@ namespace Das.Serializer
         private Stream _stream;
         private Int64 _length;
 
-        [ThreadStatic] private static Byte[] _byteCache;
+        [ThreadStatic] private static Byte[]? _byteCache;
 
         public Stream Stream
         {
@@ -28,13 +28,14 @@ namespace Das.Serializer
 
         public ByteStream(Stream stream)
         {
-            Stream = stream;
+            _stream = stream;
+            SetStream(stream);
         }
 
-        public ByteStream()
-        {
+        //public ByteStream()
+        //{
             
-        }
+        //}
 
         public Byte this[Int32 bytes]
         {
