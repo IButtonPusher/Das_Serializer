@@ -30,7 +30,7 @@ namespace Das.Serializer
 
         public String JsonEscape(String str)
         {
-            using (var saver = _escapeSaver.Value)
+            using (var saver = _escapeSaver.Value!)
             {
                 JsonPrinter.AppendEscaped(str, saver);
                 var res = saver.ToString();
@@ -51,7 +51,7 @@ namespace Das.Serializer
         [MethodImpl(256)]
         private String ToJson(Object obj, Type asType)
         {
-            using (var sp = _escapeSaver.Value)
+            using (var sp = _escapeSaver.Value!)
             {
                 using (var state = StateProvider.BorrowJson(Settings))
                 {

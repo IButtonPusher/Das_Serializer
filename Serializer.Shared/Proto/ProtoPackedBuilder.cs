@@ -76,10 +76,7 @@ namespace Das.Serializer.ProtoBuf
             else if (packType == typeof(Int64))
                 getPackedArrayLength = _getPackedInt64Length.MakeGenericMethod(type);
 
-            //il.Emit(OpCodes.Ldarg_0);
-
-
-            //il.Emit(OpCodes.Ldarg_0);
+            
             il.Emit(OpCodes.Ldloc, arrayLocalField);
             il.Emit(OpCodes.Call, getPackedArrayLength);
                 

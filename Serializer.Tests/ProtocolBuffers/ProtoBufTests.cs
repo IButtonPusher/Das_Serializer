@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using BenchmarkDotNet.Attributes;
-using Das.Serializer.ProtoBuf;
-using Das.Serializer.Remunerators;
 using Xunit;
 
 namespace Serializer.Tests.ProtocolBuffers
@@ -218,13 +214,7 @@ namespace Serializer.Tests.ProtocolBuffers
             var o = TypeProvider.GetProtoProxy<CollectionsPropertyMessage>();
 
             //TypeProvider.DumpProxies();
-
-            //var o = new Serializer_Tests_ProtocolBuffers_CollectionsPropertyMessage(() =>
-            //    new CollectionsPropertyMessage());
-
-            //var lol = new Serializer_Tests_ProtocolBuffers_CollectionsPropertyMessage(
-            //    () => new CollectionsPropertyMessage());
-
+            
             using (var ms = new MemoryStream())
             {
                 o.Print(mc1, ms);
@@ -498,6 +488,38 @@ namespace Serializer.Tests.ProtocolBuffers
             }
         }
 
+        [Benchmark]
+        public ComposedCollectionMessage DasComposedCollectionMessage()
+        {
+            var msg = ComposedCollectionMessage.Default;
+            var o = TypeProvider.GetProtoProxy<ComposedCollectionMessage>();
+
+        //    TypeProvider.DumpProxies();
+
+            using (var ms = new MemoryStream())
+            {
+                o.Print(msg, ms);
+                ms.Position = 0;
+                var okThen = o.Scan(ms);
+                return okThen;
+            }
+        }
+
+        [Benchmark]
+        public ComposedCollectionMessage ProtoNetComposedCollectionMessage()
+        {
+            var msg = ComposedCollectionMessage.Default;
+
+            using (var ms = new MemoryStream())
+            {
+                ProtoBuf.Serializer.Serialize(ms, msg);
+                ms.Position = 0;
+
+
+                return ProtoBuf.Serializer.Deserialize<ComposedCollectionMessage>(ms);
+            }
+        }
+
         
         [Fact]public void ComposedTest()
         {
@@ -506,6 +528,24 @@ namespace Serializer.Tests.ProtocolBuffers
             var fromDas2 = DasComposedMessage();
             var fromDas3 = DasComposedMessage();
             var fromDas4 = DasComposedMessage();
+            
+
+            var equal = SlowEquality.AreEqual(fromDas, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas2, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas3, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas4, fromNet);
+            Assert.True(equal);
+        }
+
+
+
+        [Fact]public void ComposedCollectionTest()
+        {
+            var fromNet = ProtoNetComposedCollectionMessage();
+            var fromDas = DasComposedCollectionMessage();
+            var fromDas2 = DasComposedCollectionMessage();
+            var fromDas3 = DasComposedCollectionMessage();
+            var fromDas4 = DasComposedCollectionMessage();
             
 
             var equal = SlowEquality.AreEqual(fromDas, fromNet);

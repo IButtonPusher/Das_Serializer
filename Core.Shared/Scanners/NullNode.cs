@@ -115,7 +115,7 @@ namespace Das.Serializer
             return ReferenceEquals(Instance, other);
         }
 
-        public override Boolean Equals(Object other)
+        public override Boolean Equals(Object? other)
         {
             return ReferenceEquals(Instance, other);
         }

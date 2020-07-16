@@ -5,361 +5,351 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+
 using Xunit;
 
 // ReSharper disable All
 
 namespace Serializer.Tests
 {
-	//[TestClass]
-	public class JsonTests : TestBase
-	{
-		
+    public class JsonTests : TestBase
+    {
+        [Fact]
+        public void IntExplicitJson()
+        {
+            var someInt = 55;
+            var srl = new DasSerializer();
+            var json = srl.ToJson(someInt);
 
-		//[TestCategory("primitive"), TestCategory("json"), TestMethod]
-		[Fact]
-		public void IntExplicitJson()
-		{
-			var someInt = 55;
-			var srl = new DasSerializer();
-			var json = srl.ToJson(someInt);		
+            var int2 = srl.FromJson<Int32>(json);
+            Assert.True(someInt == int2);
+        }
 
-			var int2 = srl.FromJson<Int32>(json);
-			Assert.True(someInt == int2);
-		}
+        [Fact]
+        public void Int32asInt16Json()
+        {
+            var someInt = 55;
 
-		
+            var srl = new DasSerializer();
+            srl.Settings.TypeSpecificity = TypeSpecificity.All;
+            var json = srl.ToJson<Int16>(someInt);
 
-		//[TestCategory("primitive"), TestCategory("json"), TestMethod]
-		[Fact]
-		public void Int32asInt16Json()
-		{
-			var someInt = 55;
-			
-			var srl = new DasSerializer();
-			srl.Settings.TypeSpecificity = TypeSpecificity.All;
-			var json = srl.ToJson<Int16>(someInt);
-			////Debug.WriteLine("json = " + json);
-			var int2 = srl.FromJson<Int16>(json);
+            var int2 = srl.FromJson<Int16>(json);
 
-			var int3 = srl.FromJson<Int32>(json);
+            var int3 = srl.FromJson<Int32>(json);
 
-			var int4 = (Int16)srl.FromJson(json);
+            var int4 = (Int16) srl.FromJson(json);
 
-			Assert.True(someInt == int2 && int2 == int3 && int2 == int4);
-		}
+            Assert.True(someInt == int2 && int2 == int3 && int2 == int4);
+        }
+
+        [Fact]
+        public void PrimitivePropertiesJson()
+        {
+            var sc = SimpleClass.GetNullPayload();
+
+            var srl = new DasSerializer();
+            var json = srl.ToJson(sc);
+
+            var sc2 = srl.FromJson<SimpleClass>(json);
+            var badProp = "";
+            Assert.True(SlowEquality.AreEqual(sc, sc2, ref badProp));
+        }
 
 
 
-		//[TestCategory("object"), TestCategory("json"), TestMethod]
-		[Fact]
-		public void PrimitivePropertiesJson()
-		{
-			var sc = SimpleClass.GetNullPayload();
-			
-			var srl = new DasSerializer();
-			var json = srl.ToJson(sc);
-
-			var sc2 = srl.FromJson<SimpleClass>(json);
-			var badProp = "";
-			Assert.True(SlowEquality.AreEqual(sc,sc2, ref badProp));
-		}
-
-		//[TestCategory("object"), TestCategory("json"), TestMethod]
-		[Fact]
-		public void ExcludeDefaultValuesJson()
-		{
-			var sc = SimpleClass.GetNullPayload();
-			sc.ID = 0;
+        [Fact]
+        public void ExcludeDefaultValuesJson()
+        {
+            var sc = SimpleClass.GetNullPayload();
+            sc.ID = 0;
             var settings = DasSettings.Default;
 
             var srl = new DasSerializer(settings);
             settings.IsOmitDefaultValues = true;
-			var json = srl.ToJson(sc);
+            var json = srl.ToJson(sc);
 
-			var sc2 = srl.FromJson<SimpleClass>(json);
-			var badProp = "";
-			Assert.True(SlowEquality.AreEqual(sc, sc2, ref badProp));
-		}
+            var sc2 = srl.FromJson<SimpleClass>(json);
+            var badProp = "";
+            Assert.True(SlowEquality.AreEqual(sc, sc2, ref badProp));
+        }
 
-
-		//[TestCategory("object"), TestCategory("json"), TestMethod]
-		[Fact]
-			public void ReadOnlyPropertiesJson()
-		{
-			var sc = new SimpleClass("to everyone");
-			sc.ID = 0;
+        [Fact]
+        public void ReadOnlyPropertiesJson()
+        {
+            var sc = new SimpleClass("to everyone");
+            sc.ID = 0;
             var settings = DasSettings.Default;
             settings.IsOmitDefaultValues = true;
             settings.SerializationDepth |= SerializationDepth.GetOnlyProperties;
             var srl = new DasSerializer(settings);
-			
-			var json = srl.ToJson(sc);
 
-			var sc2 = srl.FromJson<SimpleClass>(json);
-			var badProp = "";
-			Assert.True(SlowEquality.AreEqual(sc, sc2, ref badProp));
-		}
+            var json = srl.ToJson(sc);
 
-		//[TestCategory("object"), TestCategory("json"), TestMethod]
-		[Fact]
-			public void ObjectPropertiesJson()
-		{
-			var test = TestCompositeClass.Init();			
+            var sc2 = srl.FromJson<SimpleClass>(json);
+            var badProp = "";
+            Assert.True(SlowEquality.AreEqual(sc, sc2, ref badProp));
+        }
 
-			var srl = new DasSerializer();
-			var json = srl.ToJson(test);
+        [Fact]
+        public void ObjectPropertiesJson()
+        {
+            var test = TestCompositeClass.Init();
 
-			var sc2 = srl.FromJson<TestCompositeClass>(json);
-			var badProp = "";
-			Assert.True(SlowEquality.AreEqual(test, sc2, ref badProp));
-		}
+            var srl = new DasSerializer();
+            var json = srl.ToJson(test);
 
-		//[TestCategory("object"), TestCategory("json"), TestMethod]
-		[Fact]
-			public void CircularReferencesjson()
-		{
-			var test = Teacher.Get();
-			var srl = new DasSerializer();
+            var sc2 = srl.FromJson<TestCompositeClass>(json);
+            var badProp = "";
+            var rolf = SlowEquality.AreEqual(test, sc2, ref badProp);
 
+            Assert.True(rolf);
+        }
 
-			//restore the reference
-			srl.Settings.CircularReferenceBehavior = CircularReference.SerializePath;
-			var json = srl.ToJson(test);
-			var sc2 = srl.FromJson<Teacher>(json);
-			Assert.True(test.FirstName == sc2.FirstName && test.Pupils.First().MiddleName ==
-				sc2.Pupils.First().MiddleName && test.Pupils.First().MathTeacher.FirstName ==
-				sc2.Pupils.First().MathTeacher.FirstName);
+        [Fact]
+        public void CircularReferencesjson()
+        {
+            var test = Teacher.Get();
+            var srl = new DasSerializer();
 
 
-			//lose the reference
-			srl.Settings.CircularReferenceBehavior = CircularReference.IgnoreObject;
-			json = srl.ToJson(test);
-			sc2 = srl.FromJson<Teacher>(json);
-			var badProp = "";
-			Assert.True(test.FirstName == sc2.FirstName && test.Pupils.First().MiddleName ==
-				sc2.Pupils.First().MiddleName && sc2.Pupils.First().MathTeacher == null);
-
-			sc2 = srl.FromJson<Teacher>(json);
-
-			Assert.False(SlowEquality.AreEqual(test, sc2, ref badProp));
+            //restore the reference
+            srl.Settings.CircularReferenceBehavior = CircularReference.SerializePath;
+            var json = srl.ToJson(test);
+            var sc2 = srl.FromJson<Teacher>(json);
+            Assert.True(test.FirstName == sc2.FirstName && test.Pupils.First().MiddleName ==
+                sc2.Pupils.First().MiddleName && test.Pupils.First().MathTeacher.FirstName ==
+                sc2.Pupils.First().MathTeacher.FirstName);
 
 
+            //lose the reference
+            srl.Settings.CircularReferenceBehavior = CircularReference.IgnoreObject;
+            json = srl.ToJson(test);
+            sc2 = srl.FromJson<Teacher>(json);
+            var badProp = "";
+            Assert.True(test.FirstName == sc2.FirstName && test.Pupils.First().MiddleName ==
+                sc2.Pupils.First().MiddleName && sc2.Pupils.First().MathTeacher == null);
 
-			//fail
-			srl.Settings.CircularReferenceBehavior = CircularReference.ThrowException;
-			try
-			{
-				srl.ToJson(test);
-				Assert.True(false);
-			}
-			catch { }
-		}
+            sc2 = srl.FromJson<Teacher>(json);
 
-		//[TestCategory("array"), TestCategory("json"), TestCategory("collections"), TestMethod]
-		[Fact]
-		public void ClassWithPrimitiveArrayJson()
-		{
-			var mc1 = PrimitiveArray.Get();
-			
-			var json = Serializer.ToJson(mc1);
-			var res = Serializer.FromJson<PrimitiveArray>(json);			
-			Assert.True(mc1.StringArray.SequenceEqual(res.StringArray));
-			
-		}
+            Assert.False(SlowEquality.AreEqual(test, sc2, ref badProp));
 
-		//[TestCategory("array"), TestCategory("json"), TestCategory("collections"), TestMethod]
-		[Fact]
-		public void ClassWithObjectArrayJson()
-		{
-			var arr1 = ObjectArray.Get();
 
-			var json = Serializer.ToJson(arr1);
-			var res = Serializer.FromJson<ObjectArray>(json);
-			
 
-			Assert.True(arr1.ItemArray[0].Equals(res.ItemArray[0]));
-			Assert.True(arr1.ItemArray[1].Equals(res.ItemArray[1]));
-		}
+            //fail
+            srl.Settings.CircularReferenceBehavior = CircularReference.ThrowException;
+            try
+            {
+                srl.ToJson(test);
+                Assert.True(false);
+            }
+            catch
+            {
+            }
+        }
 
-		//[TestCategory("list"), TestCategory("json"), TestCategory("collections"), TestMethod]
-		[Fact]
-		public void ListsJson()
-		{
-			var list1 = ObjectList.Get();
+        [Fact]
+        public void ClassWithPrimitiveArrayJson()
+        {
+            var mc1 = PrimitiveArray.Get();
 
-			var json = Serializer.ToJson(list1);
-			var res = Serializer.FromJson<ObjectList>(json);			
+            var json = Serializer.ToJson(mc1);
+            var res = Serializer.FromJson<PrimitiveArray>(json);
+            Assert.True(mc1.StringArray.SequenceEqual(res.StringArray));
 
-			for (var i = 0; i < list1.ItemList.Count; i++)
-			{
-				Assert.True(list1.ItemList[i].Equals(res.ItemList[i]));
-			}
+        }
 
-			////////////
+        [Fact]
+        public void ClassWithObjectArrayJson()
+        {
+            var arr1 = ObjectArray.Get();
 
-			var list2 = PrimitiveList.Get();
+            var json = Serializer.ToJson(arr1);
+            var res = Serializer.FromJson<ObjectArray>(json);
 
-			json = Serializer.ToJson(list2);
-			var dres = Serializer.FromJson<PrimitiveList>(json);
 
-			for (var i = 0; i < list2.DecimalList.Count; i++)
-			{
-				Assert.True(list2.DecimalList[i].Equals(dres.DecimalList[i]));
-			}
-		}
+            Assert.True(arr1.ItemArray[0].Equals(res.ItemArray[0]));
+            Assert.True(arr1.ItemArray[1].Equals(res.ItemArray[1]));
+        }
 
-		//[TestCategory("list"), TestCategory("json"), TestCategory("collections"), TestMethod]
-		[Fact]
-			public void BlockingJson()
-		{
-			var bc = new BlockingCollection<SimpleClass>();
-			bc.Add(SimpleClass.GetPrimitivePayload());
-			bc.Add(SimpleClass.GetNullPayload());
+        
+        [Fact]
+        public void ListsJson()
+        {
+            var list1 = ObjectList.Get();
 
-			var json = Serializer.ToJson(bc);
-			var res = Serializer.FromJson<BlockingCollection<SimpleClass>>(json);
+            var json = Serializer.ToJson(list1);
+            var res = Serializer.FromJson<ObjectList>(json);
 
-			for (var i = 0; i < bc.Count; i++)
-			{
+            for (var i = 0; i < list1.ItemList.Count; i++)
+            {
+                Assert.True(list1.ItemList[i].Equals(res.ItemList[i]));
+            }
+
+            ////////////
+
+            var list2 = PrimitiveList.Get();
+
+            json = Serializer.ToJson(list2);
+            var dres = Serializer.FromJson<PrimitiveList>(json);
+
+            for (var i = 0; i < list2.DecimalList.Count; i++)
+            {
+                Assert.True(list2.DecimalList[i].Equals(dres.DecimalList[i]));
+            }
+        }
+
+        //[TestCategory("list"), TestCategory("json"), TestCategory("collections"), TestMethod]
+        [Fact]
+        public void BlockingJson()
+        {
+            var bc = new BlockingCollection<SimpleClass>();
+            bc.Add(SimpleClass.GetPrimitivePayload());
+            bc.Add(SimpleClass.GetNullPayload());
+
+            var json = Serializer.ToJson(bc);
+            var res = Serializer.FromJson<BlockingCollection<SimpleClass>>(json);
+
+            for (var i = 0; i < bc.Count; i++)
+            {
                 var left = bc.Skip(i).First();
                 var right = res.Skip(i).First();
 
                 Assert.True(left.Equals(right));
-			}
-		}
+            }
+        }
 
-		//[TestCategory("queue"), TestCategory("json"), TestCategory("collections"), TestMethod]
-		
-			[Fact]
-			public void QueuesJson()
-		{
-			var qs = new Queue<SimpleClass>();
-			qs.Enqueue(SimpleClass.GetPrimitivePayload());
+        //[TestCategory("queue"), TestCategory("json"), TestCategory("collections"), TestMethod]
 
-			var js = Serializer.ToJson(qs);
-			var qs2 = Serializer.FromJson<Queue<SimpleClass>>(js);
+        [Fact]
+        public void QueuesJson()
+        {
+            var qs = new Queue<SimpleClass>();
+            qs.Enqueue(SimpleClass.GetPrimitivePayload());
 
-			var qc = new ConcurrentQueue<SimpleClass>();
-			qc.Enqueue(SimpleClass.GetNullPayload());
+            var js = Serializer.ToJson(qs);
+            var qs2 = Serializer.FromJson<Queue<SimpleClass>>(js);
 
-			js = Serializer.ToJson(qc);
-			var qc2 = Serializer.FromJson<ConcurrentQueue<SimpleClass>>(js);
+            var qc = new ConcurrentQueue<SimpleClass>();
+            qc.Enqueue(SimpleClass.GetNullPayload());
 
-		}
+            js = Serializer.ToJson(qc);
+            var qc2 = Serializer.FromJson<ConcurrentQueue<SimpleClass>>(js);
+
+        }
 
 
-		
 
-		//[TestCategory("json"), TestCategory("special"), TestMethod]
-		[Fact]
-		public void TuplesJson()
-		{
-			var easyTuple = new Tuple<string, long>("hello", 1337);
-			var std = new DasSerializer();
-			var json = std.ToJson(easyTuple);
-			var test2 = std.FromJson<Tuple<String, Int64>>(json);
-			//var vvv = JsonConvert.SerializeObject(easyTuple);
 
-			Assert.True(easyTuple.Item1 == test2.Item1 &&
-				easyTuple.Item2 == test2.Item2);
-		}
+        //[TestCategory("json"), TestCategory("special"), TestMethod]
+        [Fact]
+        public void TuplesJson()
+        {
+            var easyTuple = new Tuple<string, long>("hello", 1337);
+            var std = new DasSerializer();
+            var json = std.ToJson(easyTuple);
+            var test2 = std.FromJson<Tuple<String, Int64>>(json);
+            //var vvv = JsonConvert.SerializeObject(easyTuple);
 
-		////[TestCategory("json"), TestMethod]
-		//public void GdiColorInferredJson()
-		//{
-		//	Color clr = Color.Purple;
-		//	var srl = GetTypeSpecifyingSerializer();
+            Assert.True(easyTuple.Item1 == test2.Item1 &&
+                        easyTuple.Item2 == test2.Item2);
+        }
 
-		//	var xxx = srl.ToJson(clr);			
+        ////[TestCategory("json"), TestMethod]
+        //public void GdiColorInferredJson()
+        //{
+        //	Color clr = Color.Purple;
+        //	var srl = GetTypeSpecifyingSerializer();
 
-		//	Color yeti = (Color)Serializer.FromJson(xxx);
-		//	Assert.Equal(clr, yeti);
-		//}
+        //	var xxx = srl.ToJson(clr);			
 
-		//[TestCategory("json"), TestCategory("special"), TestMethod]
-		[Fact]
-		public void GdiColorExplicitJson()
-		{
-			var clr = Color.Purple;
-			var srl = new DasSerializer();
-			
-			var xxx = srl.ToJson(clr);
-			//var jj = JsonConvert.SerializeObject(clr);
-			var yeti = Serializer.FromJson<Color>(xxx);
-			Assert.Equal(clr, yeti);
-		}
+        //	Color yeti = (Color)Serializer.FromJson(xxx);
+        //	Assert.Equal(clr, yeti);
+        //}
 
-		////[TestCategory("json"), TestMethod]
-		//public void ObjectPayloadJson()
-		//{
-		//	SimpleClass sc = new SimpleClass
-		//	{
-		//		ID = 4,
-		//		Name = "bob",
-		//		GPA = 3.14M,
-		//		Payload = true
-		//	};
+        //[TestCategory("json"), TestCategory("special"), TestMethod]
+        [Fact]
+        public void GdiColorExplicitJson()
+        {
+            var clr = Color.Purple;
+            var srl = new DasSerializer();
 
-		//	DasSerializer std = new DasSerializer();
-		//	var json = std.ToJson(sc);
-		//	//var jc = JsonConvert.SerializeObject(sc);
-		//	Object test2 = std.FromJson(json);
-		//	Assert.True(sc.Equals(test2));
-		//}
+            var json = srl.ToJson(clr);
+            
+            var yeti = Serializer.FromJson<Color>(json);
+            Assert.Equal(clr, yeti);
+        }
 
-		//[TestCategory("json"), TestMethod]
-		[Fact]
-		public void ObjectPayloadKnownType()
-		{
-			var sc = new SimpleClass
-			{
-				ID = 4,
-				Name = "bob",
-				GPA = 3.14M,
-				Payload = true
-			};
+        ////[TestCategory("json"), TestMethod]
+        //public void ObjectPayloadJson()
+        //{
+        //	SimpleClass sc = new SimpleClass
+        //	{
+        //		ID = 4,
+        //		Name = "bob",
+        //		GPA = 3.14M,
+        //		Payload = true
+        //	};
 
-			var std = new DasSerializer();
-			var json = std.ToJson(sc);
-			var test2 = std.FromJson<SimpleClass>(json);
-			Assert.True(sc.Equals(test2));
-		}		
+        //	DasSerializer std = new DasSerializer();
+        //	var json = std.ToJson(sc);
+        //	//var jc = JsonConvert.SerializeObject(sc);
+        //	Object test2 = std.FromJson(json);
+        //	Assert.True(sc.Equals(test2));
+        //}
 
-		//[TestCategory("dictionary"), TestCategory("json"), TestMethod]
-		[Fact]
-		public void ClassWithDictionaryJson()
-		{
-			var mc1 = ObjectDictionary.Get();
+        //[TestCategory("json"), TestMethod]
+        [Fact]
+        public void ObjectPayloadKnownType()
+        {
+            var sc = new SimpleClass
+            {
+                ID = 4,
+                Name = "bob",
+                GPA = 3.14M,
+                Payload = true
+            };
 
-			var json = Serializer.ToJson(mc1);
+            var std = new DasSerializer();
+            var json = std.ToJson(sc);
+            var test2 = std.FromJson<SimpleClass>(json);
+            Assert.True(sc.Equals(test2));
+        }
 
-			var res = Serializer.FromJson<ObjectDictionary>(json);
 
-			if (mc1 == null || res == null)
-				Assert.False(true);
-			if (mc1.Dic.Count != res.Dic.Count)
-				Assert.False(true);
+        [Fact]
+        public void ClassWithDictionaryJson()
+        {
+            var mc1 = ObjectDictionary.Get();
+
+            var json = Serializer.ToJson(mc1);
+
+            var res = Serializer.FromJson<ObjectDictionary>(json);
+
+            if (mc1 == null || res == null)
+                Assert.False(true);
+            else if (mc1.Dic.Count != res.Dic.Count)
+                Assert.False(true);
 
             var jRes = Serializer.ToJson(res);
 
             Assert.True(jRes == json);
 
-		}
+        }
 
-	
 
-		private DasSerializer GetTypeSpecifyingSerializer()
-		{
-			return new DasSerializer(
-			new DasSettings
-				{
-					TypeSpecificity = TypeSpecificity.All
-				}
-			);
-		}
 
-		
+        private DasSerializer GetTypeSpecifyingSerializer()
+        {
+            return new DasSerializer(
+                new DasSettings
+                {
+                    TypeSpecificity = TypeSpecificity.All
+                }
+            );
+        }
 
-	}
+
+
+    }
 }

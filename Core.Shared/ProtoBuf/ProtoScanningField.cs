@@ -41,11 +41,6 @@ namespace Das.Serializer.ProtoBuf
 
         private readonly MethodInfo _valueGetter;
 
-        //public Object GetValue(Object @from)
-        //{
-        //    return _valueGetter(from);
-        //}
-
         public Boolean Equals(IProtoField other)
         {
             if (ReferenceEquals(null, other))

@@ -51,7 +51,7 @@ namespace Das.Types
             CachedDefaults.TryAdd(typeof(Boolean), false);
 
 
-            TypeNames = new ConcurrentDictionary<String, Type>();
+            TypeNames = new ConcurrentDictionary<String, Type?>();
             TypeNames["object"] = Const.ObjectType;
             TypeNames["string"] = typeof(String);
             TypeNames["bool"] = typeof(Boolean);
@@ -70,7 +70,7 @@ namespace Das.Types
 
             foreach (var typ in TypeNames.Values)
             {
-                if (!typ.IsValueType)
+                if (typ?.IsValueType != true)
                     continue;
 
 
@@ -92,10 +92,10 @@ namespace Das.Types
             _cachedTypeNames = new ConcurrentDictionary<Type, String>();
         }
 
-        private static readonly ConcurrentDictionary<String, Type> TypeNames;
+        private static readonly ConcurrentDictionary<String, Type?> TypeNames;
         private static readonly ConcurrentDictionary<Type, String> _cachedTypeNames;
 
-        private IEnumerable<Type> GetGenericTypes(String type)
+        private IEnumerable<Type?> GetGenericTypes(String type)
         {
             var meat = ExtractGenericMeat(type, out var startIndex, out var endIndex);
 
@@ -104,6 +104,8 @@ namespace Das.Types
                 //for the case of, zb, dictionary[string, list<int>] where we're at 
                 //list<int> so it's a generic argument that has a generic argument(s)
                 //but we have to avoid omitting the non-generic part
+                
+                
                 yield return GetTypeFromClearName(type, true);
                 yield break;
             }
@@ -125,8 +127,8 @@ namespace Das.Types
             } while (startIndex >= 0);
         }
 
-        private String ExtractGenericMeat(String clearName, out Int32 startIndex,
-            out Int32 endIndex)
+        private static String? ExtractGenericMeat(String clearName, out Int32 startIndex,
+                                                  out Int32 endIndex)
         {
             startIndex = clearName.IndexOf('[');
             var genOpen = startIndex;
@@ -184,7 +186,10 @@ namespace Das.Types
             else name = type.AssemblyQualifiedName;
 
             if (name == null)
-                return name;
+            {
+                return type.Name;
+                //return name;
+            }
 
             if (!isOmitAssemblyName)
                 _cachedTypeNames.TryAdd(type, name);
@@ -316,11 +321,12 @@ namespace Das.Types
         //    return def.Equals(o);
         //}
 
-        public Type GetTypeFromClearName(String clearName,Boolean isTryGeneric = false)
+        public Type? GetTypeFromClearName(String clearName,Boolean isTryGeneric = false)
             => FromClearName(clearName, true, isTryGeneric);
 
-        public Type FromClearName(String clearName, Boolean isRecurse,
-            Boolean isTryGeneric)
+        private Type? FromClearName(String clearName, 
+                                    Boolean isRecurse,
+                                    Boolean isTryGeneric)
         {
             if (String.IsNullOrWhiteSpace(clearName))
                 return null;
@@ -370,13 +376,13 @@ namespace Das.Types
             return type;
         }
 
-        private void EnsureCached(String clearName, Type type)
+        private static void EnsureCached(String clearName, Type? type)
         {
             if (type != null)
                 TypeNames.TryAdd(clearName, type);
         }
 
-        private Type[] DeriveGeneric(String clearName, out String generic)
+        private Type?[] DeriveGeneric(String clearName, out String? generic)
         {
             var isSomeGeneric = false;
 
@@ -399,13 +405,13 @@ namespace Das.Types
                 {
                     isSomeGeneric = true;
 
-                    var meaty = GetGenericTypes(genericMeat);
+                    var meaty = GetGenericTypes(genericMeat!);
                     foreach (var meat in meaty)
                     {
                         if (meat == null)
                         {
                             generic = default;
-                            return new Type[] {null};
+                            return new Type?[] {null};
                         }
 
                         genericTypes.Add(meat);
@@ -439,7 +445,7 @@ namespace Das.Types
             return genericTypes.ToArray();
         }
 
-        private Type GetNotAssemblyQualified(String clearName, Boolean isRecurse)
+        private Type? GetNotAssemblyQualified(String clearName, Boolean isRecurse)
         {
             var tokens = clearName.Split('.');
             return tokens.Length == 1
@@ -451,7 +457,7 @@ namespace Das.Types
         /// Prepends type search namespaces to name and tries to find. From just a single token
         /// we can never find anything
         /// </summary>
-        private Type FromSingleToken(String singleToken, Boolean isRecurse)
+        private Type? FromSingleToken(String singleToken, Boolean isRecurse)
         {
             var arr = Settings.TypeSearchNameSpaces;
 
@@ -478,8 +484,8 @@ namespace Das.Types
             return default;
         }
 
-        private Type FromNamespaceQualified(String nsName, String[] tokens,
-            Boolean isRecurse)
+        private Type? FromNamespaceQualified(String nsName, String[] tokens,
+                                             Boolean isRecurse)
         {
             var type = Type.GetType(nsName);
             if (type != null)
@@ -504,9 +510,9 @@ namespace Das.Types
             return default;
         }
 
-        private Type FromAssemblyQualified(String clearName, String[] tokens)
+        private Type? FromAssemblyQualified(String clearName, String[] tokens)
         {
-            Type type = null;
+            Type? type = null;
 
             if (_assemblies.TryGetAssembly(tokens[0], out var assembly))
             {
@@ -517,9 +523,11 @@ namespace Das.Types
             return type ?? Type.GetType(clearName) ?? GetTypeFromClearName(tokens[0]);
         }
 
-        private Type FromHailMary(String clearName)
+        private Type? FromHailMary(String clearName)
         {
-            if (_dynamicTypes.TryGetFromAssemblyQualifiedName(clearName, out var type))
+            Type? type;
+
+            if (_dynamicTypes.TryGetFromAssemblyQualifiedName(clearName, out type))
                 return type;
 
             if (TryFind(clearName, _assemblies, out type))
@@ -534,7 +542,7 @@ namespace Das.Types
         }
 
         private static Boolean TryFind(String clearName, IEnumerable<Assembly> assemblies,
-            out Type type)
+            out Type? type)
         {
             foreach (var asm in assemblies)
             {

@@ -47,7 +47,7 @@ namespace Das.Serializer
                 return;
             }
 
-            if (_types.IsCollection(node.Type))
+            if (node.Type != null && _types.IsCollection(node.Type))
             {
                 dynProps.Add($"{dynProps.Count}", value);
                 return;

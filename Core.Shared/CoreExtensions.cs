@@ -51,15 +51,15 @@ namespace Das.Extensions
                 return String.Empty;
 
             if (list.Count == 1)
-                return list[0]!.ToString();
+                return list[0]?.ToString() ?? String.Empty;
 
             var sb = new StringBuilder();
             foreach (var i in list)
             {
-                if (null == i)
+                if (i==null)
                     continue;
 
-                if (excludeWhenFirst != null && i.ToString()[0] == excludeWhenFirst)
+                if (excludeWhenFirst != null && i.ToString()?[0] == excludeWhenFirst)
                     sb.Append($"{sep}");
                 else
                     sb.Append($"{i}{sep}");
@@ -82,7 +82,7 @@ namespace Das.Extensions
                 if (null == i)
                     continue;
 
-                if (excludeWhenFirst != null && i.ToString()[0] == excludeWhenFirst)
+                if (excludeWhenFirst != null && i.ToString()?[0] == excludeWhenFirst)
                     sb.Append($"{sep}");
                 else
                     sb.Append($"{i}{sep}");
@@ -195,7 +195,7 @@ namespace Das.Extensions
             out PropertyInfo propertyInfo,
             BindingFlags flags = BindingFlags.Public | BindingFlags.Instance)
         {
-            propertyInfo = tType.GetProperty(property, flags);
+            propertyInfo = tType.GetProperty(property, flags)!;
             if (propertyInfo != null)
             {
                 var method = propertyInfo.GetGetMethod();
@@ -225,8 +225,8 @@ namespace Das.Extensions
             params Type[] parameters)
         {
             method = parameters.Length > 0
-                ? classType.GetMethod(methodName, flags, null, parameters, null)
-                : classType.GetMethod(methodName, flags);
+                ? classType.GetMethod(methodName, flags, null, parameters, null)!
+                : classType.GetMethod(methodName, flags)!;
 
             return method != null;
         }

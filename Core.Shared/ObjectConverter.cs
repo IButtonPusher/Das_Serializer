@@ -23,7 +23,7 @@ namespace Das
                 => new Dictionary<Object, Object>());
 
         [ThreadStatic]
-        private static ISerializerSettings _currentSettings;
+        private static ISerializerSettings? _currentSettings;
 
         [ThreadStatic]
         private static NodeTypes _currentNodeType;
@@ -48,10 +48,10 @@ namespace Das
 
         public T ConvertEx<T>(Object obj, ISerializerSettings settings)
         {
-            _currentSettings = settings;
-
             if (obj is T already)
                 return already;
+
+            _currentSettings = settings;
 
             var outType = typeof(T);
 
@@ -79,7 +79,8 @@ namespace Das
 
         public T Copy<T>(T from) where T : class => Copy(from, Settings);
 
-        public T Copy<T>(T from, ISerializerSettings settings) where T : class
+        public T Copy<T>(T from, ISerializerSettings settings) 
+            where T : class
         {
             _currentSettings = settings;
             var to = FromType(from);
@@ -183,8 +184,6 @@ namespace Das
         private Object CopyObjects(Object from, ref Object to, Type toType,
             Dictionary<object, object> references)
         {
-            //var references = References.Value;
-
             foreach (var propInfo in _dynamicFacade.TypeManipulator.GetPropertiesToSerialize(toType,
                 _currentSettings))
             {

@@ -58,17 +58,11 @@ namespace Das.Serializer
             _enumeratorCurrent = getEnumeratorMethod.ReturnType.GetterOrDie(
                 nameof(IEnumerator.Current), out _);
 
-
             _enumeratorLocal = _il.DeclareLocal(getEnumeratorMethod.ReturnType);
             _enumeratorType = _enumeratorLocal.LocalType ?? throw new InvalidOperationException();
             _enumeratorCurrentValue = _il.DeclareLocal(_enumeratorCurrent.ReturnType);
         }
-
-        //public delegate void OnCollectionItem(
-        //    LocalBuilder enumeratorCurrentValue, 
-        //    ProtoPrintState s,
-        //    ILGenerator il,
-        //    Byte[] headerBytes);
+        
 
         public void ForEach(Action<LocalBuilder, TState, ILGenerator, Byte[]> action, Byte[] headerBytes)
         {
@@ -101,49 +95,9 @@ namespace Das.Serializer
 
                 _il.Emit(OpCodes.Stloc, _enumeratorCurrentValue);
 
-                /////////////
-
-                //var shallPush = true;
-
+                /////////////////////////////////////////////////////////////
                 action(_enumeratorCurrentValue, _protoBuildState, _il, headerBytes);
-
-                //if (!TryPrintAsDictionary(pv, il, headerBytes, ref isArrayMade,
-                //    fieldByteArray, getMethod, ref localBytes, ref localString, utfField,
-                //    ref hasPushed, enumeratorCurrentValue))
-                //{
-                //    var info = new ProtoCollectionItem(pv.Type, _types, pv.Index);
-                //    shallPush = info.WireType == ProtoWireTypes.LengthDelimited &&
-                //                Const.StrType != info.Type;
-
-                //    if (shallPush)
-                //    {
-                //        il.Emit(OpCodes.Ldarg_0);
-                //        il.Emit(OpCodes.Callvirt, _push);
-                //        il.Emit(OpCodes.Pop);
-                //        hasPushed = true;
-
-                //        il.Emit(OpCodes.Ldarg_0);
-                //        il.Emit(OpCodes.Ldc_I4, info.Header);
-                //        il.Emit(OpCodes.Callvirt, _writeInt32);
-                //    }
-
-                //    AddObtainableValueToPrintMethod(il, ref isArrayMade, fieldByteArray,
-                //        ref localBytes,
-                //        ref localString, utfField,
-                //        info.TypeCode, info.WireType, info.Type,
-                //        ilg => ilg.Emit(OpCodes.Ldloc, enumeratorCurrentValue),
-                //        ilg => ilg.Emit(OpCodes.Ldloca, enumeratorCurrentValue),
-                //        ref hasPushed);
-                //}
-
-                ///////////////
-
-                //if (shallPush)
-                //{
-                //    il.Emit(OpCodes.Ldarg_0);
-                //    il.Emit(OpCodes.Callvirt, _pop);
-                //    il.Emit(OpCodes.Pop);
-                //}
+                /////////////////////////////////////////////////////////////
 
                 _il.Emit(OpCodes.Br, tryNext);
 

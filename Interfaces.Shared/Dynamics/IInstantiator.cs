@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -10,6 +11,7 @@ namespace Das.Serializer
 
         T BuildDefault<T>(Boolean isCacheConstructors);
 
+        IList BuildGenericList(Type type);
 
         T CreatePrimitiveObject<T>(Byte[] rawValue, Type objType);
 

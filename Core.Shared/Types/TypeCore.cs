@@ -180,7 +180,7 @@ namespace Das.Serializer
         public Boolean IsCollection(Type type)
         {
             var val = CollectionTypes.GetOrAdd(type, (t) => 
-                t != Const.StrType && typeof(IEnumerable).IsAssignableFrom(type));
+                t != Const.StrType && typeof(IEnumerable).IsAssignableFrom(t));
 
             return val;
         }
@@ -228,15 +228,12 @@ namespace Das.Serializer
 
         public ISet<PropertyInfo> GetPublicProperties2(Type type, Boolean numericFirst = true)
         {
-
             if (CachedProperties2.TryGetValue(type, out var results))
                 return results;
 
             if (numericFirst)
                 results = new SortedSet<PropertyInfo>(this);
             else results = new HashSet<PropertyInfo>();
-
-            //var res = type.GetProperties(BindingFlags.Instance | BindingFlags.Public);
 
             //todo: remove this and get it to work with explicits
             if (type.IsInterface)
@@ -256,18 +253,14 @@ namespace Das.Serializer
                 while (bt != null)
                 {
                     foreach (var pp in GetPublicProperties2(type.BaseType, false))
-                    {
                         results.Add(pp);
-                    }
 
                     bt = bt.BaseType;
                 }
             }
 
-
             CachedProperties2.TryAdd(type, results);
             return results;
-
         }
 
         public IEnumerable<PropertyInfo> GetPublicProperties(Type type, Boolean numericFirst = true)
@@ -320,11 +313,6 @@ namespace Das.Serializer
             var rar = numericFirst
                 ? res.OrderByDescending(p => IsLeaf(p.PropertyType, false)).ToArray()
                 : res.ToArray();
-
-           // if (numericFirst)
-           //     res = res.OrderByDescending(p => IsLeaf(p.PropertyType, false));
-
-            //var rar = res.ToArray();
 
             CachedProperties.TryAdd(type, rar);
 

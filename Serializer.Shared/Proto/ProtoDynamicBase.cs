@@ -11,9 +11,9 @@ namespace Das.Serializer.ProtoBuf
 {
     public abstract class ProtoDynamicBase<T> : ProtoDynamicBase, IProtoProxy<T>
     {
-        protected ProtoDynamicBase(//Func<T> defaultConstructor, 
+        protected ProtoDynamicBase(
             IProtoProvider proxyProvider)
-            : base(256, proxyProvider)
+            : base(proxyProvider)
         {
             
         }
@@ -34,8 +34,6 @@ namespace Das.Serializer.ProtoBuf
         {
             throw new NotSupportedException();
         }
-
-
     }
 
     public abstract class ProtoDynamicBase : ProtoBufWriter
@@ -62,7 +60,7 @@ namespace Das.Serializer.ProtoBuf
             }
 
             var positionWas = stream.Position;
-            var endPosition = positionWas + nextItemLength; //+ byteCount;//length;
+            var endPosition = positionWas + nextItemLength; 
 
             while (positionWas < endPosition && endPosition <= stream.Length)
             {
@@ -79,7 +77,7 @@ namespace Das.Serializer.ProtoBuf
         }
 
 
-        protected ProtoDynamicBase(Int32 startSize, IProtoProvider proxyProvider) : base(startSize)
+        protected ProtoDynamicBase(IProtoProvider proxyProvider)
         {
             _proxyProvider = proxyProvider;
         }
@@ -88,7 +86,7 @@ namespace Das.Serializer.ProtoBuf
 
         public void DebugWriteline(Object obj1, object obj2)
         {
-            Debug.WriteLine("Deebug " + obj1 + "\t" + obj2);
+            Debug.WriteLine("Debug " + obj1 + "\t" + obj2);
         }
 
         public static IEnumerable<Int16> ExtractPacked16(Stream stream, Int32 bytesToUse)
@@ -97,7 +95,6 @@ namespace Das.Serializer.ProtoBuf
 
             while (end > stream.Position) yield return (Int16) GetInt32(stream);
         }
-
 
         public static IEnumerable<Int32> ExtractPacked32(Stream stream, Int32 bytesToUse)
         {

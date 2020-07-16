@@ -20,7 +20,7 @@ namespace Das.Serializer
         /// </summary>
         IEnumerable<INamedField> GetMembersToSerialize(ISerializationDepth depth);
 
-        IProperty GetPropertyValue(Object o, String propertyName);
+        IProperty? GetPropertyValue(Object o, String propertyName);
 
         /// <summary>
         ///     For a collection, returns the values.  Otherwise returns the property values

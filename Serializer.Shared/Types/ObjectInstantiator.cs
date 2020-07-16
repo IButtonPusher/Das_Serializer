@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,7 @@ namespace Das.Serializer
     {
         private static readonly ConcurrentDictionary<Type, InstantiationTypes> InstantionTypes;
         private static readonly ConcurrentDictionary<Type, Func<Object>> ConstructorDelegates;
+        private static readonly ConcurrentDictionary<Type, Func<IList>> GenericListDelegates;
         private static readonly ConcurrentDictionary<Type, ConstructorInfo> Constructors;
         
         private static readonly ConcurrentDictionary<Type, Boolean> KnownOnDeserialize;
@@ -29,6 +31,7 @@ namespace Das.Serializer
             ConstructorDelegates = new ConcurrentDictionary<Type, Func<Object>>();
             Constructors = new ConcurrentDictionary<Type, ConstructorInfo>();
             KnownOnDeserialize = new ConcurrentDictionary<Type, Boolean>();
+            GenericListDelegates = new ConcurrentDictionary<Type, Func<IList>>();
         }
 
 
@@ -97,6 +100,14 @@ namespace Das.Serializer
             
         }
 
+        public IList BuildGenericList(Type type)
+        {
+            var f = GenericListDelegates.GetOrAdd(type, 
+                t => GetConstructorDelegate<Func<IList>>(typeof(List<>).MakeGenericType(t)));
+
+            return f();
+        }
+
         private static ConstructorInfo GetConstructor(Type type, IList<Type> genericArguments,
             out Type[] argTypes)
         {
@@ -109,7 +120,7 @@ namespace Das.Serializer
         }
 
         public TDelegate GetConstructorDelegate<TDelegate>(Type type)
-        where TDelegate : Delegate
+            where TDelegate : Delegate
         {
             if (TryGetConstructorDelegate<TDelegate>(type, out var res))
                 return res;
@@ -177,6 +188,9 @@ namespace Das.Serializer
 
         public void OnDeserialized(IValueNode node, ISerializationDepth depth)
         {
+            if (node.Type == null || node.Value == null)
+                return;
+
             var wasKnown = KnownOnDeserialize.TryGetValue(node.Type, out var dothProceed);
 
             if (wasKnown && !dothProceed)
@@ -192,12 +206,12 @@ namespace Das.Serializer
         public T CreatePrimitiveObject<T>(Byte[] rawValue, Type objType)
         {
             if (rawValue.Length == 0)
-                return default;
+                return default!;
 
             var handle = GCHandle.Alloc(rawValue, GCHandleType.Pinned);
             var structure = (T) Marshal.PtrToStructure(handle.AddrOfPinnedObject(), objType);
             handle.Free();
-            return structure;
+            return structure!;
         }
 
         public Object CreatePrimitiveObject(Byte[] rawValue, Type objType)
@@ -215,10 +229,9 @@ namespace Das.Serializer
             {
                 if (_typeInferrer.HasEmptyConstructor(type))
                 {
-                    if (_typeInferrer.IsCollection(type))
-                        res = InstantiationTypes.DefaultConstructor;
-                    else
-                        res = InstantiationTypes.Emit;
+                    res = _typeInferrer.IsCollection(type) 
+                        ? InstantiationTypes.DefaultConstructor 
+                        : InstantiationTypes.Emit;
                 }
                 else if (type.IsGenericType)
                     res = InstantiationTypes.NullObject; //Nullable<T>

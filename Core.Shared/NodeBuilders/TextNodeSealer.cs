@@ -78,15 +78,10 @@ namespace Das.Serializer
                     break;
 
                 case NodeTypes.Primitive:
-
-           
-
                     var nodeText = node.Text;
                     if (node.Type != null && !String.IsNullOrWhiteSpace(nodeText))
                         node.Value = _scanner.GetValue(nodeText, node.Type);
                     break;
-
-               
 
                 case NodeTypes.PropertiesToConstructor:
                     ConstructFromProperties(ref node);
@@ -143,6 +138,9 @@ namespace Das.Serializer
                             if (value is String str)
                             {
                                 var propType = dynamicType.GetPropertyType(propName);
+                                if (propType == null)
+                                    continue;
+                                
                                 value = _scanner.GetValue(str, propType);
                             }
                         }
@@ -233,7 +231,7 @@ namespace Das.Serializer
                 return true;
             }
 
-            if (node.DynamicProperties.TryGetValue(propKey, out val))
+            if (node.DynamicProperties.TryGetValue(propKey, out val!))
                 return true;
 
             return false;

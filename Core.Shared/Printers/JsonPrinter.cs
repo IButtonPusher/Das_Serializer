@@ -81,7 +81,7 @@ namespace Das.Printers
 
                     NewLine();
 
-                    Writer.Append(Const.Quote, DasCoreSerializer.Val);
+                    Writer.Append(Const.Quote, Const.Val);
                     Writer.Append(Const.Quote, ": ");
                     TabIn();
                     isCloseBlock = true;
@@ -105,7 +105,7 @@ namespace Das.Printers
             }
         }
 
-        //private void PrintImpl
+
 
         protected override void PrintSeries<T>(IEnumerable<T> values,
             Action<T> print)
@@ -116,14 +116,10 @@ namespace Das.Printers
                 if (!itar.MoveNext())
                     return;
 
-                //var printSep = exe(itar.Current);
-                //var sepDue = 1;
-
                 var printSep = ShouldPrintValue(itar.Current);
                 if (printSep)
                     print(itar.Current);
-                //else
-                //    sepDue = 0;
+                
 
                 while (itar.MoveNext())
                 {
@@ -135,7 +131,6 @@ namespace Das.Printers
                     if (printSep)
                     {
                         Writer.Append(SequenceSeparator);
-                        //sepDue--;
                     }
 
                     print(current);

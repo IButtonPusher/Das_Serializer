@@ -15,12 +15,20 @@ namespace Das.Serializer
 
         public T FromJson<T>(String json)
         {
+            //return JsonExpress.Deserialize<T>(json);
+
             using (var state = StateProvider.BorrowJson(Settings))
             {
                 var res = state.Scanner.Deserialize<T>(json);
                 return res;
             }
         }
+
+        public T FromJsonEx<T>(String json)
+        {
+            return JsonExpress.Deserialize<T>(json);
+        }
+
         public T FromJson<T>(FileInfo file)
         {
             using (var fs = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
@@ -48,5 +56,10 @@ namespace Das.Serializer
         public override void Dispose()
         {
         }
+
+        //private JsonExpress GetNewJsonExpress()
+        //{
+        //    return new JsonExpress(ObjectInstantiator, TypeManipulator, TypeInferrer);
+        //}
     }
 }

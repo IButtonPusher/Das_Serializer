@@ -41,7 +41,7 @@ namespace Das.Serializer.Printers
             _isEmptyInitialized = -1;
         }
 
-        public void SetValue(Object value)
+        public void SetValue(Object? value)
         {
             _value = value;
         }

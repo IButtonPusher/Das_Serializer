@@ -16,20 +16,21 @@ namespace Das.Serializer.Objects
         {
         }
 
-        public ValueNode(Object value, Type type)
+        public ValueNode(Object value, Type? type)
         {
             _value = value;
             _type = type;
         }
 
-        public Object Value => _value;
+        public Object? Value => _value;
 
-        public Type Type
+        public Type? Type
         {
             get => _type;
             set => _type = value;
         }
 
+        // ReSharper disable once UnusedMember.Global
         protected void Set(Object value, Type type)
         {
             _value = value;
@@ -41,8 +42,8 @@ namespace Das.Serializer.Objects
             return (Type?.Name ?? "?") + ": = " + Value;
         }
 
-        protected Type _type;
+        protected Type? _type;
 
-        protected Object _value;
+        protected Object? _value;
     }
 }

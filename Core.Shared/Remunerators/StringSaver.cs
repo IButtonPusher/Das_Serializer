@@ -14,6 +14,7 @@ namespace Das.Serializer
 
         private static readonly Object _sbLock;
         private static readonly List<StringBuilder> _sbPool;
+        
 
         static StringSaver()
         {
@@ -23,34 +24,77 @@ namespace Das.Serializer
 
         public StringSaver()
         {
-            SetBackingBuilder();
+            _sb = GetBackingBuilder();
         }
 
-        private void SetBackingBuilder()
+        public StringSaver(String seed)
+        {
+            _sb = null!;
+            if (!TryGetBiggerBackingBuilder(seed.Length, ref _sb!))
+                _sb = new StringBuilder(seed);
+        }
+
+
+        //private StringBuilder SetBackingBuilder()
+        //{
+        //    lock (_sbLock)
+        //    {
+        //        if (_sbPool.Count > 0)
+        //        {
+        //            _sb = _sbPool[0];
+        //            _sbPool.RemoveAt(0);
+        //            return _sb;
+        //        }
+        //    }
+        //    _sb = new StringBuilder();
+
+        //    return _sb;
+        //}
+
+        private static StringBuilder GetBackingBuilder()
         {
             lock (_sbLock)
             {
-                if (_sbPool.Count > 0)
-                {
-                    _sb = _sbPool[0];
-                    _sbPool.RemoveAt(0);
-                    return;
-                }
+                if (_sbPool.Count <= 0) 
+                    return new StringBuilder();
+
+                var sb = _sbPool[0];
+                
+                _sbPool.RemoveAt(0);
+                return sb;
             }
-            _sb = new StringBuilder();
         }
 
-        // ReSharper disable once UnusedMember.Global
-        public StringSaver(String seed)
-        {
-            _sb = new StringBuilder(seed);
-        }
+       
 
         void IRemunerable<String>.Append(String str, Int32 cnt)
         {
             throw new NotSupportedException();
         }
 
+        [MethodImpl(256)]
+        public Int32 IndexOf(String value, Int32 startIndex)
+        {
+            var length = value.Length;
+            var maxSearchLength = Length - length + 1;
+
+            for (var i = startIndex; i < maxSearchLength; ++i)
+            {
+                if (this[i] != value[0]) 
+                    continue;
+
+                var index = 1;
+                while (index < length && this[i + index] == value[index])
+                    ++index;
+
+                if (index == length)
+                    return i;
+            }
+
+            return -1;
+        }
+
+        public String this[Int32 start, Int32 end] => _sb.ToString(start, end - start);
 
         [MethodImpl(256)]
         public void Append(String data)
@@ -77,7 +121,8 @@ namespace Das.Serializer
             _sb.Append(data2);
         }
 
-        private void TryGetBiggerBackingBuilder(Int32 capacity)
+        private static Boolean TryGetBiggerBackingBuilder(Int32 capacity, 
+                                                          ref StringBuilder? sb)
         {
             var newI = -1;
 
@@ -85,7 +130,7 @@ namespace Das.Serializer
             {
                 var half = _sbPool.Count / 2.0;
                 if (half.IsZero())
-                    return;
+                    return false;
                 var i = Convert.ToInt32(half);
                 var current = _sbPool[i];
                 if (current.Capacity > capacity)
@@ -119,16 +164,20 @@ namespace Das.Serializer
 
                 isHaveIt:
                 if (newI == -1)
-                    return;
+                    return false;
 
                 var letsUse = _sbPool[newI];
                 _sbPool.RemoveAt(newI);
 
-                letsUse.Append(_sb);
-                
-                Recycle(_sb);
-                
-                _sb = letsUse;
+                if (sb != null)
+                {
+                    letsUse.Append(sb);
+                    Recycle(sb);
+                }
+
+                sb = letsUse;
+
+                return true;
             }
         }
 
@@ -154,10 +203,18 @@ namespace Das.Serializer
             _sb.Append(data2);
         }
 
+        [MethodImpl(256)]
+        private void EnsureCapacity(String adding)
+        {
+            var len = _sb.Length + adding.Length;
+            EnsureCapacity(len);
+        }
+
+        [MethodImpl(256)]
         private void EnsureCapacity(Int32 len)
         {
             if (len > _sb.Capacity)
-                TryGetBiggerBackingBuilder(len);
+                TryGetBiggerBackingBuilder(len, ref _sb!);
         }
 
         public void Append(ITextAccessor txt)
@@ -239,6 +296,13 @@ namespace Das.Serializer
 
         public override String ToString() => _sb.ToString();
 
+        [MethodImpl(256)]
+        public void Insert(Int32 index, String str)
+        {
+            EnsureCapacity(str);
+            _sb.Insert(index, str);
+        }
+
         public ITextAccessor ToImmutable()
         {
             return new StringAccessor(_sb.ToString());
@@ -255,9 +319,11 @@ namespace Das.Serializer
 
         public void Undispose()
         {
-            if (_sb != null)
-                return;
-            SetBackingBuilder();
+            _sb ??= GetBackingBuilder();
+
+            //if (_sb != null)
+            //    return;
+            //SetBackingBuilder();
         }
 
         private static void Recycle(StringBuilder sb)
@@ -408,8 +474,9 @@ namespace Das.Serializer
 
         public void Clear()
         {
-            if (_sb == null)
-                Undispose();
+            _sb ??= GetBackingBuilder();
+            //if (_sb == null)
+            //    Undispose();
             _sb.Clear();
         }
 

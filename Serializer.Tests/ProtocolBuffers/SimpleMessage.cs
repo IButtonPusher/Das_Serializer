@@ -174,4 +174,90 @@ namespace Serializer.Tests.ProtocolBuffers
             };
     }
 
+
+    [ProtoContract]
+    public class ComposedCollectionMessage
+    {
+        [ProtoMember(2)] public List<ComposedMessage2> InnerComposed1 { get; set; }
+
+        [ProtoMember(3)] public ComposedMessage2[] InnerComposed2 { get; set; }
+
+        [ProtoMember(1)] public Int32 A { get; set; }
+
+        public static ComposedCollectionMessage Default
+        {
+            get
+            {
+                var c = new ComposedCollectionMessage();
+                c.A = 150;
+                c.InnerComposed1 = new List<ComposedMessage2>
+                {
+                    new ComposedMessage2
+                    {
+                        A = 3,
+                        MultiPropMessage1 = new MultiPropMessage
+                        {
+                            A = 5,
+                            S = "hello"
+                        },
+                        MultiPropMessage2 = new MultiPropMessage
+                        {
+                            A = 51,
+                            S = "world"
+                        }
+                    },
+                    new ComposedMessage2
+                    {
+                        A = 4,
+                        MultiPropMessage1 = new MultiPropMessage
+                        {
+                            A = 6,
+                            S = "good bye"
+                        },
+                        MultiPropMessage2 = new MultiPropMessage
+                        {
+                            A = 51,
+                            S = "not world"
+                        }
+                    }
+                };
+
+                c.InnerComposed2 = new[] {
+                    new ComposedMessage2
+                {
+                    A = 21,
+                    MultiPropMessage1 = new MultiPropMessage
+                    {
+                        A = 78,
+                        S = "hallo"
+                    },
+                    MultiPropMessage2 = new MultiPropMessage
+                    {
+                        A = 41,
+                        S = "weld"
+                    }
+                },
+                    new ComposedMessage2
+                    {
+                        A = 22,
+                        MultiPropMessage1 = new MultiPropMessage
+                        {
+                            A = 89,
+                            S = "chüss"
+                        },
+                        MultiPropMessage2 = new MultiPropMessage
+                        {
+                            A = 1011,
+                            S = "nicht weld"
+                        }
+                    }
+                };
+
+                return c;
+            }
+        }
+
+    }
+
+
 }

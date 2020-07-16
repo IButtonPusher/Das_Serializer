@@ -112,9 +112,7 @@ namespace Das.Serializer.Proto
                         s.IL.Emit(OpCodes.Ldloc, loko);
                     };
 
-
                     return res;
-
 
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -146,7 +144,6 @@ namespace Das.Serializer.Proto
                     }
 
                     return res;
-
 
                 case ProtoFieldAction.ChildObjectCollection:
                 case ProtoFieldAction.ChildPrimitiveCollection:
@@ -188,9 +185,7 @@ namespace Das.Serializer.Proto
                         s.IL.Emit(OpCodes.Callvirt, adder);
                     };
 
-
                     return res;
-
 
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -225,10 +220,7 @@ namespace Das.Serializer.Proto
             il.Emit(OpCodes.Callvirt, adder);
         }
 
-
         public IProtoFieldAccessor[] Fields { get; }
-
-
 
         public LocalBuilder LastByteLocal { get; }
 
@@ -237,7 +229,6 @@ namespace Das.Serializer.Proto
         ///     For values that will be ctor injected
         /// </summary>
         public Dictionary<IProtoFieldAccessor, LocalBuilder> LocalFieldValues { get; }
-
 
         /// <summary>
         /// Creates a local variable for every field.  Use only when there is no parameterless ctor
@@ -271,7 +262,6 @@ namespace Das.Serializer.Proto
 
             return _types.TryGetAddMethod(fieldType, out adder);
         }
-
 
         public LocalBuilder GetLocalForField(IProtoFieldAccessor field)
         {

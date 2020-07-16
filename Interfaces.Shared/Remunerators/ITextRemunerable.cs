@@ -19,6 +19,8 @@ namespace Das.Serializer
 
         void Remove(Int32 startIndex, Int32 length);
 
+        void Insert(Int32 index, String str);
+
         ITextAccessor ToImmutable();
 
         void Undispose();
@@ -26,6 +28,12 @@ namespace Das.Serializer
 
     public interface IStringRemunerable : IRemunerable<String>
     {
+        Char this[Int32 index] { get; }
+
+        Int32 IndexOf(String str, Int32 startIndex);
+
+        String this[Int32 start, Int32 end] { get; }
+
         new void Append(String data);
 
         void Append(String data1, String data2);
@@ -33,5 +41,7 @@ namespace Das.Serializer
         void Append(IEnumerable<String> datas);
 
         void Append<T>(T data) where T : struct;
+
+        void Clear();
     }
 }

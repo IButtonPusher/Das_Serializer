@@ -16,10 +16,14 @@ namespace Das.Serializer.ProtoBuf
         /// <summary>
         /// 1
         /// </summary>
-        private void AddScanMethod(Type parentType, TypeBuilder bldr,
-            Type genericParent, IEnumerable<IProtoFieldAccessor> fields,
+        private void AddScanMethod(
+            Type parentType, 
+            TypeBuilder bldr,
+            Type genericParent, 
+            IEnumerable<IProtoFieldAccessor> fields,
             Object? exampleObject,
-            Boolean canSetValuesInline, MethodBase buildReturnValue,
+            Boolean canSetValuesInline, 
+            MethodBase buildReturnValue,
             IDictionary<Type, FieldBuilder> proxies)
         {
             var fieldArr = fields.ToArray();
@@ -40,13 +44,12 @@ namespace Das.Serializer.ProtoBuf
             //////////////////////////////
             // INSTANTIATE RETURN VALUE
             /////////////////////////////
-            var arrayCounters = new ProtoArrayInfo(_getStreamPosition, _types, _getPositiveInt32);
-
             if (canSetValuesInline)
                 il.Emit(OpCodes.Ldarg_0);
 
             var returnValue = InstantiateObjectToDefault(il, parentType, 
-                buildReturnValue, fieldArr, arrayCounters, exampleObject);
+                buildReturnValue, fieldArr,
+                exampleObject);
 
             il.Emit(OpCodes.Ldarg_2);
             il.Emit(OpCodes.Ldarg_1);
@@ -86,8 +89,6 @@ namespace Das.Serializer.ProtoBuf
             bldr.DefineMethodOverride(method, abstractMethod);
         }
 
-      
-
         private static MethodInfo PrepareScanMethod(
             TypeBuilder bldr, 
             Type genericParent,
@@ -125,7 +126,6 @@ namespace Das.Serializer.ProtoBuf
 
             if (!dothProceed)
                 return;
-
 
             var instantiated = il.DefineLabel();
 
@@ -216,7 +216,7 @@ namespace Das.Serializer.ProtoBuf
             il.Emit(OpCodes.Br, afterPropertyLabel);
         }
 
-        private void InstantiateFromLocals(ProtoScanState s,
+        private static void InstantiateFromLocals(ProtoScanState s,
             MethodBase buildReturnValue)
         {
             if (!(buildReturnValue is ConstructorInfo ctor))
@@ -258,8 +258,8 @@ namespace Das.Serializer.ProtoBuf
 
 
         private LocalBuilder InstantiateObjectToDefault(ILGenerator il, Type type,
-            MethodBase? buildDefault, IEnumerable<IProtoFieldAccessor> fields, 
-            ProtoArrayInfo arrayBuilders, Object? exampleObject)
+            MethodBase? buildDefault, IEnumerable<IProtoFieldAccessor> fields,
+            Object? exampleObject)
         {
             var returnValue = il.DeclareLocal(type);
 
@@ -294,10 +294,7 @@ namespace Das.Serializer.ProtoBuf
                     continue;
 
                 if (field.FieldAction == ProtoFieldAction.ChildObjectArray)
-                {
-                    arrayBuilders.Add(field, il);
-                    continue;
-                }
+                    continue; //don't try to instantiate arrays
 
                 if (type.IsAssignableFrom(exampleObject.GetType()))
                 {
@@ -309,7 +306,6 @@ namespace Das.Serializer.ProtoBuf
                 }
 
                 var setter = type.SetterOrDie(field.Name);
-
 
                 if (_instantiator.TryGetDefaultConstructor(field.Type, out var fieldCtor))
                 {
@@ -330,7 +326,6 @@ namespace Das.Serializer.ProtoBuf
         {
             var il = s.IL;
             var currentProp = s.CurrentField;
-
 
             var caseEntryForThisProperty = s.IL.DefineLabel();
             s.IL.MarkLabel(caseEntryForThisProperty);

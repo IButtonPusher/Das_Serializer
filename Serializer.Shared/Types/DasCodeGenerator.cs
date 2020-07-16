@@ -91,7 +91,7 @@ namespace Das.Serializer
         }
 
         // ReSharper disable once UnusedMember.Local
-        private Boolean GetCanSave()
+        private static Boolean GetCanSave()
         {
             #if NET45
 

@@ -8,6 +8,7 @@ using System.Drawing;
 using System.Linq;
 using System.Xml;
 using Xunit;
+#pragma warning disable 8602
 
 // ReSharper disable All
 

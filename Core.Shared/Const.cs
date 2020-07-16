@@ -14,6 +14,7 @@ namespace Das.Serializer
         public static readonly Type[] TwoObjectTypeArray = { ObjectType, ObjectType };
 
         public const String TypeWrap = "__type";
+        public const String Val = "__val";
         public const String Equal = "=";
         public const String Tsystem = "System";
         public const String WutXml = "?xml";

@@ -16,6 +16,8 @@ namespace Das.Serializer
 
         T FromJson<T>(String json);
 
+        T FromJsonEx<T>(String json);
+
         T FromJson<T>(FileInfo file);
 
         T FromJson<T>(Stream stream);
@@ -44,6 +46,9 @@ namespace Das.Serializer
 
         void ToJson(Object o, FileInfo fileName);
 
+        /// <summary>
+        ///     Serialize up or down.  Only the properties of TTarget will be serialized
+        /// </summary>
         void ToJson<TTarget>(Object o, FileInfo fileName);
     }
 }

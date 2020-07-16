@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using Das.Serializer.Json;
 using Das.Serializer.ProtoBuf;
 
 namespace Das.Serializer
@@ -11,10 +12,12 @@ namespace Das.Serializer
        
 
         internal const String StrNull = "null";
-        internal const String Val = "__val";
+        
         internal const String RefTag = "__ref";
         internal const String RefAttr = "$ref";
         internal const String Root = "Root";
+
+        protected JsonExpress JsonExpress;
 
         public override IScanNodeProvider ScanNodeProvider
             => StateProvider.BinaryContext.ScanNodeProvider;
@@ -29,6 +32,8 @@ namespace Das.Serializer
             _settings = settings;
             _writeAsync = writeAsync;
             _readToEndAsync = readToEndAsync;
+
+            JsonExpress= new JsonExpress(ObjectInstantiator, TypeManipulator, TypeInferrer);
         }
 
         public DasCoreSerializer(IStateProvider stateProvider, 

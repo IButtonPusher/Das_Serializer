@@ -4,6 +4,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Das.Extensions;
 // ReSharper disable All
+#pragma warning disable 8625
+#pragma warning disable 8618
 
 namespace Serializer.Tests
 {

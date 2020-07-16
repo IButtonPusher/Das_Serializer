@@ -92,7 +92,8 @@ namespace Das.Serializer.ProtoBuf
 
                 case ProtoFieldAction.ChildObject:
                     PrintChildObject(s, s.CurrentField.HeaderBytes,
-                        _ => s.LoadCurrentFieldValueToStack());
+                        _ => s.LoadCurrentFieldValueToStack(),
+                        s.CurrentField.Type);
                     break;
 
                 case ProtoFieldAction.ChildObjectCollection:
@@ -105,7 +106,8 @@ namespace Das.Serializer.ProtoBuf
                     break;
 
                 case ProtoFieldAction.ChildObjectArray:
-                    PrintCollection(s, PrintEnumeratorCurrent);
+                    //PrintCollection(s, PrintEnumeratorCurrent);
+                    PrintArray(s, PrintEnumeratorCurrent);
                     break;
 
                 case ProtoFieldAction.ChildPrimitiveArray:
@@ -221,15 +223,18 @@ namespace Das.Serializer.ProtoBuf
 
        
 
-        private void PrintChildObject(ProtoPrintState s,
+        private void PrintChildObject(
+            ProtoPrintState s,
             Byte[] headerBytes,
-            Action<ILGenerator> loadObject)
+            Action<ILGenerator> loadObject,
+            Type fieldType)
         {
             var il = s.IL;
 
             PrintHeaderBytes(headerBytes, s);
 
-            var proxyField = s.GetProxy(s.CurrentField.Type);
+            var proxyField = s.GetProxy(fieldType);
+                //s.CurrentField.Type);
 
 
             //var proxyField = s.ChildProxies[s.CurrentField];

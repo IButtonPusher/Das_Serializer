@@ -38,7 +38,7 @@ namespace Das.Serializer
         [MethodImpl(256)]
         private PrintNode GetPrintNodeImpl(INamedValue namedValue)
         {
-            var buffer = PrintNodeBuffer.Value;
+            var buffer = PrintNodeBuffer.Value!;
             var nodeType = _nodeTypeProvider.GetNodeType(namedValue.Type, Settings.SerializationDepth);
 
             if (buffer.Count > 0)
@@ -53,23 +53,23 @@ namespace Das.Serializer
 
         private static void ReturnToSender(PrintNode node)
         {
-            var buffer = PrintNodeBuffer.Value;
+            var buffer = PrintNodeBuffer.Value!;
             buffer.Enqueue(node);
         }
 
         private static void ReturnToSender(NamedValueNode node)
         {
-            var buffer = NamedNodeBuffer.Value;
+            var buffer = NamedNodeBuffer.Value!;
             buffer.Enqueue(node);
         }
 
         private static void ReturnToSender(PropertyValueNode node)
         {
-            var buffer = PropertyBuffer.Value;
+            var buffer = PropertyBuffer.Value!;
             buffer.Enqueue(node);
         }
 
-        public IPrintNode GetPrintNode(INamedValue namedValue, Object overrideValue)
+        public IPrintNode GetPrintNode(INamedValue namedValue, Object? overrideValue)
         {
             var node = GetPrintNodeImpl(namedValue);
             node.SetValue(overrideValue);
@@ -78,7 +78,7 @@ namespace Das.Serializer
 
         public INamedValue GetNamedValue(String name, Object value, Type type)
         {
-            var buffer = NamedNodeBuffer.Value;
+            var buffer = NamedNodeBuffer.Value!;
 
             if (buffer.Count > 0)
             {
@@ -91,13 +91,13 @@ namespace Das.Serializer
         }
 
         public INamedValue GetNamedValue(DictionaryEntry kvp)
-            => GetNamedValue(kvp.Key.ToString(), kvp.Value,
+            => GetNamedValue(kvp.Key.ToString()!, kvp.Value!,
                 kvp.Value?.GetType() ?? typeof(Object));
 
         public IProperty GetProperty(String propertyName, Object propertyValue, Type propertyType,
             Type declaringType)
         {
-            var buffer = PropertyBuffer.Value;
+            var buffer = PropertyBuffer.Value!;
 
             if (buffer.Count > 0)
             {

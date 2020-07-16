@@ -60,7 +60,7 @@ namespace Das.Serializer
 
         private void CreateNode()
         {
-            if (CurrentTagName == DasCoreSerializer.Val)
+            if (CurrentTagName == Const.Val)
             {
                 //don't make another node just for the val block
                 CurrentTagName = Const.Empty;
@@ -75,7 +75,7 @@ namespace Das.Serializer
 
         private void CloseNode()
         {
-            if (CurrentNode.Attributes.TryGetValue(DasCoreSerializer.Val, out var val))
+            if (CurrentNode.Attributes.TryGetValue(Const.Val, out var val))
                 CurrentNode.SetText(val);
 
             Sealer.CloseNode(CurrentNode);

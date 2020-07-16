@@ -57,12 +57,10 @@ namespace Das.Printers
                         node.Type = valType;
                         using (var valu = _printNodePool.GetPrintNode(node))
                         {
-                            //var valu = new PrintNode(node, nodeType);
                             PrintLeafAttribute(valu);
                         }
 
                         return;
-                        //return true;
                     }
                     else
                     {

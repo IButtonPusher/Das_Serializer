@@ -15,14 +15,32 @@ namespace Serializer.Benchmarks
         public static void Main(String[] args)
         {
 #if DEBUG
-            RunManyTimes();
+            //RunManyTimes();
+
+            RunJsonManyTimes();
+
 #endif
 #if !DEBUG
-           if (args == null || args.Length == 0)
-               BenchmarkRunner.Run<ProtoBufTests>();
-           else
+            if (args == null || args.Length == 0)
+            {
+                BenchmarkRunner.Run<JsonBenchmarks>();
+                //BenchmarkRunner.Run<ProtoBufTests>();
+            }
+            else
                RunManyTimes();
 #endif
+
+        }
+
+        private static void RunJsonManyTimes()
+        {
+            var bm = new JsonBenchmarks();
+
+            for (var c = 0; c < 10000; c++)
+            {
+                bm.PrimitivePropertiesJsonBaseline();
+                bm.PrimitivePropertiesJsonExpress();
+            }
 
         }
 

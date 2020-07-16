@@ -135,7 +135,7 @@ namespace Das.Printers
         }
 
         [MethodImpl(256)]
-        protected Boolean Print(Object o, TypeCode code)
+        protected Boolean Print(Object? o, TypeCode code)
         {
             Byte[] bytes;
 
@@ -151,40 +151,40 @@ namespace Das.Printers
                     bytes = BitConverter.GetBytes((Char) o);
                     break;
                 case TypeCode.SByte:
-                    _bWriter.WriteInt8((SByte) o);
+                    _bWriter.WriteInt8((SByte) o!);
                     return true;
                 case TypeCode.Byte:
-                    _bWriter.WriteInt8((Byte) o);
+                    _bWriter.WriteInt8((Byte) o!);
                     return true;
                 case TypeCode.Int16:
-                    _bWriter.WriteInt16((Int16) o);
+                    _bWriter.WriteInt16((Int16) o!);
                     return true;
                 case TypeCode.UInt16:
-                    _bWriter.WriteInt16((UInt16) o);
+                    _bWriter.WriteInt16((UInt16) o!);
                     return true;
                 case TypeCode.Int32:
-                    _bWriter.WriteInt32((Int32) o);
+                    _bWriter.WriteInt32((Int32) o!);
                     return true;
                 case TypeCode.UInt32:
-                    _bWriter.WriteInt32((UInt32) o);
+                    _bWriter.WriteInt32((UInt32) o!);
                     return true;
                 case TypeCode.Int64:
-                    _bWriter.WriteInt64((Int64) o);
+                    _bWriter.WriteInt64((Int64) o!);
                     return true;
                 case TypeCode.UInt64:
-                    _bWriter.WriteInt64((UInt64) o);
+                    _bWriter.WriteInt64((UInt64) o!);
                     return true;
                 case TypeCode.Single:
-                    bytes = BitConverter.GetBytes((Single) o);
+                    bytes = BitConverter.GetBytes((Single) o!);
                     break;
                 case TypeCode.Double:
-                    bytes = BitConverter.GetBytes((Double) o);
+                    bytes = BitConverter.GetBytes((Double) o!);
                     break;
                 case TypeCode.Decimal:
-                    bytes = GetBytes((Decimal) o);
+                    bytes = GetBytes((Decimal) o!);
                     break;
                 case TypeCode.DateTime:
-                    _bWriter.WriteInt64(((DateTime) o).Ticks);
+                    _bWriter.WriteInt64(((DateTime) o!).Ticks);
                     return true;
                 default:
                     return false;
@@ -327,7 +327,7 @@ namespace Das.Printers
             WriteString(typeName);
         }
 
-        protected virtual void WriteString(String str)
+        protected virtual void WriteString(String? str)
         {
             if (str == null)
             {

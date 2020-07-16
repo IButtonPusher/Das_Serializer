@@ -222,7 +222,7 @@ namespace Das.Serializer.ProtoBuf
 #if DEBUG
 
 #if NET45 || NET40
-        private Int32 _dumpCount;
+        private static Int32 _dumpCount;
 #endif
 
 
@@ -396,7 +396,6 @@ namespace Das.Serializer.ProtoBuf
 
             var header = (Int32) wire + (index << 3);
             var tc = Type.GetTypeCode(pType);
-
 
             var getter = prop.GetGetMethod() ?? throw new InvalidOperationException(prop.Name);
             var setter = prop.CanWrite ? prop.GetSetMethod(true) : default!;

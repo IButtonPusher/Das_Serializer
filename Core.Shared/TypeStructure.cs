@@ -44,17 +44,17 @@ namespace Das
 
         public Dictionary<String, INamedField> MemberTypes { get; }
 
-        private readonly String _onDeserializedMethodName;
+        private readonly String? _onDeserializedMethodName;
 
 
         public Int32 PropertyCount { get; }
 
-        protected TypeStructure(Type type, ISerializerSettings settings, INodePool nodePool) 
-            : base(settings)
-        {
-            Type = type;
-            _nodePool = nodePool;
-        }
+        //protected TypeStructure(Type type, ISerializerSettings settings, INodePool nodePool) 
+        //    : base(settings)
+        //{
+        //    Type = type;
+        //    _nodePool = nodePool;
+        //}
 
         public TypeStructure(Type type, Boolean isPropertyNamesCaseSensitive,
             ISerializationDepth depth, ITypeManipulator state, INodePool nodePool)
@@ -292,25 +292,32 @@ namespace Das
                 yield return MemberTypes[kvp.Key];
         }
 
-        public IProperty GetPropertyValue(Object o, String propertyName)
+        public IProperty? GetPropertyValue(Object o, String propertyName)
         {
-            if (!MemberTypes.TryGetValue(propertyName, out var mInfo))
-                return null;
-            var pType = mInfo.Type;
+            try
+            {
+                if (!MemberTypes.TryGetValue(propertyName, out var mInfo))
+                    return null;
+                var pType = mInfo.Type;
 
-            Object val;
+                Object val;
 
-            if (_propGetters.TryGetValue(propertyName, out var getter))
-                val = getter(o);
-            else if (_getOnly.TryGetValue(propertyName, out var getOnly))
-                val = getOnly(o);
-            else if (_getDontSerialize.TryGetValue(propertyName, out var notSerialized))
-                val = notSerialized(o);
-            else return null;
+                if (_propGetters.TryGetValue(propertyName, out var getter))
+                    val = getter(o);
+                else if (_getOnly.TryGetValue(propertyName, out var getOnly))
+                    val = getOnly(o);
+                else if (_getDontSerialize.TryGetValue(propertyName, out var notSerialized))
+                    val = notSerialized(o);
+                else return null;
 
-            var res = _nodePool.GetProperty(propertyName, val, pType, Type);
+                var res = _nodePool.GetProperty(propertyName, val, pType, Type);
 
-            return res;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                throw new AggregateException(propertyName, ex);
+            }
         }
 
         public Boolean SetFieldValue(String fieldName, Object targetObj, Object fieldVal)
@@ -376,7 +383,7 @@ namespace Das
                 return true;
             }
 
-            value = default;
+            value = default!;
             return false;
         }
     }

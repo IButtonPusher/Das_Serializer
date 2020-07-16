@@ -7,17 +7,10 @@ namespace Das.Serializer.Remunerators
 {
     public class ProtoBufWriter
     {
-
-
         private static readonly Byte[] _negative32Fill = { Byte.MaxValue, Byte.MaxValue, 
             Byte.MaxValue, Byte.MaxValue, 1};
 
-        //private Boolean _isReadOnly;
 
-        public ProtoBufWriter(Int32 startSize)
-        {
-
-        }
 
         [MethodImpl(256)]
         public static void WriteInt8(Byte value, Stream _outStream)
