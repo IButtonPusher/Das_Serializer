@@ -15,7 +15,7 @@ namespace Serializer.Tests
             thisIs.YouCan<Int32>(DoIt);
         }
 
-        private void DoIt<T>(T something)
+        private static void DoIt<T>(T something)
         {
             
         }
