@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Das.CoreExtensions;
+using Das.Extensions;
 
 // ReSharper disable UnusedMember.Global
 
-namespace Serializer
+namespace Das.Serializer
 {
     public class CoreNumeric : INumberExtractor
     {

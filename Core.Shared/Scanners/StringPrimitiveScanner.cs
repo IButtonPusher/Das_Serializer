@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Globalization;
-using Das.Serializer;
 
 
-namespace Das.Scanners
+namespace Das.Serializer
 {
     public abstract class StringPrimitiveScanner : IStringPrimitiveScanner
     {
@@ -51,6 +50,10 @@ namespace Das.Scanners
 
             if (type == Const.ObjectType)
                 return input;
+
+            //todo: this is probably not good
+            if (input == "null")
+                return null!;
 
             var conv = _state.GetTypeConverter(type);
             return conv.ConvertFromInvariantString(input);

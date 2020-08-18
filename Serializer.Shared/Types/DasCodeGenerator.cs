@@ -17,14 +17,14 @@ namespace Das.Serializer
         }
 
         private AssemblyBuilder AssemblyBuilder =>
-            _assemblyBuilder ?? (_assemblyBuilder = GetAssemblyBuilder());
+            _assemblyBuilder ??= GetAssemblyBuilder();
 
         private ModuleBuilder ModuleBuilder =>
-            _moduleBuilder ?? (_moduleBuilder = GetModuleBuilder());
+            _moduleBuilder ??= GetModuleBuilder();
 
-        private AssemblyBuilder _assemblyBuilder;
+        private AssemblyBuilder? _assemblyBuilder;
         private readonly String _assemblyName;
-        private ModuleBuilder _moduleBuilder;
+        private ModuleBuilder? _moduleBuilder;
         private readonly String _moduleName;
         private readonly AssemblyBuilderAccess _access;
         private readonly Object _lock;
@@ -53,7 +53,7 @@ namespace Das.Serializer
 
                 #if NET40
 
-                return AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, _access);
+                return AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, access);
 
                 #else
                 return AssemblyBuilder.DefineDynamicAssembly(asmName, access);
@@ -81,8 +81,17 @@ namespace Das.Serializer
 
             }
         }
-        
+
+        // ReSharper disable once UnusedMember.Global
+        public void Save(String saveAs)
+        {
+#if NET45 || NET40
+            AssemblyBuilder.Save(saveAs);
+#endif
+        }
+
         // ReSharper disable once UnusedMember.Local
+        // ReSharper disable once MemberCanBeMadeStatic.Local
         private Boolean GetCanSave()
         {
             #if NET45

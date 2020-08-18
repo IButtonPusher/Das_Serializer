@@ -6,12 +6,13 @@
     <SharedGUID>aeb86a21-7287-4a27-b467-1a0d1c66fa9f</SharedGUID>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
-    <Import_RootNamespace>Interfaces.Shared</Import_RootNamespace>
+    <Import_RootNamespace>Das.Serializer</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Annotations.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DasAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Delegates.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DtoExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IAssemblyList.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IConverterProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IDynamicAccessor.cs" />
@@ -20,37 +21,63 @@
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IInstantiator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IObjectConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IObjectManipulator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dynamics\ITypeStructureBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IProtoProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObjectPools\INodePool.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Objects\ProtoFieldAction.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\IProtoProxy.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\IStreamAccessor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Remunerators\IBinaryWriter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Remunerators\IProtoWriter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Remunerators\IRemunerable.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Objects\IPropertyValueIterator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\ITypeCore.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\ITypeInferrer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\ITypeManipulator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\ITypeStructure.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IBinarySerializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IByteArray.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IProtoSerializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IJsonSerializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IMultiSerializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ISerializationCore.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IXmlSerializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Nodes\IBinaryNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Nodes\IBinaryNodeProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Nodes\INamedValue.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Nodes\INode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Nodes\INodeManipulator.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Nodes\INodeProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Nodes\IScanNodeProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Nodes\INodeSealer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Nodes\INodeTypeProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Nodes\ITextNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Nodes\ITextNodeProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Nodes\NodeTypes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Objects\DasMember.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\DasProperty.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\INamedField.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Objects\IPrintNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Objects\IProperty.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Objects\IProtoField.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Objects\IProtoFieldAccessor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Objects\IProtoProperty.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Objects\IProtoPropertyIterator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Objects\IStronglyTyped.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Objects\IValueNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\NamedValueNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\ObjectNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\PrintNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Objects\PropertyValueNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Objects\ProtoWireTypes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\ValueNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Remunerators\IStreamDelegate.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Remunerators\ITextRemunerable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IBinaryFeeder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IBinaryPrimitiveScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IBinaryScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\INumberExtractor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IPrimitiveScanner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Scanners\IProtoFeeder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IScannerBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IStreamWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IStringPrimitiveScanner.cs" />
@@ -58,10 +85,12 @@
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\ITextParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\ITextScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\CircularReference.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Settings\DefaultValueOmission.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\ISerializerSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\DepthConstants.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\ISerializationDepth.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\ISettingsUser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Settings\ProtoBufOptions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\TextPropertySearchDepths.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\SerializationDepth.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\TypeNotFound.cs" />

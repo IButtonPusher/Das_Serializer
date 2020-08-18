@@ -1,15 +1,15 @@
-﻿using Das.Scanners;
-using System;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
     /// <summary>
-    /// Stateful and not thread safe
+    ///     Stateful and not thread safe
     /// </summary>
     public interface ITextState : ISerializationState, ITextContext
     {
-        ITextScanner Scanner { get; }
-
         IScannerBase<Char[]> ArrayScanner { get; }
+
+        ITextScanner Scanner { get; }
     }
 }

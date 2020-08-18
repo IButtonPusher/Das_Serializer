@@ -1,36 +1,49 @@
-﻿using Serializer.Core;
-using Serializer.Core.State;
+﻿using Das.Serializer.State;
 
 namespace Das.Serializer
 {
     public class DefaultStateProvider : StateProvider
     {
         public DefaultStateProvider(ISerializerSettings settings)
-            : base(GetDynamicFacade(settings),
-                _xmlContext, _jsonContext, _binaryContext, settings)
+            : this(settings, 
+                
+                GetDynamicFacade(settings, 
+                out var xmlContext,
+                out var jsonContext,
+                out var binaryContext), 
+
+                xmlContext, jsonContext, binaryContext)
         {
+            
         }
 
-        public DefaultStateProvider()
-            : base(GetDynamicFacade(DasSettings.Default),
-                _xmlContext, _jsonContext, _binaryContext, DasSettings.Default)
+        private DefaultStateProvider(ISerializerSettings settings,
+            ISerializationCore dynamicFacade,
+            XmlContext xmlContext,
+            JsonContext jsonContext,
+            BinaryContext binaryContext) 
+            : base(dynamicFacade,xmlContext, 
+                jsonContext, binaryContext, settings)
         {
+
         }
 
-        public static ISerializationCore GetDynamicFacade(ISerializerSettings settings)
+        public DefaultStateProvider() : this(DasSettings.Default) { }
+
+        public static ISerializationCore GetDynamicFacade(
+            ISerializerSettings settings,
+            out XmlContext xmlContext,
+            out JsonContext jsonContext,
+            out BinaryContext binaryContext)
         {
             var dynamicFacade = new DynamicFacade(settings);
 
-            _xmlContext = new XmlContext(dynamicFacade, settings);
-            _jsonContext = new JsonContext(dynamicFacade, settings);
-            _binaryContext = new BinaryContext(dynamicFacade, settings);
+            xmlContext = new XmlContext(dynamicFacade, settings);
+            jsonContext = new JsonContext(dynamicFacade, settings);
+            binaryContext = new BinaryContext(dynamicFacade, settings);
 
             return dynamicFacade;
         }
 
-
-        private static XmlContext _xmlContext;
-        private static JsonContext _jsonContext;
-        private static BinaryContext _binaryContext;
     }
 }

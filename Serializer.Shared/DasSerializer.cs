@@ -1,9 +1,12 @@
-﻿using System;
+﻿#if !NET40
+#endif
+
+using Das.Serializer.ProtoBuf;
+using System;
 using System.IO;
 using System.Threading.Tasks;
-using Das.Serializer;
 
-namespace Das
+namespace Das.Serializer
 {
     public class DasSerializer : DasCoreSerializer
     {
@@ -16,7 +19,8 @@ namespace Das
         }
 
         public DasSerializer(ISerializerSettings settings)
-            : base(new DefaultStateProvider(settings), WriteAsync, ReadToEndAsync)
+            : base(new DefaultStateProvider(settings),
+                WriteAsync, ReadToEndAsync)
         {
         }
 
@@ -32,8 +36,17 @@ namespace Das
             => await reader.ReadToEndAsync();
 
 
+       
 
 #else
+
+        public override IProtoSerializer GetProtoSerializer<TPropertyAttribute>(
+            ProtoBufOptions<TPropertyAttribute> options)
+        {
+            var provider = new ProtoDynamicProvider<TPropertyAttribute>(options,
+                TypeManipulator, ObjectInstantiator, ObjectManipulator);
+            return new ProtoBufSerializer(StateProvider, Settings, provider);
+        }
 
         public DasSerializer(IStateProvider stateProvider, 
             Func<TextWriter, String, Task> writeAsync,

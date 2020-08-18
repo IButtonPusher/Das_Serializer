@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
-using Das;
-using Das.Serializer;
-using Serializer.Core.State;
 
-namespace Serializer.Core
+using Das.Serializer.State;
+
+namespace Das.Serializer
 {
     public class StateProvider : CoreContext, IStateProvider
     {
@@ -22,7 +22,7 @@ namespace Serializer.Core
         public ITextContext JsonContext { get; }
         public IBinaryContext BinaryContext { get; }
 
-        public override INodeProvider NodeProvider => BinaryContext.NodeProvider;
+        public override IScanNodeProvider ScanNodeProvider => BinaryContext.ScanNodeProvider;
 
         public IObjectConverter ObjectConverter { get; }
 
@@ -44,7 +44,6 @@ namespace Serializer.Core
         private static void ReturnToLibrary(IBinaryLoaner loaned)
             => BinaryBuffer.Enqueue(loaned);
 
-
         private static void ReturnToLibrary(IXmlLoaner loaned)
             => XmlBuffer.Enqueue(loaned);
 
@@ -56,7 +55,9 @@ namespace Serializer.Core
             var buffer = BinaryBuffer;
             var state = buffer.Count > 0
                 ? buffer.Dequeue()
-                : new BinaryBorrawable(ReturnToLibrary, settings, this);
+                : new BinaryBorrawable(ReturnToLibrary, settings, this, 
+                    s => new BinaryScanner(s), 
+                    (c, s) => new BinaryPrimitiveScanner(c,s));
             state.UpdateSettings(settings);
             return state;
         }

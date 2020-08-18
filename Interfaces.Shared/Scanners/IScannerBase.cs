@@ -1,4 +1,7 @@
-﻿namespace Das.Scanners
+﻿using System;
+using System.Threading.Tasks;
+
+namespace Das.Serializer
 {
     public interface IScannerBase<in TInput> : IScannerBase
     {

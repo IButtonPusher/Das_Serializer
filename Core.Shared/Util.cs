@@ -6,11 +6,13 @@ namespace Das
 {
     public static class DasUtil
     {
-        public static MethodInfo FindMethod(this Type type, String name,
-            Object[] parameters, BindingFlags flags =
-                BindingFlags.Public | BindingFlags.Instance)
+        public static MethodInfo? FindMethod(this Type type,
+                                             String name,
+                                             Object[] parameters,
+                                             BindingFlags flags =
+                                                 BindingFlags.Public | BindingFlags.Instance)
         {
-            MethodInfo meth = null;
+            MethodInfo? meth = null;
 
             if (parameters.All(p => p != null))
             {

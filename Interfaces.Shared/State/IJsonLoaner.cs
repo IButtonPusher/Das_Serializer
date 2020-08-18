@@ -1,5 +1,5 @@
 ﻿using System;
-using Interfaces.Shared.State;
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {

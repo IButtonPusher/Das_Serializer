@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Das.Serializer;
-using Das.Serializer.Annotations;
-using Das.Serializer.Scanners;
-using Serializer.Core;
 
-namespace Das.Scanners
+namespace Das.Serializer
 {
     public abstract class TextScanner : SerializerCore, ITextScanner
     {
@@ -39,7 +35,7 @@ namespace Das.Scanners
 
         protected readonly INodeSealer<ITextNode> Sealer;
         protected readonly INodeManipulator Types;
-        private Type _resultType;
+        private Type? _resultType;
         private readonly IObjectConverter _converter;
 
         protected TextScanner(IConverterProvider converterProvider, ITextContext state)
@@ -54,8 +50,8 @@ namespace Das.Scanners
             CurrentValue = new StringBuilder();
             CurrentAttributes = new Dictionary<String, String>();
             TextState = state;
-            Sealer = state.NodeProvider.Sealer;
-            Types = state.NodeProvider.TypeProvider;
+            Sealer = state.ScanNodeProvider.Sealer;
+            Types = state.ScanNodeManipulator;
 
             PrimitiveScanner = state.PrimitiveScanner;
             EscapeChars = new List<Char> {Const.BackSlash};
@@ -66,7 +62,7 @@ namespace Das.Scanners
 
             RootNode = NullNode;
 
-            _nodes = state.NodeProvider;
+            _nodes = state.ScanNodeProvider;
         }
 
 
@@ -85,7 +81,7 @@ namespace Das.Scanners
                 if (!TextState.TypeInferrer.IsUseless(rootType) &&
                     TextState.TypeInferrer.IsUseless(RootNode.Type))
 
-                    CurrentNode.Type = _resultType;
+                    CurrentNode.Type = _resultType!;
             }
             else
             {
@@ -102,37 +98,22 @@ namespace Das.Scanners
             for (var i = 0; i < source.Length; i++)
             {
                 var c = source[i];
-                PreProcessCharacter(c);
+                PreProcessCharacter(ref c);
             }
 
             return GetResult<T>();
         }
 
-        public T Deserialize<T>(IEnumerable<Char> source)
+        public T Deserialize<T>(String source)
         {
             _resultType = typeof(T);
 
-            //check for BOM
-            //https://stackoverflow.com/questions/1317700/strip-byte-order-mark-from-string-in-c-sharp
-            using (var iterator = source.GetEnumerator())
+            var len = source.Length;
+
+            for (var c = 0; c < len; c++)
             {
-                if (!iterator.MoveNext())
-                    return default;
-
-                var c = iterator.Current;
-
-                if (c > Byte.MaxValue)
-                {
-                    if (!iterator.MoveNext())
-                        return default;
-                }
-
-                do
-                {
-                    c = iterator.Current;
-                    PreProcessCharacter(c);
-                }
-                while (iterator.MoveNext());
+                var current = source[c];
+                PreProcessCharacter(ref current);
             }
 
             return GetResult<T>();
@@ -141,7 +122,7 @@ namespace Das.Scanners
         private T GetResult<T>() => TextState.ObjectManipulator.
             CastDynamic<T>(RootNode.Value, _converter, Settings);
 
-        private void PreProcessCharacter(Char c)
+        private void PreProcessCharacter(ref Char c)
         {
             var iq = IsQuote(c);
 

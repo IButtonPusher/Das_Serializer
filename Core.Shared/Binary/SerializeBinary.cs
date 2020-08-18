@@ -1,34 +1,38 @@
 ﻿using Das.Printers;
 using System;
 using System.IO;
-using Das.Serializer;
-using Serializer.Core.Files;
-using Das.Serializer.Objects;
-using Serializer.Core.Remunerators;
+using Das.Serializer.Remunerators;
+using Das.Serializer.Files;
 
-namespace Das
+namespace Das.Serializer
 {
     public partial class DasCoreSerializer
     {
+        
+
         public Byte[] ToBytes(Object o) => ToBytes(o, Const.ObjectType);
 
         public Byte[] ToBytes(Object o, Type asType)
         {
             using (var ms = new MemoryStream())
             {
-                using (var writer = new BinaryWriterWrapper(ms))
+                var bWriter = new BinaryWriterWrapper(ms);
+
                 using (var state = StateProvider.BorrowBinary(Settings))
-                using (var bp = new BinaryPrinter(writer, state))
+                using (var bp = new BinaryPrinter(bWriter, state))
                 {
-                    var node = new NamedValueNode(Const.Root, o, asType);
-                    bp.PrintNode(node);
+                    //var node = new NamedValueNode(Const.Root, o, asType);
+                    using (var node = PrintNodePool.GetNamedValue(Const.Root, o, asType))
+                        bp.PrintNode(node);
                 }
 
                 return ms.ToArray();
             }
         }
 
-        public Byte[] ToBytes<TObject>(TObject o) => ToBytes(o, typeof(TObject));
+        public Byte[] ToBytes<TObject>(TObject o) => o == null 
+            ? throw new ArgumentNullException(nameof(o)) 
+            : ToBytes(o, typeof(TObject));
 
 
         // ReSharper disable once UnusedMember.Global
@@ -53,7 +57,7 @@ namespace Das
         public void ToBytes<TTarget>(Object o, FileInfo fileName)
         {
             var obj = (TTarget) o;
-            ToBytes(obj, fileName);
+            ToBytes(obj!, fileName);
         }
     }
 }

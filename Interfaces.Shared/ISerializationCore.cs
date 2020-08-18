@@ -1,29 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
-using Serializer;
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    public interface ISerializationCore //: IDynamicFacade
-        //, ITypeInferrer
-        //, ITypeManipulator
-        //, IInstantiator
-        //, IObjectManipulator
+    public interface ISerializationCore
     {
-        ITextParser TextParser { get; }
+        IAssemblyList AssemblyList { get; }
 
         IDynamicTypes DynamicTypes { get; }
 
+        INodeTypeProvider NodeTypeProvider { get; }
+
         IInstantiator ObjectInstantiator { get; }
+
+        IObjectManipulator ObjectManipulator { get; }
+
+        INodePool PrintNodePool { get; }
+
+        INodeManipulator ScanNodeManipulator { get; }
+
+        IDictionary<Type, Type> Surrogates { get; }
+
+        ITextParser TextParser { get; }
 
         ITypeInferrer TypeInferrer { get; }
 
         ITypeManipulator TypeManipulator { get; }
-
-        IAssemblyList AssemblyList { get; }
-
-        IObjectManipulator ObjectManipulator { get; }
-
-        IDictionary<Type, Type> Surrogates { get; }
     }
 }

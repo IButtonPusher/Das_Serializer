@@ -1,22 +1,26 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
-using Das.Serializer;
-using Serializer.Core;
+using Das.Serializer.Json;
+using Das.Serializer.ProtoBuf;
 
-namespace Das
+namespace Das.Serializer
 {
     public partial class DasCoreSerializer : BaseState, IMultiSerializer
     {
         public IStateProvider StateProvider { get; }
+       
+
         internal const String StrNull = "null";
-        internal const String Val = "__val";
+        
         internal const String RefTag = "__ref";
         internal const String RefAttr = "$ref";
         internal const String Root = "Root";
 
-        public override INodeProvider NodeProvider
-            => StateProvider.BinaryContext.NodeProvider;
+        protected JsonExpress JsonExpress;
+
+        public override IScanNodeProvider ScanNodeProvider
+            => StateProvider.BinaryContext.ScanNodeProvider;
 
         public DasCoreSerializer(IStateProvider stateProvider, ISerializerSettings settings,
             Func<TextWriter, String, Task> writeAsync,
@@ -24,9 +28,12 @@ namespace Das
             : base(stateProvider, settings)
         {
             StateProvider = stateProvider;
+            
             _settings = settings;
             _writeAsync = writeAsync;
             _readToEndAsync = readToEndAsync;
+
+            JsonExpress= new JsonExpress(ObjectInstantiator, TypeManipulator, TypeInferrer);
         }
 
         public DasCoreSerializer(IStateProvider stateProvider, 
@@ -58,5 +65,14 @@ namespace Das
                 base.Settings = value;
             }
         }
+
+        public virtual IProtoSerializer GetProtoSerializer<TPropertyAttribute>(
+            ProtoBufOptions<TPropertyAttribute> options) 
+            where TPropertyAttribute : Attribute
+        {
+            return new ProtoBufSerializer(StateProvider, Settings,
+                new CoreProtoProvider());
+        }
+
     }
 }

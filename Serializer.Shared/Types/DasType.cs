@@ -24,13 +24,13 @@ namespace Das.Serializer
             => _properties.TryGetValue(forProperty, out var prop) &&
                prop.Type.IsInstanceOfType(value);
 
-        public Type GetPropertyType(String propertyName)
+        public Type? GetPropertyType(String propertyName)
             => _properties.TryGetValue(propertyName, out var prop) ? prop.Type : default;
 
         public static implicit operator Type(DasType das)
             => das.ManagedType;
 
-        public Boolean SetPropertyValue(ref Object targetObj, String propName,
+        public Boolean SetPropertyValue(ref Object? targetObj, String propName,
             Object propVal)
         {
             if (!PublicSetters.TryGetValue(propName, out var setter))
@@ -45,7 +45,7 @@ namespace Das.Serializer
         {
             if (!PublicGetters.TryGetValue(propertyName, out var getter))
             {
-                result = default;
+                result = default!;
                 return false;
             }
 

@@ -1,6 +1,7 @@
 ﻿using System;
+using System.Threading.Tasks;
 
-namespace Das.Scanners
+namespace Das.Serializer
 {
     public interface IPrimitiveScanner<in T>
     {

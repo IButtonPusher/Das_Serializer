@@ -2,7 +2,7 @@
 using System.IO;
 using System.Threading;
 
-namespace Serializer.Core.Files
+namespace Das.Serializer.Files
 {
     public class SafeFile : IDisposable
     {

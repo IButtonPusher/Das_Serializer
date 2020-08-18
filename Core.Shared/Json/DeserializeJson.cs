@@ -1,10 +1,9 @@
 ﻿using Das.Streamers;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Das
+namespace Das.Serializer
 {
     public partial class DasCoreSerializer
     {
@@ -14,7 +13,21 @@ namespace Das
                 return state.Scanner.Deserialize<Object>(json);
         }
 
-        public T FromJson<T>(String json) => FromJsonCharArray<T>(json);
+        public T FromJson<T>(String json)
+        {
+            //return JsonExpress.Deserialize<T>(json);
+
+            using (var state = StateProvider.BorrowJson(Settings))
+            {
+                var res = state.Scanner.Deserialize<T>(json);
+                return res;
+            }
+        }
+
+        public T FromJsonEx<T>(String json)
+        {
+            return JsonExpress.Deserialize<T>(json);
+        }
 
         public T FromJson<T>(FileInfo file)
         {
@@ -28,7 +41,7 @@ namespace Das
             return FromJsonCharArray<T>(streamWrap);
         }
 
-        protected virtual T FromJsonCharArray<T>(IEnumerable<Char> json)
+        protected virtual T FromJsonCharArray<T>(Char[] json)
         {
             using (var state = StateProvider.BorrowJson(Settings))
             {
@@ -43,5 +56,10 @@ namespace Das
         public override void Dispose()
         {
         }
+
+        //private JsonExpress GetNewJsonExpress()
+        //{
+        //    return new JsonExpress(ObjectInstantiator, TypeManipulator, TypeInferrer);
+        //}
     }
 }

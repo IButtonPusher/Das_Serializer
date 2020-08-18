@@ -1,9 +1,8 @@
 ﻿using System;
-using Das.Serializer;
 
-namespace Serializer.Core
+namespace Das.Serializer
 {
-    public class XmlNodeTypeProvider : NodeTypeProvider
+    public class XmlNodeTypeProvider : NodeManipulator
     {
         private readonly IStringPrimitiveScanner _scanner;
         private readonly ITextParser _textParser;
@@ -25,11 +24,11 @@ namespace Serializer.Core
                 var str = _textParser.After(xmlType, ":");
                 str = _scanner.Descape(str);
 
-                type = _typeInferrer.GetTypeFromClearName(str);
+                type = _typeInferrer.GetTypeFromClearName(str)!;
 
                 node.Attributes.Remove(Const.XmlType);
             }
-            else type = default;
+            else type = default!;
 
             return type != null;
         }

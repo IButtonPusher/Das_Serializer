@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Text;
 using System.Threading;
-using Das.Scanners;
-using Das.Serializer;
 
-namespace Serializer.Core.Scanners
+namespace Das.Serializer
 {
     public class JsonPrimitiveScanner : StringPrimitiveScanner
     {
@@ -33,9 +31,9 @@ namespace Serializer.Core.Scanners
             if (!isEscaped)
                 return input;
 
-            var _sbString = Builder;
+            var sbString = Builder;
 
-            _sbString.Clear();
+            sbString.Clear();
 
             // ReSharper disable once TooWideLocalVariableScope
             Char c;
@@ -55,27 +53,27 @@ namespace Serializer.Core.Scanners
                         switch (c)
                         {
                             case 'b':
-                                _sbString.Append('\b');
+                                sbString.Append('\b');
                                 break;
                             case 't':
-                                _sbString.Append('\t');
+                                sbString.Append('\t');
                                 break;
                             case 'n':
-                                _sbString.Append('\n');
+                                sbString.Append('\n');
                                 break;
                             case 'f':
-                                _sbString.Append('\f');
+                                sbString.Append('\f');
                                 break;
                             case 'r':
-                                _sbString.Append(Const.CarriageReturn);
+                                sbString.Append(Const.CarriageReturn);
                                 break;
                             case '"':
-                                _sbString.Append(Const.Quote);
+                                sbString.Append(Const.Quote);
                                 break;
                             case 'u':
                                 var unicode = input.Substring(i + 1, 4);
                                 var unichar = Convert.ToInt32(unicode, 16);
-                                _sbString.Append((Char) unichar);
+                                sbString.Append((Char) unichar);
 
                                 for (var j = 0; j < 4; j++)
                                     enumerator.MoveNext();
@@ -86,13 +84,13 @@ namespace Serializer.Core.Scanners
 
 
                     else
-                        _sbString.Append(c);
+                        sbString.Append(c);
 
                     i++;
                 }
             }
 
-            return _sbString.ToString();
+            return sbString.ToString();
         }
     }
 }

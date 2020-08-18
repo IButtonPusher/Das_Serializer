@@ -3,9 +3,10 @@ using System.Reflection;
 
 namespace Das.Serializer
 {
-    internal static class Const
+    public static class Const
     {
         public static readonly Type StrType = typeof(String);
+        public static Type DbNull = typeof(DBNull);
         public static readonly Type IConvertible = typeof(IConvertible);
         public static readonly Type ObjectType = typeof(Object);
 
@@ -13,6 +14,7 @@ namespace Das.Serializer
         public static readonly Type[] TwoObjectTypeArray = { ObjectType, ObjectType };
 
         public const String TypeWrap = "__type";
+        public const String Val = "__val";
         public const String Equal = "=";
         public const String Tsystem = "System";
         public const String WutXml = "?xml";
@@ -37,6 +39,24 @@ namespace Das.Serializer
 
         public const Int32 BACKSLASH = 92;
 
+        public const Int32 VarInt = 0;
+
+        public const Int32 Int64 = 1;
+
+        public static readonly Type IntType = typeof(Int32);
+        public static readonly Type ByteType = typeof(Byte);
+        public static readonly Type ByteArrayType = typeof(Byte[]);
+
+        public const Int32 LengthDelimited = 2;
+
         public const BindingFlags NonPublic = BindingFlags.Instance | BindingFlags.NonPublic;
+
+        public const BindingFlags PrivateStatic = BindingFlags.Static | BindingFlags.NonPublic;
+
+        public const BindingFlags PublicStatic = BindingFlags.Static | BindingFlags.Public;
+
+        public const BindingFlags PublicInstance = BindingFlags.Instance | BindingFlags.Public;
+
+        public const BindingFlags AnyInstance = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
     }
 }

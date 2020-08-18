@@ -1,11 +1,8 @@
-﻿using Das.Remunerators;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Das.Serializer;
-using Das.Serializer.Objects;
-using Serializer.Core.Printers;
 
 namespace Das.Printers
 {
@@ -28,14 +25,14 @@ namespace Das.Printers
 
         #region public interface
 
-        public override Boolean PrintNode(NamedValueNode node)
+        public override void PrintNode(INamedValue node)
         {
             var name = node.Name;
             var propType = node.Type;
             var val = node.Value;
 
             if (val == null)
-                return false;
+                return;
 
             if (!_isIgnoreCircularDependencies)
                 PushStack(String.IsNullOrWhiteSpace(name) ? Const.Root : name);
@@ -60,7 +57,7 @@ namespace Das.Printers
                 }
                 else if (!isWrapping)
                 {
-                    var res = _stateProvider.GetNodeType(valType, Settings.SerializationDepth);
+                    var res = _nodeTypes.GetNodeType(valType, Settings.SerializationDepth);
                     //root node, we have to wrap primitives
                     if (res == NodeTypes.Primitive || res == NodeTypes.Fallback)
                     {
@@ -84,23 +81,22 @@ namespace Das.Printers
 
                     NewLine();
 
-                    Writer.Append(Const.Quote, DasCoreSerializer.Val);
+                    Writer.Append(Const.Quote, Const.Val);
                     Writer.Append(Const.Quote, ": ");
                     TabIn();
                     isCloseBlock = true;
                 }
+
+                node.Type = valType;
                 
-                var nodeType = _stateProvider.GetNodeType(valType, Settings.SerializationDepth);
-                var print = new PrintNode(node, nodeType);
-                PrintObject(print);
+                using (var print = _printNodePool.GetPrintNode(node))
+                    PrintObject(print);
 
                 if (!isCloseBlock)
-                    return true;
+                    return;
                 NewLine();
 
                 Writer.Append(Const.CloseBrace);
-
-                return true;
             }
             finally
             {
@@ -109,22 +105,66 @@ namespace Das.Printers
             }
         }
 
-        protected override void PrintSeries<T>(IEnumerable<T> values, Func<T, Boolean> meth)
+
+
+        protected override void PrintSeries<T>(IEnumerable<T> values,
+            Action<T> print)
         {
+
             using (var itar = values.GetEnumerator())
             {
                 if (!itar.MoveNext())
                     return;
 
-                var printSep = meth(itar.Current);
+                var printSep = ShouldPrintValue(itar.Current);
+                if (printSep)
+                    print(itar.Current);
+                
 
                 while (itar.MoveNext())
                 {
-                    if (printSep)
-                        Writer.Append(SequenceSeparator);
+                    var current = itar.Current;
+                    
+                    if (!ShouldPrintValue(current))
+                        continue;
 
-                    printSep = meth(itar.Current);
+                    if (printSep)
+                    {
+                        Writer.Append(SequenceSeparator);
+                    }
+
+                    print(current);
+                    printSep = true;
                 }
+            }
+        }
+
+        protected override void PrintProperties<T>(IPropertyValueIterator<T> values, 
+            Action<T> exe) 
+        {
+            var cnt = values.Count;
+            if (cnt == 0)
+                return;
+
+            var current = values[0];
+
+            var printSep = ShouldPrintNode(current);
+            if (printSep)
+                exe(current);
+
+            for (var c = 1; c < values.Count; c++)
+            {
+                current = values[c];
+
+                if (!ShouldPrintNode(current))
+                    continue;
+
+                if (printSep)
+                    Writer.Append(SequenceSeparator);
+
+                exe(current);
+
+                printSep = true;
             }
         }
 
@@ -132,7 +172,7 @@ namespace Das.Printers
 
         #region private implementation primary
 
-        protected override void PrintReferenceType(PrintNode node)
+        protected override void PrintReferenceType(IPrintNode node)
         {
             if (node.Value == null)
             {
@@ -176,22 +216,25 @@ namespace Das.Printers
             if (!enumerator.MoveNext())
                 return;
 
-            var kvp = enumerator.Entry;
-
-            PrintNode(kvp);
+            using (var kvp = _printNodePool.GetNamedValue(enumerator.Entry))
+            {
+                PrintNode(kvp);
+            }
 
             while (enumerator.MoveNext())
             {
-                kvp = enumerator.Entry;
-                Writer.Append(SequenceSeparator);
-                PrintNode(kvp);
+                using (var kvp = _printNodePool.GetNamedValue(enumerator.Entry))
+                {
+                    Writer.Append(SequenceSeparator);
+                    PrintNode(kvp);
+                }
             }
 
             TabIn();
             Writer.Append(Const.CloseBrace);
         }
 
-        protected override void PrintCollection(PrintNode node)
+        protected override void PrintCollection(IPrintNode node)
         {
             var serializeAs = node.Value.GetType();
 
@@ -219,16 +262,13 @@ namespace Das.Printers
                 PopStack();
         }
 
-        protected Boolean PrintCollectionObject(ObjectNode val)
+        protected void PrintCollectionObject(ObjectNode val)
         {
-            var res = _stateProvider.GetNodeType(val.Type, Settings.SerializationDepth);
-            var print = new PrintNode(val, res);
-            PrintObject(print);
-
-            return true;
+            using (var print = _printNodePool.GetPrintNode(val))
+                PrintObject(print);
         }
 
-        protected override void PrintFallback(PrintNode node)
+        protected override void PrintFallback(IPrintNode node)
         {
             Writer.Append(Const.Quote);
             node.Type = node.Value.GetType();
@@ -248,13 +288,13 @@ namespace Das.Printers
             if (isInQuotes)
                 Writer.Append(Const.Quote);
 
-            AppendEscaped(str);
+            AppendEscaped(str, Writer);
 
             if (isInQuotes)
                 Writer.Append(Const.Quote);
         }
 
-        private void AppendEscaped(String value)
+        public static void AppendEscaped(String value, ITextRemunerable writer)
         {
             if (String.IsNullOrEmpty(value))
                 return;
@@ -275,7 +315,7 @@ namespace Das.Printers
 
             if (!needEncode)
             {
-                Writer.Append(value);
+                writer.Append(value);
                 return;
             }
 
@@ -286,7 +326,7 @@ namespace Das.Printers
                 if (cIn >= 0 && cIn <= 7 || cIn == 11 || cIn >= 14 && cIn <= 31
                     || cIn == 39 || cIn == 60 || cIn == 62)
                 {
-                    Writer.Append($"\\u{(Int32) cIn:x4}");
+                    writer.Append($"\\u{(Int32) cIn:x4}");
                     continue;
                 }
 
@@ -316,11 +356,11 @@ namespace Das.Printers
                         break;
 
                     default:
-                        Writer.Append(cIn);
+                        writer.Append(cIn);
                         continue;
                 }
 
-                Writer.Append(cOut);
+                writer.Append(cOut);
             }
         }
 

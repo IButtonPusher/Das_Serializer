@@ -1,5 +1,4 @@
-﻿using Das;
-using Das.Serializer;
+﻿using Das.Serializer;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 //using Newtonsoft.Json;
 using System;
@@ -7,9 +6,10 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+
 // ReSharper disable All
 
-namespace UnitTestProject1
+namespace Serializer.Tests
 {
 	[TestClass]
 	public class JsonTests : TestBase

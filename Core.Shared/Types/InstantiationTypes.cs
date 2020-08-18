@@ -1,6 +1,6 @@
 ﻿namespace Das.Types
 {
-    internal enum InstantiationTypes
+    public enum InstantiationTypes
     {
         NullObject,
         EmptyString,

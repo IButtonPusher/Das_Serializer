@@ -1,4 +1,6 @@
 ﻿using System;
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+// ReSharper disable UnusedMember.Global
 
 namespace Das.Serializer
 {
@@ -37,8 +39,6 @@ namespace Das.Serializer
         /// will be serialized.  Default is GetSetProperties
         /// </summary>
         public SerializationDepth SerializationDepth { get; set; }
-
-
         
         Boolean ISerializationDepth.IsRespectXmlIgnore => false;
 
@@ -67,6 +67,7 @@ namespace Das.Serializer
         public DasSettings()
         {
             IsPropertyNamesCaseSensitive = true;
+            //IsOmitDefaultValues = true;
             TypeSpecificity = TypeSpecificity.Discrepancy;
             SerializationDepth = SerializationDepth.GetSetProperties;
             TypeSearchNameSpaces = new[] {Const.Tsystem};
@@ -78,13 +79,13 @@ namespace Das.Serializer
         public static DasSettings Default
         {
             get => (DasSettings) _default.MemberwiseClone();
-            private set => _default = value;
+//            private set => _default = value;
         }
 
 
         static DasSettings()
         {
-            Default = new DasSettings();
+            _default = new DasSettings();
         }
     }
 }

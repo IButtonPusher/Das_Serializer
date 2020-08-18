@@ -1,8 +1,7 @@
-﻿using Das.Scanners;
-using Das.Serializer;
-using Serializer.Core.NodeBuilders;
+﻿
+using Das.Serializer.NodeBuilders;
 
-namespace Serializer.Core
+namespace Das.Serializer
 {
     public class BinaryContext : CoreContext, IBinaryContext
     {
@@ -15,10 +14,10 @@ namespace Serializer.Core
 
         private readonly IBinaryNodeProvider _nodeProvider;
 
-        IBinaryNodeProvider IBinaryContext.NodeProvider => _nodeProvider;
+        IBinaryNodeProvider IBinaryContext.ScanNodeProvider => _nodeProvider;
 
         public IBinaryPrimitiveScanner PrimitiveScanner { get; }
 
-        public override INodeProvider NodeProvider => _nodeProvider;
+        public override IScanNodeProvider ScanNodeProvider => _nodeProvider;
     }
 }

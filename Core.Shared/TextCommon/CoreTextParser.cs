@@ -1,28 +1,44 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
-using Das.Serializer;
+using System.Threading;
 
 // ReSharper disable UnusedMember.Global
 
-namespace Serializer
+namespace Das.Serializer
 {
     public class CoreTextParser : CoreNumeric, ITextParser
     {
         private readonly CultureInfo _enUs;
         private readonly String[] _splitTokens = {"\r\n", "\r", "\n"};
 
+        private static readonly ThreadLocal<StringSaver> _stringBuilder;
+        private static readonly ThreadLocal<StringSaver> _myStringBuilder;
+        private static readonly ConcurrentQueue<StringSaver> _stringBuilderQueue;
+
+
         public CoreTextParser()
         {
             _enUs = new CultureInfo("en-US");
+           
         }
 
+        static CoreTextParser()
+        {
+            _stringBuilder = new ThreadLocal<StringSaver>(GetNewSaver);
+            _myStringBuilder = new ThreadLocal<StringSaver>(GetNewSaver);
+            _stringBuilderQueue = new ConcurrentQueue<StringSaver>();
+        }
 
-        public String FindJsonValue(String input, String toFind)
+        private static StringSaver GetNewSaver() => new StringSaver();
+
+
+        public String? FindJsonValue(String input, String toFind)
         {
             var hold = 0;
-            return FindValue(input, toFind, ref hold);
+            return FindJsonValue(input, toFind, ref hold);
         }
 
         public IEnumerable<String> EnumerateJsonValues(String input, String key)
@@ -31,12 +47,14 @@ namespace Serializer
 
             while (true)
             {
-                var res = FindValue(input, key, ref hold);
+                var res = FindJsonValue(input, key, ref hold);
                 if (res == null)
                     yield break;
                 yield return res;
             }
         }
+
+        
 
 
         public Boolean ContainsAll(String str, String[] list)
@@ -53,11 +71,11 @@ namespace Serializer
         public Double FindJsonDouble(String input, String toFind)
         {
             var hold = 0;
-            var val = FindValue(input, toFind, ref hold);
-            return GetDouble(val);
+            var val = FindJsonValue(input, toFind, ref hold);
+            return null == val ? Double.NaN : GetDouble(val);
         }
 
-        public String FindTextWithin(String input, String leftBounds, String rightBounds)
+        public String? FindTextWithin(String input, String leftBounds, String rightBounds)
         {
             var rightIndex = input.IndexOf(rightBounds, StringComparison.OrdinalIgnoreCase);
             var leftIndex = input.IndexOf(leftBounds, StringComparison.OrdinalIgnoreCase);
@@ -91,7 +109,7 @@ namespace Serializer
                 // ReSharper disable once ReplaceWithStringIsNullOrEmpty
                 if (String.IsNullOrWhiteSpace(item))
                     continue;
-                res.Add(item);
+                res.Add(item!);
             }
 
             found = res.ToArray();
@@ -99,7 +117,7 @@ namespace Serializer
             if (res.Count >= 1)
                 return true;
 
-            found = default;
+            found = default!;
             return false;
         }
 
@@ -114,7 +132,7 @@ namespace Serializer
             }
         }
 
-        private static IEnumerable<String> FindTextWithinImpl(String input, String[] delimiters)
+        private static IEnumerable<String?> FindTextWithinImpl(String input, String[] delimiters)
         {
             var current = 0;
 
@@ -180,7 +198,7 @@ namespace Serializer
 
             if (res.Count < findRequired)
             {
-                found = default;
+                found = default!;
                 return false;
             }
 
@@ -222,9 +240,9 @@ namespace Serializer
 
             leftIndex += leftBounds.Length;
 
-            if (middleIndex == -1)
-                yield return input.Substring(leftIndex, rightIndex - leftIndex);
-            else
+            //if (middleIndex == -1)
+            //    yield return input.Substring(leftIndex, rightIndex - leftIndex);
+            //else
             {
                 yield return input.Substring(leftIndex, middleIndex - leftIndex);
 
@@ -233,8 +251,8 @@ namespace Serializer
             }
         }
 
-        public String FindTextWithin(String input, String leftBounds,
-            String rightBounds, Int32 startIndex)
+        public String? FindTextWithin(String input, String leftBounds,
+                                      String rightBounds, Int32 startIndex)
         {
             var rightIndex = input.IndexOf(rightBounds, startIndex,
                 StringComparison.OrdinalIgnoreCase);
@@ -247,7 +265,9 @@ namespace Serializer
             return input.Substring(leftIndex, rightIndex - leftIndex);
         }
 
-        public String After(String inText, String afterFound)
+        String ITextParser.After(String inText, String afterFound) => After(inText, afterFound);
+        
+        public static String After(String inText, String afterFound)
         {
             var index = inText.IndexOf(afterFound, StringComparison.Ordinal);
             if (index == -1)
@@ -278,7 +298,7 @@ namespace Serializer
         /// <summary>
         /// Returns the rest of the text if the text started with whenStartsWith
         /// </summary>
-        public Boolean TrySkip(String inText, String whenStartsWith, out String remaining)
+        public Boolean TrySkip(String inText, String whenStartsWith, out String? remaining)
         {
             if (inText.StartsWith(whenStartsWith, StringComparison.Ordinal))
             {
@@ -291,22 +311,22 @@ namespace Serializer
         }
 
 
-        private String NextOrNull(String input, String toFind, ref Int32 index)
+        private String? NextOrNull(String input, String toFind, ref Int32 index)
         {
             if (index == -1 || !TryFindValueWithRetry(input, toFind, ref index, out var result))
                 return null;
             return result;
         }
 
-        public IEnumerator<String> FindJsonValues(String input, String toFind1, String toFind2)
+        public IEnumerator<String?> FindJsonValues(String input, String toFind1, String toFind2)
         {
             var index = 0;
             yield return NextOrNull(input, toFind1, ref index);
             yield return NextOrNull(input, toFind2, ref index);
         }
 
-        public IEnumerator<String> FindJsonValues(String input, String toFind1, String toFind2,
-            String toFind3)
+        public IEnumerator<String?> FindJsonValues(String input, String toFind1, String toFind2,
+                                                   String toFind3)
         {
             var index = 0;
 
@@ -315,8 +335,8 @@ namespace Serializer
             yield return NextOrNull(input, toFind3, ref index);
         }
 
-        public IEnumerator<String> FindJsonValues(String input, String toFind1, String toFind2,
-            String toFind3, String toFind4)
+        public IEnumerator<String?> FindJsonValues(String input, String toFind1, String toFind2,
+                                                   String toFind3, String toFind4)
         {
             var index = 0;
 
@@ -326,8 +346,8 @@ namespace Serializer
             yield return NextOrNull(input, toFind4, ref index);
         }
 
-        public IEnumerator<String> FindJsonValues(String input, String toFind1, String toFind2,
-            String toFind3, String toFind4, String toFind5)
+        public IEnumerator<String?> FindJsonValues(String input, String toFind1, String toFind2,
+                                                   String toFind3, String toFind4, String toFind5)
         {
             var index = 0;
 
@@ -338,9 +358,9 @@ namespace Serializer
             yield return NextOrNull(input, toFind5, ref index);
         }
 
-        public IEnumerator<String> FindJsonValues(String input, String toFind1, String toFind2, String toFind3,
-            String toFind4, String toFind5,
-            String toFind6)
+        public IEnumerator<String?> FindJsonValues(String input, String toFind1, String toFind2, String toFind3,
+                                                   String toFind4, String toFind5,
+                                                   String toFind6)
         {
             var index = 0;
 
@@ -352,9 +372,10 @@ namespace Serializer
             yield return NextOrNull(input, toFind6, ref index);
         }
 
-        public IEnumerator<String> FindJsonValues(String input, String toFind1, String toFind2, String toFind3,
-            String toFind4, String toFind5,
-            String toFind6, String toFind7)
+        public IEnumerator<String?> FindJsonValues(String input, String toFind1, 
+                                                   String toFind2, String toFind3,
+                                                   String toFind4, String toFind5,
+                                                   String toFind6, String toFind7)
         {
             var index = 0;
 
@@ -368,21 +389,21 @@ namespace Serializer
         }
 
         private Boolean TryFindValueWithRetry(String json, String item,
-            ref Int32 startIndex, out String result)
+            ref Int32 startIndex, out String? result)
         {
-            result = FindValue(json, item, ref startIndex);
+            result = FindJsonValue(json, item, ref startIndex);
             if (startIndex != -1)
                 return true;
 
             startIndex = 0;
-            result = FindValue(json, item, ref startIndex);
+            result = FindJsonValue(json, item, ref startIndex);
             if (startIndex == -1)
                 return false;
 
             return true;
         }
 
-        [ThreadStatic] private static StringBuilder _findBuilder;
+        [ThreadStatic] private static StringBuilder? _findBuilder;
 
         private static StringBuilder GetBuilder => _findBuilder
                                                    ?? (_findBuilder = new StringBuilder());
@@ -427,7 +448,7 @@ namespace Serializer
             var index = 0;
             do
             {
-                var found = FindValue(json, item, ref index);
+                var found = FindJsonValue(json, item, ref index);
                 if (found == null)
                     yield break;
 
@@ -435,7 +456,7 @@ namespace Serializer
             } while (index >= 0);
         }
 
-        public String FindValue(String json, String item, ref Int32 startIndex)
+        public String? FindJsonValue(String json, String item, ref Int32 startIndex)
         {
             var pos = json.IndexOf("\"" + item + "\":", startIndex, StringComparison.Ordinal);
             if (pos == -1)
@@ -462,7 +483,8 @@ namespace Serializer
                         return res;
                     case '[':
                         //array
-                        end = json.IndexOf(']', current) + 1;
+                        
+                        end = json.IndexOf(']', c) + 1;
                         beg = c - 1;
                         goto afterLoop;
                     default:
@@ -538,6 +560,8 @@ namespace Serializer
             return start == -1 ? -1 : start + searchFor.Length;
         }
 
+     
+
         public Int32 IndexOf(String searchIn, String searchFor) =>
             searchIn.IndexOf(searchFor, StringComparison.OrdinalIgnoreCase);
 
@@ -561,5 +585,96 @@ namespace Serializer
 
         public String[] GetLines(String str) =>
             str.Split(_splitTokens, StringSplitOptions.RemoveEmptyEntries);
+
+        public String BuildString<T1, T2, T3, T4>(T1 item1, T2 item2, T3 item3, T4 item4)
+        {
+            using (var sb = _myStringBuilder.Value)
+            {
+                sb!.Clear();
+                sb.Append(item1);
+                sb.Append(item2);
+                sb.Append(item3);
+                sb.Append(item4);
+
+                return sb.ToString();
+            }
+        }
+
+        public String BuildString<T1, T2, T3, T4, T5>(T1 item1, 
+            T2 item2, T3 item3, T4 item4, T5 item5)
+        {
+            using (var sb = _myStringBuilder.Value)
+            {
+                sb!.Clear();
+                sb.Append(item1);
+                sb.Append(item2);
+                sb.Append(item3);
+                sb.Append(item4);
+                sb.Append(item5);
+
+                return sb.ToString();
+            }
+        }
+
+        public String BuildString<T1, T2, T3, T4, T5, T6>(T1 item1, T2 item2, 
+            T3 item3, T4 item4, T5 item5, T6 item6)
+        {
+            using (var sb = _myStringBuilder.Value)
+            {
+                sb!.Clear();
+                sb.Append(item1);
+                sb.Append(item2);
+                sb.Append(item3);
+                sb.Append(item4);
+                sb.Append(item5);
+                sb.Append(item6);
+
+                return sb.ToString();
+            }
+        }
+
+        public ITextRemunerable GetThreadsStringBuilder(String initial)
+        {
+            var sb = GetThreadsStringBuilder();
+           
+            sb.Append(initial);
+            return sb;
+        }
+
+        public ITextRemunerable GetThreadsStringBuilder()
+        {
+            var sb = _stringBuilder.Value;
+            if (!sb!.IsEmpty)
+                throw new ObjectDisposedException("Stringbuilder was not disposed " + sb);
+            sb.Undispose();
+
+            return sb;
+        }
+
+        public ITextRemunerable BorrowStringBuilder(String initial)
+        {
+            if (!_stringBuilderQueue.TryDequeue(out var sb))
+                sb = new StringSaver(initial, OnStringSaverDisposed);
+            else
+            {
+                sb.Undispose();
+                sb.Append(initial);
+            }
+
+            return sb;
+        }
+
+        private static void OnStringSaverDisposed(StringSaver sb)
+        {
+            _stringBuilderQueue.Enqueue(sb);
+        }
+
+        public ITextRemunerable GetThreadsStringBuilder(Int32 capacity)
+        {
+            var sb = GetThreadsStringBuilder();
+            sb.Capacity = capacity;
+            return sb;
+        }
+
     }
 }

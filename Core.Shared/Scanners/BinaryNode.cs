@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using Das.Serializer;
 
-namespace Das.Scanners
+namespace Das.Serializer
 {
     internal class BinaryNode : BaseNode<IBinaryNode>, IBinaryNode
     {
@@ -17,6 +16,8 @@ namespace Das.Scanners
 
             PendingReferences = new List<IBinaryNode>();
         }
+
+        public override Boolean IsEmpty => BlockSize == 1 && Type != typeof(Byte);
 
         public override void Clear()
         {

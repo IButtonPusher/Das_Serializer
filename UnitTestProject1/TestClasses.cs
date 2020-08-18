@@ -2,10 +2,10 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using Das.CoreExtensions;
+using Das.Extensions;
 // ReSharper disable All
 
-namespace UnitTestProject1
+namespace Serializer.Tests
 {
 	public interface ISimpleClass
 	{

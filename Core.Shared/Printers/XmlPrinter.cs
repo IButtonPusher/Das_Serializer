@@ -1,10 +1,7 @@
-﻿using Das.Remunerators;
-using System;
+﻿using System;
 using System.Collections;
 using System.Linq;
 using Das.Serializer;
-using Das.Serializer.Objects;
-using Serializer.Core.Printers;
 
 namespace Das.Printers
 {
@@ -30,10 +27,10 @@ namespace Das.Printers
         protected Boolean IsPrintingLeaf;
 
 
-        public override Boolean PrintNode(NamedValueNode node)
+        public override void PrintNode(INamedValue node)
         {
             if (node.Value == null)
-                return false;
+                return; //false;
 
             if (!_isIgnoreCircularDependencies)
                 PushStack(node.Name);
@@ -43,7 +40,7 @@ namespace Das.Printers
                 var valType = node.Value.GetType();
                 var isWrapping = IsWrapNeeded(node.Type, valType);
 
-                var nodeType = _stateProvider.GetNodeType(valType,
+                var nodeType = _nodeTypes.GetNodeType(valType,
                     Settings.SerializationDepth);
                 var parent = _formatStack.Pop();
 
@@ -58,9 +55,12 @@ namespace Das.Printers
                         //does a leaf need to go in the stack?
                         _formatStack.Push(parent);
                         node.Type = valType;
-                        var valu = new PrintNode(node, nodeType);
-                        PrintLeafAttribute(valu);
-                        return true;
+                        using (var valu = _printNodePool.GetPrintNode(node))
+                        {
+                            PrintLeafAttribute(valu);
+                        }
+
+                        return;
                     }
                     else
                     {
@@ -77,15 +77,20 @@ namespace Das.Printers
                 /////////////////////////
                 // open node's tag
                 /////////////////////////
-                var tabBlob = Enumerable.Repeat(_indenter, current.Tabs);
+                
                 if (Settings.CircularReferenceBehavior != CircularReference.IgnoreObject
                     || !IsObjectReferenced(node.Value))
-                //don't open a tag unless we need it
+                    //don't open a tag unless we need it
                 {
-                    Writer.Append(tabBlob);
+                    for (var c = 0; c < current.Tabs; c++)
+                        Writer.Append(_indenter);
+
+                    //var tabBlob = Enumerable.Repeat(_indenter, current.Tabs);
+
+                    //Writer.Append(tabBlob);
                     Writer.Append(OpenAttributes, node.Name);
                 }
-                else return false; //we're ignoring circular refs and this was a circular ref...
+                else return; //we're ignoring circular refs and this was a circular ref...
 
                 if (isWrapping)
                 {
@@ -119,8 +124,11 @@ namespace Das.Printers
                 // print node contents
                 /////////////////////////
                 _formatStack.Push(current);
-                var print = new PrintNode(node, nodeType);
-                var couldPrint = PrintObject(print);
+                Boolean couldPrint;
+               
+                node.Type = valType;
+                using (var print = _printNodePool.GetPrintNode(node))
+                    couldPrint = PrintObject(print);
 
                 _formatStack.Pop();
                 /////////////////////////
@@ -144,18 +152,20 @@ namespace Das.Printers
                             break;
                         case NodeTypes.Collection:
                             if (node.IsEmptyInitialized)
-                                return true;
+                                return;// true;
                             break;
                         default:
-                            tabBlob = Enumerable.Repeat(_indenter, current.Tabs);
-                            Writer.Append(tabBlob);
+                            //tabBlob = Enumerable.Repeat(_indenter, current.Tabs);
+                            //Writer.Append(tabBlob);
+                            for (var c = 0; c < current.Tabs; c++)
+                                Writer.Append(_indenter);
                             break;
                     }
                    
                     Writer.Append($"</{node.Name}>\r\n");
                 }
 
-                return true;
+                //return true;
                 /////////////////////////
             }
             finally
@@ -165,14 +175,14 @@ namespace Das.Printers
             }
         }
 
-        protected override void PrintReferenceType(PrintNode node)
+        protected override void PrintReferenceType(IPrintNode node)
         {
             var series = _stateProvider.ObjectManipulator.GetPropertyResults(node, this)
                 .OrderByDescending(r => r.Type == Const.StrType);
             PrintSeries(series, PrintProperty);
         }
 
-        protected override void PrintCollection(PrintNode node)
+        protected override void PrintCollection(IPrintNode node)
         {
             node.Type = node.Value.GetType();
 
@@ -189,6 +199,8 @@ namespace Das.Printers
             if (!knownEmpty)
             {
                 var germane = _stateProvider.TypeInferrer.GetGermaneType(node.Type);
+                
+
                 PrintSeries(ExplodeList(node.Value as IEnumerable, germane),
                     PrintCollectionObject);
             }
@@ -198,7 +210,7 @@ namespace Das.Printers
 
         public override Boolean IsRespectXmlIgnore => true;
 
-        protected Boolean PrintCollectionObject(ObjectNode val)
+        protected void PrintCollectionObject(ObjectNode val)
         {
             if (!_isIgnoreCircularDependencies)
                 PushStack($"[{val.Index}]");
@@ -207,14 +219,14 @@ namespace Das.Printers
             if (!_isIgnoreCircularDependencies)
                 PopStack();
 
-            return true;
+            
         }
 
-        private void PrintLeafAttribute(PrintNode node)
+        private void PrintLeafAttribute(IPrintNode node)
         {
             IsPrintingLeaf = true;
             Writer.Append($" {node.Name}={Const.Quote}");
-            var res = _stateProvider.GetNodeType(node.Type, Settings.SerializationDepth);
+            var res = _nodeTypes.GetNodeType(node.Type, Settings.SerializationDepth);
             node.NodeType = res;
             PrintObject(node);
             Writer.Append(Const.Quote);

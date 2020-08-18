@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Das.Serializer.Types;
 
-namespace Das.Serializer.Scanners
+namespace Das.Serializer
 {
     public class NullNode : ITextNode, IBinaryNode, IEquatable<INode>
     {
@@ -115,7 +115,7 @@ namespace Das.Serializer.Scanners
             return ReferenceEquals(Instance, other);
         }
 
-        public override Boolean Equals(Object other)
+        public override Boolean Equals(Object? other)
         {
             return ReferenceEquals(Instance, other);
         }

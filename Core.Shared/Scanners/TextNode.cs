@@ -2,18 +2,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using Das.Serializer;
 
-namespace Das.Scanners
+namespace Das.Serializer
 {
     internal class TextNode : BaseNode<ITextNode>, ITextNode
     {
         public TextNode(String name, ISerializerSettings settings,
-            INodeManipulator nodeManipulator, ISerializationDepth depth) 
+            INodeManipulator nodeManipulator, INodeTypeProvider nodeTypeProvider,
+            ISerializationDepth depth) 
             : base(settings)
         {
             _text = new StringBuilder();
             _nodeManipulator = nodeManipulator;
+            _nodeTypeProvider = nodeTypeProvider;
             _depth = depth;
             Name = name;
 
@@ -24,6 +25,7 @@ namespace Das.Scanners
       
 
         private INodeManipulator _nodeManipulator;
+        private INodeTypeProvider _nodeTypeProvider;
         private ISerializationDepth _depth;
 
         public void Set(String name, ISerializationDepth depth,
@@ -82,7 +84,7 @@ namespace Das.Scanners
 
                 if (!IsUseless(Type))
                 {
-                    NodeType = _nodeManipulator.GetNodeType(Type,
+                    NodeType = _nodeTypeProvider.GetNodeType(Type,
                         Settings.SerializationDepth);
 
                     if (node.Type == null)

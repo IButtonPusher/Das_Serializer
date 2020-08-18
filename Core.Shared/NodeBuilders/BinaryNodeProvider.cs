@@ -1,23 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using Das.Scanners;
-using Das.Serializer;
-using Das.Serializer.Scanners;
 
-namespace Serializer.Core.NodeBuilders
+
+namespace Das.Serializer.NodeBuilders
 {
     public class BinaryNodeProvider : NodeProvider<IBinaryNode>, IBinaryNodeProvider
     {
         public BinaryNodeProvider(ISerializationCore dynamicFacade, ISerializerSettings settings)
-            : this(dynamicFacade, new NodeTypeProvider(dynamicFacade, settings), settings)
+            : this(dynamicFacade, new NodeManipulator(dynamicFacade, settings), 
+                dynamicFacade.NodeTypeProvider, settings)
         {
         }
 
         public BinaryNodeProvider(ISerializationCore dynamicFacade, INodeManipulator nodeManipulator,
-            ISerializerSettings settings)
-            : base(nodeManipulator, settings)
+            INodeTypeProvider nodeTypes, ISerializerSettings settings)
+            : base(nodeTypes, settings)
         {
-            Sealer = new BinaryNodeSealer(TypeProvider, dynamicFacade, settings);
+            Sealer = new BinaryNodeSealer(nodeManipulator, dynamicFacade, settings);
             _nodes = nodeManipulator;
         }
 
@@ -40,7 +39,7 @@ namespace Serializer.Core.NodeBuilders
                 index++;
             }
 
-            TypeProvider.TryBuildValue(current);
+            _nodes.TryBuildValue(current);
             node.Value = current.Value;
             current.PendingReferences.Add(node);
         }

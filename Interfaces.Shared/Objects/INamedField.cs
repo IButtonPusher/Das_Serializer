@@ -1,11 +1,11 @@
 ﻿using System;
+using System.Threading.Tasks;
+using Das.Serializer.Objects;
 
 namespace Das.Serializer
 {
-    public interface INamedField
+    public interface INamedField : IStronglyTyped
     {
         String Name { get; }
-
-        Type Type { get; }
     }
 }

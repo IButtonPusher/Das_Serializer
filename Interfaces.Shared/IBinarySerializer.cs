@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
+
 // ReSharper disable UnusedMemberInSuper.Global
 
 // ReSharper disable UnusedMember.Global
@@ -19,10 +21,10 @@ namespace Das.Serializer
         Byte[] ToBytes(Object o);
 
         /// <summary>
-        /// Serialize up or down.  For example if TypeB inherits from TypeA
-        /// and object obj is TypeB, passing the second parameter as typeof(TypeB)
-        /// will create a byte array that cannot be deserialized as TypeB but
-        /// can as TypeA
+        ///     Serialize up or down.  For example if TypeB inherits from TypeA
+        ///     and object obj is TypeB, passing the second parameter as typeof(TypeB)
+        ///     will create a byte array that cannot be deserialized as TypeB but
+        ///     can as TypeA
         /// </summary>
         Byte[] ToBytes(Object o, Type asType);
 

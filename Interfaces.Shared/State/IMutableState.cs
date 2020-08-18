@@ -1,7 +1,7 @@
 ﻿using System;
-using Das.Serializer;
+using System.Threading.Tasks;
 
-namespace Interfaces.Shared.State
+namespace Das.Serializer
 {
     public interface IMutableState
     {

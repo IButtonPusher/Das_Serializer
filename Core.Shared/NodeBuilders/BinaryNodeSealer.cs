@@ -1,7 +1,6 @@
 ﻿using System;
-using Das.Serializer;
 
-namespace Serializer.Core
+namespace Das.Serializer
 {
     public class BinaryNodeSealer : BaseNodeSealer<IBinaryNode>
     {
@@ -35,12 +34,12 @@ namespace Serializer.Core
                         var wal = node.Value;
 
                         foreach (var pv in node.DynamicProperties)
-                            dynamicType.SetPropertyValue(ref wal, pv.Key, pv.Value);
+                            dynamicType.SetPropertyValue(ref wal!, pv.Key, pv.Value);
 
                         node.Value = wal;
                     }
 
-                    _dynamicFacade.ObjectInstantiator.OnDeserialized(node.Value, Settings);
+                    _dynamicFacade.ObjectInstantiator.OnDeserialized(node, Settings);
 
                     break;
             }

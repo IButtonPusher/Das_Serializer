@@ -1,14 +1,12 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using Das.Extensions;
 using Das.Serializer;
-using Serializer.Core;
-using Das.CoreExtensions;
 
 namespace Das.Types
 {
@@ -19,58 +17,85 @@ namespace Das.Types
         {
             _dynamicTypes = dynamicTypes;
             _assemblies = assemblyList;
-            TypeNames = new ConcurrentDictionary<String, Type>();
-            TypeNames["object"] = Const.ObjectType;
-            TypeNames["string"] = typeof(String);
-            TypeNames["bool"] = typeof(Boolean);
-            TypeNames["byte"]= typeof(Byte);
-            TypeNames["char"]= typeof(Char);
-            TypeNames["decimal"]= typeof(Decimal);
-            TypeNames["double"]= typeof(Double);
-            TypeNames["short"]= typeof(Int16);
-            TypeNames["int"]= typeof(Int32);
-            TypeNames["long"]= typeof(Int64);
-            TypeNames["sbyte"]= typeof(SByte);
-            TypeNames["float"]= typeof(Single);
-            TypeNames["ushort"]= typeof(UInt16);
-            TypeNames["uint"]= typeof(UInt32);
-            TypeNames["ulong"]= typeof(UInt64);
-
-            _cachedTypeNames = new ConcurrentDictionary<Type, String>();
-            _cachedGermane = new ConcurrentDictionary<Type, Type>();
         }
 
+      
+
         private readonly IDynamicTypes _dynamicTypes;
-        private readonly ConcurrentDictionary<Type, Type> _cachedGermane;
+        
         private readonly IAssemblyList _assemblies;
         private static readonly ConcurrentDictionary<Type, Object> CachedDefaults;
-        private static readonly ConcurrentDictionary<Type, Int32> CachedSizes;
+        private static readonly Dictionary<Type, Int32> CachedSizes;
 
 
         static TypeInference()
         {
-            CachedSizes = new ConcurrentDictionary<Type, Int32>();
+
+            CachedSizes = new Dictionary<Type, Int32>();
+
             //bitconverter gives 1 byte.  SizeOf gives 4
-            CachedSizes.TryAdd(typeof(Boolean), 1);
-            CachedSizes.TryAdd(typeof(DateTime), 8);
+            CachedSizes[typeof(Boolean)] = 1;
+            CachedSizes[typeof(DateTime)] = 8;
+            CachedSizes[typeof(Single)] = 4;
 
             CachedDefaults = new ConcurrentDictionary<Type, Object>();
 
             CachedDefaults.TryAdd(typeof(Byte), 0);
             CachedDefaults.TryAdd(typeof(Int16), 0);
-            CachedDefaults.TryAdd(typeof(Int32), 0);
+            CachedDefaults.TryAdd(Const.IntType, 0);
             CachedDefaults.TryAdd(typeof(Int64), 0);
             CachedDefaults.TryAdd(typeof(Single), 0f);
             CachedDefaults.TryAdd(typeof(Double), 0.0);
             CachedDefaults.TryAdd(typeof(Decimal), 0M);
             CachedDefaults.TryAdd(typeof(DateTime), DateTime.MinValue);
             CachedDefaults.TryAdd(typeof(Boolean), false);
+
+
+            TypeNames = new ConcurrentDictionary<String, Type?>();
+            TypeNames["object"] = Const.ObjectType;
+            TypeNames["string"] = typeof(String);
+            TypeNames["bool"] = typeof(Boolean);
+            TypeNames["byte"] = typeof(Byte);
+            TypeNames["char"] = typeof(Char);
+            TypeNames["decimal"] = typeof(Decimal);
+            TypeNames["double"] = typeof(Double);
+            TypeNames["short"] = typeof(Int16);
+            TypeNames["int"] = Const.IntType;
+            TypeNames["long"] = typeof(Int64);
+            TypeNames["sbyte"] = typeof(SByte);
+            TypeNames["float"] = typeof(Single);
+            TypeNames["ushort"] = typeof(UInt16);
+            TypeNames["uint"] = typeof(UInt32);
+            TypeNames["ulong"] = typeof(UInt64);
+
+            foreach (var typ in TypeNames.Values)
+            {
+                if (typ?.IsValueType != true)
+                    continue;
+
+
+                if (typ.IsEnum)
+                {
+                    var length = Marshal.SizeOf(Enum.GetUnderlyingType(typ));
+                    CachedSizes[typ] = length;
+                }
+                else
+                {
+                    var length = Marshal.SizeOf(typ);
+                    CachedSizes[typ] = length;
+                }
+            }
+
+            CachedSizes[typeof(Boolean)] = 1;
+
+
+            _cachedTypeNames = new ConcurrentDictionary<Type, String>();
         }
 
-        internal readonly ConcurrentDictionary<String, Type> TypeNames;
-        private readonly ConcurrentDictionary<Type, String> _cachedTypeNames;
+        private static readonly ConcurrentDictionary<String, Type?> TypeNames;
+        private static readonly ConcurrentDictionary<Type, String> _cachedTypeNames;
 
-        private IEnumerable<Type> GetGenericTypes(String type)
+        private IEnumerable<Type?> GetGenericTypes(String type)
         {
             var meat = ExtractGenericMeat(type, out var startIndex, out var endIndex);
 
@@ -79,6 +104,8 @@ namespace Das.Types
                 //for the case of, zb, dictionary[string, list<int>] where we're at 
                 //list<int> so it's a generic argument that has a generic argument(s)
                 //but we have to avoid omitting the non-generic part
+                
+                
                 yield return GetTypeFromClearName(type, true);
                 yield break;
             }
@@ -100,8 +127,8 @@ namespace Das.Types
             } while (startIndex >= 0);
         }
 
-        private String ExtractGenericMeat(String clearName, out Int32 startIndex,
-            out Int32 endIndex)
+        private static String? ExtractGenericMeat(String clearName, out Int32 startIndex,
+                                                  out Int32 endIndex)
         {
             startIndex = clearName.IndexOf('[');
             var genOpen = startIndex;
@@ -159,7 +186,10 @@ namespace Das.Types
             else name = type.AssemblyQualifiedName;
 
             if (name == null)
-                return name;
+            {
+                return type.Name;
+                //return name;
+            }
 
             if (!isOmitAssemblyName)
                 _cachedTypeNames.TryAdd(type, name);
@@ -167,75 +197,7 @@ namespace Das.Types
             return name;
         }
 
-        public Type GetGermaneType(Type ownerType)
-        {
-            if (_cachedGermane.TryGetValue(ownerType, out var typ))
-                return typ;
-
-            try
-            {
-                if (!typeof(IEnumerable).IsAssignableFrom(ownerType))
-                    return ownerType;
-
-                if (ownerType.IsArray)
-                {
-                    typ = ownerType.GetElementType();
-                    return typ;
-                }
-
-                if (typeof(IDictionary).IsAssignableFrom(ownerType))
-                {
-                    typ = GetKeyValuePair(ownerType);
-                    if (typ != null)
-                        return typ;
-                }
-
-                var gargs = ownerType.GetGenericArguments();
-
-                switch (gargs.Length)
-                {
-                    case 1 when ownerType.IsGenericType:
-                        typ = gargs[0];
-                        return typ;
-                    case 2:
-                        var lastChanceDictionary = typeof(IDictionary<,>).MakeGenericType(gargs);
-                        typ = lastChanceDictionary.IsAssignableFrom(ownerType)
-                            ? GetKeyValuePair(lastChanceDictionary)
-                            : ownerType;
-                        return typ;
-                    case 0:
-                        var gen0 = ownerType.GetInterfaces().FirstOrDefault(i =>
-                            i.IsGenericType);
-                        return GetGermaneType(gen0);
-                }
-            }
-            finally
-            {
-                if (typ != null)
-                    _cachedGermane.TryAdd(ownerType, typ);
-            }
-
-            return null;
-        }
-
-        private static Type GetKeyValuePair(Type dicType)
-        {
-            var akas = dicType.GetInterfaces();
-            for (var c = 0; c < akas.Length; c++)
-            {
-                var interf = akas[c];
-                if (!interf.IsGenericType)
-                    continue;
-
-                var genericArgs = interf.GetGenericArguments();
-                if (genericArgs.Length != 1 || !genericArgs[0].IsValueType)
-                    continue;
-
-                return genericArgs[0];
-            }
-
-            return null;
-        }
+     
 
         private String GetClearGeneric(Type type, Boolean isOmitAssemblyName)
         {
@@ -268,7 +230,8 @@ namespace Das.Types
             if (CachedSizes.TryGetValue(typ, out var length))
                 return length;
 
-            if (TryGetNullableType(typ, out var nType))
+            if (TryGetNullableType(typ, out var nType) &&
+                nType != null)
             {
                 length = BytesNeeded(nType) + 1;
                 CachedSizes[nType] = length;
@@ -281,7 +244,6 @@ namespace Das.Types
                     length += Marshal.SizeOf(Enum.GetUnderlyingType(typ));
                 else
                     length += Marshal.SizeOf(typ);
-                CachedSizes.TryAdd(typ, length);
             }
             else
             {
@@ -293,46 +255,78 @@ namespace Das.Types
         }
 
 
-        public Boolean IsDefaultValue(Object o)
+        public Boolean IsDefaultValue<T>(T value)
         {
-            switch (o)
-            {
-                case null:
-                    return true;
-                case String str:
-                    return str == String.Empty;
-                case DateTime dt:
-                    return dt == DateTime.MinValue;
-                case IConvertible conv:
-                    return Convert.ToInt32(conv) == 0;
-            }
-
-            var t = o.GetType();
-
-            if (!t.IsValueType || t == typeof(void))
+            if (ReferenceEquals(null, value))
                 return true;
 
-            if (t.IsEnum)
-            {
-                return Convert.ToInt32(o) == 0;
-            }
+            var typo = typeof(T);
 
-            if (CachedDefaults.TryGetValue(t, out var def))
-                return def.Equals(o);
+            if (typo != typeof(Object))
+                return EqualityComparer<T>.Default.Equals(value);
 
-            def = Activator.CreateInstance(t); //yuck
+            typo = value.GetType();
+
+            if (!typo.IsValueType)
+                return false;
+            //return ReferenceEquals(null, value);
+
+            if (typo.IsEnum)
+                return Convert.ToInt32(value) == 0;
+
+            if (CachedDefaults.TryGetValue(typo, out var def))
+                return def.Equals(value);
+
+            def = Activator.CreateInstance(typo); //yuck
             //this has to be activator.  A value type is dynamically made 
             //made using only that!
 
-            CachedDefaults.TryAdd(t, def);
-            return def.Equals(o);
+            CachedDefaults.TryAdd(typo, def);
+            return def.Equals(value);
         }
 
-        public Type GetTypeFromClearName(String clearName,Boolean isTryGeneric = false)
+        //public Boolean IsDefaultValue(Object o)
+        //{
+
+        //    switch (o)
+        //    {
+        //        case null:
+        //            return true;
+        //        case String str:
+        //            return str == String.Empty;
+        //        case DateTime dt:
+        //            return dt == DateTime.MinValue;
+        //        case IConvertible conv:
+        //            return Convert.ToInt32(conv) == 0;
+        //    }
+
+        //    var t = o.GetType();
+
+        //    if (!t.IsValueType || t == typeof(void))
+        //        return true;
+
+        //    if (t.IsEnum)
+        //    {
+        //        return Convert.ToInt32(o) == 0;
+        //    }
+
+        //    if (CachedDefaults.TryGetValue(t, out var def))
+        //        return def.Equals(o);
+
+        //    def = Activator.CreateInstance(t); //yuck
+        //    //this has to be activator.  A value type is dynamically made 
+        //    //made using only that!
+
+        //    CachedDefaults.TryAdd(t, def);
+        //    return def.Equals(o);
+        //}
+
+        public Type? GetTypeFromClearName(String clearName,Boolean isTryGeneric = false)
             => FromClearName(clearName, true, isTryGeneric);
 
-        public Type FromClearName(String clearName, Boolean isRecurse,
-            Boolean isTryGeneric)
+        private Type? FromClearName(String clearName, 
+                                    Boolean isRecurse,
+                                    Boolean isTryGeneric)
         {
             if (String.IsNullOrWhiteSpace(clearName))
                 return null;
@@ -382,13 +376,13 @@ namespace Das.Types
             return type;
         }
 
-        private void EnsureCached(String clearName, Type type)
+        private static void EnsureCached(String clearName, Type? type)
         {
             if (type != null)
                 TypeNames.TryAdd(clearName, type);
         }
 
-        private Type[] DeriveGeneric(String clearName, out String generic)
+        private Type?[] DeriveGeneric(String clearName, out String? generic)
         {
             var isSomeGeneric = false;
 
@@ -411,13 +405,13 @@ namespace Das.Types
                 {
                     isSomeGeneric = true;
 
-                    var meaty = GetGenericTypes(genericMeat);
+                    var meaty = GetGenericTypes(genericMeat!);
                     foreach (var meat in meaty)
                     {
                         if (meat == null)
                         {
                             generic = default;
-                            return new Type[] {null};
+                            return new Type?[] {null};
                         }
 
                         genericTypes.Add(meat);
@@ -451,7 +445,7 @@ namespace Das.Types
             return genericTypes.ToArray();
         }
 
-        private Type GetNotAssemblyQualified(String clearName, Boolean isRecurse)
+        private Type? GetNotAssemblyQualified(String clearName, Boolean isRecurse)
         {
             var tokens = clearName.Split('.');
             return tokens.Length == 1
@@ -463,7 +457,7 @@ namespace Das.Types
         /// Prepends type search namespaces to name and tries to find. From just a single token
         /// we can never find anything
         /// </summary>
-        private Type FromSingleToken(String singleToken, Boolean isRecurse)
+        private Type? FromSingleToken(String singleToken, Boolean isRecurse)
         {
             var arr = Settings.TypeSearchNameSpaces;
 
@@ -490,8 +484,8 @@ namespace Das.Types
             return default;
         }
 
-        private Type FromNamespaceQualified(String nsName, String[] tokens,
-            Boolean isRecurse)
+        private Type? FromNamespaceQualified(String nsName, String[] tokens,
+                                             Boolean isRecurse)
         {
             var type = Type.GetType(nsName);
             if (type != null)
@@ -516,9 +510,9 @@ namespace Das.Types
             return default;
         }
 
-        private Type FromAssemblyQualified(String clearName, String[] tokens)
+        private Type? FromAssemblyQualified(String clearName, String[] tokens)
         {
-            Type type = null;
+            Type? type = null;
 
             if (_assemblies.TryGetAssembly(tokens[0], out var assembly))
             {
@@ -529,9 +523,11 @@ namespace Das.Types
             return type ?? Type.GetType(clearName) ?? GetTypeFromClearName(tokens[0]);
         }
 
-        private Type FromHailMary(String clearName)
+        private Type? FromHailMary(String clearName)
         {
-            if (_dynamicTypes.TryGetFromAssemblyQualifiedName(clearName, out var type))
+            Type? type;
+
+            if (_dynamicTypes.TryGetFromAssemblyQualifiedName(clearName, out type))
                 return type;
 
             if (TryFind(clearName, _assemblies, out type))
@@ -546,7 +542,7 @@ namespace Das.Types
         }
 
         private static Boolean TryFind(String clearName, IEnumerable<Assembly> assemblies,
-            out Type type)
+            out Type? type)
         {
             foreach (var asm in assemblies)
             {

@@ -1,12 +1,10 @@
 ﻿using System;
-using Das.Serializer;
-using Das.Serializer.Scanners;
 
-namespace Das.Scanners
+namespace Das.Serializer
 {
-    internal class JsonScanner : TextScanner
+    public class JsonScanner : TextScanner
     {
-        internal JsonScanner(IConverterProvider converterProvider, ITextContext state) :
+        public JsonScanner(IConverterProvider converterProvider, ITextContext state) :
             base(converterProvider, state)
         {
         }
@@ -15,7 +13,7 @@ namespace Das.Scanners
 
         protected sealed override Boolean IsQuote(Char c) => c == Const.Quote;
 
-        protected override void ProcessCharacter(Char c)
+        protected sealed override void ProcessCharacter(Char c)
         {
             switch (c)
             {
@@ -23,25 +21,31 @@ namespace Das.Scanners
                     CurrentTagName = CurrentValue.ToString();
                     CurrentValue.Clear();
                     return;
+
                 case Const.OpenBracket:
                     CreateNode();
                     CurrentTagName = Const.Empty;
                     break;
+
                 case Const.OpenBrace:
                     CreateNode();
                     CurrentTagName = Const.Empty;
                     return;
+
                 case Const.CloseBracket:
                     AddAttribute();
                     CloseNode();
                     break;
+
                 case Const.CloseBrace:
                     AddAttribute();
                     CloseNode();
                     break;
+
                 case Const.Comma:
                     AddAttribute();
                     break;
+
                 default:
                     if (!WhiteSpaceChars.Contains(c))
                     {
@@ -56,7 +60,7 @@ namespace Das.Scanners
 
         private void CreateNode()
         {
-            if (CurrentTagName == DasCoreSerializer.Val)
+            if (CurrentTagName == Const.Val)
             {
                 //don't make another node just for the val block
                 CurrentTagName = Const.Empty;
@@ -71,7 +75,7 @@ namespace Das.Scanners
 
         private void CloseNode()
         {
-            if (CurrentNode.Attributes.TryGetValue(DasCoreSerializer.Val, out var val))
+            if (CurrentNode.Attributes.TryGetValue(Const.Val, out var val))
                 CurrentNode.SetText(val);
 
             Sealer.CloseNode(CurrentNode);

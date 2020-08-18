@@ -1,14 +1,17 @@
-﻿namespace Das.Serializer
+﻿using System;
+using System.Threading.Tasks;
+
+namespace Das.Serializer
 {
     /// <summary>
-    /// Stateless facade for text based deserialization
+    ///     Stateless facade for text based deserialization
     /// </summary>
     public interface ITextContext : ISerializationContext
     {
-        ITextNodeProvider NodeProvider { get; }
+        IStringPrimitiveScanner PrimitiveScanner { get; }
+
+        new ITextNodeProvider ScanNodeProvider { get; }
 
         INodeSealer<ITextNode> Sealer { get; }
-
-        IStringPrimitiveScanner PrimitiveScanner { get; }
     }
 }

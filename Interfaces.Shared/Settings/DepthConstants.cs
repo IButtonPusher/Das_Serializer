@@ -1,18 +1,10 @@
 ﻿using System;
-using Das.Serializer;
+using System.Threading.Tasks;
 
-namespace Interfaces.Shared.Settings
+namespace Das.Serializer
 {
     public class DepthConstants : ISerializationDepth
     {
-        public static ISerializationDepth Full = 
-            new DepthConstants(SerializationDepth.Full, true, false);
-
-        public static ISerializationDepth AllProperties =
-            new DepthConstants(SerializationDepth.Full, true, false);
-
-
-
         private DepthConstants(SerializationDepth depth, Boolean isOmitDefault,
             Boolean isRespectXmlIgnore)
         {
@@ -22,7 +14,15 @@ namespace Interfaces.Shared.Settings
         }
 
         public Boolean IsOmitDefaultValues { get; }
+
         public SerializationDepth SerializationDepth { get; }
+
         public Boolean IsRespectXmlIgnore { get; }
+
+        public static ISerializationDepth Full =
+            new DepthConstants(SerializationDepth.Full, true, false);
+
+        public static ISerializationDepth AllProperties =
+            new DepthConstants(SerializationDepth.AllProperties, true, false);
     }
 }

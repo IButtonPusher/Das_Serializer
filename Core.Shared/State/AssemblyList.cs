@@ -5,9 +5,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Das.Serializer;
 
-namespace Serializer.Core
+namespace Das.Serializer
 {
     public class AssemblyList : IAssemblyList
     {
@@ -149,6 +148,7 @@ namespace Serializer.Core
                 {
                     found = Assembly.LoadFile(dll.FullName);
                 }
+                // ReSharper disable once EmptyGeneralCatchClause
                 catch
                 {
                 }

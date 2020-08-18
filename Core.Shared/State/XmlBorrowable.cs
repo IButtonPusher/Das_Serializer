@@ -1,8 +1,7 @@
 ﻿using System;
-using Das.Scanners;
-using Das.Serializer;
 
-namespace Serializer.Core
+
+namespace Das.Serializer
 {
     public class XmlBorrowable : TextState, IXmlLoaner
     {

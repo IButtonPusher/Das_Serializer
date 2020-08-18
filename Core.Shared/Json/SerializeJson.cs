@@ -1,27 +1,42 @@
 ﻿using Das.Printers;
-using Das.Remunerators;
 using System;
 using System.IO;
 using System.Runtime.CompilerServices;
-using Das.Serializer.Objects;
-using Serializer.Core.Files;
+using Das.Serializer.Files;
+using System.Threading;
 
-namespace Das
+namespace Das.Serializer
 {
     public partial class DasCoreSerializer
     {
         public void ToJson(Object o, FileInfo fi)
         {
-            var xml = ToJson(o);
+            var json = ToJson(o);
 
             using (var _ = new SafeFile(fi))
-                File.WriteAllText(fi.FullName, xml);
+                File.WriteAllText(fi.FullName, json);
         }
 
         public void ToJson<TTarget>(Object o, FileInfo fileName)
         {
-            var obj = ObjectManipulator.CastDynamic<TTarget>(o);
+            var obj = ObjectManipulator.CastDynamic<TTarget>(o)!;
             ToJson(obj, fileName);
+        }
+
+        private static readonly ThreadLocal<StringSaver> _escapeSaver = 
+            new ThreadLocal<StringSaver>(NewStringSaver);
+
+        private static StringSaver NewStringSaver() => new StringSaver();
+
+        public String JsonEscape(String str)
+        {
+            using (var saver = _escapeSaver.Value!)
+            {
+                JsonPrinter.AppendEscaped(str, saver);
+                var res = saver.ToString();
+                
+                return res;
+            }
         }
 
         /// <summary>
@@ -31,18 +46,19 @@ namespace Das
         /// <param name="o">The object to serialize</param>
         public String ToJson(Object o) => ToJson(o, o.GetType());
 
-        public String ToJson<TObject>(TObject o) => ToJson(o, typeof(TObject));
+        public String ToJson<TObject>(TObject o) => ToJson(o!, typeof(TObject));
 
         [MethodImpl(256)]
         private String ToJson(Object obj, Type asType)
         {
-            using (var sp = new StringSaver())
+            using (var sp = _escapeSaver.Value!)
             {
                 using (var state = StateProvider.BorrowJson(Settings))
                 {
                     var jp = new JsonPrinter(sp, state);
-                    var node = new NamedValueNode(String.Empty, obj, asType);
-                    jp.PrintNode(node);
+                    using (var node = PrintNodePool.GetNamedValue(String.Empty, obj, asType))
+                        jp.PrintNode(node);
+
                     var str = sp.ToString();
 
                     return str;

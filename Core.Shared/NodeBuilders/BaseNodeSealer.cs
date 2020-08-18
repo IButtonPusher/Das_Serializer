@@ -2,10 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Das.Serializer;
-using Das.Serializer.Scanners;
 
-namespace Serializer.Core
+
+namespace Das.Serializer
 {
     public abstract class BaseNodeSealer<TNode> : INodeSealer<TNode>
         where TNode : INode<TNode>, INode
@@ -48,7 +47,7 @@ namespace Serializer.Core
                 return;
             }
 
-            if (_types.IsCollection(node.Type))
+            if (node.Type != null && _types.IsCollection(node.Type))
             {
                 dynProps.Add($"{dynProps.Count}", value);
                 return;
@@ -60,33 +59,37 @@ namespace Serializer.Core
                 return;
             }
 
-            var wal = node.Value;
-            var t = wal.GetType();
-            if (_objects.SetProperty(t, name,
-                ref wal, value))
+            if (node.Value is {} wal)
             {
-                //node.Value = wal;
-                return;
+                //var wal = node.Value;
+                var t = wal.GetType();
+                if (_objects.SetProperty(t, name, ref wal, value))
+                {
+                    return;
+                }
             }
 
             wal = node.Value;
 
-            var propType = _facade.TypeManipulator.GetPropertyType(node.Type, name);
-            _objects.TryGetPropertyValue(wal, name, out var propValue);
+            var propType = node.Type is {} nodeType
+                ? _facade.TypeManipulator.GetPropertyType(nodeType, name)
+                : null;
 
-            if (!_types.IsCollection(propType) || propValue == null ||
+            _objects.TryGetPropertyValue(wal!, name, out var propValue);
+
+            if (propType == null || !_types.IsCollection(propType) || propValue == null ||
                 !(value is IEnumerable enumerable))
                 return;
 
             var addDelegate = _facade.TypeManipulator.GetAdder(
-                propValue as IEnumerable);
+                (propValue as IEnumerable)!);
 
             foreach (var child in enumerable)
                 addDelegate(propValue, child);
         }
 
         public void Imbue(TNode childNode) => Imbue(childNode.Parent, childNode.Name,
-            childNode.Value);
+            childNode.Value!);
 
         public abstract Boolean TryGetPropertyValue(TNode node, String key,
             Type propertyType, out Object val);
@@ -95,11 +98,10 @@ namespace Serializer.Core
 
         protected void ConstructCollection(ref TNode node)
         {
-            if (node.Type == null)
+            if (node.Type == null || node.IsEmpty)
                 return;
             
             var childType = _types.GetGermaneType(node.Type);
-            
 
             if (node.Type.IsArray)
             {
@@ -141,13 +143,13 @@ namespace Serializer.Core
 
                 var addDelegate = _facade.TypeManipulator.GetAdder(node.Type, 
                     node.DynamicProperties.Values.First()) 
-                    ?? _facade.TypeManipulator.GetAdder(node.Value as IEnumerable);
+                    ?? _facade.TypeManipulator.GetAdder((node.Value as IEnumerable)!);
 
                 if (addDelegate == null)
                     return;
 
                 foreach (var child in node.DynamicProperties)
-                    addDelegate(node.Value, child.Value);
+                    addDelegate(node.Value!, child.Value);
             }
         }
 
