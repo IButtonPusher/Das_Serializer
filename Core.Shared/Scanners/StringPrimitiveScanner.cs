@@ -51,6 +51,10 @@ namespace Das.Serializer
             if (type == Const.ObjectType)
                 return input;
 
+            //todo: this is probably not good
+            if (input == "null")
+                return null!;
+
             var conv = _state.GetTypeConverter(type);
             return conv.ConvertFromInvariantString(input);
         }

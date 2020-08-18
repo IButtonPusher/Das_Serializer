@@ -89,11 +89,30 @@ namespace Das.Serializer.ProtoBuf
             Debug.WriteLine("Debug " + obj1 + "\t" + obj2);
         }
 
+        public static void AddPacked16<TCollection>(TCollection target, Stream stream, Int32 bytesToUse)
+            where TCollection : ICollection<Int16>
+        {
+            var end = stream.Position + bytesToUse;
+
+            while (end > stream.Position) 
+                target.Add((Int16)GetInt32(stream));
+        }
+
         public static IEnumerable<Int16> ExtractPacked16(Stream stream, Int32 bytesToUse)
         {
             var end = stream.Position + bytesToUse;
 
-            while (end > stream.Position) yield return (Int16) GetInt32(stream);
+            while (end > stream.Position) 
+                yield return (Int16) GetInt32(stream);
+        }
+
+        public static void AddPacked32<TCollection>(TCollection target, Stream stream, Int32 bytesToUse)
+            where TCollection : ICollection<Int32>
+        {
+            var end = stream.Position + bytesToUse;
+
+            while (end > stream.Position) 
+                target.Add(GetInt32(stream));
         }
 
         public static IEnumerable<Int32> ExtractPacked32(Stream stream, Int32 bytesToUse)
@@ -102,6 +121,15 @@ namespace Das.Serializer.ProtoBuf
 
             while (end > stream.Position) 
                 yield return GetInt32(stream);
+        }
+
+        public static void AddPacked64<TCollection>(TCollection target, Stream stream, Int32 bytesToUse)
+            where TCollection : ICollection<Int64>
+        {
+            var end = stream.Position + bytesToUse;
+
+            while (end > stream.Position) 
+                target.Add(GetInt64(stream));
         }
 
         public static IEnumerable<Int64> ExtractPacked64(Stream stream, Int32 bytesToUse)

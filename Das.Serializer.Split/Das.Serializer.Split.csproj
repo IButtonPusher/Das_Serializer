@@ -4,7 +4,7 @@
     <TargetFrameworks>netcoreapp3.0;net472</TargetFrameworks>
 	 <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.0.2-alpha</Version>
+    <Version>0.0.4-alpha</Version>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -34,8 +34,8 @@ Serializer.Interfaces (standard)</Description>
   <Import Project="..\Serializer.Shared\Serializer.Shared.projitems" Label="Shared" />
 
   <ItemGroup>
-    <PackageReference Include="Das.Serializer.Core" Version="0.0.1-alpha" />
-    <PackageReference Include="Microsoft.CSharp" Version="4.6.0" />
+    <PackageReference Include="Das.Serializer.Core" Version="0.0.4-alpha" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
   </ItemGroup>
   
   <Target Name="CopyProjectReferencesToPackage" DependsOnTargets="ResolveReferences">
@@ -48,6 +48,7 @@ Serializer.Interfaces (standard)</Description>
    <LangVersion>8.0</LangVersion>
    <Nullable>enable</Nullable>
    <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
+   <AssemblyVersion>0.0.4.0</AssemblyVersion>
 </PropertyGroup>
 
 

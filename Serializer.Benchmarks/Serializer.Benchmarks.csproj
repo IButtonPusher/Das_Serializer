@@ -71,14 +71,13 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Das.Serializer\Das.Serializer.csproj">
-      <Project>{a9d2ef65-4059-4c0a-b513-d49ac3d66cf2}</Project>
-      <Name>Das.Serializer</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Serializer.Tests\Serializer.Tests.csproj">
       <Project>{ecb2b428-c066-4d2b-b891-711b83951c65}</Project>
       <Name>Serializer.Tests</Name>
     </ProjectReference>
   </ItemGroup>
+  <Import Project="..\Core.Shared\Core.Shared.projitems" Label="Shared" />
+  <Import Project="..\Interfaces.Shared\Interfaces.Shared.projitems" Label="Shared" />
+  <Import Project="..\Serializer.Shared\Serializer.Shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

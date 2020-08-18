@@ -34,7 +34,7 @@ namespace Das.Serializer
                         var wal = node.Value;
 
                         foreach (var pv in node.DynamicProperties)
-                            dynamicType.SetPropertyValue(ref wal, pv.Key, pv.Value);
+                            dynamicType.SetPropertyValue(ref wal!, pv.Key, pv.Value);
 
                         node.Value = wal;
                     }

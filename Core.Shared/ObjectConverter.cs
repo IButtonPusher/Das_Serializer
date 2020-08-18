@@ -22,8 +22,8 @@ namespace Das
             = new ThreadLocal<Dictionary<Object, Object>>(() 
                 => new Dictionary<Object, Object>());
 
-        [ThreadStatic]
-        private static ISerializerSettings? _currentSettings;
+        //[ThreadStatic]
+        //private static ISerializerSettings? _currentSettings;
 
         [ThreadStatic]
         private static NodeTypes _currentNodeType;
@@ -42,8 +42,8 @@ namespace Das
 
 
         // ReSharper disable once UnusedParameter.Local
-        private T ConvertEx<T>(Object obj, T newObject)
-            => ConvertEx<T>(obj, _currentSettings);
+        private T ConvertEx<T>(Object obj, T newObject, ISerializerSettings settings)
+            => ConvertEx<T>(obj, settings);
 
 
         public T ConvertEx<T>(Object obj, ISerializerSettings settings)
@@ -51,7 +51,7 @@ namespace Das
             if (obj is T already)
                 return already;
 
-            _currentSettings = settings;
+            //_currentSettings = settings;
 
             var outType = typeof(T);
 
@@ -61,7 +61,7 @@ namespace Das
             var refs = References.Value;
             refs.Clear();
 
-            outObj = Copy(obj, ref outObj, refs);
+            outObj = Copy(obj, ref outObj, refs, settings);
 
             return (T) outObj;
         }
@@ -70,11 +70,11 @@ namespace Das
 
         public Object ConvertEx(Object obj, Type newObjectType, ISerializerSettings settings)
         {
-            _currentSettings = settings;
+            //_currentSettings = settings;
             var newObject = _dynamicFacade.ObjectInstantiator.BuildDefault(newObjectType,
-                settings.CacheTypeConstructors);
-            _currentSettings = settings;
-            return ConvertEx(obj, newObject);
+                settings.CacheTypeConstructors) ?? throw new NullReferenceException(newObjectType.Name);
+            //_currentSettings = settings;
+            return ConvertEx(obj, newObject, settings);
         }
 
         public T Copy<T>(T from) where T : class => Copy(from, Settings);
@@ -82,25 +82,25 @@ namespace Das
         public T Copy<T>(T from, ISerializerSettings settings) 
             where T : class
         {
-            _currentSettings = settings;
-            var to = FromType(from);
-            Copy(from, ref to, settings);
-            return to;
+            //_currentSettings = settings;
+            var to = FromType(from, settings);
+            Copy(from, ref to!, settings);
+            return to!;
         }
 
-        private T FromType<T>(T example) where T : class
+        private T FromType<T>(T example, ISerializerSettings settings) where T : class
         {
             if (!IsInstantiable(typeof(T)))
-                return ObjectInstantiator.BuildDefault(example.GetType(), _currentSettings.
-                    CacheTypeConstructors) as T;
+                return (ObjectInstantiator.BuildDefault(example.GetType(), settings.
+                    CacheTypeConstructors) as T)!;
 
-            return ObjectInstantiator.BuildDefault<T>(_currentSettings.CacheTypeConstructors);
+            return ObjectInstantiator.BuildDefault<T>(settings.CacheTypeConstructors);
         }
 
         public void Copy<T>(T from, ref T to, ISerializerSettings settings) where T : class
         {
-            _currentSettings = settings;
-            to = to ?? FromType(from);
+            //_currentSettings = settings;
+            to ??= FromType(@from, settings);
             const SerializationDepth depth = SerializationDepth.Full;
             _currentNodeType = _nodeTypes.GetNodeType(typeof(T), depth);
             var o = (Object)to;
@@ -108,15 +108,25 @@ namespace Das
             var refs = References.Value;
             refs.Clear();
 
-            Copy(from, ref o, refs);
+            Copy(from, ref o, refs, settings);
 
-            to = (T) o;
+            if (o is T good)
+                to = good;
+            else throw new InvalidCastException(from.GetType() + " -> " + typeof(T).Name);
+
+            //to = (T) o;
         }
 
-        private Object Copy(Object from, ref Object to,
-            Dictionary<object, object> references)
+        public void Copy<T>(T @from, ref T to) where T : class
         {
-            var settings = _currentSettings;
+            Copy(from, ref to, _dynamicFacade.Settings);
+        }
+
+        private Object Copy(Object from, ref Object? to,
+                            Dictionary<object, object> references,
+                            ISerializerSettings settings)
+        {
+            //var settings = _currentSettings;
 
             if (to == null)
             {
@@ -136,10 +146,10 @@ namespace Das
                     return Convert.ChangeType(from, toType);
                 case NodeTypes.Object:
                 case NodeTypes.Dynamic:
-                    to = CopyObjects(from, ref to, toType, references);
+                    to = CopyObjects(from, ref to, toType, references, settings);
                     break;
                 case NodeTypes.Collection:
-                    to = CopyLists(from, to, toType, references);
+                    to = CopyLists(from, to, toType, references, settings);
                     break;
                 case NodeTypes.PropertiesToConstructor:
 
@@ -152,12 +162,14 @@ namespace Das
                         _currentNodeType = _nodeTypes.GetNodeType(prop.PropertyType,
                             settings.SerializationDepth);
                         var toProp = _instantiate.BuildDefault(prop.PropertyType,
-                            settings.CacheTypeConstructors);
-                        toProp = Copy(fromProp, ref toProp, references);
+                            settings.CacheTypeConstructors) ?? throw new NullReferenceException(prop.Name);
+                        toProp = Copy(fromProp, ref toProp, references, settings);
                         props.Add(prop.Name, toProp);
                     }
 
-                    _instantiate.TryGetPropertiesConstructor(toType, out var cInfo);
+                    if (!_instantiate.TryGetPropertiesConstructor(toType, out var cInfo))
+                        throw new InvalidOperationException(toType + " " + NodeTypes.PropertiesToConstructor);
+
                     var values = new List<Object>();
                     foreach (var conParam in cInfo.GetParameters())
                     {
@@ -181,11 +193,14 @@ namespace Das
             return to;
         }
 
-        private Object CopyObjects(Object from, ref Object to, Type toType,
-            Dictionary<object, object> references)
+        private Object CopyObjects(Object from, 
+                                   ref Object to, 
+                                   Type toType,
+            Dictionary<object, object> references,
+                                   ISerializerSettings settings)
         {
             foreach (var propInfo in _dynamicFacade.TypeManipulator.GetPropertiesToSerialize(toType,
-                _currentSettings))
+                settings))
             {
                 if (!_objects.TryGetPropertyValue(from, propInfo.Name, out var nextFrom))
                     continue;
@@ -203,7 +218,7 @@ namespace Das
                     continue;
                 }
 
-                _currentNodeType = _nodeTypes.GetNodeType(pType, _currentSettings.SerializationDepth);
+                _currentNodeType = _nodeTypes.GetNodeType(pType, settings.SerializationDepth);
 
                 if (references.TryGetValue(nextFrom, out var found))
                 {
@@ -221,10 +236,10 @@ namespace Das
                 
                 
                 nextTo = _instantiate.BuildDefault(nextFrom.GetType(),
-                    _currentSettings.CacheTypeConstructors);
+                    settings.CacheTypeConstructors) ?? throw new NullReferenceException(nextFrom?.ToString());
                 
                 references.Add(nextFrom, nextTo);
-                nextTo = Copy(nextFrom, ref nextTo, references);
+                nextTo = Copy(nextFrom, ref nextTo!, references, settings);
                 references[nextFrom] = nextTo;
 
                 ObjectManipulator.SetPropertyValue(ref to, propInfo.Name, nextTo);
@@ -233,28 +248,32 @@ namespace Das
             return to;
         }
 
-        private Object CopyLists(Object from, Object to, Type toType, 
-            Dictionary<object, object> references)
+        private Object CopyLists(Object from, 
+                                 Object to, 
+                                 Type toType, 
+            Dictionary<object, object> references,
+                                 ISerializerSettings settings)
         {
             var toListType = TypeInferrer.GetGermaneType(toType);
             var fromList = from as IEnumerable;
             var tempTo = new List<Object>();
             _currentNodeType = _nodeTypes.GetNodeType(toListType,
-                _currentSettings.SerializationDepth);
+                settings.SerializationDepth);
 
             if (fromList == null)
                 return to;
 
             foreach (var fromItem in fromList)
             {
-                var toItem = _instantiate.BuildDefault(toListType, 
-                    _currentSettings.CacheTypeConstructors);
-                toItem = Copy(fromItem, ref toItem, references);
+                var toItem = _instantiate.BuildDefault(toListType,
+                    settings.CacheTypeConstructors);
+                             //?? throw new NullReferenceException(toListType.Name);
+                toItem = Copy(fromItem, ref toItem, references, settings);
                 if (toItem != null)
                     tempTo.Add(toItem);
             }
 
-            to = SpawnCollection(tempTo.ToArray(), toType, _currentSettings, toListType);
+            to = SpawnCollection(tempTo.ToArray(), toType, settings, toListType);
 
             return to;
         }
@@ -262,7 +281,7 @@ namespace Das
         public Object SpawnCollection(Object[] objects, Type collectionType,
             ISerializerSettings settings, Type? collectionGenericArgs = null)
         {
-            _currentSettings = settings;
+            //_currentSettings = settings;
             var itemType = collectionGenericArgs ?? TypeInferrer.GetGermaneType(collectionType);
 
             if (collectionType.IsArray)
@@ -291,10 +310,10 @@ namespace Das
                                   TryGetCtor(out ctor);
 
             if (!buildDictionary)
-                return BuildCollectionDynamically(collectionType, objects);
+                return BuildCollectionDynamically(collectionType, objects, settings);
 
             var regularDic = typeof(Dictionary<,>).MakeGenericType(gargs);
-            var dicObj = BuildCollectionDynamically(regularDic, objects);
+            var dicObj = BuildCollectionDynamically(regularDic, objects, settings);
             return Activator.CreateInstance(collectionType, dicObj);
 
             Boolean TryGetCtor(out ConstructorInfo c)
@@ -305,30 +324,37 @@ namespace Das
             }
         }
 
-        private Object BuildCollectionDynamically(Type collectionType, Object[] objects)
+        private Object BuildCollectionDynamically(Type collectionType, 
+                                                  Object[] objects,
+                                                  ISerializerSettings settings)
         {
             var val = _instantiate.BuildDefault(collectionType,
-                _currentSettings.CacheTypeConstructors);
+                settings.CacheTypeConstructors) ?? throw new MissingMethodException(
+                collectionType.Name);
 
             if (objects.Length == 0)
                 return val;
 
-            if (val is IList ilist)
+            switch (val)
             {
-                foreach (var o in objects)
-                {
-                    ilist.Add(o);
-                }
+                case IList ilist:
+                    foreach (var o in objects)
+                        ilist.Add(o);
 
-                return val;
+                    return val;
+
+                case IEnumerable ienum:
+                    var addDelegate = _dynamicFacade.TypeManipulator.GetAdder(ienum);
+
+                    foreach (var child in objects)
+                        addDelegate(val, child);
+
+                    return val;
+
+                default:
+                    throw new InvalidOperationException(collectionType.Name);
             }
 
-            var addDelegate = _dynamicFacade.TypeManipulator.GetAdder(val as IEnumerable);
-
-            foreach (var child in objects)
-                addDelegate(val, child);
-
-            return val;
         }
     }
 }

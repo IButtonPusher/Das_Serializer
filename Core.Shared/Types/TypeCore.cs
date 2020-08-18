@@ -57,10 +57,10 @@ namespace Das.Serializer
         private static readonly ConcurrentDictionary<Type, IEnumerable<PropertyInfo>>
             CachedProperties;
 
-        private static readonly ConcurrentDictionary<Type, ISet<PropertyInfo>>
-            CachedProperties2 = new ConcurrentDictionary<Type, ISet<PropertyInfo>>();
+        //private static readonly ConcurrentDictionary<Type, ISet<PropertyInfo>>
+        //    CachedProperties2 = new ConcurrentDictionary<Type, ISet<PropertyInfo>>();
 
-        public Boolean TryGetNullableType(Type candidate, out Type primitive)
+        public Boolean TryGetNullableType(Type candidate, out Type? primitive)
         {
             primitive = null;
             if (!candidate.IsGenericType ||
@@ -86,12 +86,12 @@ namespace Das.Serializer
                 if (ownerType.IsArray)
                 {
                     typ = ownerType.GetElementType();
-                    return typ;
+                    return typ!;
                 }
 
                 if (typeof(IDictionary).IsAssignableFrom(ownerType))
                 {
-                    typ = GetKeyValuePair(ownerType);
+                    typ = GetKeyValuePair(ownerType)!;
                     if (typ != null)
                         return typ;
                 }
@@ -106,7 +106,7 @@ namespace Das.Serializer
                     case 2:
                         var lastChanceDictionary = typeof(IDictionary<,>).MakeGenericType(gargs);
                         typ = lastChanceDictionary.IsAssignableFrom(ownerType)
-                            ? GetKeyValuePair(lastChanceDictionary)
+                            ? GetKeyValuePair(lastChanceDictionary)!
                             : ownerType;
                         return typ;
                     case 0:
@@ -121,10 +121,10 @@ namespace Das.Serializer
                     _cachedGermane.TryAdd(ownerType, typ);
             }
 
-            return null;
+            throw new InvalidOperationException("Cannot load ");
         }
 
-        private static Type GetKeyValuePair(Type dicType)
+        private static Type? GetKeyValuePair(Type dicType)
         {
             var akas = dicType.GetInterfaces();
             for (var c = 0; c < akas.Length; c++)
@@ -196,7 +196,7 @@ namespace Das.Serializer
 
         public bool TryGetEmptyConstructor(Type t, out ConstructorInfo ctor)
         {
-            ctor = t.GetConstructor(Const.AnyInstance, null, Type.EmptyTypes, null);
+            ctor = t.GetConstructor(Const.AnyInstance, null, Type.EmptyTypes, null)!;
             return ctor != null;
         }
 
@@ -226,42 +226,42 @@ namespace Das.Serializer
                    && (type.Attributes & TypeAttributes.Public) == TypeAttributes.NotPublic;
         }
 
-        public ISet<PropertyInfo> GetPublicProperties2(Type type, Boolean numericFirst = true)
-        {
-            if (CachedProperties2.TryGetValue(type, out var results))
-                return results;
+        //public ISet<PropertyInfo> GetPublicProperties2(Type type, Boolean numericFirst = true)
+        //{
+        //    if (CachedProperties2.TryGetValue(type, out var results))
+        //        return results;
 
-            if (numericFirst)
-                results = new SortedSet<PropertyInfo>(this);
-            else results = new HashSet<PropertyInfo>();
+        //    if (numericFirst)
+        //        results = new SortedSet<PropertyInfo>(this);
+        //    else results = new HashSet<PropertyInfo>();
 
-            //todo: remove this and get it to work with explicits
-            if (type.IsInterface)
-            {
-                foreach (var parentInterface in type.GetInterfaces())
-                {
-                    var letsAdd = GetPublicProperties2(parentInterface, false);
+        //    //todo: remove this and get it to work with explicits
+        //    if (type.IsInterface)
+        //    {
+        //        foreach (var parentInterface in type.GetInterfaces())
+        //        {
+        //            var letsAdd = GetPublicProperties2(parentInterface, false);
 
-                    foreach (var l in letsAdd)
-                        results.Add(l);
-                }
-            }
-            else
-            {
-                var bt = type.BaseType;
+        //            foreach (var l in letsAdd)
+        //                results.Add(l);
+        //        }
+        //    }
+        //    else
+        //    {
+        //        var bt = type.BaseType;
 
-                while (bt != null)
-                {
-                    foreach (var pp in GetPublicProperties2(type.BaseType, false))
-                        results.Add(pp);
+        //        while (bt != null)
+        //        {
+        //            foreach (var pp in GetPublicProperties2(type.BaseType, false))
+        //                results.Add(pp);
 
-                    bt = bt.BaseType;
-                }
-            }
+        //            bt = bt.BaseType;
+        //        }
+        //    }
 
-            CachedProperties2.TryAdd(type, results);
-            return results;
-        }
+        //    CachedProperties2.TryAdd(type, results);
+        //    return results;
+        //}
 
         public IEnumerable<PropertyInfo> GetPublicProperties(Type type, Boolean numericFirst = true)
         {
@@ -300,7 +300,8 @@ namespace Das.Serializer
                 {
                     var results = new HashSet<PropertyInfo>(res);
 
-                    foreach (var pp in GetPublicProperties(type.BaseType, false))
+                    foreach (var pp in GetPublicProperties(bt, false))
+                        //type.BaseType, false)) //this has to have been unintentional...
                     {
                         if (byName.Add(pp.Name))
                             results.Add(pp);
@@ -326,20 +327,25 @@ namespace Das.Serializer
         
         public Boolean TryGetPropertiesConstructor(Type type, out ConstructorInfo constr)
         {
-            constr = null;
+            constr = null!;
             var isAnomymous = IsAnonymousType(type);
 
-            if (!isAnomymous && CachedConstructors.TryGetValue(type, out constr))
+            if (!isAnomymous && CachedConstructors.TryGetValue(type, out constr!))
                 return constr != null;
 
             var rProps = new Dictionary<String, Type>(
                 StringComparer.OrdinalIgnoreCase);
 
             foreach (var p in type.GetProperties().Where(p => !p.CanWrite && p.CanRead))
-                rProps.Add(p.Name, p.PropertyType);
+            {
+                rProps[p.Name] = p.PropertyType;
+                //rProps.Add(p.Name, p.PropertyType);
+            }
+
             foreach (var con in type.GetConstructors())
             {
                 if (con.GetParameters().Length <= 0 || !con.GetParameters().All(p =>
+                    !string.IsNullOrEmpty(p.Name) && 
                         rProps.ContainsKey(p.Name) && rProps[p.Name] == p.ParameterType))
                     continue;
 

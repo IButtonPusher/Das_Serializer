@@ -16,7 +16,7 @@ namespace Das.Serializer
         private static readonly ConcurrentDictionary<Type, InstantiationTypes> InstantionTypes;
         private static readonly ConcurrentDictionary<Type, Func<Object>> ConstructorDelegates;
         private static readonly ConcurrentDictionary<Type, Func<IList>> GenericListDelegates;
-        private static readonly ConcurrentDictionary<Type, ConstructorInfo> Constructors;
+        private static readonly ConcurrentDictionary<Type, ConstructorInfo?> Constructors;
         
         private static readonly ConcurrentDictionary<Type, Boolean> KnownOnDeserialize;
         private readonly ITypeInferrer _typeInferrer;
@@ -29,7 +29,7 @@ namespace Das.Serializer
         {
             InstantionTypes = new ConcurrentDictionary<Type, InstantiationTypes>();
             ConstructorDelegates = new ConcurrentDictionary<Type, Func<Object>>();
-            Constructors = new ConcurrentDictionary<Type, ConstructorInfo>();
+            Constructors = new ConcurrentDictionary<Type, ConstructorInfo?>();
             KnownOnDeserialize = new ConcurrentDictionary<Type, Boolean>();
             GenericListDelegates = new ConcurrentDictionary<Type, Func<IList>>();
         }
@@ -108,15 +108,14 @@ namespace Das.Serializer
             return f();
         }
 
-        private static ConstructorInfo GetConstructor(Type type, IList<Type> genericArguments,
-            out Type[] argTypes)
+        private static ConstructorInfo? GetConstructor(Type type, ICollection<Type> genericArguments,
+                                                       out Type[] argTypes)
         {
             argTypes = genericArguments.Count > 1
                 ? genericArguments.Take(genericArguments.Count - 1).ToArray()
                 : Type.EmptyTypes;
 
-            var ctor = type.GetConstructor(Const.AnyInstance, null, argTypes, null);
-            return ctor;
+            return type.GetConstructor(Const.AnyInstance, null, argTypes, null);
         }
 
         public TDelegate GetConstructorDelegate<TDelegate>(Type type)
@@ -209,7 +208,7 @@ namespace Das.Serializer
                 return default!;
 
             var handle = GCHandle.Alloc(rawValue, GCHandleType.Pinned);
-            var structure = (T) Marshal.PtrToStructure(handle.AddrOfPinnedObject(), objType);
+            var structure = (T) Marshal.PtrToStructure(handle.AddrOfPinnedObject(), objType)!;
             handle.Free();
             return structure!;
         }
@@ -257,7 +256,7 @@ namespace Das.Serializer
             return constructor;
         }
 
-        public bool TryGetDefaultConstructor(Type type, out ConstructorInfo ctor)
+        public bool TryGetDefaultConstructor(Type type, out ConstructorInfo? ctor)
         {
             if (Constructors.TryGetValue(type, out ctor))
             {
@@ -278,7 +277,7 @@ namespace Das.Serializer
             return ctor != null;
         }
 
-        public bool TryGetDefaultConstructor<T>(out ConstructorInfo ctor)
+        public bool TryGetDefaultConstructor<T>(out ConstructorInfo? ctor)
         {
             var type = typeof(T);
 
@@ -336,7 +335,8 @@ namespace Das.Serializer
 
         private Object CreateInstanceDetectConstructor(Type type)
         {
-            var ctor = GetConstructor(type, new List<Type>(), out _);
+            var ctor = GetConstructor(type, new List<Type>(), out _)
+                       ?? throw new MissingMethodException(type.Name);
             var ctored = ctor.Invoke(new Object[0]);
             return ctored;
         }

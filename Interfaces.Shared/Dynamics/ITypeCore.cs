@@ -43,12 +43,12 @@ namespace Das.Serializer
 
         Boolean TryGetEmptyConstructor(Type t, out ConstructorInfo ctor);
 
-        Boolean TryGetNullableType(Type type, out Type primitive);
+        Boolean TryGetNullableType(Type type, out Type? primitive);
 
         /// <summary>
         ///     Attempts to find a constructor that has parameters that match the name and type of
         ///     all properties with public get methods
         /// </summary>
-        Boolean TryGetPropertiesConstructor(Type type, out ConstructorInfo constr);
+        Boolean TryGetPropertiesConstructor(Type type, out ConstructorInfo? constr);
     }
 }

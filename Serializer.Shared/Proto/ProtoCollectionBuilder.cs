@@ -124,7 +124,7 @@ namespace Das.Serializer.ProtoBuf
             var wireType = ProtoBufSerializer.GetWireType(germane);
             var tc = Type.GetTypeCode(germane);
 
-            ScanValueToStack(s, il, germane, tc, wireType, action);
+            ScanValueToStack(s, il, germane, tc, wireType, action, false);
         }
 
 

@@ -25,6 +25,7 @@ namespace Das.Types
 
         static TypeManipulator()
         {
+            _lockNewType = new Object();
             _knownSensitive = new ConcurrentDictionary<Type, ITypeStructure>();
             _knownInsensitive = new ConcurrentDictionary<Type, ITypeStructure>();
         } 
@@ -213,7 +214,8 @@ namespace Das.Types
             }
 
             setter = CreateFieldSetter(backingField);
-            return setter != null;
+            return true;
+            //return setter != null;
         }
 
         public Func<Object, Object> CreateFieldGetter(FieldInfo fieldInfo)
@@ -275,7 +277,7 @@ namespace Das.Types
         }
 
 
-        public VoidMethod CreateMethodCaller(MethodInfo method)
+        public static VoidMethod CreateMethodCaller(MethodInfo method)
         {
             var dyn = CreateMethodCaller(method, true);
             return (VoidMethod) dyn.CreateDelegate(typeof(VoidMethod));
@@ -335,7 +337,7 @@ namespace Das.Types
         }
 
    
-        public VoidMethod GetAdder(Type collectionType, Object exampleValue)
+        public VoidMethod? GetAdder(Type collectionType, Object exampleValue)
         {
             if (_cachedAdders.TryGetValue(collectionType, out var res))
                 return res;
@@ -368,7 +370,7 @@ namespace Das.Types
         /// <summary>
         /// Gets a delegate to add an object to a non-generic collection
         /// </summary>	
-        public VoidMethod GetAdder(IEnumerable collection, Type type = null)
+        public VoidMethod GetAdder(IEnumerable collection, Type? type = null)
         {
             if (type == null)
                 type = collection.GetType();
@@ -377,7 +379,7 @@ namespace Das.Types
                 return res;
 
 
-#if NET40 || NET45
+            #if NET40 || NET45
             if (type.IsGenericType)
             {
                 dynamic dCollection = collection;
@@ -446,16 +448,15 @@ namespace Das.Types
         /// <summary>
         /// Detects the Add, Enqueue, Push etc method for generic collections
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="collection"></param>
-        public MethodInfo GetAddMethod<T>(IEnumerable<T> collection)
+        public MethodInfo? GetAddMethod<T>(IEnumerable<T> collection)
         {
             var cType = collection.GetType();
 
             if (typeof(ICollection<T>).IsAssignableFrom(cType))
-                return typeof(ICollection<T>).GetMethod("Add", new[] {typeof(T)});
+                return typeof(ICollection<T>).GetMethod(nameof(ICollection<T>.Add), new[] {typeof(T)})!;
+                    
             if (typeof(IList).IsAssignableFrom(cType))
-                return typeof(IList).GetMethod("Add", new[] {typeof(T)});
+                return typeof(IList).GetMethod(nameof(IList.Add), new[] {typeof(T)})!;
 
             var prmType = cType.GetGenericArguments().FirstOrDefault()
                           ?? Const.ObjectType;
@@ -514,10 +515,10 @@ namespace Das.Types
             return default;
         }
 
-        public Type GetPropertyType(Type classType, String propName)
+        public Type? GetPropertyType(Type classType, String propName)
         {
-            if (propName == null)
-                return default;
+            //if (propName == null)
+            //    return default;
 
             var ts = GetTypeStructure(classType, DepthConstants.AllProperties);
             return ts.MemberTypes.TryGetValue(propName, out var res) ? res.Type : default;
@@ -582,9 +583,9 @@ namespace Das.Types
             return ValidateCollection(type, depth, false);
         }
 
-      
 
-        private readonly Object _lockNewType = new Object();
+
+        private static readonly Object _lockNewType;
 
         // private Boolean TryGetTypeStructure<TStructure>(Type type, ISerializationDepth depth,
         //     ConcurrentDictionary<Type, TStructure> collection, out TStructure found)
@@ -606,7 +607,9 @@ namespace Das.Types
 
             var doCache = Settings.CacheTypeConstructors;
 
-            if (IsAlreadyExists(out var result))
+            ITypeStructure? result = null;
+
+            if (IsAlreadyExists(out result))
                 return result;
 
             var pool = _nodePool;
@@ -626,11 +629,24 @@ namespace Das.Types
 
             Boolean IsAlreadyExists(out ITypeStructure res)
             {
+                res = default!;
+
+                if (!doCache || !collection.TryGetValue(type, out res))
+                {
+                    return false;
+                }
+
+                if (res.Depth < depth.SerializationDepth)
+                {
+                    return false;
+                }
+
+
                 if (doCache && collection.TryGetValue(type, out res) &&
                     result.Depth >= depth.SerializationDepth)
                     return true;
 
-                res = default;
+                res = default!;
                 return false;
             }
         }

@@ -27,7 +27,7 @@ Single dll (fw/core) to keep it simple</Description>
   <Import Project="..\Serializer.Shared\Serializer.Shared.projitems" Label="Shared" />
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CSharp" Version="4.6.0" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
   </ItemGroup>
 
 <PropertyGroup>

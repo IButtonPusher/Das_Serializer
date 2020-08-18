@@ -20,7 +20,7 @@ namespace Das.Serializer
             IEnumerable<DasProperty> properties, IEnumerable<EventInfo> events,
             params Type[] parentTypes);
 
-        Boolean TryGetDynamicType(String clearName, out Type type);
+        Boolean TryGetDynamicType(String clearName, out Type? type);
 
         Boolean TryGetFromAssemblyQualifiedName(String assemblyQualified, out Type type);
     }

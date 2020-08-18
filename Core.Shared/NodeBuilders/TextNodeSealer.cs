@@ -66,7 +66,7 @@ namespace Das.Serializer
 
                         var val = _scanner.GetValue(str, type) ?? str;
                         var wal = node.Value;
-                        _objects.SetProperty(node.Type, attr.Key, ref wal, val);
+                        _objects.SetProperty(node.Type, attr.Key, ref wal!, val);
                     }
 
                     break;
@@ -146,7 +146,7 @@ namespace Das.Serializer
                         }
 
                         var wal = node.Value;
-                        dynamicType.SetPropertyValue(ref wal, propName, value);
+                        dynamicType.SetPropertyValue(ref wal!, propName, value);
                         node.Value = wal;
                     }
 

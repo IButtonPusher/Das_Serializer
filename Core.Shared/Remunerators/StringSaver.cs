@@ -14,7 +14,8 @@ namespace Das.Serializer
 
         private static readonly Object _sbLock;
         private static readonly List<StringBuilder> _sbPool;
-        
+        private Action<StringSaver>? _notifyDispose;
+
 
         static StringSaver()
         {
@@ -32,24 +33,17 @@ namespace Das.Serializer
             _sb = null!;
             if (!TryGetBiggerBackingBuilder(seed.Length, ref _sb!))
                 _sb = new StringBuilder(seed);
+
+            if (_sb == null)
+            {}
         }
 
+        public StringSaver(String seed, Action<StringSaver> notifyDispose)
+        : this(seed)
+        {
+            _notifyDispose = notifyDispose;
+        }
 
-        //private StringBuilder SetBackingBuilder()
-        //{
-        //    lock (_sbLock)
-        //    {
-        //        if (_sbPool.Count > 0)
-        //        {
-        //            _sb = _sbPool[0];
-        //            _sbPool.RemoveAt(0);
-        //            return _sb;
-        //        }
-        //    }
-        //    _sb = new StringBuilder();
-
-        //    return _sb;
-        //}
 
         private static StringBuilder GetBackingBuilder()
         {
@@ -106,7 +100,7 @@ namespace Das.Serializer
         }
 
         [MethodImpl(256)]
-        public void Append(Object obj)
+        public void Append(Object? obj)
         {
             _sb.Append(obj);
         }
@@ -211,10 +205,10 @@ namespace Das.Serializer
         }
 
         [MethodImpl(256)]
-        private void EnsureCapacity(Int32 len)
+        private void EnsureCapacity(Int32 totalLength)
         {
-            if (len > _sb.Capacity)
-                TryGetBiggerBackingBuilder(len, ref _sb!);
+            if (totalLength > _sb.Capacity)
+                TryGetBiggerBackingBuilder(totalLength, ref _sb!);
         }
 
         public void Append(ITextAccessor txt)
@@ -267,6 +261,7 @@ namespace Das.Serializer
                 _sb.Append(data);
         }
 
+        [MethodImpl(256)]
         public void Append<T>(T data) where T : struct
         {
             _sb.Append(data.ToString());
@@ -315,15 +310,12 @@ namespace Das.Serializer
         {
             Recycle(_sb);
             _sb = null!;
+            _notifyDispose?.Invoke(this);
         }
 
         public void Undispose()
         {
             _sb ??= GetBackingBuilder();
-
-            //if (_sb != null)
-            //    return;
-            //SetBackingBuilder();
         }
 
         private static void Recycle(StringBuilder sb)
@@ -391,6 +383,12 @@ namespace Das.Serializer
             => _sb.ToString().IndexOf(str, comparison) >= 0;
 
         public Int32 Length => _sb.Length;
+
+        public Int32 Capacity
+        {
+            get => _sb.Capacity;
+            set => EnsureCapacity(value);
+        }
 
         public Boolean IsNullOrWhiteSpace()
         {

@@ -47,7 +47,16 @@ namespace Das.Streamers
         public static implicit operator Char[](StreamStreamer stream)
         {
             var len = (Int32)stream._stream.Length;
-            var buffer = new Byte[len];
+            Byte[] buffer;
+
+            using(var memoryStream = new MemoryStream(len))
+            {
+                stream._stream.CopyTo(memoryStream);
+                buffer = memoryStream.ToArray();
+            }
+
+            //var buffer = new Byte[len];
+            
             var encoding = GetEncoding(buffer);
             return encoding.GetChars(buffer, 0, len);
         }

@@ -230,7 +230,8 @@ namespace Das.Types
             if (CachedSizes.TryGetValue(typ, out var length))
                 return length;
 
-            if (TryGetNullableType(typ, out var nType))
+            if (TryGetNullableType(typ, out var nType) &&
+                nType != null)
             {
                 length = BytesNeeded(nType) + 1;
                 CachedSizes[nType] = length;
@@ -243,7 +244,6 @@ namespace Das.Types
                     length += Marshal.SizeOf(Enum.GetUnderlyingType(typ));
                 else
                     length += Marshal.SizeOf(typ);
-                //CachedSizes.TryAdd(typ, length);
             }
             else
             {

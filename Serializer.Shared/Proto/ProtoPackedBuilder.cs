@@ -12,10 +12,15 @@ namespace Das.Serializer.ProtoBuf
     // ReSharper disable once UnusedTypeParameter
     public partial class ProtoDynamicProvider<TPropertyAttribute>
     {
-        private void ScanAsPackedArray(ILGenerator il, Type fieldType)
+        private void ScanAsPackedArray(ILGenerator il,
+                                       Type fieldType,
+                                       Boolean isCanAddToCollection)
         {
             if (!(GetPackedArrayType(fieldType) is {} packType))
                 throw new NotSupportedException();
+
+            if (isCanAddToCollection && CanScanAndAddPackedArray(fieldType, out _))
+                return;
 
             ////////////////////////////////////////////////////////
             // EXTRACT COLLECTION FROM STREAM
@@ -25,6 +30,7 @@ namespace Das.Serializer.ProtoBuf
             il.Emit(OpCodes.Ldarg_1);
             il.Emit(OpCodes.Ldarg_1);
             il.Emit(OpCodes.Call, _getPositiveInt32);
+
 
             if (packType == typeof(Int32))
                 il.Emit(OpCodes.Call, _extractPackedInt32Itar);
@@ -41,6 +47,68 @@ namespace Das.Serializer.ProtoBuf
             linqToArray = linqToArray.MakeGenericMethod(packType);
 
             il.Emit(OpCodes.Call, linqToArray);
+        }
+
+        private Boolean CanScanAndAddPackedArray(Type fieldType, out TypeCode typeCode)
+        {
+            typeCode = TypeCode.Empty;
+
+            if (!fieldType.IsGenericType || !_types.IsCollection(fieldType))
+                return false;
+
+            var germane = _types.GetGermaneType(fieldType);
+            var iColl = typeof(ICollection<>).MakeGenericType(germane);
+            if (!iColl.IsAssignableFrom(fieldType))
+                return false;
+
+            typeCode = Type.GetTypeCode(germane);
+
+            switch (typeCode)
+            {
+                case TypeCode.Int16:
+                case TypeCode.Int32:
+                case TypeCode.Int64:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        private MethodInfo? GetScanAndAddPackedMethod(Type fieldType)
+        {
+            if (!fieldType.IsGenericType || !_types.IsCollection(fieldType))
+                return null;
+
+            var germane = _types.GetGermaneType(fieldType);
+            var iColl = typeof(ICollection<>).MakeGenericType(germane);
+            if (!iColl.IsAssignableFrom(fieldType))
+                return null;
+
+            MethodInfo? baseAdd;
+
+
+            switch (Type.GetTypeCode(germane))
+            {
+                case TypeCode.Int16:
+                    baseAdd = typeof(ProtoDynamicBase).GetMethodOrDie(
+                        nameof(ProtoDynamicBase.AddPacked16));
+                    break;
+
+                case TypeCode.Int32:
+                    baseAdd = typeof(ProtoDynamicBase).GetMethodOrDie(
+                        nameof(ProtoDynamicBase.AddPacked32));
+                    break;
+
+                case TypeCode.Int64:
+                    baseAdd = typeof(ProtoDynamicBase).GetMethodOrDie(
+                        nameof(ProtoDynamicBase.AddPacked64));
+                    break;
+
+                default:
+                    return null;
+            }
+
+            return baseAdd.MakeGenericMethod(fieldType);
         }
 
         private void PrintAsPackedArray(ProtoPrintState s)

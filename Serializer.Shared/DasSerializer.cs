@@ -1,10 +1,10 @@
 ﻿#if !NET40
 #endif
 
+using Das.Serializer.ProtoBuf;
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Das.Serializer.ProtoBuf;
 
 namespace Das.Serializer
 {
@@ -44,7 +44,7 @@ namespace Das.Serializer
             ProtoBufOptions<TPropertyAttribute> options)
         {
             var provider = new ProtoDynamicProvider<TPropertyAttribute>(options,
-                TypeManipulator, ObjectInstantiator);
+                TypeManipulator, ObjectInstantiator, ObjectManipulator);
             return new ProtoBufSerializer(StateProvider, Settings, provider);
         }
 

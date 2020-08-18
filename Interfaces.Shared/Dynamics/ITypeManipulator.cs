@@ -19,11 +19,11 @@ namespace Das.Serializer
 
         PropertySetter CreateSetMethod(MemberInfo memberInfo);
 
-        VoidMethod GetAdder(Type collectionType, Object exampleValue);
+        VoidMethod? GetAdder(Type collectionType, Object exampleValue);
 
         VoidMethod GetAdder(IEnumerable collection, Type? collectionType = null);
 
-        MethodInfo GetAddMethod<T>(IEnumerable<T> collection);
+        MethodInfo? GetAddMethod<T>(IEnumerable<T> collection);
 
         MethodInfo GetAddMethod(Type collectionType);
 
@@ -34,7 +34,7 @@ namespace Das.Serializer
         /// </summary>
         IEnumerable<INamedField> GetPropertiesToSerialize(Type type, ISerializationDepth depth);
 
-        Type GetPropertyType(Type classType, String propName);
+        Type? GetPropertyType(Type classType, String propName);
 
         IEnumerable<FieldInfo> GetRecursivePrivateFields(Type type);
 

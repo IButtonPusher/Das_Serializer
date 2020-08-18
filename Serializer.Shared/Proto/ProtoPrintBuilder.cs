@@ -13,9 +13,11 @@ namespace Das.Serializer.ProtoBuf
     // ReSharper disable once UnusedTypeParameter
     public partial class ProtoDynamicProvider<TPropertyAttribute>
     {
-        private void AddPrintMethod(Type parentType, TypeBuilder bldr, Type genericParent,
-            IEnumerable<IProtoFieldAccessor> fields,
-            IDictionary<Type, FieldBuilder> typeProxies)
+        private void AddPrintMethod(Type parentType,
+                                    TypeBuilder bldr,
+                                    Type genericParent,
+                                    IEnumerable<IProtoFieldAccessor> fields,
+                                    IDictionary<Type, FieldBuilder> typeProxies)
         {
             var abstractMethod = genericParent.GetMethod(
                                      nameof(ProtoDynamicBase<Object>.Print))

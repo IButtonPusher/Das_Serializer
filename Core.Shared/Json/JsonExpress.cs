@@ -53,7 +53,8 @@ namespace Das.Serializer.Json
                         case Const.TypeWrap:
                             stringBuilder.Clear();
                             var typeName = GetNextString(ref currentIndex, json, stringBuilder);
-                            type = _typeInference.GetTypeFromClearName(typeName);
+                            type = _typeInference.GetTypeFromClearName(typeName) ?? 
+                                throw new TypeLoadException(typeName);
                             stringBuilder.Clear();
                             continue;
 

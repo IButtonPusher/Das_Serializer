@@ -24,7 +24,7 @@ namespace Das.Serializer
                 var str = _textParser.After(xmlType, ":");
                 str = _scanner.Descape(str);
 
-                type = _typeInferrer.GetTypeFromClearName(str);
+                type = _typeInferrer.GetTypeFromClearName(str)!;
 
                 node.Attributes.Remove(Const.XmlType);
             }

@@ -25,7 +25,7 @@ namespace Das.Types
                 ConcurrentDictionary<String, Func<Object, Object[], Object>>>();
         }
 
-        public IProperty GetPropertyResult(Object o, Type asType, String propertyName)
+        public IProperty? GetPropertyResult(Object o, Type asType, String propertyName)
         {
             if (propertyName == null)
                 return default;
@@ -34,13 +34,18 @@ namespace Das.Types
         }
 
         public T GetPropertyValue<T>(Object obj, String propertyName)
-            => (T) GetPropertyResult(obj, obj.GetType(), propertyName).Value;
+            => (T) GetPropertyResult(obj, obj.GetType(), propertyName)?.Value!;
+
+        public object? GetPropertyValue(Object obj, String propertyName)
+        {
+            return GetPropertyResult(obj, obj.GetType(), propertyName)?.Value;
+        }
 
         public Boolean TryGetPropertyValue(Object obj, String propertyName, out Object result)
         {
             if (obj == null)
             {
-                result = null;
+                result = null!;
                 return false;
             }
 
@@ -48,8 +53,8 @@ namespace Das.Types
 
             var propRes = GetPropertyResult(obj, oType, propertyName);
 
-            result = propRes?.Value;
-            return true;
+            result = propRes?.Value!;
+            return result != null;
         }
 
         public Boolean TryGetPropertyValue<T>(Object obj, String propertyName, out T result)
@@ -60,7 +65,7 @@ namespace Das.Types
                     return true;
             }
 
-            result = default;
+            result = default!;
             return false;
         }
 
@@ -103,11 +108,6 @@ namespace Das.Types
         /// Attempts to set a property value for a targetObj which is a property of name propName
         /// in a class of type classType
         /// </summary>
-        /// <param name="classType"></param>
-        /// <param name="propName"></param>
-        /// <param name="targetObj"></param>
-        /// <param name="propVal"></param>
-        /// <returns></returns>
         public Boolean SetProperty(Type classType, String propName, ref Object targetObj, Object propVal)
         {
             var str =  _typeDelegates.GetTypeStructure(classType, DepthConstants.AllProperties);
@@ -115,7 +115,7 @@ namespace Das.Types
         }
 
         public Boolean SetPropertyValue(ref Object targetObj, String propName, Object propVal)
-            => SetProperty(targetObj.GetType(), propName, ref targetObj, propVal);
+            => SetProperty(targetObj.GetType(), propName, ref targetObj!, propVal);
 
         public void Method(Object obj, String methodName, Object[] parameters,
             BindingFlags flags = BindingFlags.Default | BindingFlags.Instance | 
@@ -131,13 +131,14 @@ namespace Das.Types
 
             if (!meths.TryGetValue(methodName, out var target))
             {
-                var meth = type.FindMethod(methodName, parameters, flags);
+                var meth = type.FindMethod(methodName, parameters, flags) ??
+                           throw new MissingMethodException(type.Name, methodName);
 
                 if (meth.IsGenericMethod)
                     throw new NotSupportedException(
                         "Use the GenericMethod(...) extension for this method");
 
-                target = _typeDelegates.CreateMethodCaller(meth);
+                target = TypeManipulator.CreateMethodCaller(meth);
 
                 meths.TryAdd(methodName, target);
             }
@@ -148,7 +149,8 @@ namespace Das.Types
         public void GenericMethod(Object obj, String methodName, Type[] genericParameters, Object[] parameters,
             BindingFlags flags = BindingFlags.Default | BindingFlags.Instance | BindingFlags.Public)
         {
-            var meth = obj.GetType().FindMethod(methodName, parameters, flags);
+            var meth = obj.GetType().FindMethod(methodName, parameters, flags) ?? 
+            throw new MissingMethodException(obj.GetType().Name, methodName);
             meth = meth.MakeGenericMethod(genericParameters);
             meth.Invoke(obj, parameters);
         }
@@ -166,7 +168,8 @@ namespace Das.Types
             if (funcs.TryGetValue(funcName, out var target))
                 return target(obj, parameters);
 
-            var meth = type.FindMethod(funcName, parameters, flags);
+            var meth = type.FindMethod(funcName, parameters, flags) ?? 
+                throw new MissingMethodException(type.Name, funcName);
 
             #region TODO: don't use reflection for generic methods
 
@@ -183,13 +186,18 @@ namespace Das.Types
             return target(obj, parameters);
         }
 
-        public Object GenericFunc(Object obj, String funcName, Object[] parameters, Type[] genericParameters,
+        public Object GenericFunc(Object obj, 
+                                  String funcName, 
+                                  Object[] parameters, 
+                                  Type[] genericParameters,
             BindingFlags flags = BindingFlags.Default | BindingFlags.Instance | BindingFlags.Public)
 
         {
-            var meth = obj.GetType().FindMethod(funcName, parameters, flags);
+            var meth = obj.GetType().FindMethod(funcName, parameters, flags) ?? 
+                throw new MissingMethodException(obj.GetType().Name, funcName);
             meth = meth.MakeGenericMethod(genericParameters);
-            return meth.Invoke(obj, parameters);
+            
+            return meth.Invoke(obj, parameters)!;
         }
 
         private static Boolean TryCleanCast<T>(Object o, out T result)
@@ -209,7 +217,7 @@ namespace Das.Types
                 return true;
             }
 
-            result = default;
+            result = default!;
             return false;
         }
 
@@ -234,7 +242,7 @@ namespace Das.Types
             if (TryCleanCast(o, out casted))
                 return true;
 
-            casted = default;
+            casted = default!;
             return false;
         }
     }

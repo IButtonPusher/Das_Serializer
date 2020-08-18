@@ -29,12 +29,14 @@ namespace Das.Serializer
             Type[] genericParameters, Object[] parameters,
             BindingFlags flags = BindingFlags.Public | BindingFlags.Instance);
 
-        IProperty GetPropertyResult(Object o, Type asType, String propertyName);
+        IProperty? GetPropertyResult(Object o, Type asType, String propertyName);
 
         IPropertyValueIterator<IProperty> GetPropertyResults(IValueNode obj,
             ISerializationDepth depth);
 
         T GetPropertyValue<T>(Object obj, String propertyName);
+
+        Object? GetPropertyValue(Object obj, String propertyName);
 
         void Method(Object obj, String methodName, Object[] parameters,
             BindingFlags flags = BindingFlags.Public | BindingFlags.Instance);
@@ -48,7 +50,7 @@ namespace Das.Serializer
         // ReSharper disable once UnusedMember.Global
         void SetFieldValues<TObject>(TObject obj, Action<ITypeStructure, TObject> action);
 
-        Boolean SetProperty(Type classType, String propName, ref Object? targetObj,
+        Boolean SetProperty(Type classType, String propName, ref Object targetObj,
             Object propVal);
 
         /// <summary>

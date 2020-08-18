@@ -5,6 +5,7 @@ namespace Das.Serializer.Objects
 {
     public interface IStronglyTyped
     {
-        Type? Type { get; set; }
+        //if this is nullable := a lot of warnings
+        Type Type { get; set; }
     }
 }

@@ -120,20 +120,31 @@ namespace Das.Serializer.Proto
 
         }
 
-        public Action<IProtoFieldAccessor, ProtoScanState> GetFieldSetCompletion(IProtoFieldAccessor field,
-            Boolean canSetValueInline)
+        public Action<IProtoFieldAccessor, ProtoScanState> GetFieldSetCompletion(
+            IProtoFieldAccessor field,
+            Boolean canSetValueInline,
+            Boolean isValuePreInitialized)
         {
             Action<IProtoFieldAccessor, ProtoScanState> res;
 
             switch (field.FieldAction)
             {
+                case ProtoFieldAction.PackedArray:
+
+                    if (isValuePreInitialized && TryScanAndAddPackedArray(field, out var r)
+                    && !ReferenceEquals(null, r))
+                        return r;
+
+                    goto asPrimitive;
+
                 case ProtoFieldAction.Primitive:
                 case ProtoFieldAction.VarInt:
                 case ProtoFieldAction.String:
                 case ProtoFieldAction.ChildObject:
                 case ProtoFieldAction.ByteArray:
-                case ProtoFieldAction.PackedArray:
-                    
+
+                    asPrimitive:
+
                     if (canSetValueInline)
                         res = (f, s) => s.IL.Emit(OpCodes.Callvirt, field.SetMethod!);
                     else
@@ -172,7 +183,6 @@ namespace Das.Serializer.Proto
                 case ProtoFieldAction.Dictionary:
                     return AddKeyValuePair;
 
-
                 case ProtoFieldAction.ChildObjectArray:
                 case ProtoFieldAction.ChildPrimitiveArray:
 
@@ -190,6 +200,59 @@ namespace Das.Serializer.Proto
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        private Boolean TryScanAndAddPackedArray(
+            IProtoFieldAccessor field,
+            out Action<IProtoFieldAccessor, ProtoScanState>? res)
+        {
+            res = default;
+
+            if (!field.Type.IsGenericType)
+                return false;
+
+            var germane = _types.GetGermaneType(field.Type);
+            var iColl = typeof(ICollection<>).MakeGenericType(germane);
+            if (!iColl.IsAssignableFrom(field.Type))
+                return false;
+
+            MethodInfo? baseAdd;
+
+
+            switch (Type.GetTypeCode(germane))
+            {
+                case TypeCode.Int16:
+                    baseAdd = typeof(ProtoDynamicBase).GetMethodOrDie(
+                        nameof(ProtoDynamicBase.AddPacked16));
+                    break;
+
+                case TypeCode.Int32:
+                    baseAdd = typeof(ProtoDynamicBase).GetMethodOrDie(
+                        nameof(ProtoDynamicBase.AddPacked32));
+                    break;
+
+                case TypeCode.Int64:
+                    baseAdd = typeof(ProtoDynamicBase).GetMethodOrDie(
+                        nameof(ProtoDynamicBase.AddPacked64));
+                    break;
+
+                default:
+                    return false;
+            }
+
+            var adder = baseAdd.MakeGenericMethod(field.Type);
+
+            res = (f, s) =>
+            {
+                s.IL.Emit(OpCodes.Callvirt, field.GetMethod);
+
+                s.IL.Emit(OpCodes.Ldarg_1);
+                s.LoadPositiveInt32();
+
+                s.IL.Emit(OpCodes.Call, adder);
+            };
+
+            return true;
         }
 
         private void AddKeyValuePair(IProtoFieldAccessor pv, ProtoScanState s)
@@ -275,7 +338,8 @@ namespace Das.Serializer.Proto
 
             local = _il.DeclareLocal(localType);
 
-            if (_instantiator.TryGetDefaultConstructor(localType, out var fieldCtor))
+            if (_instantiator.TryGetDefaultConstructor(localType, out var fieldCtor)
+            && !ReferenceEquals(null, fieldCtor))
             {
                 _il.Emit(OpCodes.Newobj, fieldCtor);
                 _il.Emit(OpCodes.Stloc, local);

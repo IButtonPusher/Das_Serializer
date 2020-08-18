@@ -7,6 +7,8 @@ using System.Linq;
 using Das.Extensions;
 using Das.Serializer;
 using Xunit;
+#pragma warning disable 8602
+#pragma warning disable 8625
 
 // ReSharper disable All
 

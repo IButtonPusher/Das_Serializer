@@ -30,9 +30,9 @@ namespace Das.Serializer
             out TDelegate result)
             where TDelegate : Delegate;
 
-        Boolean TryGetDefaultConstructor(Type type, out ConstructorInfo ctor);
+        Boolean TryGetDefaultConstructor(Type type, out ConstructorInfo? ctor);
 
-        Boolean TryGetDefaultConstructor<T>(out ConstructorInfo ctor);
+        Boolean TryGetDefaultConstructor<T>(out ConstructorInfo? ctor);
 
         Boolean TryGetDefaultConstructorDelegate<T>(out Func<T> res)
             where T : class;

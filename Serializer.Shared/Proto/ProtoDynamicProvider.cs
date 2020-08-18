@@ -18,11 +18,14 @@ namespace Das.Serializer.ProtoBuf
         where TPropertyAttribute : Attribute
     {
         public ProtoDynamicProvider(ProtoBufOptions<TPropertyAttribute> protoSettings,
-            ITypeManipulator typeManipulator, IInstantiator instantiator)
+            ITypeManipulator typeManipulator, 
+            IInstantiator instantiator, 
+            IObjectManipulator objects)
         {
             _protoSettings = protoSettings;
             _types = typeManipulator;
             _instantiator = instantiator;
+            _objects = objects;
 
             var asmName = new AssemblyName("BOB.Stuff");
             // ReSharper disable once JoinDeclarationAndInitializer
@@ -481,6 +484,7 @@ namespace Das.Serializer.ProtoBuf
         private readonly MethodInfo _getStreamPosition;
         private readonly MethodInfo _getStringBytes;
         private readonly IInstantiator _instantiator;
+        private readonly IObjectManipulator _objects;
         private readonly ModuleBuilder _moduleBuilder;
 
         private readonly ProtoBufOptions<TPropertyAttribute> _protoSettings;

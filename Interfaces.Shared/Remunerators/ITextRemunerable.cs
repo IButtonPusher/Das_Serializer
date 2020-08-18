@@ -8,6 +8,8 @@ namespace Das.Serializer
     {
         Int32 Length { get; }
 
+        Int32 Capacity { get; set; }
+
         void Append(Char data1, String data2);
 
         void Append(ITextAccessor txt);

@@ -9,7 +9,7 @@
     <DelaySign>false</DelaySign>
     <AssemblyOriginatorKeyFile>InterfacesArmstrong.snk</AssemblyOriginatorKeyFile>
 	<SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
-	<Version>0.0.3-alpha</Version>
+	<Version>0.0.4-alpha</Version>
 	<Description>Loose coupling - no unsafe code</Description>
 	<PackageId>Das.Serializer.Interfaces</PackageId>
 	<Authors>Claus Trappberger</Authors>
@@ -26,6 +26,7 @@
    <LangVersion>8.0</LangVersion>
    <Nullable>enable</Nullable>
    <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
+   <AssemblyVersion>0.0.4.0</AssemblyVersion>
 </PropertyGroup>
 
 

@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Das.Serializer;
 using Das.Serializer.Objects;
@@ -13,56 +14,16 @@ namespace Das
 {
     public class TypeStructure : TypeCore, ITypeStructure
     {
-        public virtual Type Type { get; }
-
-        public SerializationDepth Depth { get; }
-
-        private readonly ITypeManipulator _types;
-        protected readonly INodePool _nodePool;
-        private readonly HashSet<String> _xmlIgnores;
-
-        private readonly Dictionary<String, Func<Object, Object>> _getOnly;
-
-        private readonly Dictionary<String, Func<Object, Object>> _propGetters;
-        protected readonly List<KeyValuePair<String, Func<Object, Object>>> _propGetterList;
-
-
-        protected virtual PropertyValueIterator<IProperty> PropertyValues
-            => _propertyValues.Value;
-
-        private readonly ThreadLocal<PropertyValueIterator<IProperty>> _propertyValues;
-
-        private readonly DoubleDictionary<String, Type, Object> _propertyAttributes;
-
-        private readonly Dictionary<String, Func<Object, Object>> _fieldGetters;
-
-        private readonly Dictionary<String, Func<Object, Object>> _getDontSerialize;
-
-        private readonly SortedList<String, PropertySetter> _propertySetters;
-        private readonly SortedList<String, Action<Object, Object>> _readOnlySetters;
-        private readonly SortedList<String, Action<Object, Object>> _fieldSetters;
-
-        public Dictionary<String, INamedField> MemberTypes { get; }
-
-        private readonly String? _onDeserializedMethodName;
-
-
-        public Int32 PropertyCount { get; }
-
-        //protected TypeStructure(Type type, ISerializerSettings settings, INodePool nodePool) 
-        //    : base(settings)
-        //{
-        //    Type = type;
-        //    _nodePool = nodePool;
-        //}
-
-        public TypeStructure(Type type, Boolean isPropertyNamesCaseSensitive,
-            ISerializationDepth depth, ITypeManipulator state, INodePool nodePool)
+        public TypeStructure(Type type, 
+                             Boolean isPropertyNamesCaseSensitive,
+                             ISerializationDepth depth, 
+                             ITypeManipulator state, 
+                             INodePool nodePool)
             : base(state.Settings)
         {
             Type = type;
             _xmlIgnores = new HashSet<String>();
-            _propertyValues = new ThreadLocal<PropertyValueIterator<IProperty>>(() 
+            _propertyValues = new ThreadLocal<PropertyValueIterator<IProperty>>(()
                 => new PropertyValueIterator<IProperty>());
 
             Depth = depth.SerializationDepth;
@@ -94,7 +55,6 @@ namespace Das
             _propertySetters = new SortedList<String, PropertySetter>(cmp);
             _readOnlySetters = new SortedList<String, Action<Object, Object>>(cmp);
             MemberTypes = new Dictionary<String, INamedField>(cmp);
-            
 
 
             if (_types.IsLeaf(type, true) || IsCollection(type))
@@ -115,114 +75,14 @@ namespace Das
             PropertyCount = _propertySetters.Count;
         }
 
-        private void CreatePropertyDelegates(Type type, ISerializationDepth depth)
-        {
-            foreach (var pi in _types.GetPublicProperties(type))
-            {
-                if (!pi.CanRead)
-                    continue;
+        public virtual Type Type { get; }
 
-                var isSerialize = true;
-                var attrs = pi.GetCustomAttributes(true);
+        public SerializationDepth Depth { get; }
 
-                foreach (var attr in attrs)
-                {
-                    _propertyAttributes.Add(pi.Name, attr.GetType(), attr);
-                }
+        public Dictionary<String, INamedField> MemberTypes { get; }
 
-                foreach (var attr in attrs)
-                {
-                    switch (attr)
-                    {
-                        case IgnoreDataMemberAttribute _:
-                            isSerialize = false;
-                            break;
-                        case XmlIgnoreAttribute _:
-                            _xmlIgnores.Add(pi.Name);
-                            if (depth.IsRespectXmlIgnore)
-                                isSerialize = false;
-                            break;
-                    }
-                }
 
-                if (!isSerialize)
-                {
-                    SetPropertyForDynamicAccess(type, pi);
-                    continue;
-                }
-
-                var member = new DasMember(pi.Name, pi.PropertyType);
-
-                MemberTypes[pi.Name] = member;
-
-                var reallyWrite = false;
-
-                if (pi.CanWrite)
-                {
-                    var dele = _types.CreatePropertyGetter(type, pi);
-                    _propGetters.Add(pi.Name, dele);
-
-                    var sm = _types.CreateSetMethod(pi);
-                    if (sm != null)
-                    {
-                        reallyWrite = true;
-                        _propertySetters.Add(pi.Name, sm);
-                    }
-                }
-
-                if (reallyWrite)
-                    continue;
-
-                if (!_getOnly.ContainsKey(pi.Name))
-                    _getOnly.Add(pi.Name, _types.CreatePropertyGetter(type, pi));
-
-                if ((depth.SerializationDepth & SerializationDepth.GetOnlyProperties)
-                    != SerializationDepth.GetOnlyProperties)
-                    continue;
-
-                if (_types.TryCreateReadOnlyPropertySetter(pi, out var del))
-                    _readOnlySetters.Add(pi.Name, del);
-            }
-            if (_propGetters.Count > 0)
-                _propGetterList.AddRange(_propGetters.OrderBy(p => p.Key));
-            else if (_getOnly.Count > 0)
-                _propGetterList.AddRange(_getOnly.OrderBy(p => p.Key));
-        }
-
-        private void CreateFieldDelegates(Type type, ISerializationDepth depth)
-        {
-            if ((depth.SerializationDepth & SerializationDepth.PrivateFields) !=
-                SerializationDepth.PrivateFields)
-                return;
-
-            foreach (var fld in type.GetFields(BindingFlags.Public | Const.NonPublic))
-            {
-                var delGet = _types.CreateFieldGetter(fld);
-                _fieldGetters[fld.Name] = delGet;
-
-                var delSet = _types.CreateFieldSetter(fld);
-                _fieldSetters[fld.Name] =  delSet;
-
-                var member = new DasMember(fld.Name, fld.FieldType);
-                MemberTypes[fld.Name] = member;
-            }
-        }
-
-        private void SetPropertyForDynamicAccess(Type type, PropertyInfo pi)
-        {
-            //even if a property will be excluded from serialization, we may still want
-            //to set its value dynamically
-            var gtor = _types.CreatePropertyGetter(type, pi);
-            _getDontSerialize.Add(pi.Name, gtor);
-            if (pi.CanWrite)
-            {
-                var sp = _types.CreateSetMethod(pi);
-                _propertySetters.Add(pi.Name, sp);
-            }
-
-            var member = new DasMember(pi.Name, pi.PropertyType);
-            MemberTypes[pi.Name] = member;
-        }
+        public Int32 PropertyCount { get; }
 
 
         public Boolean OnDeserialized(Object obj, IObjectManipulator objectManipulator)
@@ -234,14 +94,14 @@ namespace Das
             return true;
         }
 
-        public virtual IPropertyValueIterator<IProperty> GetPropertyValues(Object o, 
-            ISerializationDepth depth)
+        public virtual IPropertyValueIterator<IProperty> GetPropertyValues(Object o,
+                                                                           ISerializationDepth depth)
         {
             var isRespectXmlIgnoreAttribute = depth.IsRespectXmlIgnore;
             var cnt = _propGetterList.Count;
             var res = PropertyValues;
             res.Clear();
-            
+
             for (var c = 0; c < cnt; c++)
             {
                 var kvp = _propGetterList[c];
@@ -259,32 +119,8 @@ namespace Das
             return res;
         }
 
-        private IEnumerable<KeyValuePair<String, Func<Object, Object>>> GetValueGetters(
-            ISerializationDepth depth)
-        {
-            var isSet = false;
-
-            foreach (var kvp in _propGetters.OrderBy(p => p.Key))
-            {
-                isSet = true;
-                yield return kvp;
-            }
-
-            if (!isSet || (depth.SerializationDepth & SerializationDepth.GetOnlyProperties) != 0)
-            {
-                foreach (var kvp in _getOnly)
-                    yield return kvp;
-            }
-
-            if ((depth.SerializationDepth & SerializationDepth.PrivateFields) == 0)
-                yield break;
-
-            foreach (var kvp in _fieldGetters)
-                yield return kvp;
-        }
-
         /// <summary>
-        /// Returns properties and/or fields depending on specified depth
+        ///     Returns properties and/or fields depending on specified depth
         /// </summary>
         public IEnumerable<INamedField> GetMembersToSerialize(ISerializationDepth depth)
         {
@@ -337,7 +173,7 @@ namespace Das
         }
 
         public Boolean SetValue(String propName, ref Object targetObj, Object propVal,
-            SerializationDepth depth)
+                                SerializationDepth depth)
         {
             if (_propertySetters.TryGetValue(propName, out var setDel))
             {
@@ -386,8 +222,160 @@ namespace Das
             value = default!;
             return false;
         }
+
+
+        protected virtual PropertyValueIterator<IProperty> PropertyValues
+            => _propertyValues.Value!;
+
+        private void CreateFieldDelegates(Type type, ISerializationDepth depth)
+        {
+            if ((depth.SerializationDepth & SerializationDepth.PrivateFields) !=
+                SerializationDepth.PrivateFields)
+                return;
+
+            foreach (var fld in type.GetFields(BindingFlags.Public | Const.NonPublic))
+            {
+                var delGet = _types.CreateFieldGetter(fld);
+                _fieldGetters[fld.Name] = delGet;
+
+                var delSet = _types.CreateFieldSetter(fld);
+                _fieldSetters[fld.Name] = delSet;
+
+                var member = new DasMember(fld.Name, fld.FieldType);
+                MemberTypes[fld.Name] = member;
+            }
+        }
+
+        private void CreatePropertyDelegates(Type type, 
+                                             ISerializationDepth depth)
+        {
+            foreach (var pi in _types.GetPublicProperties(type))
+            {
+                if (!pi.CanRead)
+                    continue;
+
+                var isSerialize = true;
+                var attrs = pi.GetCustomAttributes(true);
+
+                foreach (var attr in attrs) _propertyAttributes.Add(pi.Name, attr.GetType(), attr);
+
+                foreach (var attr in attrs)
+                    switch (attr)
+                    {
+                        case IgnoreDataMemberAttribute _:
+                            isSerialize = false;
+                            break;
+                        case XmlIgnoreAttribute _:
+                            _xmlIgnores.Add(pi.Name);
+                            if (depth.IsRespectXmlIgnore)
+                                isSerialize = false;
+                            break;
+                    }
+
+                if (!isSerialize)
+                {
+                    SetPropertyForDynamicAccess(type, pi);
+                    continue;
+                }
+
+                var member = new DasMember(pi.Name, pi.PropertyType);
+
+                MemberTypes[pi.Name] = member;
+
+                var reallyWrite = false;
+
+                if (pi.CanWrite)
+                {
+                    var dele = _types.CreatePropertyGetter(type, pi);
+                    _propGetters.Add(pi.Name, dele);
+
+                    var sm = _types.CreateSetMethod(pi);
+                    //if (sm != null)
+                    {
+                        reallyWrite = true;
+                        _propertySetters.Add(pi.Name, sm);
+                    }
+                }
+
+                if (reallyWrite)
+                    continue;
+
+                if (!_getOnly.ContainsKey(pi.Name))
+                    _getOnly.Add(pi.Name, _types.CreatePropertyGetter(type, pi));
+
+                if ((depth.SerializationDepth & SerializationDepth.GetOnlyProperties)
+                    != SerializationDepth.GetOnlyProperties)
+                    continue;
+
+                if (_types.TryCreateReadOnlyPropertySetter(pi, out var del))
+                    _readOnlySetters.Add(pi.Name, del);
+            }
+
+            if (_propGetters.Count > 0)
+                _propGetterList.AddRange(_propGetters.OrderBy(p => p.Key));
+            else if (_getOnly.Count > 0)
+                _propGetterList.AddRange(_getOnly.OrderBy(p => p.Key));
+        }
+
+        private IEnumerable<KeyValuePair<String, Func<Object, Object>>> GetValueGetters(
+            ISerializationDepth depth)
+        {
+            var isSet = false;
+
+            foreach (var kvp in _propGetters.OrderBy(p => p.Key))
+            {
+                isSet = true;
+                yield return kvp;
+            }
+
+            if (!isSet || (depth.SerializationDepth & SerializationDepth.GetOnlyProperties) != 0)
+                foreach (var kvp in _getOnly)
+                    yield return kvp;
+
+            if ((depth.SerializationDepth & SerializationDepth.PrivateFields) == 0)
+                yield break;
+
+            foreach (var kvp in _fieldGetters)
+                yield return kvp;
+        }
+
+        private void SetPropertyForDynamicAccess(Type type, PropertyInfo pi)
+        {
+            //even if a property will be excluded from serialization, we may still want
+            //to set its value dynamically
+            var gtor = _types.CreatePropertyGetter(type, pi);
+            _getDontSerialize.Add(pi.Name, gtor);
+            if (pi.CanWrite)
+            {
+                var sp = _types.CreateSetMethod(pi);
+                _propertySetters.Add(pi.Name, sp);
+            }
+
+            var member = new DasMember(pi.Name, pi.PropertyType);
+            MemberTypes[pi.Name] = member;
+        }
+
+        private readonly Dictionary<String, Func<Object, Object>> _fieldGetters;
+        private readonly SortedList<String, Action<Object, Object>> _fieldSetters;
+
+        private readonly Dictionary<String, Func<Object, Object>> _getDontSerialize;
+
+        private readonly Dictionary<String, Func<Object, Object>> _getOnly;
+        protected readonly INodePool _nodePool;
+
+        private readonly String? _onDeserializedMethodName;
+
+        private readonly DoubleDictionary<String, Type, Object> _propertyAttributes;
+
+        private readonly SortedList<String, PropertySetter> _propertySetters;
+
+        private readonly ThreadLocal<PropertyValueIterator<IProperty>> _propertyValues;
+        protected readonly List<KeyValuePair<String, Func<Object, Object>>> _propGetterList;
+
+        private readonly Dictionary<String, Func<Object, Object>> _propGetters;
+        private readonly SortedList<String, Action<Object, Object>> _readOnlySetters;
+
+        private readonly ITypeManipulator _types;
+        private readonly HashSet<String> _xmlIgnores;
     }
 }
-
-
-           

@@ -64,45 +64,55 @@ namespace Das.Serializer
 
         Double FindJsonDouble(String input, String toFind);
 
-        String FindJsonValue(String input, String toFind);
+        String? FindJsonValue(String input, String toFind);
 
-        String FindJsonValue(String json, String item, ref Int32 startIndex);
+        String? FindJsonValue(String json, String item, ref Int32 startIndex);
 
-        IEnumerator<String> FindJsonValues(String input, String toFind1, String toFind2);
+        IEnumerator<String?> FindJsonValues(String input, String toFind1, String toFind2);
 
-        IEnumerator<String> FindJsonValues(String input, String toFind1, String toFind2,
-            String toFind3);
+        IEnumerator<String?> FindJsonValues(String input, String toFind1, String toFind2,
+                                            String toFind3);
 
-        IEnumerator<String> FindJsonValues(String input, String toFind1, String toFind2,
-            String toFind3, String toFind4);
+        IEnumerator<String?> FindJsonValues(String input, String toFind1, String toFind2,
+                                            String toFind3, String toFind4);
 
-        IEnumerator<String> FindJsonValues(String input, String toFind1, String toFind2,
-            String toFind3, String toFind4, String toFind5);
+        IEnumerator<String?> FindJsonValues(String input, String toFind1, String toFind2,
+                                            String toFind3, String toFind4, String toFind5);
 
-        IEnumerator<String> FindJsonValues(String input, String toFind1, String toFind2,
-            String toFind3, String toFind4, String toFind5, String toFind6);
+        IEnumerator<String?> FindJsonValues(String input, String toFind1, String toFind2,
+                                            String toFind3, String toFind4, String toFind5, String toFind6);
 
-        IEnumerator<String> FindJsonValues(String input, String toFind1, String toFind2,
-            String toFind3, String toFind4, String toFind5, String toFind6, String toFind7);
+        IEnumerator<String?> FindJsonValues(String input, String toFind1, String toFind2,
+                                            String toFind3, String toFind4, String toFind5, String toFind6, String toFind7);
 
         IEnumerable<String> FindTextsWithin(String input, String leftOf,
             String rightOf);
 
-        String FindTextWithin(String input, String leftBounds, String rightBounds);
+        String? FindTextWithin(String input, String leftBounds, String rightBounds);
 
         IEnumerable<String> FindTextWithin(String input, String[] delimiters);
 
         IEnumerable<String> FindTextWithin(String input, String leftBounds, String middleBounds,
             String rightBounds);
 
-        String FindTextWithin(String input,
-            String leftBounds, String rightBounds, Int32 startIndex);
+        String? FindTextWithin(String input,
+                               String leftBounds, String rightBounds, Int32 startIndex);
 
         String[] GetLines(String str);
 
+        /// <summary>
+        /// Not safe for async code.  Use BorrowStringBuilder if there will be an await in the 'using' block
+        /// </summary>
         ITextRemunerable GetThreadsStringBuilder(String initial);
 
+        /// <summary>
+        /// Not safe for async code.  Use BorrowStringBuilder if there will be an await in the 'using' block
+        /// </summary>
         ITextRemunerable GetThreadsStringBuilder();
+
+        ITextRemunerable BorrowStringBuilder(String initial);
+
+        ITextRemunerable GetThreadsStringBuilder(Int32 capacity);
 
         Int32 IndexOf(String searchIn, String searchFor);
 
@@ -137,6 +147,6 @@ namespace Das.Serializer
 
         Boolean TryIndexOf(String searchIn, String searchFor, out Int32 index);
 
-        Boolean TrySkip(String inText, String whenStartsWith, out String remaining);
+        Boolean TrySkip(String inText, String whenStartsWith, out String? remaining);
     }
 }

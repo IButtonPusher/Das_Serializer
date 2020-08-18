@@ -75,7 +75,7 @@ namespace Das.Serializer
                     return false;
 
                 typ = GetChildType(node.Parent, node);
-                node.Type = typ;
+                node.Type = typ!;
             }
 
             if (typ == null)
@@ -114,7 +114,7 @@ namespace Das.Serializer
                 child.Name);
         }
 
-        protected virtual Boolean TryGetExplicitType(INode node, out Type type)
+        protected virtual Boolean TryGetExplicitType(INode node, out Type? type)
         {
             type = default!;
             return false;
@@ -140,7 +140,7 @@ namespace Das.Serializer
                                     _typeInferrer.ToPropertyStyle(node.Name), true);
                             break;
                         case TextPropertySearchDepths.AsTypeInNamespacesAndSystem:
-                            foundType = _typeInferrer.GetTypeFromClearName(node.Name);
+                            foundType = _typeInferrer.GetTypeFromClearName(node.Name, true);
                             break;
                     }
                 }

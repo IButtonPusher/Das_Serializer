@@ -8,6 +8,7 @@ namespace Serializer.Tests
     public abstract class TestBase
     {
         private DasSerializer _serializer;
+
         protected DasSerializer Serializer => _serializer ?? (_serializer = new DasSerializer());
 
         protected IProtoSerializer ProtoSerializer;
@@ -19,10 +20,12 @@ namespace Serializer.Tests
             Settings = new ProtoBufOptions<ProtoMemberAttribute>(p => p.Tag);
             ProtoSerializer = Serializer.GetProtoSerializer(Settings);
             TypeProvider = new ProtoDynamicProvider<ProtoMemberAttribute>(Settings,
-                Serializer.TypeManipulator, Serializer.ObjectInstantiator);
+                Serializer.TypeManipulator,
+                Serializer.ObjectInstantiator,
+                Serializer.ObjectManipulator);
         }
 
         public ProtoBufOptions<ProtoMemberAttribute> Settings { get; set; }
-        
+
     }
 }

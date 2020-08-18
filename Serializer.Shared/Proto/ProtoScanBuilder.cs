@@ -72,7 +72,8 @@ namespace Das.Serializer.ProtoBuf
                 _types, _instantiator, proxies);
 
             /////////////////////////////
-            AddPropertiesToScanMethod(state, endLabel, canSetValuesInline, streamLength);
+            AddPropertiesToScanMethod(state, endLabel, 
+                canSetValuesInline, streamLength, exampleObject);
             /////////////////////////////
             
             il.MarkLabel(endLabel);
@@ -148,7 +149,8 @@ namespace Das.Serializer.ProtoBuf
             ProtoScanState state,
             Label afterPropertyLabel,
             Boolean canSetValuesInline,
-            LocalBuilder streamLength)
+            LocalBuilder streamLength,
+            Object? exampleObject)
         {
             var il = state.IL;
             var fieldArr = state.Fields;
@@ -176,7 +178,8 @@ namespace Das.Serializer.ProtoBuf
 
                 //////////////////////////////////////////////////////////////////
                 //////////////////////////////////////////////////////////////////
-                var switchLabel = AddScanProperty(state, whileLabel, canSetValuesInline);
+                var switchLabel = AddScanProperty(state, whileLabel, 
+                    canSetValuesInline, exampleObject);
                 //////////////////////////////////////////////////////////////////
                 //////////////////////////////////////////////////////////////////
                 
@@ -318,38 +321,46 @@ namespace Das.Serializer.ProtoBuf
             return returnValue;
         }
 
-          /// <summary>
+        /// <summary>
         /// 3.
         /// </summary>
-        private Label AddScanProperty(ProtoScanState s, Label afterPropertyLabel,
-            Boolean canSetValueInline)
+        private Label AddScanProperty(ProtoScanState s,
+                                      Label afterPropertyLabel,
+                                      Boolean canSetValueInline,
+                                      Object? exampleObject)
         {
+            // for collections that we can directly add values to as they were initialized 
+            // by the constructor
+            var isValuePreInitialized = exampleObject != null &&
+                                        _types.IsCollection(s.CurrentField.Type) && 
+                                        _objects.GetPropertyValue(exampleObject,
+                                            s.CurrentField.Name) != null;
+
             var il = s.IL;
             var currentProp = s.CurrentField;
 
             var caseEntryForThisProperty = s.IL.DefineLabel();
             s.IL.MarkLabel(caseEntryForThisProperty);
 
-            //load value's destination
+            //1. load value's destination onto the stack
             var initValueTarget = s.GetFieldSetInit(currentProp, canSetValueInline);
             initValueTarget(currentProp, s);
 
-            //load value
+            // 2.   load value itself onto the stack unless it's a packed array where the property is an ICollection<IntXX>
+            //      in which case it is loaded and set at the same time
             //////////////////////////////////////////////////////////////////
-            ScanValueToStack(s, il, currentProp.Type, currentProp.TypeCode, 
-                currentProp.WireType, currentProp.FieldAction);
+            ScanValueToStack(s, il, currentProp.Type, currentProp.TypeCode,
+                currentProp.WireType, currentProp.FieldAction, isValuePreInitialized);
             //////////////////////////////////////////////////////////////////
 
-            //assign value to destination
-            var storeValue = s.GetFieldSetCompletion(currentProp, canSetValueInline);
+            //3. assign value to destination
+            var storeValue = s.GetFieldSetCompletion(currentProp, canSetValueInline, isValuePreInitialized);
             storeValue(currentProp, s);
 
             il.Emit(OpCodes.Br, afterPropertyLabel);
 
             return caseEntryForThisProperty;
         }
-
-         
 
         /// <summary>
         /// Can be an actual field or an instance of a collection field.  Leaves the value on the stack
@@ -360,7 +371,8 @@ namespace Das.Serializer.ProtoBuf
             Type fieldType,
             TypeCode typeCode,
             ProtoWireTypes wireType,
-            ProtoFieldAction fieldAction)
+            ProtoFieldAction fieldAction,
+            Boolean isValuePreInitialized)
         {
             switch (fieldAction)
             {
@@ -378,12 +390,11 @@ namespace Das.Serializer.ProtoBuf
                     return;
 
                 case ProtoFieldAction.PackedArray:
-                    ScanAsPackedArray(il, fieldType);
+                    ScanAsPackedArray(il, fieldType, isValuePreInitialized);
                     return;
 
                 case ProtoFieldAction.ChildObject:
                     ScanChildObject(fieldType, s);
-
                     return;
 
                 case ProtoFieldAction.ChildObjectCollection:

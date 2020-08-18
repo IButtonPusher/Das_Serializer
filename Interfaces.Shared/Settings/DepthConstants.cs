@@ -23,6 +23,6 @@ namespace Das.Serializer
             new DepthConstants(SerializationDepth.Full, true, false);
 
         public static ISerializationDepth AllProperties =
-            new DepthConstants(SerializationDepth.Full, true, false);
+            new DepthConstants(SerializationDepth.AllProperties, true, false);
     }
 }

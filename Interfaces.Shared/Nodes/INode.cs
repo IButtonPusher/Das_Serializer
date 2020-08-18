@@ -28,5 +28,7 @@ namespace Das.Serializer
         new Object? Value { get; set; }
 
         void Clear();
+
+        new Type? Type { get; set; }
     }
 }

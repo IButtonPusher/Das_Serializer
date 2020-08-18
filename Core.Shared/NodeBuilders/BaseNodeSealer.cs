@@ -59,17 +59,23 @@ namespace Das.Serializer
                 return;
             }
 
-            var wal = node.Value;
-            var t = wal.GetType();
-            if (_objects.SetProperty(t, name, ref wal, value))
+            if (node.Value is {} wal)
             {
-                return;
+                //var wal = node.Value;
+                var t = wal.GetType();
+                if (_objects.SetProperty(t, name, ref wal, value))
+                {
+                    return;
+                }
             }
 
             wal = node.Value;
 
-            var propType = _facade.TypeManipulator.GetPropertyType(node.Type, name);
-            _objects.TryGetPropertyValue(wal, name, out var propValue);
+            var propType = node.Type is {} nodeType
+                ? _facade.TypeManipulator.GetPropertyType(nodeType, name)
+                : null;
+
+            _objects.TryGetPropertyValue(wal!, name, out var propValue);
 
             if (propType == null || !_types.IsCollection(propType) || propValue == null ||
                 !(value is IEnumerable enumerable))
@@ -83,7 +89,7 @@ namespace Das.Serializer
         }
 
         public void Imbue(TNode childNode) => Imbue(childNode.Parent, childNode.Name,
-            childNode.Value);
+            childNode.Value!);
 
         public abstract Boolean TryGetPropertyValue(TNode node, String key,
             Type propertyType, out Object val);
@@ -143,7 +149,7 @@ namespace Das.Serializer
                     return;
 
                 foreach (var child in node.DynamicProperties)
-                    addDelegate(node.Value, child.Value);
+                    addDelegate(node.Value!, child.Value);
             }
         }
 

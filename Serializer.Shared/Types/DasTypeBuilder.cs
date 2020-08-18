@@ -67,7 +67,7 @@ namespace Das.Types
             return buildType.ManagedType;
         }
 
-        public Boolean TryGetDynamicType(String clearName, out Type type)
+        public Boolean TryGetDynamicType(String clearName, out Type? type)
             => _createdTypes.TryGetValue(clearName, out type);
 
         public Boolean TryGetFromAssemblyQualifiedName(String assemblyQualified, out Type type)
@@ -133,6 +133,9 @@ namespace Das.Types
             foreach (var prop in props)
             {
                 var propInfo = created.GetProperty(prop.Name);
+                if (propInfo == null)
+                    throw new TypeLoadException(prop.Name);
+
                 dt.PublicSetters.Add(prop.Name, _typeManipulator.CreateSetMethod(propInfo));
                 dt.PublicGetters.Add(prop.Name, _typeManipulator.CreatePropertyGetter(created, propInfo));
             }
@@ -201,7 +204,7 @@ namespace Das.Types
                     CreateEvent(typeBuilder, eve);
                 }
 
-                var created = typeBuilder.CreateType();
+                var created = typeBuilder.CreateType() ?? throw new TypeLoadException(typeName);
                 _createdTypes.AddOrUpdate(typeName, created, (k, v) => created);
                 return created;
             }
@@ -345,7 +348,7 @@ namespace Das.Types
         private static void CreateEvent(TypeBuilder tb, EventInfo eve)
         {
             var eventName = eve.Name;
-            var eventType = eve.EventHandlerType;
+            var eventType = eve.EventHandlerType ?? throw new NullReferenceException(eve.Name);
 
             var fieldBuilder = tb.DefineField("_" + eventName, eventType!, FieldAttributes.Private);
             var theEvent = tb.DefineEvent(eve.Name, EventAttributes.None, eventType);
@@ -367,7 +370,6 @@ namespace Das.Types
             generator.Emit(OpCodes.Stfld, fieldBuilder);
             generator.Emit(OpCodes.Ret);
             theEvent.SetAddOnMethod(addMethod);
-
 
 
             var removeMethod = tb.DefineMethod($"remove_{eventName}",
@@ -472,7 +474,7 @@ namespace Das.Types
 
                     foreach (var kvp in att.PropertyValues)
                     {
-                        var pi = att.Type.GetProperty(kvp.Key);
+                        var pi = att.Type.GetProperty(kvp.Key) ?? throw new TypeLoadException(kvp.Key);
                         props.Add(pi);
                     }
 

@@ -16,10 +16,11 @@ namespace Das.Printers
         public BinaryPrinter(IBinaryWriter writer, IBinaryState stateProvider)
             : base(stateProvider)
         {
+            _fallbackFormatter = new BinaryFormatter();
             IsPrintNullProperties = true;
             _bWriter = writer;
             _stateProvider = stateProvider;
-            _fallbackFormatter = null;
+            
             IsTextPrinter = false;
         }
 
@@ -32,7 +33,7 @@ namespace Das.Printers
 
         protected IBinaryWriter _bWriter;
         protected readonly ISerializationState _stateProvider;
-        private BinaryFormatter _fallbackFormatter;
+        private readonly BinaryFormatter _fallbackFormatter;
 
 
         #region public interface
@@ -145,10 +146,10 @@ namespace Das.Printers
                     WriteString(o?.ToString());
                     return true;
                 case TypeCode.Boolean:
-                    bytes = BitConverter.GetBytes((Boolean) o);
+                    bytes = BitConverter.GetBytes((Boolean) o!);
                     break;
                 case TypeCode.Char:
-                    bytes = BitConverter.GetBytes((Char) o);
+                    bytes = BitConverter.GetBytes((Char)o!);
                     break;
                 case TypeCode.SByte:
                     _bWriter.WriteInt8((SByte) o!);
@@ -298,7 +299,7 @@ namespace Das.Printers
             {
                 using (var stream = new MemoryStream())
                 {
-                    _fallbackFormatter = new BinaryFormatter();
+                    //_fallbackFormatter = new BinaryFormatter();
                     _fallbackFormatter.Serialize(stream, o);
 
                     var length = (Int32) stream.Length;

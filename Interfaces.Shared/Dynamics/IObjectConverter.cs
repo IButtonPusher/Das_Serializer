@@ -18,7 +18,10 @@ namespace Das
 
         T Copy<T>(T from, ISerializerSettings settings) where T : class;
 
-        void Copy<T>(T from, ref T to, ISerializerSettings settings) where T : class;
+        void Copy<T>(T from, ref T to, ISerializerSettings settings)
+            where T : class;
+
+        void Copy<T>(T from, ref T to) where T : class;
 
         Object SpawnCollection(Object[] objects, Type collectionType,
             ISerializerSettings settings, Type? collectionGenericArgs = null);

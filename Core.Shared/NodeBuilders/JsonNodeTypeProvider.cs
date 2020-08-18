@@ -16,7 +16,7 @@ namespace Das.Serializer
         {
             if (node.Attributes.TryGetValue(Const.TypeWrap, out var typeName))
             {
-                type = _typeInferrer.GetTypeFromClearName(typeName);
+                type = _typeInferrer.GetTypeFromClearName(typeName)!;
                 node.Attributes.Remove(Const.TypeWrap);
             }
 

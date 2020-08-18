@@ -30,7 +30,7 @@ namespace Das.Serializer
         public static implicit operator Type(DasType das)
             => das.ManagedType;
 
-        public Boolean SetPropertyValue(ref Object targetObj, String propName,
+        public Boolean SetPropertyValue(ref Object? targetObj, String propName,
             Object propVal)
         {
             if (!PublicSetters.TryGetValue(propName, out var setter))
