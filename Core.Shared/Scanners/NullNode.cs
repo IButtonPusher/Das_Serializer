@@ -35,13 +35,13 @@ namespace Das.Serializer
             set => throw new InvalidOperationException();
         }
 
-        public Type Type
+        public Type? Type
         {
             get => throw new InvalidOperationException();
             set => throw new InvalidOperationException();
         }
 
-        public Object Value
+        public Object? Value
         {
             get => throw new InvalidOperationException();
             set => throw new InvalidOperationException();

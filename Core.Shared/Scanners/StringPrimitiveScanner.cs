@@ -13,7 +13,7 @@ namespace Das.Serializer
 
         private readonly ISerializationContext _state;
 
-        public Object GetValue(String input, Type type)
+        public Object GetValue(String? input, Type type)
         {
             if (type == Const.ObjectType)
             {

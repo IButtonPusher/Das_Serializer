@@ -155,8 +155,10 @@ namespace Das.Serializer
 
         protected void ConstructFromProperties(ref TNode node)
         {
+            var nodeType = node.Type ?? throw new NullReferenceException("Node type cannot be null");
+
             if (!_facade.ObjectInstantiator.TryGetPropertiesConstructor(
-                node.Type, out var cInfo))
+                nodeType, out var cInfo))
                 return;
 
             var values = new List<Object>();

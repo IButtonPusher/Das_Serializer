@@ -199,7 +199,7 @@ namespace Serializer.Tests
             }
         }
 
-        //[TestCategory("list"), TestCategory("json"), TestCategory("collections"), TestMethod]
+        
         [Fact]
         public void BlockingJson()
         {
@@ -219,7 +219,7 @@ namespace Serializer.Tests
             }
         }
 
-        //[TestCategory("queue"), TestCategory("json"), TestCategory("collections"), TestMethod]
+        
 
         [Fact]
         public void QueuesJson()

@@ -10,7 +10,9 @@ namespace Das.Serializer.Objects
     public class NamedValueNode : ValueNode, INamedValue
     {
         public NamedValueNode(Action<NamedValueNode> returnToSender,
-            String name, Object value, Type type)
+                              String name,
+                              Object value,
+                              Type type)
             : this(name, value, type)
         {
             _returnToSender = returnToSender;

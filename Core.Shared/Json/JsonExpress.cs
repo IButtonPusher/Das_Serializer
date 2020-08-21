@@ -86,32 +86,6 @@ namespace Das.Serializer.Json
             }
         }
 
-        //private static void AdvanceUntilFieldStart2(ref Int32 currentIndex, String json)
-        //{
-        //    var hathStart = false;
-
-        //    while (true)
-        //    {
-        //        switch (json[currentIndex++])
-        //        {
-        //            case ':':
-        //                hathStart = true;
-        //                break;
-
-        //            case ' ':
-        //            case '\t':
-        //            case '\n':
-        //            case '\r':
-        //                break;
-
-        //            default:
-        //                if (hathStart)
-        //                    return;
-        //                throw new InvalidOperationException();
-        //        }
-        //    }
-        //}
-
         private static void AdvanceUntilFieldStart(ref Int32 currentIndex, String json)
         {
             while (true)

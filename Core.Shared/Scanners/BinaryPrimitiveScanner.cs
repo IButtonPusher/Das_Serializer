@@ -27,7 +27,7 @@ namespace Das.Serializer
 
         #region public interface
 
-        public Object GetValue(Byte[] input, Type type)
+        public Object GetValue(Byte[]? input, Type type)
         {
             Object res;
             if (input == null)
