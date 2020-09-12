@@ -5,20 +5,9 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-   [SuppressMessage("ReSharper", "UnusedMember.Global")]
-   public class NaiveMemoryStream : Stream
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
+    public class NaiveMemoryStream : Stream
     {
-        public byte[] _buffer;    // Either allocated internally or externally.
-        private int _origin;       // For user-provided arrays, start at this origin
-        private int _position;     // read/write head.
-        private int _length;       // Number of bytes within the memory stream
-        private int _capacity;     // length of usable portion of buffer for stream
-        // Note that _capacity == _buffer.Length for non-user-provided byte[]'s
-
-        private bool _expandable;  // User-provided buffers aren't expandable.
-        private bool _writable;    // Can user write to this stream?
-        private bool _isOpen;      // Is this stream open or closed?
-
         // ReSharper disable once UnusedMember.Global
         public NaiveMemoryStream()
             : this(0)
@@ -31,7 +20,7 @@ namespace Das.Serializer
             _capacity = capacity;
             _expandable = true;
             _writable = true;
-            _origin = 0;      // Must be 0 for byte[]'s created by MemoryStream
+            _origin = 0; // Must be 0 for byte[]'s created by MemoryStream
             _isOpen = true;
         }
 
@@ -42,7 +31,6 @@ namespace Das.Serializer
 
         public NaiveMemoryStream(byte[] buffer, bool writable)
         {
-
             _buffer = buffer;
             _length = _capacity = buffer.Length;
             _writable = writable;
@@ -71,6 +59,44 @@ namespace Das.Serializer
 
         public sealed override bool CanWrite => _writable;
 
+        // Gets & sets the capacity (number of bytes allocated) for this stream.
+        // The capacity cannot be set to a value less than the current length
+        // of the stream.
+        // 
+        public virtual int Capacity
+        {
+            get => _capacity - _origin;
+            set
+            {
+                // MemoryStream has this invariant: _origin > 0 => !expandable (see ctors)
+                if (_expandable && value != _capacity)
+                {
+                    if (value > 0)
+                    {
+                        var newBuffer = new byte[value];
+                        if (_length > 0) Buffer.BlockCopy(_buffer, 0, newBuffer, 0, _length);
+                        _buffer = newBuffer;
+                    }
+                    else
+                    {
+                        _buffer = new byte[0];
+                    }
+
+                    _capacity = value;
+                }
+            }
+        }
+
+        public Int32 IntLength => _length - _origin;
+
+        public sealed override long Length => _length - _origin;
+
+        public sealed override long Position
+        {
+            get => _position - _origin;
+            set => _position = _origin + (int) value;
+        }
+
 
         protected override void Dispose(bool disposing)
         {
@@ -93,28 +119,22 @@ namespace Das.Serializer
         // returns a bool saying whether we allocated a new array.
         private bool EnsureCapacity(int value)
         {
-           
             if (value > _capacity)
             {
                 var newCapacity = Math.Max(value, 256);
 
                 // We are ok with this overflowing since the next statement will deal
                 // with the cases where _capacity*2 overflows.
-                if (newCapacity < _capacity * 2)
-                {
-                    newCapacity = _capacity * 2;
-                }
+                if (newCapacity < _capacity * 2) newCapacity = _capacity * 2;
 
                 // We want to expand the array up to 0x7FFFFFC7
                 // And we want to give the user the value that they asked for
-                if ((uint)(_capacity * 2) > 0x7FFFFFC7)
-                {
-                    newCapacity = Math.Max(value, 0x7FFFFFC7);
-                }
+                if ((uint) (_capacity * 2) > 0x7FFFFFC7) newCapacity = Math.Max(value, 0x7FFFFFC7);
 
                 Capacity = newCapacity;
                 return true;
             }
+
             return false;
         }
 
@@ -122,69 +142,8 @@ namespace Das.Serializer
         {
         }
 
-        // Gets & sets the capacity (number of bytes allocated) for this stream.
-        // The capacity cannot be set to a value less than the current length
-        // of the stream.
-        // 
-        public virtual int Capacity
-        {
-            get
-            {
-                
-                return _capacity - _origin;
-            }
-            set
-            {
-                
-
-                // MemoryStream has this invariant: _origin > 0 => !expandable (see ctors)
-                if (_expandable && value != _capacity)
-                {
-                    if (value > 0)
-                    {
-                        var newBuffer = new byte[value];
-                        if (_length > 0)
-                        {
-                            Buffer.BlockCopy(_buffer, 0, newBuffer, 0, _length);
-                        }
-                        _buffer = newBuffer;
-                    }
-                    else
-                    {
-                        _buffer = new byte[0];
-                    }
-                    _capacity = value;
-                }
-            }
-        }
-
-        public Int32 IntLength => _length - _origin;
-
-        public sealed override long Length
-        {
-            get
-            {
-                return _length - _origin;
-            }
-        }
-
-        public sealed override long Position
-        {
-            get
-            {
-                
-                return _position - _origin;
-            }
-            set
-            {
-                _position = _origin + (int)value;
-            }
-        }
-
         public sealed override int Read(byte[] buffer, int offset, int count)
         {
-            
-
             var n = _length - _position;
             if (n > count)
                 n = count;
@@ -198,14 +157,15 @@ namespace Das.Serializer
                     buffer[offset + byteCount] = _buffer[_position + byteCount];
             }
             else
+            {
                 Buffer.BlockCopy(_buffer, _position, buffer, offset, n);
+            }
+
             _position += n;
 
             return n;
         }
 
-
-       
 
         public sealed override int ReadByte()
         {
@@ -218,32 +178,29 @@ namespace Das.Serializer
 
         public sealed override long Seek(long offset, SeekOrigin loc)
         {
-            
-
-           
             switch (loc)
             {
                 case SeekOrigin.Begin:
-                    {
-                        var tempPosition = unchecked(_origin + (int)offset);
-                      
-                        _position = tempPosition;
-                        break;
-                    }
+                {
+                    var tempPosition = unchecked(_origin + (int) offset);
+
+                    _position = tempPosition;
+                    break;
+                }
                 case SeekOrigin.Current:
-                    {
-                        var tempPosition = unchecked(_position + (int)offset);
-                       
-                        _position = tempPosition;
-                        break;
-                    }
+                {
+                    var tempPosition = unchecked(_position + (int) offset);
+
+                    _position = tempPosition;
+                    break;
+                }
                 case SeekOrigin.End:
-                    {
-                        var tempPosition = unchecked(_length + (int)offset);
-                       
-                        _position = tempPosition;
-                        break;
-                    }
+                {
+                    var tempPosition = unchecked(_length + (int) offset);
+
+                    _position = tempPosition;
+                    break;
+                }
                 default:
                     throw new ArgumentException(nameof(loc));
             }
@@ -263,7 +220,7 @@ namespace Das.Serializer
         // 
         public sealed override void SetLength(long value)
         {
-            var newLength = _origin + (int)value;
+            var newLength = _origin + (int) value;
             var allocatedNewArray = EnsureCapacity(newLength);
             if (!allocatedNewArray && newLength > _length)
                 Array.Clear(_buffer, _length, newLength - _length);
@@ -275,7 +232,7 @@ namespace Das.Serializer
         public sealed override void Write(byte[] buffer, int offset, int count)
         {
             var i = _position + count;
-           
+
 
             if (i > _length)
             {
@@ -283,29 +240,23 @@ namespace Das.Serializer
                 if (i > _capacity)
                 {
                     var allocatedNewArray = EnsureCapacity(i);
-                    if (allocatedNewArray)
-                    {
-                        mustZero = false;
-                    }
+                    if (allocatedNewArray) mustZero = false;
                 }
-                if (mustZero)
-                {
-                    Array.Clear(_buffer, _length, i - _length);
-                }
+
+                if (mustZero) Array.Clear(_buffer, _length, i - _length);
                 _length = i;
             }
-            if ((count <= 8) && (buffer != _buffer))
+
+            if (count <= 8 && buffer != _buffer)
             {
                 var byteCount = count;
-                while (--byteCount >= 0)
-                {
-                    _buffer[_position + byteCount] = buffer[offset + byteCount];
-                }
+                while (--byteCount >= 0) _buffer[_position + byteCount] = buffer[offset + byteCount];
             }
             else
             {
                 Buffer.BlockCopy(buffer, offset, _buffer, _position, count);
             }
+
             _position = i;
         }
 
@@ -318,18 +269,26 @@ namespace Das.Serializer
                 if (newLength >= _capacity)
                 {
                     var allocatedNewArray = EnsureCapacity(newLength);
-                    if (allocatedNewArray)
-                    {
-                        mustZero = false;
-                    }
+                    if (allocatedNewArray) mustZero = false;
                 }
-                if (mustZero)
-                {
-                    Array.Clear(_buffer, _length, _position - _length);
-                }
+
+                if (mustZero) Array.Clear(_buffer, _length, _position - _length);
                 _length = newLength;
             }
+
             _buffer[_position++] = value;
         }
+
+        public byte[] _buffer; // Either allocated internally or externally.
+
+        private int _capacity; // length of usable portion of buffer for stream
+        // Note that _capacity == _buffer.Length for non-user-provided byte[]'s
+
+        private bool _expandable; // User-provided buffers aren't expandable.
+        private bool _isOpen; // Is this stream open or closed?
+        private int _length; // Number of bytes within the memory stream
+        private readonly int _origin; // For user-provided arrays, start at this origin
+        private int _position; // read/write head.
+        private bool _writable; // Can user write to this stream?
     }
 }

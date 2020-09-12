@@ -8,40 +8,35 @@ namespace Das.Serializer
 {
     public partial class DasCoreSerializer : BaseState, IMultiSerializer
     {
-        public IStateProvider StateProvider { get; }
-       
-
-        internal const String StrNull = "null";
-        
-        internal const String RefTag = "__ref";
-        internal const String RefAttr = "$ref";
-        internal const String Root = "Root";
-
-        protected JsonExpress JsonExpress;
-
-        public override IScanNodeProvider ScanNodeProvider
-            => StateProvider.BinaryContext.ScanNodeProvider;
-
-        public DasCoreSerializer(IStateProvider stateProvider, ISerializerSettings settings,
-            Func<TextWriter, String, Task> writeAsync,
-            Func<TextReader, Task<String>> readToEndAsync)
+        public DasCoreSerializer(IStateProvider stateProvider,
+                                 ISerializerSettings settings,
+                                 Func<TextWriter, String, Task> writeAsync,
+                                 Func<TextReader, Task<String>> readToEndAsync,
+                                 Func<Stream, Byte[], Int32, Int32, Task<Int32>> readAsync)
             : base(stateProvider, settings)
         {
             StateProvider = stateProvider;
-            
+
             _settings = settings;
             _writeAsync = writeAsync;
             _readToEndAsync = readToEndAsync;
+            _readAsync = readAsync;
 
-            JsonExpress= new JsonExpress(ObjectInstantiator, TypeManipulator, TypeInferrer);
+            JsonExpress = new JsonExpress(ObjectInstantiator, TypeManipulator, TypeInferrer);
         }
 
-        public DasCoreSerializer(IStateProvider stateProvider, 
-            Func<TextWriter, String, Task> writeAsync,
-            Func<TextReader, Task<String>> readToEndAsync) 
-            : this(stateProvider, stateProvider.Settings, writeAsync, readToEndAsync)
+        public DasCoreSerializer(IStateProvider stateProvider,
+                                 Func<TextWriter, String, Task> writeAsync,
+                                 Func<TextReader, Task<String>> readToEndAsync,
+                                 Func<Stream, Byte[], Int32, Int32, Task<Int32>> readAsync)
+            : this(stateProvider, stateProvider.Settings, writeAsync, readToEndAsync, readAsync)
         {
         }
+
+        public IStateProvider StateProvider { get; }
+
+        public override IScanNodeProvider ScanNodeProvider
+            => StateProvider.BinaryContext.ScanNodeProvider;
 
         public void SetTypeSurrogate(Type looksLike, Type isReally)
         {
@@ -49,12 +44,10 @@ namespace Das.Serializer
         }
 
         public Boolean TryDeleteSurrogate(Type lookedLike, Type wasReally)
-            => Surrogates.TryGetValue(lookedLike, out var was) && was == wasReally &&
-               Surrogates.TryRemove(lookedLike, out var stillWas) && stillWas == wasReally;
-
-        private ISerializerSettings _settings;
-        private readonly Func<TextWriter, String, Task> _writeAsync;
-        private readonly Func<TextReader, Task<String>> _readToEndAsync;
+        {
+            return Surrogates.TryGetValue(lookedLike, out var was) && was == wasReally &&
+                   Surrogates.TryRemove(lookedLike, out var stillWas) && stillWas == wasReally;
+        }
 
         public override ISerializerSettings Settings
         {
@@ -67,12 +60,25 @@ namespace Das.Serializer
         }
 
         public virtual IProtoSerializer GetProtoSerializer<TPropertyAttribute>(
-            ProtoBufOptions<TPropertyAttribute> options) 
+            ProtoBufOptions<TPropertyAttribute> options)
             where TPropertyAttribute : Attribute
         {
             return new ProtoBufSerializer(StateProvider, Settings,
                 new CoreProtoProvider());
         }
 
+
+        internal const String StrNull = "null";
+
+        internal const String RefTag = "__ref";
+        internal const String RefAttr = "$ref";
+        internal const String Root = "Root";
+        private readonly Func<Stream, Byte[], Int32, Int32, Task<Int32>> _readAsync;
+        private readonly Func<TextReader, Task<String>> _readToEndAsync;
+        private readonly Func<TextWriter, String, Task> _writeAsync;
+
+        private ISerializerSettings _settings;
+
+        protected JsonExpress JsonExpress;
     }
 }

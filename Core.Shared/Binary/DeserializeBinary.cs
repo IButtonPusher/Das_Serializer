@@ -1,7 +1,7 @@
-﻿using Das.Streamers;
-using System;
+﻿using System;
 using System.IO;
-
+using System.Threading.Tasks;
+using Das.Streamers;
 
 namespace Das.Serializer
 {
@@ -27,7 +27,9 @@ namespace Das.Serializer
         public T FromBytes<T>(FileInfo file)
         {
             using (var stream = file.OpenRead())
+            {
                 return FromBytes<T>(stream);
+            }
         }
 
         public T FromBytes<T>(Stream stream)

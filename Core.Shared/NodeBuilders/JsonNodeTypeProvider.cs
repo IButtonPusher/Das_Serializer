@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
@@ -10,8 +11,6 @@ namespace Das.Serializer
             _typeInferrer = dynamicFacade.TypeInferrer;
         }
 
-        private readonly ITypeInferrer _typeInferrer;
-
         protected override Boolean TryGetExplicitType(INode node, out Type type)
         {
             if (node.Attributes.TryGetValue(Const.TypeWrap, out var typeName))
@@ -20,9 +19,14 @@ namespace Das.Serializer
                 node.Attributes.Remove(Const.TypeWrap);
             }
 
-            else type = default!;
+            else
+            {
+                type = default!;
+            }
 
             return type != null;
         }
+
+        private readonly ITypeInferrer _typeInferrer;
     }
 }

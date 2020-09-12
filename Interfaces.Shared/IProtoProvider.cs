@@ -8,11 +8,10 @@ namespace Das.Serializer.ProtoBuf
     {
         T BuildDefaultValue<T>();
 
-#if DEBUG
-
+        #if DEBUG
         void DumpProxies();
 
-#endif
+        #endif
 
         /// <summary>
         ///     Builds a scan and/or print proxy for type T using all public properties that have setter methods
@@ -37,6 +36,6 @@ namespace Das.Serializer.ProtoBuf
         IProtoProxy<T> GetProtoProxy<T>(Boolean allowReadOnly = false);
 
         Boolean TryGetProtoField(PropertyInfo prop, Boolean isRequireAttribute,
-            out IProtoFieldAccessor field);
+                                 out IProtoFieldAccessor field);
     }
 }

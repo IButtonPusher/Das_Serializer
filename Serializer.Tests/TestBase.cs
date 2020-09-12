@@ -2,6 +2,7 @@
 using Das.Serializer;
 using Das.Serializer.ProtoBuf;
 using ProtoBuf;
+#pragma warning disable 8618
 
 namespace Serializer.Tests
 {

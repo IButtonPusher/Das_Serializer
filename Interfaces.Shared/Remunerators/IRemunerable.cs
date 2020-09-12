@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace Das.Serializer
 {
     public interface IRemunerable<in T, in E> : IRemunerable<T>,
-        IDisposable where T : IEnumerable<E>
+                                                IDisposable where T : IEnumerable<E>
     {
         void Append(E data);
     }

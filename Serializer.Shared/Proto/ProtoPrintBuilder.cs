@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection.Emit;
+using System.Threading.Tasks;
 using Das.Extensions;
 using Das.Serializer.Proto;
 
@@ -13,6 +14,66 @@ namespace Das.Serializer.ProtoBuf
     // ReSharper disable once UnusedTypeParameter
     public partial class ProtoDynamicProvider<TPropertyAttribute>
     {
+        private void AddFieldToPrintMethod(ProtoPrintState s)
+        {
+            var pv = s.CurrentField;
+
+            var ifFalse2 = VerifyValueIsNonDefault(s);
+
+            switch (pv.FieldAction)
+            {
+                case ProtoFieldAction.VarInt:
+                    PrintVarInt(s);
+                    break;
+
+                case ProtoFieldAction.Primitive:
+                    PrintPrimitive(s);
+                    break;
+
+                case ProtoFieldAction.String:
+                    PrintString(s, _s => _s.LoadCurrentFieldValueToStack()); //P_0.StringField);
+                    break;
+
+                case ProtoFieldAction.ByteArray:
+                    PrintByteArray(s);
+                    break;
+
+                case ProtoFieldAction.PackedArray:
+                    PrintAsPackedArray(s);
+                    break;
+
+                case ProtoFieldAction.ChildObject:
+                    PrintChildObject(s, s.CurrentField.HeaderBytes,
+                        _ => s.LoadCurrentFieldValueToStack(),
+                        s.CurrentField.Type);
+                    break;
+
+                case ProtoFieldAction.ChildObjectCollection:
+                case ProtoFieldAction.ChildPrimitiveCollection:
+                    PrintCollection(s, PrintEnumeratorCurrent);
+                    break;
+
+                case ProtoFieldAction.Dictionary:
+                    PrintCollection(s, PrintKeyValuePair);
+                    break;
+
+                case ProtoFieldAction.ChildObjectArray:
+                    //PrintCollection(s, PrintEnumeratorCurrent);
+                    PrintArray(s, PrintEnumeratorCurrent);
+                    break;
+
+                case ProtoFieldAction.ChildPrimitiveArray:
+                    PrintCollection(s, PrintEnumeratorCurrent);
+
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            s.IL.MarkLabel(ifFalse2);
+        }
+
         private void AddPrintMethod(Type parentType,
                                     TypeBuilder bldr,
                                     Type genericParent,
@@ -53,80 +114,92 @@ namespace Das.Serializer.ProtoBuf
                 state.EnsureChildObjectStream();
 
             foreach (var protoField in state)
-            {
                 /////////////////////////////////////////
                 AddFieldToPrintMethod(protoField);
-                /////////////////////////////////////////
-            }
+            /////////////////////////////////////////
 
             endOfMethod:
             il.Emit(OpCodes.Ret);
             bldr.DefineMethodOverride(method, abstractMethod);
         }
 
-        private void AddFieldToPrintMethod(ProtoPrintState s)
+
+        private void PrintChildObject(
+            ProtoPrintState s,
+            Byte[] headerBytes,
+            Action<ILGenerator> loadObject,
+            Type fieldType)
         {
-            var pv = s.CurrentField;
+            var il = s.IL;
 
-            var ifFalse2 = VerifyValueIsNonDefault(s);
+            PrintHeaderBytes(headerBytes, s);
 
-            switch (pv.FieldAction)
-            {
-                case ProtoFieldAction.VarInt:
-                    PrintVarInt(s);
-                    break;
+            var proxyField = s.GetProxy(fieldType);
+            //s.CurrentField.Type);
 
-                case ProtoFieldAction.Primitive:
-                    PrintPrimitive(s);
-                    break;
 
-                case ProtoFieldAction.String:
-                    PrintString(s, (_s) => _s.LoadCurrentFieldValueToStack()); //P_0.StringField);
-                    break;
+            //var proxyField = s.ChildProxies[s.CurrentField];
+            var proxyType = proxyField.FieldType;
 
-                case ProtoFieldAction.ByteArray:
-                    PrintByteArray(s);
-                    break;
+            ////////////////////////////////////////////
+            // PROXY->PRINT(CURRENT)
+            ////////////////////////////////////////////
+            var printMethod = proxyType.GetMethodOrDie(nameof(IProtoProxy<Object>.Print));
 
-                case ProtoFieldAction.PackedArray:
-                    PrintAsPackedArray(s);
-                    break;
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Ldfld, proxyField);
+            loadObject(il);
 
-                case ProtoFieldAction.ChildObject:
-                    PrintChildObject(s, s.CurrentField.HeaderBytes,
-                        _ => s.LoadCurrentFieldValueToStack(),
-                        s.CurrentField.Type);
-                    break;
+            il.Emit(OpCodes.Ldloc, s.ChildObjectStream);
 
-                case ProtoFieldAction.ChildObjectCollection:
-                case ProtoFieldAction.ChildPrimitiveCollection:
-                    PrintCollection(s, PrintEnumeratorCurrent);
-                    break;
+            il.Emit(OpCodes.Call, printMethod);
 
-                case ProtoFieldAction.Dictionary:
-                    PrintCollection(s, PrintKeyValuePair);
-                    break;
 
-                case ProtoFieldAction.ChildObjectArray:
-                    //PrintCollection(s, PrintEnumeratorCurrent);
-                    PrintArray(s, PrintEnumeratorCurrent);
-                    break;
+            ////////////////////////////////////////////
+            // PRINT LENGTH OF CHILD STREAM
+            ////////////////////////////////////////////
+            il.Emit(OpCodes.Ldloc, s.ChildObjectStream);
+            il.Emit(OpCodes.Callvirt, GetStreamLength);
+            il.Emit(OpCodes.Ldarg_2);
+            il.Emit(OpCodes.Call, WriteInt64);
 
-                case ProtoFieldAction.ChildPrimitiveArray:
-                    PrintCollection(s, PrintEnumeratorCurrent);
-                    
-                    break;
+            ////////////////////////////////////////////
+            // COPY CHILD STREAM TO MAIN
+            ////////////////////////////////////////////
+            //reset stream
+            il.Emit(OpCodes.Ldloc, s.ChildObjectStream);
+            il.Emit(OpCodes.Ldc_I8, 0L);
+            il.Emit(OpCodes.Callvirt, SetStreamPosition);
 
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            il.Emit(OpCodes.Ldloc, s.ChildObjectStream);
 
-            s.IL.MarkLabel(ifFalse2);
+            il.Emit(OpCodes.Ldarg_2);
+            il.Emit(OpCodes.Call, CopyMemoryStream);
 
+
+            il.Emit(OpCodes.Ldloc, s.ChildObjectStream);
+            il.Emit(OpCodes.Ldc_I8, 0L);
+            il.Emit(OpCodes.Callvirt, SetStreamLength);
+        }
+
+        private void PrintConstByte(Byte constVal, ILGenerator il) //, Boolean? isPushed)
+        {
+            var noStackDepth = il.DefineLabel();
+            var endOfPrintConst = il.DefineLabel();
+
+
+            //notPushed:
+            il.MarkLabel(noStackDepth);
+            //il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Ldarg_2);
+            il.Emit(OpCodes.Ldc_I4_S, constVal);
+            il.Emit(OpCodes.Callvirt, _writeStreamByte);
+
+            il.MarkLabel(endOfPrintConst);
         }
 
         private void PrintHeaderBytes(Byte[] headerBytes,
-            ProtoPrintState s)
+                                      ProtoPrintState s)
         {
             var il = s.IL;
             var fieldByteArray = s.FieldByteArray;
@@ -166,23 +239,6 @@ namespace Das.Serializer.ProtoBuf
             }
         }
 
-        private void PrintConstByte(Byte constVal, ILGenerator il) //, Boolean? isPushed)
-        {
-            var noStackDepth = il.DefineLabel();
-            var endOfPrintConst = il.DefineLabel();
-
-
-            //notPushed:
-            il.MarkLabel(noStackDepth);
-            //il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Ldarg_2);
-            il.Emit(OpCodes.Ldc_I4_S, constVal);
-            il.Emit(OpCodes.Callvirt, _writeStreamByte);
-
-            il.MarkLabel(endOfPrintConst);
-        }
-
-       
 
         private static Label VerifyValueIsNonDefault(ProtoPrintState s)
         {
@@ -215,73 +271,12 @@ namespace Das.Serializer.ProtoBuf
 
             s.LoadCurrentFieldValueToStack();
 
-            
+
             il.Emit(OpCodes.Callvirt, countGetter);
             il.Emit(OpCodes.Brfalse, gotoIfFalse);
 
             done:
             return gotoIfFalse;
         }
-
-       
-
-        private void PrintChildObject(
-            ProtoPrintState s,
-            Byte[] headerBytes,
-            Action<ILGenerator> loadObject,
-            Type fieldType)
-        {
-            var il = s.IL;
-
-            PrintHeaderBytes(headerBytes, s);
-
-            var proxyField = s.GetProxy(fieldType);
-                //s.CurrentField.Type);
-
-
-            //var proxyField = s.ChildProxies[s.CurrentField];
-            var proxyType = proxyField.FieldType;
-
-            ////////////////////////////////////////////
-            // PROXY->PRINT(CURRENT)
-            ////////////////////////////////////////////
-            var printMethod = proxyType.GetMethodOrDie(nameof(IProtoProxy<Object>.Print));
-
-            il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Ldfld, proxyField);
-            loadObject(il);
-
-            il.Emit(OpCodes.Ldloc, s.ChildObjectStream);
-
-            il.Emit(OpCodes.Call, printMethod);
-
-
-            ////////////////////////////////////////////
-            // PRINT LENGTH OF CHILD STREAM
-            ////////////////////////////////////////////
-            il.Emit(OpCodes.Ldloc, s.ChildObjectStream);
-            il.Emit(OpCodes.Callvirt, _getStreamLength);
-            il.Emit(OpCodes.Ldarg_2);
-            il.Emit(OpCodes.Call, _writeInt64);
-
-            ////////////////////////////////////////////
-            // COPY CHILD STREAM TO MAIN
-            ////////////////////////////////////////////
-            //reset stream
-            il.Emit(OpCodes.Ldloc, s.ChildObjectStream);
-            il.Emit(OpCodes.Ldc_I8, 0L);
-            il.Emit(OpCodes.Callvirt, _setStreamPosition);
-
-            il.Emit(OpCodes.Ldloc, s.ChildObjectStream);
-
-            il.Emit(OpCodes.Ldarg_2);
-            il.Emit(OpCodes.Call, _copyMemoryStream);
-
-
-            il.Emit(OpCodes.Ldloc, s.ChildObjectStream);
-            il.Emit(OpCodes.Ldc_I8, 0L);
-            il.Emit(OpCodes.Callvirt, _setStreamLength);
-        }
-
     }
 }

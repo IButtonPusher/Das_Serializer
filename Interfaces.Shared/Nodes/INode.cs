@@ -25,10 +25,10 @@ namespace Das.Serializer
 
         [NotNull] INode Parent { get; }
 
+        new Type? Type { get; set; }
+
         new Object? Value { get; set; }
 
         void Clear();
-
-        new Type? Type { get; set; }
     }
 }

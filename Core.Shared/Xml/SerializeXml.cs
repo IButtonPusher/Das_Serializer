@@ -1,7 +1,7 @@
-﻿using Das.Printers;
-using System;
+﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using Das.Printers;
 
 // ReSharper disable UnusedMember.Global
 
@@ -15,13 +15,45 @@ namespace Das.Serializer
             return ObjectToTypedXml(o, oType);
         }
 
+        public String ToXml<TObject>(TObject o)
+        {
+            var oType = typeof(TObject);
+            return ObjectToTypedXml(o, oType);
+        }
+
+        public String ToXml<TTarget>(Object o)
+        {
+            var obj = ObjectManipulator.CastDynamic<TTarget>(o);
+            return ObjectToTypedXml(obj, typeof(TTarget));
+        }
+
+        public async Task ToXml(Object o, FileInfo fi)
+        {
+            var xml = ToXml(o);
+            await XmlToFile(xml, fi);
+        }
+
+        public async Task ToXml<TTarget>(Object o, FileInfo fi)
+        {
+            
+            var xml = ToXml<TTarget>(o);
+            await XmlToFile(xml, fi);
+        }
+
+        public async Task ToXml<TObject>(TObject o, FileInfo fileName)
+        {
+            var xml = ObjectToTypedXml(o, typeof(TObject));
+            await XmlToFile(xml, fileName);
+        }
+
         private String ObjectToTypedXml(Object o, Type asType)
         {
+            var settings = Settings;
             var nodeType = NodeTypeProvider.GetNodeType(asType, Settings.SerializationDepth);
 
             using (var writer = new StringSaver())
             {
-                var settings = Settings;
+                
                 var doCopy = true;
                 var amAnonymous = IsAnonymousType(asType);
 
@@ -45,55 +77,26 @@ namespace Das.Serializer
                 {
                     var printer = new XmlPrinter(writer, state, settings);
 
-                    var rootText = !asType.IsGenericType && !IsCollection(asType) 
-                        ? TypeInferrer.ToClearName(asType, true) : Root;
+                    var rootText = !asType.IsGenericType && !IsCollection(asType)
+                        ? TypeInferrer.ToClearName(asType, true)
+                        : Root;
 
-                    
-                    
                     using (var node = PrintNodePool.GetNamedValue(rootText, o, asType))
+                    {
                         printer.PrintNode(node);
+                    }
 
                     return writer.ToString();
                 }
             }
         }
 
-        public String ToXml<TObject>(TObject o)
-        {
-            var oType = typeof(TObject);
-            return ObjectToTypedXml(o, oType);
-        }
-
-        public String ToXml<TTarget>(Object o)
-        {
-            var obj = ObjectManipulator.CastDynamic<TTarget>(o);
-            return ObjectToTypedXml(obj, typeof(TTarget));
-        }
-
-        public async Task ToXml(Object o, FileInfo fi)
-        {
-            var xml = ToXml(o);
-            await XmlToFile(xml, fi);
-
-        }
-
-        public async Task ToXml<TTarget>(Object o, FileInfo fi)
-        {
-            //var obj = ObjectManipulator.CastDynamic<TTarget>(o);
-            var xml = ToXml<TTarget>(o);
-            await XmlToFile(xml, fi);
-        }
-
-        public async Task ToXml<TObject>(TObject o, FileInfo fileName)
-        {
-            var xml = ObjectToTypedXml(o, typeof(TObject));
-            await XmlToFile(xml, fileName);
-        }
-
         private async Task XmlToFile(String xml, FileInfo fi)
         {
             using (TextWriter tr = new StreamWriter(fi.FullName))
+            {
                 await _writeAsync(tr, xml);
+            }
         }
     }
 }

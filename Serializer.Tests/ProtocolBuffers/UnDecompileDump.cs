@@ -1,11 +1,6 @@
 ﻿// Serializer_Tests_ProtocolBuffers_PackedArrayTest
-using Das.Serializer.ProtoBuf;
-using Serializer.Tests.ProtocolBuffers;
+
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 
 //public class Serializer_Tests_ProtocolBuffers_CollectionsPropertyMessage : ProtoDynamicBase<CollectionsPropertyMessage>
 //{

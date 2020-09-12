@@ -1,13 +1,12 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Das.Serializer.Files
 {
     public class SafeFile : IDisposable
     {
-        private readonly Mutex _protector;
-
         public SafeFile(FileInfo fi)
         {
             if (fi.DirectoryName == null)
@@ -26,5 +25,7 @@ namespace Das.Serializer.Files
         {
             _protector.ReleaseMutex();
         }
+
+        private readonly Mutex _protector;
     }
 }

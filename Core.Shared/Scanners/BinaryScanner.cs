@@ -1,5 +1,6 @@
-﻿using Das.Streamers;
-using System;
+﻿using System;
+using System.Threading.Tasks;
+using Das.Streamers;
 
 namespace Das.Serializer
 {
@@ -12,16 +13,6 @@ namespace Das.Serializer
             _nodeManipulator = state.ScanNodeManipulator;
         }
 
-        private IBinaryFeeder Feeder => _feeder ?? throw new NullReferenceException(nameof(_feeder));
-        private IBinaryFeeder? _feeder;
-        private IBinaryNode? _rootNode;
-        protected readonly IBinaryContext _state;
-        protected readonly IBinaryNodeProvider _nodes;
-
-        private static readonly NullNode NullNode = NullNode.Instance;
-        private readonly INodeManipulator _nodeManipulator;
-
-       
 
         public virtual T Deserialize<T>(IBinaryFeeder source)
         {
@@ -29,22 +20,83 @@ namespace Das.Serializer
             return Deserialize<T>();
         }
 
-        private T Deserialize<T>()
+        public void Invalidate()
         {
-            var orgType = typeof(T);
-            var retType = orgType;
+            var rn = _rootNode;
+            if (rn == null)
+                return;
+            _nodes.Put(rn);
+            _rootNode = default;
+        }
 
-            _rootNode = NewNode(Const.Empty, NullNode.Instance, retType);
+        private IBinaryFeeder Feeder => _feeder ?? throw new NullReferenceException(nameof(_feeder));
 
-            BuildNext(ref _rootNode);
+        private void BuildCollection(ref IBinaryNode node)
+        {
+            var germane = TypeInferrer.GetGermaneType(node.Type);
+            var feeder = Feeder;
 
-            if (_rootNode.Type != orgType)
-                return ObjectManipulator.CastDynamic<T>(_rootNode.Value);
+            var index = 0;
+            var blockEnd = node.BlockStart + node.BlockSize;
 
-            if (_rootNode.Value != null)
-                _state.ObjectInstantiator.OnDeserialized(_rootNode, Settings);
+            if (IsLeaf(germane, true))
+            {
+                while (feeder.Index < blockEnd)
+                {
+                    var res = feeder.GetPrimitive(germane);
+                    _nodes.Sealer.Imbue(node, index.ToString(), res);
+                    index++;
+                }
 
-            return (T) _rootNode.Value!;
+                return;
+            }
+
+            while (feeder.Index < blockEnd)
+            {
+                var child = NewNode(index.ToString(), node, germane);
+                BuildNext(ref child);
+                index++;
+            }
+        }
+
+        private void BuildFallbackObject(ref IBinaryNode node)
+        {
+            var fbType = node.Type;
+            var nodeSize = node.BlockSize;
+            var val = Feeder.GetFallback(fbType, ref nodeSize);
+            node.Value = val;
+            node.BlockSize = nodeSize;
+        }
+
+        protected void BuildNext(ref IBinaryNode node)
+        {
+            switch (node.NodeType)
+            {
+                case NodeTypes.Object:
+                case NodeTypes.PropertiesToConstructor:
+                    BuildReferenceObject(ref node);
+                    break;
+
+                case NodeTypes.Fallback:
+                    BuildFallbackObject(ref node);
+                    break;
+                case NodeTypes.Collection:
+                    BuildCollection(ref node);
+                    break;
+
+                case NodeTypes.Dynamic:
+                    //should unwrap then recurse back here with a specific NodeType
+                    BuildReferenceObject(ref node);
+                    return;
+
+                case NodeTypes.Primitive:
+                    node.Value = Feeder.GetPrimitive(node.Type);
+
+                    break;
+            }
+
+            _nodes.Sealer.CloseNode(node);
+            _nodes.Sealer.Imbue(node);
         }
 
 
@@ -85,44 +137,25 @@ namespace Das.Serializer
             }
         }
 
-        private void BuildFallbackObject(ref IBinaryNode node)
+        private T Deserialize<T>()
         {
-            var fbType = node.Type;
-            var nodeSize = node.BlockSize;
-            var val = Feeder.GetFallback(fbType, ref nodeSize);
-            node.Value = val;
-            node.BlockSize = nodeSize;
+            var orgType = typeof(T);
+            var retType = orgType;
+
+            _rootNode = NewNode(Const.Empty, NullNode.Instance, retType);
+
+            BuildNext(ref _rootNode);
+
+            if (_rootNode.Type != orgType)
+                return ObjectManipulator.CastDynamic<T>(_rootNode.Value);
+
+            if (_rootNode.Value != null)
+                _state.ObjectInstantiator.OnDeserialized(_rootNode, Settings);
+
+            return (T) _rootNode.Value!;
         }
 
-        private void BuildCollection(ref IBinaryNode node)
-        {
-            var germane = TypeInferrer.GetGermaneType(node.Type);
-            var feeder = Feeder;
-
-            var index = 0;
-            var blockEnd = node.BlockStart + node.BlockSize;
-
-            if (IsLeaf(germane, true))
-            {
-                while (feeder.Index < blockEnd)
-                {
-                    var res = feeder.GetPrimitive(germane);
-                    _nodes.Sealer.Imbue(node, index.ToString(), res);
-                    index++;
-                }
-
-                return;
-            }
-
-            while (feeder.Index < blockEnd)
-            {
-                var child = NewNode(index.ToString(), node, germane);
-                BuildNext(ref child);
-                index++;
-            }
-        }
-
-        private IBinaryNode NewNode(String name, [NotNull]IBinaryNode parent, Type type)
+        private IBinaryNode NewNode(String name, [NotNull] IBinaryNode parent, Type type)
         {
             var child = _nodes.Get(name, parent, type);
             var feeder = Feeder;
@@ -156,44 +189,11 @@ namespace Das.Serializer
             return child;
         }
 
-        protected void BuildNext(ref IBinaryNode node)
-        {
-            switch (node.NodeType)
-            {
-                case NodeTypes.Object:
-                case NodeTypes.PropertiesToConstructor:
-                    BuildReferenceObject(ref node);
-                    break;
-
-                case NodeTypes.Fallback:
-                    BuildFallbackObject(ref node);
-                    break;
-                case NodeTypes.Collection:
-                    BuildCollection(ref node);
-                    break;
-
-                case NodeTypes.Dynamic:
-                    //should unwrap then recurse back here with a specific NodeType
-                    BuildReferenceObject(ref node);
-                    return;
-
-                case NodeTypes.Primitive:
-                    node.Value = Feeder.GetPrimitive(node.Type);
-
-                    break;
-            }
-
-            _nodes.Sealer.CloseNode(node);
-            _nodes.Sealer.Imbue(node);
-        }
-
-        public void Invalidate()
-        {
-            var rn = _rootNode;
-            if (rn == null)
-                return;
-            _nodes.Put(rn);
-            _rootNode = default;
-        }
+        private static readonly NullNode NullNode = NullNode.Instance;
+        private readonly INodeManipulator _nodeManipulator;
+        protected readonly IBinaryNodeProvider _nodes;
+        protected readonly IBinaryContext _state;
+        private IBinaryFeeder? _feeder;
+        private IBinaryNode? _rootNode;
     }
 }

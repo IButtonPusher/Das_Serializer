@@ -1,12 +1,18 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Das.Serializer.Types;
 
 namespace Das.Serializer
 {
     public class NullNode : ITextNode, IBinaryNode, IEquatable<INode>
     {
+        static NullNode()
+        {
+            Instance = new NullNode();
+        }
+
         private NullNode()
         {
             Attributes = new InvalidCollection<String, String>();
@@ -15,21 +21,31 @@ namespace Das.Serializer
             PendingReferences = new List<IBinaryNode>();
         }
 
-        
-
-        public static NullNode Instance { get; }
-
-        static NullNode() => Instance = new NullNode();
-
-        INode INode.Parent => Instance;
-
-        ITextNode INode<ITextNode>.Parent
+        IBinaryNode INode<IBinaryNode>.Parent
         {
             get => Instance;
             set => throw new InvalidOperationException();
         }
 
-        IBinaryNode INode<IBinaryNode>.Parent
+        IEnumerator<IBinaryNode> IEnumerable<IBinaryNode>.GetEnumerator()
+        {
+            yield break;
+        }
+
+        public Int32 BlockSize { get; set; }
+
+        public Int32 BlockStart { get; set; }
+
+        public IList<IBinaryNode> PendingReferences { get; }
+
+        public Boolean Equals(INode other)
+        {
+            return ReferenceEquals(Instance, other);
+        }
+
+        INode INode.Parent => Instance;
+
+        ITextNode INode<ITextNode>.Parent
         {
             get => Instance;
             set => throw new InvalidOperationException();
@@ -48,8 +64,11 @@ namespace Das.Serializer
         }
 
         public Boolean IsForceNullValue { get; set; }
+
         public String Name => String.Empty;
+
         public Boolean IsEmpty => true;
+
         public NodeTypes NodeType
         {
             get => throw new InvalidOperationException();
@@ -57,15 +76,12 @@ namespace Das.Serializer
         }
 
         public IDictionary<String, String> Attributes { get; }
+
         public IDictionary<String, Object> DynamicProperties { get; }
+
         public void Clear()
         {
             throw new InvalidOperationException();
-        }
-
-        IEnumerator<IBinaryNode> IEnumerable<IBinaryNode>.GetEnumerator()
-        {
-            yield break;
         }
 
         IEnumerator<ITextNode> IEnumerable<ITextNode>.GetEnumerator()
@@ -79,8 +95,11 @@ namespace Das.Serializer
         }
 
         public Boolean IsOmitDefaultValues => true;
+
         public SerializationDepth SerializationDepth => SerializationDepth.None;
+
         public Boolean IsRespectXmlIgnore => true;
+
         public void Set(String name, ISerializationDepth depth, INodeManipulator nodeManipulator)
         {
         }
@@ -106,18 +125,18 @@ namespace Das.Serializer
         }
 
         public IDictionary<String, ITextNode> Children { get; }
-        public Int32 BlockSize { get; set; }
-        public Int32 BlockStart { get; set; }
-        public IList<IBinaryNode> PendingReferences { get; }
 
-        public Boolean Equals(INode other)
-        {
-            return ReferenceEquals(Instance, other);
-        }
+
+        public static NullNode Instance { get; }
 
         public override Boolean Equals(Object? other)
         {
             return ReferenceEquals(Instance, other);
+        }
+
+        public override Int32 GetHashCode()
+        {
+            return 0;
         }
 
         public static Boolean operator ==(NullNode nn, INode node)
@@ -129,10 +148,5 @@ namespace Das.Serializer
         {
             return !ReferenceEquals(node, nn);
         }
-
-        public override Int32 GetHashCode() => 0;
-
-
-
     }
 }

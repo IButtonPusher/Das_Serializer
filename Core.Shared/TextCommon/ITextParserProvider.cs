@@ -1,6 +1,7 @@
-﻿
+﻿// ReSharper disable UnusedMember.Global
 
-// ReSharper disable UnusedMember.Global
+using System;
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {

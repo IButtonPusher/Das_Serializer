@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace Das.Serializer.Remunerators
 {
     public interface IBinaryWriter : IEnumerable<Byte>,
-        IRemunerable<Byte[], Byte>, IStreamDelegate
+                                     IRemunerable<Byte[], Byte>, IStreamDelegate
     {
         Int32 Length { get; }
 

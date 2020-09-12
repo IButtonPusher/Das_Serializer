@@ -14,10 +14,10 @@ namespace Das
 {
     public class TypeStructure : TypeCore, ITypeStructure
     {
-        public TypeStructure(Type type, 
+        public TypeStructure(Type type,
                              Boolean isPropertyNamesCaseSensitive,
-                             ISerializationDepth depth, 
-                             ITypeManipulator state, 
+                             ISerializationDepth depth,
+                             ITypeManipulator state,
                              INodePool nodePool)
             : base(state.Settings)
         {
@@ -177,7 +177,7 @@ namespace Das
         {
             if (_propertySetters.TryGetValue(propName, out var setDel))
             {
-                setDel(ref targetObj, propVal);
+                setDel(ref targetObj!, propVal);
                 return true;
             }
 
@@ -205,7 +205,7 @@ namespace Das
 
         public void SetPropertyValueUnsafe(String propName, ref Object targetObj, Object propVal)
         {
-            _propertySetters[propName](ref targetObj, propVal);
+            _propertySetters[propName](ref targetObj!, propVal);
         }
 
 
@@ -246,7 +246,7 @@ namespace Das
             }
         }
 
-        private void CreatePropertyDelegates(Type type, 
+        private void CreatePropertyDelegates(Type type,
                                              ISerializationDepth depth)
         {
             foreach (var pi in _types.GetPublicProperties(type))

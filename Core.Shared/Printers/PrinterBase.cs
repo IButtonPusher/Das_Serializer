@@ -8,8 +8,7 @@ using Das.Serializer;
 
 namespace Das.Printers
 {
-    internal abstract class PrinterBase<TEFormat> :
-        ISerializationDepth
+    public abstract class PrinterBase : ISerializationDepth
     {
         Boolean ISerializationDepth.IsOmitDefaultValues => Settings.IsOmitDefaultValues;
 
@@ -20,7 +19,7 @@ namespace Das.Printers
 
         public ISerializerSettings Settings { get; }
 
-        #region fields
+        
 
         private readonly ISerializationState _stateProvider;
         protected readonly INodeTypeProvider _nodeTypes;
@@ -34,26 +33,24 @@ namespace Das.Printers
         private readonly List<String> _pathStack;
 
         //to map the order to property names
-        private readonly List<Object> _pathObjects;
+        private readonly List<Object?> _pathObjects;
 
         protected Char PathSeparator;
         protected String PathAttribute;
 
         protected Boolean IsPrintNullProperties;
 
-        protected TEFormat SequenceSeparator;
+        //protected abstract TEFormat SequenceSeparator { get; }
 
         protected Boolean IsTextPrinter;
         protected IScanNodeProvider _nodeProvider;
         protected readonly INodePool _printNodePool;
         protected readonly ITypeInferrer _typeInferrer;
 
-        #endregion
-
-        #region construction
+        
 
         protected PrinterBase(ISerializationState stateProvider,
-            ISerializerSettings settings) //: base(stateProvider, settings)
+                              ISerializerSettings settings) //: base(stateProvider, settings)
         {
             Settings = settings;
             _stateProvider = stateProvider;
@@ -64,7 +61,7 @@ namespace Das.Printers
             _pathReferences = new HashSet<Object>();
             _pathStack = new List<String>();
             PathSeparator = '.';
-            _pathObjects = new List<Object>();
+            _pathObjects = new List<Object?>();
             PathAttribute = "$ref";
             IsTextPrinter = true;
             _isIgnoreCircularDependencies = stateProvider.Settings.CircularReferenceBehavior
@@ -79,9 +76,9 @@ namespace Das.Printers
         {
         }
 
-        #endregion
+        
 
-        #region top level printing
+        
 
         /// <summary>
         ///     For type wrapping has to occur one of the following has to be true
@@ -144,7 +141,9 @@ namespace Das.Printers
                 return willReturn;
 
             _pathObjects.RemoveAt(_pathObjects.Count - 1);
-            _pathReferences.Remove(o);
+            
+            if (o != null)
+                _pathReferences.Remove(o);
 
             return willReturn;
         }
@@ -178,11 +177,10 @@ namespace Das.Printers
             {
                 case CircularReference.IgnoreObject:
                     if (IsPrintNullProperties)
-                        //var nullRef = new PrintNode(node.Name, null, node.Type, node.NodeType);
+                    {
                         using (var nullRef = _printNodePool.GetPrintNode(node, null))
-                        {
                             PrintObject(nullRef);
-                        }
+                    }
 
                     break;
                 case CircularReference.ThrowException:
@@ -233,9 +231,9 @@ namespace Das.Printers
 
         protected abstract void PrintCollection(IPrintNode node);
 
-        #endregion
+        
 
-        #region print helper methods
+        
 
         protected Boolean IsWrapNeeded(Type declaredType, Type objectType)
         {
@@ -276,7 +274,7 @@ namespace Das.Printers
         }
 
         protected virtual void PrintProperties<T>(IPropertyValueIterator<T> values,
-            Action<T> exe) where T : class, INamedValue
+                                                  Action<T> exe) where T : class, INamedValue
         {
             for (var c = 0; c < values.Count; c++)
             {
@@ -286,13 +284,14 @@ namespace Das.Printers
         }
 
         protected virtual void PrintSeries<T>(IEnumerable<T> values,
-            Action<T> print)
+                                              Action<T> print)
         {
             foreach (var val in values)
                 print(val);
         }
 
-        protected IEnumerable<ObjectNode> ExplodeList(IEnumerable list, Type itemType)
+        protected static IEnumerable<ObjectNode> ExplodeList(IEnumerable? list, 
+                                                             Type itemType)
         {
             if (list == null)
                 yield break;
@@ -302,7 +301,7 @@ namespace Das.Printers
                 yield return new ObjectNode(o, itemType, index++);
         }
 
-        public Boolean ShouldPrintNode(INamedValue prop)
+        protected Boolean ShouldPrintNode(INamedValue prop)
         {
             return ShouldPrintValue(prop.Value);
         }
@@ -317,7 +316,7 @@ namespace Das.Printers
 
         protected void PrintProperty(INamedValue prop)
         {
-            if (prop.Type.IsNestedPrivate && _typeInferrer.IsCollection(prop.Type))
+            if (prop.Type!.IsNestedPrivate && _typeInferrer.IsCollection(prop.Type))
             {
                 //force deferred to run
             }
@@ -329,9 +328,9 @@ namespace Das.Printers
             //return printed;
         }
 
-        #endregion
+        
 
-        #region abstract methods
+        
 
         /// <summary>
         ///     By the time we get here any wrapping should have happened already
@@ -340,6 +339,6 @@ namespace Das.Printers
 
         protected abstract void PrintFallback(IPrintNode node);
 
-        #endregion
+        
     }
 }

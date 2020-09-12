@@ -5,7 +5,7 @@ namespace Das.Serializer
 {
     public class DasProperty : DasMember
     {
-        public DasProperty(String name, Type type, DasAttribute[] attributes) 
+        public DasProperty(String name, Type type, DasAttribute[] attributes)
             : base(name, type)
         {
             Attributes = attributes;

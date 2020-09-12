@@ -1,28 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
     public abstract class NodeProvider<T> : TypeCore,
-        IScanNodeProvider<T> where T : INode, IEnumerable<T>
+                                            IScanNodeProvider<T> where T : INode, IEnumerable<T>
     {
-        public INodeTypeProvider TypeProvider { get; }
-
         protected NodeProvider(INodeTypeProvider typeProvider, ISerializerSettings settings)
             : base(settings)
         {
             TypeProvider = typeProvider;
         }
 
-        private static readonly ThreadLocal<List<T>> LetsAdd
-            = new ThreadLocal<List<T>>(() => new List<T>());
+        public INodeTypeProvider TypeProvider { get; }
 
-        protected static Queue<T> Buffer => _buffer.Value!;
-
-        private static readonly ThreadLocal<Queue<T>> _buffer
-            = new ThreadLocal<Queue<T>>(() => new Queue<T>());
-        
 
         public void Put(T node)
         {
@@ -31,7 +24,7 @@ namespace Das.Serializer
 
             var buffer = Buffer;
             var letsAdd = LetsAdd.Value!;
-            
+
             letsAdd.AddRange(node);
 
             node.Clear();
@@ -45,7 +38,12 @@ namespace Das.Serializer
             letsAdd.Clear();
         }
 
-    }
+        protected static Queue<T> Buffer => _buffer.Value!;
 
-  
+        private static readonly ThreadLocal<List<T>> LetsAdd
+            = new ThreadLocal<List<T>>(() => new List<T>());
+
+        private static readonly ThreadLocal<Queue<T>> _buffer
+            = new ThreadLocal<Queue<T>>(() => new Queue<T>());
+    }
 }

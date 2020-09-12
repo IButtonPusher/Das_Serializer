@@ -4,6 +4,10 @@ using System.Collections.Generic;
 using System.Reflection;
 using Das.Extensions;
 using Das.Serializer;
+#pragma warning disable 8600
+#pragma warning disable 8605
+#pragma warning disable 8604
+#pragma warning disable 8602
 
 // ReSharper disable All
 

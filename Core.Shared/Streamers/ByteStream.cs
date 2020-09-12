@@ -1,31 +1,12 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
     public class ByteStream : IByteArray
     {
-        private Stream _stream;
-        private Int64 _length;
-
-        [ThreadStatic] private static Byte[]? _byteCache;
-
-        public Stream Stream
-        {
-            get => _stream;
-            set => SetStream(value);
-        }
-
-        public void SetStream(Stream value)
-        {
-            _stream = value;
-            if (value != null)
-                _length = value.Length;
-            else _length = 0;
-        }
-
-
         public ByteStream(Stream stream)
         {
             _stream = stream;
@@ -34,14 +15,14 @@ namespace Das.Serializer
 
         //public ByteStream()
         //{
-            
+
         //}
 
         public Byte this[Int32 bytes]
         {
             get
             {
-                var res = (Byte)_stream.ReadByte();
+                var res = (Byte) _stream.ReadByte();
                 return res;
             }
         }
@@ -56,15 +37,15 @@ namespace Das.Serializer
             get
             {
                 var res = new Byte[length];
-               
-               _stream.Read(res, 0, length);
+
+                _stream.Read(res, 0, length);
                 return res;
             }
         }
 
         public Byte GetNextByte()
         {
-            return (Byte)_stream.ReadByte();
+            return (Byte) _stream.ReadByte();
         }
 
         [MethodImpl(256)]
@@ -81,7 +62,7 @@ namespace Das.Serializer
         public Byte[] GetNextBytes(Int32 amount)
         {
             var res = new Byte[amount];
-               
+
             _stream.Read(res, 0, amount);
             return res;
         }
@@ -89,7 +70,7 @@ namespace Das.Serializer
         public Byte[] IncludeBytes(Int32 count)
         {
             if (_byteCache == null)
-                _byteCache=new Byte[Math.Max(100, count)];
+                _byteCache = new Byte[Math.Max(100, count)];
             else if (_byteCache.Length < count)
                 _byteCache = new Byte[count];
 
@@ -99,9 +80,26 @@ namespace Das.Serializer
             return _byteCache;
         }
 
-        public Int64 Length => _length;
+        public Int64 Length { get; private set; }
 
 
         public Int64 Index => _stream.Position;
+
+        public Stream Stream
+        {
+            get => _stream;
+            set => SetStream(value);
+        }
+
+        public void SetStream(Stream value)
+        {
+            _stream = value;
+            if (value != null)
+                Length = value.Length;
+            else Length = 0;
+        }
+
+        [ThreadStatic] private static Byte[]? _byteCache;
+        private Stream _stream;
     }
 }

@@ -14,7 +14,7 @@ namespace Das.Serializer
 
         public Object[] ConstructionValues { get; set; }
 
-        public Dictionary<String, Object> PropertyValues { get;  }
+        public Dictionary<String, Object> PropertyValues { get; }
 
         public Type Type { get; }
     }

@@ -12,7 +12,7 @@ namespace Das
         T ConvertEx<T>(Object obj);
 
         Object ConvertEx(Object obj, Type newObjectType,
-            ISerializerSettings settings);
+                         ISerializerSettings settings);
 
         T Copy<T>(T from) where T : class;
 
@@ -24,6 +24,6 @@ namespace Das
         void Copy<T>(T from, ref T to) where T : class;
 
         Object SpawnCollection(Object[] objects, Type collectionType,
-            ISerializerSettings settings, Type? collectionGenericArgs = null);
+                               ISerializerSettings settings, Type? collectionGenericArgs = null);
     }
 }

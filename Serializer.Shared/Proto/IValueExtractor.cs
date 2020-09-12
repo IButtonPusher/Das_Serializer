@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Reflection.Emit;
+using System.Threading.Tasks;
 
 namespace Das.Serializer.Proto
 {
     public interface IValueExtractor
     {
-        void LoadNextString();
-
-        FieldBuilder GetProxy(Type type);
-
         ILGenerator IL { get; }
 
         LocalBuilder LastByteLocal { get; }
+
+        FieldBuilder GetProxy(Type type);
+
+        void LoadNextString();
     }
 }

@@ -5,17 +5,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
     public class TypeCore : ITypeCore, IComparer<PropertyInfo>
     {
-        private ISerializerSettings _settings;
-
-        public virtual ISerializerSettings Settings
+        static TypeCore()
         {
-            get => _settings;
-            set => _settings = value;
+            _cachedGermane = new ConcurrentDictionary<Type, Type>();
+            CachedProperties = new ConcurrentDictionary<Type,
+                IEnumerable<PropertyInfo>>();
+
+            _typesKnownSettableProperties = new ConcurrentDictionary<Type, Boolean>();
+            CachedConstructors = new ConcurrentDictionary<Type, ConstructorInfo>();
+            CollectionTypes = new ConcurrentDictionary<Type, Boolean>();
+            Leaves = new ConcurrentDictionary<Type, Boolean>();
         }
 
         public TypeCore(ISerializerSettings settings)
@@ -23,39 +28,18 @@ namespace Das.Serializer
             _settings = settings;
         }
 
-
-
-        private static readonly ConcurrentDictionary<Type, Boolean> CollectionTypes;
-
-        private static readonly ConcurrentDictionary<Type, Boolean> _typesKnownSettableProperties;
-        private static readonly ConcurrentDictionary<Type, Type> _cachedGermane;
-
-        private static readonly ConcurrentDictionary<Type, ConstructorInfo> CachedConstructors;
-
-        private static readonly ConcurrentDictionary<Type, Boolean> Leaves;
-
-        private static readonly HashSet<Type> NumericTypes = new HashSet<Type>
+        public Int32 Compare(PropertyInfo? x, PropertyInfo? y)
         {
-            typeof(Int32), typeof(Double), typeof(Decimal),
-            typeof(Int64), typeof(Int16), typeof(SByte),
-            typeof(Byte), typeof(UInt64), typeof(UInt16),
-            typeof(UInt32), typeof(Single)
-        };
-
-        static TypeCore()
-        {
-            _cachedGermane = new ConcurrentDictionary<Type, Type>();
-            CachedProperties = new ConcurrentDictionary<Type,
-                IEnumerable<PropertyInfo>>();
-            
-            _typesKnownSettableProperties = new ConcurrentDictionary<Type, Boolean>();
-            CachedConstructors = new ConcurrentDictionary<Type, ConstructorInfo>();
-            CollectionTypes = new ConcurrentDictionary<Type, Boolean>();
-            Leaves = new ConcurrentDictionary<Type, Boolean>();
+            if (ReferenceEquals(null, x) || ReferenceEquals(null, y))
+                return Int32.MaxValue;
+            return String.Compare(x.Name, y.Name, StringComparison.Ordinal);
         }
 
-        private static readonly ConcurrentDictionary<Type, IEnumerable<PropertyInfo>>
-            CachedProperties;
+        public virtual ISerializerSettings Settings
+        {
+            get => _settings;
+            set => _settings = value;
+        }
 
         //private static readonly ConcurrentDictionary<Type, ISet<PropertyInfo>>
         //    CachedProperties2 = new ConcurrentDictionary<Type, ISet<PropertyInfo>>();
@@ -71,7 +55,6 @@ namespace Das.Serializer
             return true;
         }
 
-        
 
         public Type GetGermaneType(Type ownerType)
         {
@@ -112,7 +95,9 @@ namespace Das.Serializer
                     case 0:
                         var gen0 = ownerType.GetInterfaces().FirstOrDefault(i =>
                             i.IsGenericType);
-                        return GetGermaneType(gen0);
+
+
+                        return gen0 != null ? GetGermaneType(gen0) : ownerType;
                 }
             }
             finally
@@ -122,25 +107,6 @@ namespace Das.Serializer
             }
 
             throw new InvalidOperationException("Cannot load ");
-        }
-
-        private static Type? GetKeyValuePair(Type dicType)
-        {
-            var akas = dicType.GetInterfaces();
-            for (var c = 0; c < akas.Length; c++)
-            {
-                var interf = akas[c];
-                if (!interf.IsGenericType)
-                    continue;
-
-                var genericArgs = interf.GetGenericArguments();
-                if (genericArgs.Length != 1 || !genericArgs[0].IsValueType)
-                    continue;
-
-                return genericArgs[0];
-            }
-
-            return null;
         }
 
         public virtual Boolean HasSettableProperties(Type type)
@@ -154,45 +120,43 @@ namespace Das.Serializer
             return yesOrNo;
         }
 
-        public static Boolean IsLeaf(Type t, Boolean isStringCounts)
+        Boolean ITypeCore.IsLeaf(Type t, Boolean isStringCounts)
         {
-            if (Leaves.TryGetValue(t, out var l))
-                return l;
-
-            return Leaves[t] = AmIALeaf(t, isStringCounts);
+            return IsLeaf(t, isStringCounts);
         }
 
-        Boolean ITypeCore.IsLeaf(Type t, Boolean isStringCounts)  
-            => IsLeaf(t, isStringCounts);
-
-        // ReSharper disable once InconsistentNaming
-        private static Boolean AmIALeaf(Type t, Boolean isStringCounts) 
-            => (t.IsValueType || isStringCounts &&
-            t == Const.StrType)
-            && Type.GetTypeCode(t) > TypeCode.DBNull;
-            
 
         public Boolean IsAbstract(PropertyInfo propInfo)
-            => propInfo.GetGetMethod()?.IsAbstract == true ||
-               propInfo.GetSetMethod()?.IsAbstract == true;
+        {
+            return propInfo.GetGetMethod()?.IsAbstract == true ||
+                   propInfo.GetSetMethod()?.IsAbstract == true;
+        }
 
         [MethodImpl(256)]
         public Boolean IsCollection(Type type)
         {
-            var val = CollectionTypes.GetOrAdd(type, (t) => 
+            var val = CollectionTypes.GetOrAdd(type, t =>
                 t != Const.StrType && typeof(IEnumerable).IsAssignableFrom(t));
 
             return val;
         }
-       
 
-        public Boolean IsUseless(Type? t) => t == null || t == Const.ObjectType;
 
-        public Boolean IsNumeric(Type myType) => NumericTypes.Contains(
-            Nullable.GetUnderlyingType(myType) ?? myType);
+        public Boolean IsUseless(Type? t)
+        {
+            return t == null || t == Const.ObjectType;
+        }
+
+        public Boolean IsNumeric(Type myType)
+        {
+            return NumericTypes.Contains(
+                Nullable.GetUnderlyingType(myType) ?? myType);
+        }
 
         public Boolean HasEmptyConstructor(Type t)
-            => t.GetConstructor(Type.EmptyTypes) != null;
+        {
+            return t.GetConstructor(Type.EmptyTypes) != null;
+        }
 
         public bool TryGetEmptyConstructor(Type t, out ConstructorInfo ctor)
         {
@@ -200,30 +164,9 @@ namespace Das.Serializer
             return ctor != null;
         }
 
-        public Boolean IsInstantiable(Type t) =>
-            !IsUseless(t) && !t.IsAbstract && !t.IsInterface;
-
-        protected static Boolean IsString(Type t) => t == Const.StrType;
-
-        public static Decimal ToDecimal(Byte[] bytes)
+        public Boolean IsInstantiable(Type? t)
         {
-            var bits = new Int32[4];
-            for (var i = 0; i <= 15; i += 4)
-                bits[i / 4] = BitConverter.ToInt32(bytes, i);
-
-            return new Decimal(bits);
-        }
-
-
-        protected static Boolean IsAnonymousType(Type type)
-        {
-            return type.Namespace == null &&
-                   type.IsGenericType &&
-                   type.IsSealed && type.BaseType == Const.ObjectType &&
-                   Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false)
-                   && type.Name.Contains("AnonymousType")
-                   && (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))
-                   && (type.Attributes & TypeAttributes.Public) == TypeAttributes.NotPublic;
+            return !IsUseless(t) && !t!.IsAbstract && !t.IsInterface;
         }
 
         //public ISet<PropertyInfo> GetPublicProperties2(Type type, Boolean numericFirst = true)
@@ -282,13 +225,9 @@ namespace Das.Serializer
                 var results = new HashSet<PropertyInfo>(res);
 
                 foreach (var parentInterface in type.GetInterfaces())
-                {
-                    foreach (var pp in GetPublicProperties(parentInterface, false))
-                    {
-                        if (byName.Add(pp.Name))
-                            results.Add(pp);
-                    }
-                }
+                foreach (var pp in GetPublicProperties(parentInterface, false))
+                    if (byName.Add(pp.Name))
+                        results.Add(pp);
 
                 res = results;
             }
@@ -302,10 +241,8 @@ namespace Das.Serializer
 
                     foreach (var pp in GetPublicProperties(bt, false))
                         //type.BaseType, false)) //this has to have been unintentional...
-                    {
                         if (byName.Add(pp.Name))
                             results.Add(pp);
-                    }
 
                     bt = bt.BaseType;
                 }
@@ -321,10 +258,11 @@ namespace Das.Serializer
                 yield return prop;
         }
 
-        public PropertyInfo FindPublicProperty(Type type, String propertyName)
-            => GetPublicProperties(type, false).
-                FirstOrDefault(p => p.Name == propertyName);
-        
+        public PropertyInfo? FindPublicProperty(Type type, String propertyName)
+        {
+            return GetPublicProperties(type, false).FirstOrDefault(p => p.Name == propertyName);
+        }
+
         public Boolean TryGetPropertiesConstructor(Type type, out ConstructorInfo constr)
         {
             constr = null!;
@@ -337,16 +275,14 @@ namespace Das.Serializer
                 StringComparer.OrdinalIgnoreCase);
 
             foreach (var p in type.GetProperties().Where(p => !p.CanWrite && p.CanRead))
-            {
                 rProps[p.Name] = p.PropertyType;
-                //rProps.Add(p.Name, p.PropertyType);
-            }
+            //rProps.Add(p.Name, p.PropertyType);
 
             foreach (var con in type.GetConstructors())
             {
                 if (con.GetParameters().Length <= 0 || !con.GetParameters().All(p =>
-                    !string.IsNullOrEmpty(p.Name) && 
-                        rProps.ContainsKey(p.Name) && rProps[p.Name] == p.ParameterType))
+                    !string.IsNullOrEmpty(p.Name) &&
+                    rProps.ContainsKey(p.Name) && rProps[p.Name] == p.ParameterType))
                     continue;
 
                 constr = con;
@@ -364,11 +300,88 @@ namespace Das.Serializer
             return true;
         }
 
-        public Int32 Compare(PropertyInfo x, PropertyInfo y)
+        // ReSharper disable once InconsistentNaming
+        private static Boolean AmIALeaf(Type t, Boolean isStringCounts)
         {
-            if (ReferenceEquals(null, x) || ReferenceEquals(null, y))
-                return Int32.MaxValue;
-            return String.Compare(x.Name, y.Name, StringComparison.Ordinal);
+            return (t.IsValueType || isStringCounts &&
+                       t == Const.StrType)
+                   && Type.GetTypeCode(t) > TypeCode.DBNull;
         }
+
+        private static Type? GetKeyValuePair(Type dicType)
+        {
+            var akas = dicType.GetInterfaces();
+            for (var c = 0; c < akas.Length; c++)
+            {
+                var interf = akas[c];
+                if (!interf.IsGenericType)
+                    continue;
+
+                var genericArgs = interf.GetGenericArguments();
+                if (genericArgs.Length != 1 || !genericArgs[0].IsValueType)
+                    continue;
+
+                return genericArgs[0];
+            }
+
+            return null;
+        }
+
+
+        protected static Boolean IsAnonymousType(Type type)
+        {
+            return type.Namespace == null &&
+                   type.IsGenericType &&
+                   type.IsSealed && type.BaseType == Const.ObjectType &&
+                   Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false)
+                   && type.Name.Contains("AnonymousType")
+                   && (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))
+                   && (type.Attributes & TypeAttributes.Public) == TypeAttributes.NotPublic;
+        }
+
+        public static Boolean IsLeaf(Type t, Boolean isStringCounts)
+        {
+            if (Leaves.TryGetValue(t, out var l))
+                return l;
+
+            return Leaves[t] = AmIALeaf(t, isStringCounts);
+        }
+
+        protected static Boolean IsString(Type t)
+        {
+            return t == Const.StrType;
+        }
+
+        public static Decimal ToDecimal(Byte[] bytes)
+        {
+            var bits = new Int32[4];
+            for (var i = 0; i <= 15; i += 4)
+                bits[i / 4] = BitConverter.ToInt32(bytes, i);
+
+            return new Decimal(bits);
+        }
+
+
+        private static readonly ConcurrentDictionary<Type, Boolean> CollectionTypes;
+
+        private static readonly ConcurrentDictionary<Type, Boolean> _typesKnownSettableProperties;
+        private static readonly ConcurrentDictionary<Type, Type> _cachedGermane;
+
+        private static readonly ConcurrentDictionary<Type, ConstructorInfo> CachedConstructors;
+
+        private static readonly ConcurrentDictionary<Type, Boolean> Leaves;
+
+        private static readonly HashSet<Type> NumericTypes = new HashSet<Type>
+        {
+            typeof(Int32), typeof(Double), typeof(Decimal),
+            typeof(Int64), typeof(Int16), typeof(SByte),
+            typeof(Byte), typeof(UInt64), typeof(UInt16),
+            typeof(UInt32), typeof(Single)
+        };
+
+        private static readonly ConcurrentDictionary<Type, IEnumerable<PropertyInfo>>
+            CachedProperties;
+
+        private ISerializerSettings _settings;
     }
 }

@@ -7,8 +7,11 @@ namespace Das.Serializer.Printers
     public class PrintNode : NamedValueNode, IPrintNode
     {
         public PrintNode(Action<PrintNode> returnToSender,
-            String name, Object value, Type type, NodeTypes nodeType,
-            Boolean isWrapping = false)
+                         String name,
+                         Object value,
+                         Type type,
+                         NodeTypes nodeType,
+                         Boolean isWrapping = false)
             : base(name, value, type)
         {
             _returnToSender = returnToSender;
@@ -17,7 +20,8 @@ namespace Das.Serializer.Printers
         }
 
         public PrintNode(Action<PrintNode> returnToSender,
-            INamedValue valu, NodeTypes nodeType)
+                         INamedValue valu, 
+                         NodeTypes nodeType)
             : this(returnToSender, valu.Name, valu.Value, valu.Type, nodeType)
         {
         }

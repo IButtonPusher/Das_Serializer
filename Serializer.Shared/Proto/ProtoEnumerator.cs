@@ -2,25 +2,16 @@
 using System.Collections;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Threading.Tasks;
 using Das.Extensions;
 using Das.Serializer.Proto;
 
 namespace Das.Serializer
 {
-
     public class ProtoEnumerator<TState> where TState : ProtoStateBase
     {
-        private readonly ILGenerator _il;
-        private readonly LocalBuilder _enumeratorLocal;
-        private readonly MethodInfo? _enumeratorDisposeMethod;
-        private readonly Type _enumeratorType;
-        private readonly MethodInfo _enumeratorMoveNext;
-        private readonly MethodInfo _enumeratorCurrent;
-        private readonly LocalBuilder _enumeratorCurrentValue;
-        private readonly TState _protoBuildState;
-
         public ProtoEnumerator(TState s, Type ienumerableType,
-            MethodInfo getMethod) : this(s, ienumerableType)
+                               MethodInfo getMethod) : this(s, ienumerableType)
         {
             _il = s.IL;
             _protoBuildState = s;
@@ -45,15 +36,11 @@ namespace Das.Serializer
 
             var isExplicit = _enumeratorDisposeMethod == null;
             if (isExplicit && typeof(IDisposable).IsAssignableFrom(getEnumeratorMethod.ReturnType))
-            {
                 _enumeratorDisposeMethod = typeof(IDisposable).GetMethodOrDie(
                     nameof(IDisposable.Dispose));
-            }
             else
-            {
                 _enumeratorMoveNext = getEnumeratorMethod.ReturnType.GetMethodOrDie(
                     nameof(IEnumerator.MoveNext));
-            }
 
             _enumeratorCurrent = getEnumeratorMethod.ReturnType.GetterOrDie(
                 nameof(IEnumerator.Current), out _);
@@ -62,7 +49,7 @@ namespace Das.Serializer
             _enumeratorType = _enumeratorLocal.LocalType ?? throw new InvalidOperationException();
             _enumeratorCurrentValue = _il.DeclareLocal(_enumeratorCurrent.ReturnType);
         }
-        
+
 
         public void ForEach(Action<LocalBuilder, TState, ILGenerator, Byte[]> action, Byte[] headerBytes)
         {
@@ -80,15 +67,15 @@ namespace Das.Serializer
                 /////////////////////////////////////
                 // !enumerator.HasNext() -> EXIT LOOP
                 /////////////////////////////////////
-                _il.Emit(_enumeratorType.IsValueType 
-                    ? OpCodes.Ldloca 
+                _il.Emit(_enumeratorType.IsValueType
+                    ? OpCodes.Ldloca
                     : OpCodes.Ldloc, _enumeratorLocal);
 
                 _il.Emit(OpCodes.Call, _enumeratorMoveNext);
                 _il.Emit(OpCodes.Brfalse, allDone);
 
-                _il.Emit(_enumeratorType.IsValueType 
-                    ? OpCodes.Ldloca 
+                _il.Emit(_enumeratorType.IsValueType
+                    ? OpCodes.Ldloca
                     : OpCodes.Ldloc, _enumeratorLocal);
 
                 _il.Emit(OpCodes.Callvirt, _enumeratorCurrent);
@@ -120,5 +107,14 @@ namespace Das.Serializer
             }
             _il.EndExceptionBlock();
         }
+
+        private readonly MethodInfo _enumeratorCurrent;
+        private readonly LocalBuilder _enumeratorCurrentValue;
+        private readonly MethodInfo? _enumeratorDisposeMethod;
+        private readonly LocalBuilder _enumeratorLocal;
+        private readonly MethodInfo _enumeratorMoveNext;
+        private readonly Type _enumeratorType;
+        private readonly ILGenerator _il;
+        private readonly TState _protoBuildState;
     }
 }

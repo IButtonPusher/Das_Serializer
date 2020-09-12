@@ -24,13 +24,13 @@ namespace Das.Serializer.Proto
             IStreamAccessor streamAccessor,
             IProtoFieldAccessor currentField,
             IDictionary<Type, FieldBuilder> proxies)
-            : base(il, currentField, 
-                parentType, loadObject,proxies, typeCore)
+            : base(il, currentField,
+                parentType, loadObject, proxies, typeCore)
         {
             _typeCore = typeCore;
 
             IsArrayMade = isArrayMade;
-            
+
             FieldByteArray = il.DeclareLocal(typeof(Byte[]));
             LocalBytes = il.DeclareLocal(typeof(Byte[]));
 
@@ -93,7 +93,7 @@ namespace Das.Serializer.Proto
 
 
         public void PrintFieldViaProxy(IProtoFieldAccessor protoField,
-            Action<ILGenerator> loadFieldValue)
+                                       Action<ILGenerator> loadFieldValue)
         {
             PrintFieldHeader(protoField);
 
@@ -136,7 +136,6 @@ namespace Das.Serializer.Proto
             _il.Emit(OpCodes.Ldarg_2);
 
             _il.Emit(OpCodes.Call, _streamAccessor.CopyMemoryStream);
-            
 
 
             _il.Emit(OpCodes.Ldloc, ChildObjectStream);

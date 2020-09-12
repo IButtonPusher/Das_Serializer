@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Threading.Tasks;
 
 namespace Das.Serializer.NodeBuilders
 {
     public class BinaryNodeProvider : NodeProvider<IBinaryNode>, IBinaryNodeProvider
     {
         public BinaryNodeProvider(ISerializationCore dynamicFacade, ISerializerSettings settings)
-            : this(dynamicFacade, new NodeManipulator(dynamicFacade, settings), 
+            : this(dynamicFacade, new NodeManipulator(dynamicFacade, settings),
                 dynamicFacade.NodeTypeProvider, settings)
         {
         }
 
         public BinaryNodeProvider(ISerializationCore dynamicFacade, INodeManipulator nodeManipulator,
-            INodeTypeProvider nodeTypes, ISerializerSettings settings)
+                                  INodeTypeProvider nodeTypes, ISerializerSettings settings)
             : base(nodeTypes, settings)
         {
             Sealer = new BinaryNodeSealer(nodeManipulator, dynamicFacade, settings);
@@ -44,9 +44,15 @@ namespace Das.Serializer.NodeBuilders
             current.PendingReferences.Add(node);
         }
 
-        private readonly INodeManipulator _nodes;
-
         public INodeSealer<IBinaryNode> Sealer { get; }
+
+        public IBinaryNode Get(String name, IBinaryNode parent, Type type)
+        {
+            var node = Get(name, type);
+            node.Parent = parent;
+            _nodes.EnsureNodeType(node, node.NodeType);
+            return node;
+        }
 
         private IBinaryNode Get(String name, Type type)
         {
@@ -58,12 +64,6 @@ namespace Das.Serializer.NodeBuilders
             return item;
         }
 
-        public IBinaryNode Get(String name, IBinaryNode parent, Type type)
-        {
-            var node = Get(name, type);
-            node.Parent = parent;
-            _nodes.EnsureNodeType(node, node.NodeType);
-            return node;
-        }
+        private readonly INodeManipulator _nodes;
     }
 }

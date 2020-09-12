@@ -1,14 +1,12 @@
 ﻿using System;
-
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
     public class JsonBorrowable : TextState, IJsonLoaner
     {
-        private readonly Action<IJsonLoaner> _returnToLibrary;
-
         public JsonBorrowable(Action<IJsonLoaner> returnToLibrary, IStateProvider stateProvider,
-            ISerializerSettings settings)
+                              ISerializerSettings settings)
             : base(stateProvider, stateProvider.JsonContext,
                 new JsonScanner(stateProvider, stateProvider.JsonContext), settings)
         {
@@ -20,5 +18,7 @@ namespace Das.Serializer
             base.Dispose();
             _returnToLibrary(this);
         }
+
+        private readonly Action<IJsonLoaner> _returnToLibrary;
     }
 }

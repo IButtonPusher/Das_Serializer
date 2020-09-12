@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Das.Serializer;
 
 namespace Das.Streamers
@@ -7,14 +8,14 @@ namespace Das.Streamers
     public class BinaryFeeder : SerializerCore, IBinaryFeeder
     {
         public BinaryFeeder(IBinaryPrimitiveScanner primitiveScanner,
-            ISerializationCore dynamicFacade, IByteArray bytes, ISerializerSettings settings)
+                            ISerializationCore dynamicFacade, IByteArray bytes, ISerializerSettings settings)
             : base(dynamicFacade, settings)
         {
             _scanner = primitiveScanner;
             _typeInferrer = dynamicFacade.TypeInferrer;
 
             _currentBytes = bytes;
-            _currentEndIndex = (Int32)_currentBytes.Length - 1;
+            _currentEndIndex = (Int32) _currentBytes.Length - 1;
         }
 
         #region fields
@@ -22,21 +23,24 @@ namespace Das.Streamers
         protected IByteArray _currentBytes;
         protected Int32 _currentEndIndex;
 
-        public virtual Int32 GetInt32() => (Int32) GetPrimitive(typeof(Int32));
+        public virtual Int32 GetInt32()
+        {
+            return (Int32) GetPrimitive(typeof(Int32));
+        }
 
 
         public Double GetDouble()
         {
             var bytes = GetBytes(8);
             var res = _scanner.GetValue(bytes, typeof(Double));
-            return (Double)res;
+            return (Double) res;
         }
 
         public Int32 PeekInt32(Int32 advanceIf)
         {
             if (_currentBytes.Length <= _byteIndex)
                 return -1;
-            
+
             var val = GetInt32();
             if (val != advanceIf)
             {
@@ -62,18 +66,18 @@ namespace Das.Streamers
         private readonly ITypeInferrer _typeInferrer;
 
         #endregion
-       
+
 
         #region public interface
 
         /// <summary>
-        /// Returns the amount of bytes that the next object will use.  Advances
-        /// the byte index forward by 4 bytes
+        ///     Returns the amount of bytes that the next object will use.  Advances
+        ///     the byte index forward by 4 bytes
         /// </summary>
         public virtual Int32 GetNextBlockSize()
         {
             var forInt = _currentBytes[_byteIndex, 4];
-            
+
             var length = _scanner.GetInt32(forInt);
 
             _byteIndex += 4;
@@ -81,9 +85,15 @@ namespace Das.Streamers
             return length;
         }
 
-        public Byte GetCircularReferenceIndex() => GetBytes(1)[0];
+        public Byte GetCircularReferenceIndex()
+        {
+            return GetBytes(1)[0];
+        }
 
-        public T GetPrimitive<T>() => (T) GetPrimitive(typeof(T));
+        public T GetPrimitive<T>()
+        {
+            return (T) GetPrimitive(typeof(T));
+        }
 
 
         public Object GetPrimitive(Type type)
@@ -97,7 +107,7 @@ namespace Das.Streamers
         {
             var bytes = GetBytes(4);
             var res = _scanner.GetValue(bytes, typeof(Single));
-            return (Single)res;
+            return (Single) res;
         }
 
 
@@ -127,7 +137,10 @@ namespace Das.Streamers
                 {
                     if (length == -1) return null;
                 }
-                else if (length == 0) return null;
+                else if (length == 0)
+                {
+                    return null;
+                }
 
                 return GetBytes(length);
             }
@@ -140,7 +153,7 @@ namespace Das.Streamers
         }
 
         /// <summary>
-        /// takes the next 4 bytes for length then the next N bytes and turns them into a Type
+        ///     takes the next 4 bytes for length then the next N bytes and turns them into a Type
         /// </summary>
         public Type GetNextType()
         {
@@ -190,7 +203,9 @@ namespace Das.Streamers
                 bytes = GetBytes(blockSize);
             }
             else
+            {
                 bytes = GetBytesForValueTypeObject(dataType);
+            }
 
             var res = _scanner.GetValue(bytes, dataType);
             //_logger.Debug("fallback to " + res);

@@ -26,7 +26,7 @@ namespace Das.Serializer
         ///     For a collection, returns the values.  Otherwise returns the property values
         /// </summary>
         IPropertyValueIterator<IProperty> GetPropertyValues(Object o,
-            ISerializationDepth depth);
+                                                            ISerializationDepth depth);
 
         Boolean OnDeserialized(Object obj, IObjectManipulator objectManipulator);
 
@@ -35,7 +35,7 @@ namespace Das.Serializer
         Boolean SetFieldValue<T>(String fieldName, Object targetObj, Object fieldVal);
 
         Boolean SetValue(String propName, ref Object targetObj, Object propVal,
-            SerializationDepth depth);
+                         SerializationDepth depth);
 
 
         Boolean TryGetAttribute<TAttribute>(String propertyName, out TAttribute value)

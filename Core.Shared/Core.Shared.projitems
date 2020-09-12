@@ -43,7 +43,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\CoreProtoProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\ProtoBufSerializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\ProtoCollectionItem.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\ProtoDictionaryInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\ProtoScanningField.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\ByteBuilder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\DeferredBinaryWriter.cs" />

@@ -15,7 +15,6 @@ namespace Das.Serializer.ProtoBuf
             IProtoProvider proxyProvider)
             : base(proxyProvider)
         {
-            
         }
 
         public abstract void Print(T obj, Stream target);
@@ -38,42 +37,9 @@ namespace Das.Serializer.ProtoBuf
 
     public abstract class ProtoDynamicBase : ProtoBufWriter
     {
-        // ReSharper disable once NotAccessedField.Global
-        protected readonly IProtoProvider _proxyProvider;
-
-        public static BindingFlags InstanceNonPublic = BindingFlags.Instance | BindingFlags.NonPublic;
-
         static ProtoDynamicBase()
         {
             Utf8 = Encoding.UTF8;
-        }
-
-        // ReSharper disable once UnusedMember.Global
-        public static IEnumerable<TChild> GetChildren<TChild>(Stream stream,
-            IProtoProxy<TChild> proxy)
-        {
-            var nextItemLength = GetPositiveInt32(stream);
-
-            if (nextItemLength > stream.Length)
-            {
-                yield break; //TODO:
-            }
-
-            var positionWas = stream.Position;
-            var endPosition = positionWas + nextItemLength; 
-
-            while (positionWas < endPosition && endPosition <= stream.Length)
-            {
-                yield return proxy.Scan(stream, nextItemLength);
-                positionWas = stream.Position;
-            }
-        }
-
-        public static void CopyMemoryStream(NaiveMemoryStream copyFrom,  
-            Stream  destination)
-        {
-            destination.Write(copyFrom._buffer, 0, copyFrom.IntLength);
-            
         }
 
 
@@ -84,26 +50,13 @@ namespace Das.Serializer.ProtoBuf
 
         public abstract Boolean IsReadOnly { get; }
 
-        public void DebugWriteline(Object obj1, object obj2)
-        {
-            Debug.WriteLine("Debug " + obj1 + "\t" + obj2);
-        }
-
         public static void AddPacked16<TCollection>(TCollection target, Stream stream, Int32 bytesToUse)
             where TCollection : ICollection<Int16>
         {
             var end = stream.Position + bytesToUse;
 
-            while (end > stream.Position) 
-                target.Add((Int16)GetInt32(stream));
-        }
-
-        public static IEnumerable<Int16> ExtractPacked16(Stream stream, Int32 bytesToUse)
-        {
-            var end = stream.Position + bytesToUse;
-
-            while (end > stream.Position) 
-                yield return (Int16) GetInt32(stream);
+            while (end > stream.Position)
+                target.Add((Int16) GetInt32(stream));
         }
 
         public static void AddPacked32<TCollection>(TCollection target, Stream stream, Int32 bytesToUse)
@@ -111,16 +64,8 @@ namespace Das.Serializer.ProtoBuf
         {
             var end = stream.Position + bytesToUse;
 
-            while (end > stream.Position) 
+            while (end > stream.Position)
                 target.Add(GetInt32(stream));
-        }
-
-        public static IEnumerable<Int32> ExtractPacked32(Stream stream, Int32 bytesToUse)
-        {
-            var end = stream.Position + bytesToUse;
-
-            while (end > stream.Position) 
-                yield return GetInt32(stream);
         }
 
         public static void AddPacked64<TCollection>(TCollection target, Stream stream, Int32 bytesToUse)
@@ -128,16 +73,61 @@ namespace Das.Serializer.ProtoBuf
         {
             var end = stream.Position + bytesToUse;
 
-            while (end > stream.Position) 
+            while (end > stream.Position)
                 target.Add(GetInt64(stream));
+        }
+
+        public static void CopyMemoryStream(NaiveMemoryStream copyFrom,
+                                            Stream destination)
+        {
+            destination.Write(copyFrom._buffer, 0, copyFrom.IntLength);
+        }
+
+        public void DebugWriteline(Object obj1, object obj2)
+        {
+            Debug.WriteLine("Debug " + obj1 + "\t" + obj2);
+        }
+
+        public static IEnumerable<Int16> ExtractPacked16(Stream stream, Int32 bytesToUse)
+        {
+            var end = stream.Position + bytesToUse;
+
+            while (end > stream.Position)
+                yield return (Int16) GetInt32(stream);
+        }
+
+        public static IEnumerable<Int32> ExtractPacked32(Stream stream, Int32 bytesToUse)
+        {
+            var end = stream.Position + bytesToUse;
+
+            while (end > stream.Position)
+                yield return GetInt32(stream);
         }
 
         public static IEnumerable<Int64> ExtractPacked64(Stream stream, Int32 bytesToUse)
         {
             var end = stream.Position + bytesToUse;
 
-            while (end > stream.Position) 
+            while (end > stream.Position)
                 yield return GetInt64(stream);
+        }
+
+        // ReSharper disable once UnusedMember.Global
+        public static IEnumerable<TChild> GetChildren<TChild>(Stream stream,
+                                                              IProtoProxy<TChild> proxy)
+        {
+            var nextItemLength = GetPositiveInt32(stream);
+
+            if (nextItemLength > stream.Length) yield break; //TODO:
+
+            var positionWas = stream.Position;
+            var endPosition = positionWas + nextItemLength;
+
+            while (positionWas < endPosition && endPosition <= stream.Length)
+            {
+                yield return proxy.Scan(stream, nextItemLength);
+                positionWas = stream.Position;
+            }
         }
 
         public static Int32 GetColumnIndex(Stream stream)
@@ -237,9 +227,14 @@ namespace Das.Serializer.ProtoBuf
             }
         }
 
+        public static BindingFlags InstanceNonPublic = BindingFlags.Instance | BindingFlags.NonPublic;
+
         protected static Encoding Utf8;
 
         // ReSharper disable once UnusedMember.Global
         [ThreadStatic] protected static Byte[]? _readBytes;
+
+        // ReSharper disable once NotAccessedField.Global
+        protected readonly IProtoProvider _proxyProvider;
     }
 }

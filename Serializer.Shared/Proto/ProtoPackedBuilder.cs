@@ -1,9 +1,10 @@
-﻿using Das.Extensions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Threading.Tasks;
+using Das.Extensions;
 using Das.Serializer.Proto;
 
 namespace Das.Serializer.ProtoBuf
@@ -12,43 +13,6 @@ namespace Das.Serializer.ProtoBuf
     // ReSharper disable once UnusedTypeParameter
     public partial class ProtoDynamicProvider<TPropertyAttribute>
     {
-        private void ScanAsPackedArray(ILGenerator il,
-                                       Type fieldType,
-                                       Boolean isCanAddToCollection)
-        {
-            if (!(GetPackedArrayType(fieldType) is {} packType))
-                throw new NotSupportedException();
-
-            if (isCanAddToCollection && CanScanAndAddPackedArray(fieldType, out _))
-                return;
-
-            ////////////////////////////////////////////////////////
-            // EXTRACT COLLECTION FROM STREAM
-            ////////////////////////////////////////////////////////
-
-            //Get the number of bytes we will be using
-            il.Emit(OpCodes.Ldarg_1);
-            il.Emit(OpCodes.Ldarg_1);
-            il.Emit(OpCodes.Call, _getPositiveInt32);
-
-
-            if (packType == typeof(Int32))
-                il.Emit(OpCodes.Call, _extractPackedInt32Itar);
-
-            else if (packType == typeof(Int16))
-                il.Emit(OpCodes.Call, _extractPackedInt16Itar);
-
-            else if (packType == typeof(Int64))
-                il.Emit(OpCodes.Call, _extractPackedInt64Itar);
-
-            //convert the value on the stack to an array for direct assignment
-            var linqToArray = typeof(Enumerable).GetMethodOrDie(
-                nameof(Enumerable.ToArray), Const.PublicStatic);
-            linqToArray = linqToArray.MakeGenericMethod(packType);
-
-            il.Emit(OpCodes.Call, linqToArray);
-        }
-
         private Boolean CanScanAndAddPackedArray(Type fieldType, out TypeCode typeCode)
         {
             typeCode = TypeCode.Empty;
@@ -72,6 +36,20 @@ namespace Das.Serializer.ProtoBuf
                 default:
                     return false;
             }
+        }
+
+        private static Type? GetPackedArrayType(Type propertyType)
+        {
+            if (typeof(IEnumerable<Int32>).IsAssignableFrom(propertyType))
+                return typeof(Int32);
+
+            if (typeof(IEnumerable<Int16>).IsAssignableFrom(propertyType))
+                return typeof(Int16);
+
+            if (typeof(IEnumerable<Int64>).IsAssignableFrom(propertyType))
+                return typeof(Int64);
+
+            return default;
         }
 
         private MethodInfo? GetScanAndAddPackedMethod(Type fieldType)
@@ -117,10 +95,10 @@ namespace Das.Serializer.ProtoBuf
             var il = s.IL;
 
             PrintHeaderBytes(s.CurrentField.HeaderBytes, s);
-            
+
             s.LoadParentToStack();
 
-            if (!(GetPackedArrayType(type) is {} packType)) 
+            if (!(GetPackedArrayType(type) is {} packType))
                 throw new InvalidOperationException("Cannot print " + type + " as a packed repeated field");
 
             /////////////////////////////////////
@@ -144,14 +122,14 @@ namespace Das.Serializer.ProtoBuf
             else if (packType == typeof(Int64))
                 getPackedArrayLength = _getPackedInt64Length.MakeGenericMethod(type);
 
-            
+
             il.Emit(OpCodes.Ldloc, arrayLocalField);
             il.Emit(OpCodes.Call, getPackedArrayLength);
-                
+
             s.WriteInt32();
-          
+
             MethodInfo writePackedArray = null!;
-                
+
             if (packType == typeof(Int32))
                 writePackedArray = _writePacked32.MakeGenericMethod(type);
             else if (packType == typeof(Int16))
@@ -159,24 +137,47 @@ namespace Das.Serializer.ProtoBuf
             else if (packType == typeof(Int64))
                 writePackedArray = _writePacked64.MakeGenericMethod(type);
 
-                
+
             il.Emit(OpCodes.Ldloc, arrayLocalField);
             il.Emit(OpCodes.Ldarg_2);
             il.Emit(OpCodes.Call, writePackedArray);
         }
 
-        private static Type? GetPackedArrayType(Type propertyType)
+        private void ScanAsPackedArray(ILGenerator il,
+                                       Type fieldType,
+                                       Boolean isCanAddToCollection)
         {
-            if (typeof(IEnumerable<Int32>).IsAssignableFrom(propertyType))
-                return typeof(Int32);
+            if (!(GetPackedArrayType(fieldType) is {} packType))
+                throw new NotSupportedException();
 
-            if (typeof(IEnumerable<Int16>).IsAssignableFrom(propertyType))
-                return typeof(Int16);
+            if (isCanAddToCollection && CanScanAndAddPackedArray(fieldType, out _))
+                return;
 
-            if (typeof(IEnumerable<Int64>).IsAssignableFrom(propertyType))
-                return typeof(Int64);
+            ////////////////////////////////////////////////////////
+            // EXTRACT COLLECTION FROM STREAM
+            ////////////////////////////////////////////////////////
 
-            return default;
+            //Get the number of bytes we will be using
+            il.Emit(OpCodes.Ldarg_1);
+            il.Emit(OpCodes.Ldarg_1);
+            il.Emit(OpCodes.Call, GetPositiveInt32);
+
+
+            if (packType == typeof(Int32))
+                il.Emit(OpCodes.Call, _extractPackedInt32Itar);
+
+            else if (packType == typeof(Int16))
+                il.Emit(OpCodes.Call, _extractPackedInt16Itar);
+
+            else if (packType == typeof(Int64))
+                il.Emit(OpCodes.Call, _extractPackedInt64Itar);
+
+            //convert the value on the stack to an array for direct assignment
+            var linqToArray = typeof(Enumerable).GetMethodOrDie(
+                nameof(Enumerable.ToArray), Const.PublicStatic);
+            linqToArray = linqToArray.MakeGenericMethod(packType);
+
+            il.Emit(OpCodes.Call, linqToArray);
         }
     }
 }

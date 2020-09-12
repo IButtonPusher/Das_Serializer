@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Concurrent;
-
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
@@ -14,21 +14,13 @@ namespace Das.Serializer
             _types = typeCore;
         }
 
-        protected static readonly NullNode NullNode = NullNode.Instance;
-        
-        private readonly ConcurrentDictionary<Type, NodeTypes> _cachedNodeTypes;
-
-        private readonly ITypeCore _types;
-     
-
-       
-
-
 
         public NodeTypes GetNodeType(INode node, SerializationDepth depth)
-            => GetNodeType(node.Type, depth);
+        {
+            return GetNodeType(node.Type, depth);
+        }
 
-        public NodeTypes GetNodeType(Type type, SerializationDepth depth)
+        public NodeTypes GetNodeType(Type? type, SerializationDepth depth)
         {
             if (type == null)
                 return NodeTypes.Dynamic;
@@ -37,7 +29,9 @@ namespace Das.Serializer
                 return output;
 
             if (_types.IsLeaf(type, true))
+            {
                 output = NodeTypes.Primitive;
+            }
 
             else if (!_types.IsInstantiable(type))
             {
@@ -47,24 +41,28 @@ namespace Das.Serializer
             }
 
             else if (_types.IsCollection(type))
+            {
                 output = NodeTypes.Collection;
-            
+            }
+
             else if (_types.HasSettableProperties(type))
+            {
                 output = NodeTypes.Object;
-            
+            }
+
             else if (type.IsSerializable && !type.IsGenericType &&
                      !typeof(IStructuralEquatable).IsAssignableFrom(type))
+            {
                 output = NodeTypes.Fallback;
+            }
             else
             {
                 if (_types.TryGetNullableType(type, out _))
                     output = NodeTypes.Primitive;
                 else
-                {
                     output = _types.TryGetPropertiesConstructor(type, out _)
                         ? NodeTypes.PropertiesToConstructor
                         : NodeTypes.Dynamic;
-                }
             }
 
             _cachedNodeTypes.TryAdd(type, output);
@@ -72,7 +70,10 @@ namespace Das.Serializer
             return output;
         }
 
+        protected static readonly NullNode NullNode = NullNode.Instance;
 
-       
+        private readonly ConcurrentDictionary<Type, NodeTypes> _cachedNodeTypes;
+
+        private readonly ITypeCore _types;
     }
 }

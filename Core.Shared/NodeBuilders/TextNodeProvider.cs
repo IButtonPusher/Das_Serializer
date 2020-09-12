@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
     public class TextNodeProvider : NodeProvider<ITextNode>, ITextNodeProvider
     {
         public TextNodeProvider(ISerializationCore facade, INodeManipulator nodeManipulator,
-            INodeTypeProvider nodeTypes,
-            IStringPrimitiveScanner scanner, ISerializerSettings settings)
+                                INodeTypeProvider nodeTypes,
+                                IStringPrimitiveScanner scanner, ISerializerSettings settings)
             : base(facade.NodeTypeProvider, settings)
         {
             _nodeManipulator = nodeManipulator;
@@ -16,13 +16,10 @@ namespace Das.Serializer
             Sealer = new TextNodeSealer(nodeManipulator, scanner, facade, settings);
         }
 
-        private readonly INodeManipulator _nodeManipulator;
-        private readonly INodeTypeProvider _nodeTypes;
-
         public INodeSealer<ITextNode> Sealer { get; }
 
         public ITextNode Get(String name, Dictionary<String, String> attributes,
-            ITextNode parent, ISerializationDepth depth)
+                             ITextNode parent, ISerializationDepth depth)
         {
             ITextNode node;
             var buffer = Buffer;
@@ -33,8 +30,10 @@ namespace Das.Serializer
                 node.Set(name, depth, _nodeManipulator);
             }
             else
+            {
                 node = new TextNode(name, Settings, _nodeManipulator, _nodeTypes, depth);
-            
+            }
+
 
             node.Parent = parent;
 
@@ -43,5 +42,8 @@ namespace Das.Serializer
 
             return node;
         }
+
+        private readonly INodeManipulator _nodeManipulator;
+        private readonly INodeTypeProvider _nodeTypes;
     }
 }

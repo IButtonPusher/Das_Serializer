@@ -2,26 +2,23 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Das.Serializer;
 
 namespace Das.Printers
 {
-    internal class JsonPrinter : TextPrinter
+    public class JsonPrinter : TextPrinter
     {
-        private readonly ISerializationState _stateProvider;
-
-        #region construction
-
-        
-
         public JsonPrinter(ITextRemunerable writer, ISerializationState stateProvider)
             : base(writer, stateProvider)
         {
             _stateProvider = stateProvider;
-            SequenceSeparator = ',';
         }
 
-        #endregion
+        
+
+        private const Char SequenceSeparator = ',';
+        private readonly ISerializationState _stateProvider;
 
         #region public interface
 
@@ -41,7 +38,7 @@ namespace Das.Printers
             {
                 var isCloseBlock = false;
                 var valType = val.GetType();
-                var isWrapping = IsWrapNeeded(propType, valType);
+                var isWrapping = IsWrapNeeded(propType!, valType);
 
                 if (!String.IsNullOrWhiteSpace(name))
                 {
@@ -88,9 +85,11 @@ namespace Das.Printers
                 }
 
                 node.Type = valType;
-                
+
                 using (var print = _printNodePool.GetPrintNode(node))
+                {
                     PrintObject(print);
+                }
 
                 if (!isCloseBlock)
                     return;
@@ -106,11 +105,9 @@ namespace Das.Printers
         }
 
 
-
         protected override void PrintSeries<T>(IEnumerable<T> values,
-            Action<T> print)
+                                               Action<T> print)
         {
-
             using (var itar = values.GetEnumerator())
             {
                 if (!itar.MoveNext())
@@ -119,19 +116,18 @@ namespace Das.Printers
                 var printSep = ShouldPrintValue(itar.Current);
                 if (printSep)
                     print(itar.Current);
-                
+
 
                 while (itar.MoveNext())
                 {
                     var current = itar.Current;
-                    
+
                     if (!ShouldPrintValue(current))
                         continue;
 
                     if (printSep)
-                    {
                         Writer.Append(SequenceSeparator);
-                    }
+
 
                     print(current);
                     printSep = true;
@@ -139,8 +135,8 @@ namespace Das.Printers
             }
         }
 
-        protected override void PrintProperties<T>(IPropertyValueIterator<T> values, 
-            Action<T> exe) 
+        protected override void PrintProperties<T>(IPropertyValueIterator<T> values,
+                                                   Action<T> exe)
         {
             var cnt = values.Count;
             if (cnt == 0)
@@ -192,7 +188,10 @@ namespace Das.Printers
                 TabOut();
                 NewLine();
             }
-            else Writer.Append(Const.OpenBrace);
+            else
+            {
+                Writer.Append(Const.OpenBrace);
+            }
 
             base.PrintReferenceType(node);
 
@@ -204,7 +203,10 @@ namespace Das.Printers
                 TabIn();
                 NewLine();
             }
-            else Writer.Append(Const.CloseBrace);
+            else
+            {
+                Writer.Append(Const.CloseBrace);
+            }
         }
 
         private void PrintSpecialDictionary(IDictionary dic)
@@ -222,13 +224,11 @@ namespace Das.Printers
             }
 
             while (enumerator.MoveNext())
-            {
                 using (var kvp = _printNodePool.GetNamedValue(enumerator.Entry))
                 {
                     Writer.Append(SequenceSeparator);
                     PrintNode(kvp);
                 }
-            }
 
             TabIn();
             Writer.Append(Const.CloseBrace);
@@ -236,7 +236,7 @@ namespace Das.Printers
 
         protected override void PrintCollection(IPrintNode node)
         {
-            var serializeAs = node.Value.GetType();
+            var serializeAs = node.Value!.GetType();
 
             if (!_isIgnoreCircularDependencies)
                 PushStack($"[{serializeAs}]");
@@ -253,7 +253,7 @@ namespace Das.Printers
 
             var germane = _stateProvider.TypeInferrer.GetGermaneType(serializeAs);
 
-            PrintSeries(ExplodeList(node.Value as IEnumerable, germane),
+            PrintSeries(ExplodeList((node.Value as IEnumerable)!, germane),
                 PrintCollectionObject);
 
             TabIn();
@@ -271,7 +271,7 @@ namespace Das.Printers
         protected override void PrintFallback(IPrintNode node)
         {
             Writer.Append(Const.Quote);
-            node.Type = node.Value.GetType();
+            node.Type = node.Value!.GetType();
 
             PrintPrimitive(node);
             Writer.Append(Const.Quote);

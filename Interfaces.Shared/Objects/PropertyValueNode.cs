@@ -5,32 +5,35 @@ namespace Das.Serializer.Objects
 {
     public class PropertyValueNode : NamedValueNode, IProperty
     {
-        public PropertyValueNode(Action<PropertyValueNode> returnToSender, String propertyName,
-            Object propertyValue, Type propertyType, Type declaringType)
+        public PropertyValueNode(Action<PropertyValueNode> returnToSender, 
+                                 String propertyName,
+                                 Object propertyValue, 
+                                 Type propertyType)
         {
             _isEmptyInitialized = -1;
             _value = propertyValue;
             _name = propertyName;
             _type = propertyType;
             _returnToSender = returnToSender;
-            DeclaringType = declaringType;
         }
 
+#pragma warning disable 8618
         protected PropertyValueNode()
+#pragma warning restore 8618
         {
         }
 
-        public Type DeclaringType { get; private set; }
+        //public Type DeclaringType { get; private set; }
 
         public override void Dispose()
         {
             _returnToSender(this);
         }
 
-        public void Set(String propertyName, Object propertyValue,
-            Type propertyType, Type declaringType)
+        public override void Set(String propertyName, 
+                        Object propertyValue,
+                        Type propertyType)
         {
-            DeclaringType = declaringType;
             _name = propertyName;
             _isEmptyInitialized = -1;
             _type = propertyType;

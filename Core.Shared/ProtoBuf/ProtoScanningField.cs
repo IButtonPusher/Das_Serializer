@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Das.Serializer.ProtoBuf
 {
     public class ProtoField : IProtoFieldAccessor
     {
         public ProtoField(String name, Type type, ProtoWireTypes wireType, Int32 fieldIndex,
-            Int32 header, MethodInfo valueGetter, TypeCode typeCode, Boolean isLeaf,
-            Boolean isRepeated, ProtoFieldAction fieldAction, Byte[] headerBytes, MethodInfo? setMethod)
+                          Int32 header, MethodInfo valueGetter, TypeCode typeCode, Boolean isLeaf,
+                          Boolean isRepeated, ProtoFieldAction fieldAction, Byte[] headerBytes, MethodInfo? setMethod)
         {
-            _valueGetter = valueGetter;
+            GetMethod = valueGetter;
             TypeCode = typeCode;
             IsLeafType = isLeaf;
             IsRepeatedField = isRepeated;
@@ -24,22 +25,28 @@ namespace Das.Serializer.ProtoBuf
         }
 
         public Type Type { get; set; }
+
         public String Name { get; }
+
         public ProtoWireTypes WireType { get; }
+
         public Int32 Header { get; }
+
         public Int32 Index { get; }
+
         public TypeCode TypeCode { get; }
+
         public Boolean IsLeafType { get; }
+
         public Boolean IsRepeatedField { get; }
+
         public ProtoFieldAction FieldAction { get; }
 
-        public MethodInfo GetMethod => _valueGetter;
+        public MethodInfo GetMethod { get; }
 
         public MethodInfo? SetMethod { get; }
 
         public Byte[] HeaderBytes { get; }
-
-        private readonly MethodInfo _valueGetter;
 
         public Boolean Equals(IProtoField other)
         {
@@ -58,10 +65,15 @@ namespace Das.Serializer.ProtoBuf
                    String.Equals(other.Name, Name, StringComparison.OrdinalIgnoreCase);
         }
 
-        public override Int32 GetHashCode() => Header;
-        
+        public override Int32 GetHashCode()
+        {
+            return Header;
+        }
+
 
         public override String ToString()
-            => $"{Type.Name} {Name} [{WireType}] protofield";
+        {
+            return $"{Type.Name} {Name} [{WireType}] protofield";
+        }
     }
 }

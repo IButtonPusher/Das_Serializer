@@ -21,7 +21,7 @@ namespace Das.Serializer
         /// </summary>
         /// <returns>true if any items were in the amountList</returns>
         Boolean AppendAsUsCommaString(StringBuilder sb, IEnumerable<Double> amountList,
-            Int32 multiple, Int32 decimalPlaces);
+                                      Int32 multiple, Int32 decimalPlaces);
 
         String AsUSString(Double amount, Int32 decimalPlaces);
 
@@ -31,12 +31,14 @@ namespace Das.Serializer
 
         String AsUSString(Decimal amount);
 
+        ITextRemunerable BorrowStringBuilder(String initial);
+
         String BuildString<T1, T2, T3, T4>(T1 item1, T2 item2, T3 item3, T4 item4);
 
         String BuildString<T1, T2, T3, T4, T5>(T1 item1, T2 item2, T3 item3, T4 item4, T5 item5);
 
         String BuildString<T1, T2, T3, T4, T5, T6>(T1 item1, T2 item2,
-            T3 item3, T4 item4, T5 item5, T6 item6);
+                                                   T3 item3, T4 item4, T5 item5, T6 item6);
 
 
         Boolean ContainsAll(String str, String[] list);
@@ -83,17 +85,18 @@ namespace Das.Serializer
                                             String toFind3, String toFind4, String toFind5, String toFind6);
 
         IEnumerator<String?> FindJsonValues(String input, String toFind1, String toFind2,
-                                            String toFind3, String toFind4, String toFind5, String toFind6, String toFind7);
+                                            String toFind3, String toFind4, String toFind5, String toFind6,
+                                            String toFind7);
 
         IEnumerable<String> FindTextsWithin(String input, String leftOf,
-            String rightOf);
+                                            String rightOf);
 
         String? FindTextWithin(String input, String leftBounds, String rightBounds);
 
         IEnumerable<String> FindTextWithin(String input, String[] delimiters);
 
         IEnumerable<String> FindTextWithin(String input, String leftBounds, String middleBounds,
-            String rightBounds);
+                                           String rightBounds);
 
         String? FindTextWithin(String input,
                                String leftBounds, String rightBounds, Int32 startIndex);
@@ -101,16 +104,14 @@ namespace Das.Serializer
         String[] GetLines(String str);
 
         /// <summary>
-        /// Not safe for async code.  Use BorrowStringBuilder if there will be an await in the 'using' block
+        ///     Not safe for async code.  Use BorrowStringBuilder if there will be an await in the 'using' block
         /// </summary>
         ITextRemunerable GetThreadsStringBuilder(String initial);
 
         /// <summary>
-        /// Not safe for async code.  Use BorrowStringBuilder if there will be an await in the 'using' block
+        ///     Not safe for async code.  Use BorrowStringBuilder if there will be an await in the 'using' block
         /// </summary>
         ITextRemunerable GetThreadsStringBuilder();
-
-        ITextRemunerable BorrowStringBuilder(String initial);
 
         ITextRemunerable GetThreadsStringBuilder(Int32 capacity);
 
@@ -137,7 +138,7 @@ namespace Das.Serializer
         /// </summary>
         /// <returns>delimiters.Length - 1 items</returns>
         Boolean TryFindTextSurrounding(String input, String[] delimiters, out String[] found,
-            Int32 findRequired = -1);
+                                       Int32 findRequired = -1);
 
         /// <summary>
         ///     The text after the first delimeter and before the second, between second and third, etc
@@ -147,6 +148,6 @@ namespace Das.Serializer
 
         Boolean TryIndexOf(String searchIn, String searchFor, out Int32 index);
 
-        Boolean TrySkip(String inText, String whenStartsWith, out String? remaining);
+        Boolean TrySkip(String inText, String whenStartsWith, out String remaining);
     }
 }

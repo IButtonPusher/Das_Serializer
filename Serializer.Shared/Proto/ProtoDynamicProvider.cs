@@ -14,13 +14,13 @@ using Das.Serializer.Remunerators;
 namespace Das.Serializer.ProtoBuf
 {
     // ReSharper disable once UnusedType.Global
-    public partial class ProtoDynamicProvider<TPropertyAttribute> 
+    public partial class ProtoDynamicProvider<TPropertyAttribute>
         where TPropertyAttribute : Attribute
     {
         public ProtoDynamicProvider(ProtoBufOptions<TPropertyAttribute> protoSettings,
-            ITypeManipulator typeManipulator, 
-            IInstantiator instantiator, 
-            IObjectManipulator objects)
+                                    ITypeManipulator typeManipulator,
+                                    IInstantiator instantiator,
+                                    IObjectManipulator objects)
         {
             _protoSettings = protoSettings;
             _types = typeManipulator;
@@ -32,17 +32,17 @@ namespace Das.Serializer.ProtoBuf
             AssemblyBuilderAccess access;
 
 
-#if NET45 || NET40
+            #if NET45 || NET40
             access = AssemblyBuilderAccess.RunAndSave;
-            
+
             _asmBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, access);
             _moduleBuilder = _asmBuilder.DefineDynamicModule(AssemblyName, SaveFile);
-            
-#else
+
+            #else
             access = AssemblyBuilderAccess.Run;
             _asmBuilder = AssemblyBuilder.DefineDynamicAssembly(asmName, access);
             _moduleBuilder = _asmBuilder.DefineDynamicModule(AssemblyName);
-#endif
+            #endif
 
             var writer = typeof(ProtoBufWriter);
             var bitConverter = typeof(BitConverter);
@@ -54,7 +54,7 @@ namespace Das.Serializer.ProtoBuf
             _writeInt16 = writer.GetPublicStaticMethodOrDie(nameof(ProtoBufWriter.WriteInt16),
                 typeof(Int16), stream);
             _writeInt32 = writer.GetPublicStaticMethodOrDie(nameof(ProtoBufWriter.WriteInt32), typeof(Int32), stream);
-            _writeInt64 = writer.GetPublicStaticMethodOrDie(nameof(ProtoBufWriter.WriteInt64), typeof(Int64), stream);
+            WriteInt64 = writer.GetPublicStaticMethodOrDie(nameof(ProtoBufWriter.WriteInt64), typeof(Int64), stream);
             _writeBytes = writer.GetPublicStaticMethodOrDie(nameof(ProtoBufWriter.Write), typeof(Byte[]), stream);
             _writeSomeBytes = writer.GetPublicStaticMethodOrDie(nameof(ProtoBufWriter.Write),
                 typeof(Byte[]), typeof(Int32), stream);
@@ -69,8 +69,8 @@ namespace Das.Serializer.ProtoBuf
 
             var protoDynBase = typeof(ProtoDynamicBase);
 
-            
-            _utf8 = protoDynBase.GetStaticFieldOrDie("Utf8");
+
+            Utf8 = protoDynBase.GetStaticFieldOrDie("Utf8");
 
             _proxyProviderField = protoDynBase.GetInstanceFieldOrDie("_proxyProvider");
             _getProtoProxy = typeof(IProtoProvider).GetMethodOrDie(nameof(IProtoProvider.GetProtoProxy));
@@ -90,20 +90,20 @@ namespace Das.Serializer.ProtoBuf
 
             var protoBase = typeof(ProtoDynamicBase);
 
-            _getStreamLength = stream.GetterOrDie(nameof(Stream.Length), out _);
-            
-            _copyMemoryStream = protoDynBase.GetPublicStaticMethodOrDie(
+            GetStreamLength = stream.GetterOrDie(nameof(Stream.Length), out _);
+
+            CopyMemoryStream = protoDynBase.GetPublicStaticMethodOrDie(
                 nameof(ProtoDynamicBase.CopyMemoryStream));
-            _setStreamLength = stream.GetMethodOrDie(nameof(Stream.SetLength));
+            SetStreamLength = stream.GetMethodOrDie(nameof(Stream.SetLength));
             _getStreamPosition = stream.GetterOrDie(nameof(Stream.Position), out _);
-            _setStreamPosition = stream.SetterOrDie(nameof(Stream.Position));
+            SetStreamPosition = stream.SetterOrDie(nameof(Stream.Position));
 
             _readStreamByte = stream.GetMethodOrDie(nameof(Stream.ReadByte));
-            _readStreamBytes = stream.GetMethodOrDie(nameof(Stream.Read));
+            ReadStreamBytes = stream.GetMethodOrDie(nameof(Stream.Read));
 
             _writeStreamByte = stream.GetMethodOrDie(nameof(Stream.WriteByte));
 
-            _getPositiveInt32 = protoBase.GetPublicStaticMethodOrDie(
+            GetPositiveInt32 = protoBase.GetPublicStaticMethodOrDie(
                 nameof(ProtoDynamicBase.GetPositiveInt32));
             _getPositiveInt64 = protoBase.GetPublicStaticMethodOrDie(nameof(ProtoDynamicBase.GetPositiveInt64));
 
@@ -119,7 +119,7 @@ namespace Das.Serializer.ProtoBuf
             _bytesToDouble = bitConverter.GetPublicStaticMethodOrDie(nameof(BitConverter.ToDouble),
                 typeof(Byte[]), typeof(Int32));
 
-            _bytesToString = typeof(Encoding).GetMethodOrDie(nameof(Encoding.GetString),
+            GetStringFromBytes = typeof(Encoding).GetMethodOrDie(nameof(Encoding.GetString),
                 typeof(Byte[]), typeof(Int32), typeof(Int32));
 
             _debugWriteline = typeof(ProtoDynamicBase).GetMethodOrDie(
@@ -140,15 +140,14 @@ namespace Das.Serializer.ProtoBuf
             return ProxyLookup<T>.Instance ??= allowReadOnly
                 ? CreateProxyTypeYesReadOnly<T>()
                 : CreateProxyTypeNoReadOnly<T>();
-
         }
 
         private IProtoProxy<T> CreateProxyTypeYesReadOnly<T>()
         {
             var type = typeof(T);
 
-            var ptype =  CreateProxyType(type, true) ?? throw new TypeLoadException(type.Name);
-            
+            var ptype = CreateProxyType(type, true) ?? throw new TypeLoadException(type.Name);
+
             return InstantiateProxyInstance<T>(ptype);
         }
 
@@ -156,7 +155,7 @@ namespace Das.Serializer.ProtoBuf
         {
             var type = typeof(T);
             var ptype = CreateProxyType(type, false) ?? throw new TypeLoadException(type.Name);
-            
+
             return InstantiateProxyInstance<T>(ptype);
         }
 
@@ -177,14 +176,14 @@ namespace Das.Serializer.ProtoBuf
 
         private Type? CreateProxyTypeImpl(
             Type type,
-            ConstructorInfo dtoCtor, 
+            ConstructorInfo dtoCtor,
             IEnumerable<IProtoFieldAccessor> fields,
             Boolean canSetValuesInline,
             Boolean allowReadOnly,
             MethodBase buildReturnValue)
         {
             var fArr = fields.ToArray();
-            
+
             var typeName = type.FullName ?? throw new InvalidOperationException();
 
             var bldr = _moduleBuilder.DefineType(typeName.Replace(".", "_"),
@@ -194,8 +193,8 @@ namespace Das.Serializer.ProtoBuf
 
             var typeProxies = CreateProxyFields(bldr, fArr);
 
-            var ctor = AddConstructors(bldr, dtoCtor, 
-                genericParent, 
+            var ctor = AddConstructors(bldr, dtoCtor,
+                genericParent,
                 typeProxies.Values,
                 allowReadOnly);
 
@@ -204,26 +203,23 @@ namespace Das.Serializer.ProtoBuf
             if (ctor != null)
             {
                 var example = canSetValuesInline ? ctor.Invoke(new Object[0]) : default;
-                AddScanMethod(type, bldr, genericParent, fArr, 
-                    example!, canSetValuesInline, 
+                AddScanMethod(type, bldr, genericParent, fArr,
+                    example!, canSetValuesInline,
                     buildReturnValue, typeProxies);
-                
+
                 if (canSetValuesInline)
                     AddDtoInstantiator(type, bldr, genericParent, ctor);
             }
 
             bldr.SetParent(genericParent);
-            
+
             var dType = bldr.CreateType();
 
             return dType;
         }
 
-      
 
-
-#if DEBUG
-
+        #if DEBUG
 #if NET45 || NET40
         private static Int32 _dumpCount;
 #endif
@@ -244,10 +240,10 @@ namespace Das.Serializer.ProtoBuf
 #endif
         }
 
-#endif
+        #endif
 
         Boolean IProtoProvider.TryGetProtoField(PropertyInfo prop, Boolean isRequireAttribute,
-            out IProtoFieldAccessor field)
+                                                out IProtoFieldAccessor field)
         {
             if (TryGetProtoField(prop, isRequireAttribute, out var f))
             {
@@ -305,10 +301,6 @@ namespace Das.Serializer.ProtoBuf
             return ProtoFieldAction.ChildObject;
         }
 
-        
-
-
-
 
         private static IEnumerable<Byte> GetBytes(Int32 value)
         {
@@ -353,30 +345,27 @@ namespace Das.Serializer.ProtoBuf
         {
             var res = Activator.CreateInstance(proxyType, this)
                       ?? throw new Exception(proxyType.Name);
-            return (IProtoProxy<T>)res;
+            return (IProtoProxy<T>) res;
         }
 
         private Int32 GetIndexFromAttribute(PropertyInfo prop)
         {
             var attribs = prop.GetCustomAttributes(typeof(TPropertyAttribute), true)
-                .OfType<TPropertyAttribute>().ToArray();
-            if (attribs.Length == 0)
-            {
-                return -1;
-            }
+                              .OfType<TPropertyAttribute>().ToArray();
+            if (attribs.Length == 0) return -1;
 
             return _protoSettings.GetIndex(attribs[0]);
         }
 
         public Boolean TryGetProtoField(PropertyInfo prop, Boolean isRequireAttribute,
-            out ProtoField field)
+                                        out ProtoField field)
         {
             return TryGetProtoFieldImpl(prop, isRequireAttribute, GetIndexFromAttribute, out field);
         }
 
         public Boolean TryGetProtoFieldImpl(PropertyInfo prop, Boolean isRequireAttribute,
-            Func<PropertyInfo, Int32> getFieldIndex,
-            out ProtoField field)
+                                            Func<PropertyInfo, Int32> getFieldIndex,
+                                            out ProtoField field)
         {
             var index = 0;
 
@@ -422,10 +411,10 @@ namespace Das.Serializer.ProtoBuf
                                                         MethodAttributes.Virtual |
                                                         MethodAttributes.CheckAccessOnOverride |
                                                         MethodAttributes.Final;
-#if NET45 || NET40
+        #if NET45 || NET40
         // ReSharper disable once StaticMemberInGenericType
         private static readonly String SaveFile = $"{AssemblyName}.dll";
-#endif
+        #endif
 
         // ReSharper disable once StaticMemberInGenericType
         private static readonly Byte[] _negative32Fill =
@@ -439,13 +428,6 @@ namespace Das.Serializer.ProtoBuf
         private readonly MethodInfo _bytesToDouble;
 
         private readonly MethodInfo _bytesToSingle;
-
-        /// <summary>
-        ///     Encoding-> public virtual string GetString(byte[] bytes, int index, int count)
-        /// </summary>
-        private readonly MethodInfo _bytesToString;
-
-        private readonly MethodInfo _copyMemoryStream;
 
         // ReSharper disable once NotAccessedField.Local
         private readonly MethodInfo _debugWriteline;
@@ -465,10 +447,6 @@ namespace Das.Serializer.ProtoBuf
         private readonly MethodInfo _getPackedInt32Length;
         private readonly MethodInfo _getPackedInt64Length;
 
-        /// <summary>
-        /// static Int32 ProtoScanBase.GetPositiveInt32(Stream stream)
-        /// </summary>
-        private readonly MethodInfo _getPositiveInt32;
         private readonly MethodInfo _getPositiveInt64;
 
         private readonly MethodInfo _getProtoProxy;
@@ -480,7 +458,6 @@ namespace Das.Serializer.ProtoBuf
         // READ
         ////////////////////////////////////////////////
 
-        private readonly MethodInfo _getStreamLength;
         private readonly MethodInfo _getStreamPosition;
         private readonly MethodInfo _getStringBytes;
         private readonly IInstantiator _instantiator;
@@ -490,27 +467,15 @@ namespace Das.Serializer.ProtoBuf
         private readonly ProtoBufOptions<TPropertyAttribute> _protoSettings;
 
         private readonly FieldInfo _proxyProviderField;
-        
+
         /// <summary>
-        /// Thread static Byte[]
+        ///     Thread static Byte[]
         /// </summary>
         private readonly FieldInfo _readBytesField;
 
         private readonly MethodInfo _readStreamByte;
 
-        /// <summary>
-        /// Stream.Read(...)
-        /// </summary>
-        private readonly MethodInfo _readStreamBytes;
-        private readonly MethodInfo _setStreamLength;
-        private readonly MethodInfo _setStreamPosition;
-
         private readonly ITypeManipulator _types;
-        
-        /// <summary>
-        /// protected static Encoding Utf8;
-        /// </summary>
-        private readonly FieldInfo _utf8;
 
         /// <summary>
         ///     public static void Write(Byte[] vals, Stream _outStream)
@@ -519,7 +484,6 @@ namespace Das.Serializer.ProtoBuf
 
         private readonly MethodInfo _writeInt16;
         private readonly MethodInfo _writeInt32;
-        private readonly MethodInfo _writeInt64;
 
         private readonly MethodInfo _writeInt8;
 
@@ -529,22 +493,34 @@ namespace Das.Serializer.ProtoBuf
         private readonly MethodInfo _writeSomeBytes;
         private readonly MethodInfo _writeStreamByte;
 
-        public MethodInfo GetStreamLength => _getStreamLength;
+        public MethodInfo GetStreamLength { get; }
 
-        public MethodInfo SetStreamPosition => _setStreamPosition;
+        public MethodInfo SetStreamPosition { get; }
 
-        public MethodInfo WriteInt64 => _writeInt64;
+        public MethodInfo WriteInt64 { get; }
 
-        public MethodInfo CopyMemoryStream => _copyMemoryStream;
+        public MethodInfo CopyMemoryStream { get; }
 
-        public MethodInfo SetStreamLength => _setStreamLength;
+        public MethodInfo SetStreamLength { get; }
 
-        public MethodInfo ReadStreamBytes => _readStreamBytes;
+        /// <summary>
+        ///     Stream.Read(...)
+        /// </summary>
+        public MethodInfo ReadStreamBytes { get; }
 
-        public MethodInfo GetPositiveInt32 => _getPositiveInt32;
+        /// <summary>
+        ///     static Int32 ProtoScanBase.GetPositiveInt32(Stream stream)
+        /// </summary>
+        public MethodInfo GetPositiveInt32 { get; }
 
-        public FieldInfo Utf8 => _utf8;
+        /// <summary>
+        ///     protected static Encoding Utf8;
+        /// </summary>
+        public FieldInfo Utf8 { get; }
 
-        public MethodInfo GetStringFromBytes => _bytesToString;
+        /// <summary>
+        ///     Encoding-> public virtual string GetString(byte[] bytes, int index, int count)
+        /// </summary>
+        public MethodInfo GetStringFromBytes { get; }
     }
 }

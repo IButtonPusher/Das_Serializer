@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Das.Serializer
 {
     public interface IMultiSerializer : IJsonSerializer, IBinarySerializer,
-        IXmlSerializer, ISerializationState
+                                        IXmlSerializer, ISerializationState
     {
         IStateProvider StateProvider { get; }
 

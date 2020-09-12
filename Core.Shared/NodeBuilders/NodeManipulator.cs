@@ -4,21 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
     public class NodeManipulator : TypeCore, INodeManipulator
     {
-        private readonly ISerializationCore _serializationCore;
-        private readonly ITypeInferrer _typeInferrer;
-        protected readonly IInstantiator _instantiator;
-        private readonly ITypeCore _types;
-
-        protected static readonly NullNode NullNode = NullNode.Instance;
-        private INodeTypeProvider _nodeTypeProvider;
-
-        public NodeManipulator(ISerializationCore serializationCore, ISerializerSettings settings) 
+        public NodeManipulator(ISerializationCore serializationCore, ISerializerSettings settings)
             : base(settings)
         {
             _serializationCore = serializationCore;
@@ -32,9 +24,7 @@ namespace Das.Serializer
         {
             var propTypes = new List<DasProperty>();
             foreach (var prop in node.DynamicProperties)
-            {
                 propTypes.Add(new DasProperty(prop.Key, prop.Value.GetType(), new DasAttribute[0]));
-            }
 
             //we have to build a type here because we only now know all the properties						
             var typeName = new StringBuilder(node.Name);
@@ -81,7 +71,8 @@ namespace Das.Serializer
             if (typ == null)
                 return false;
 
-            node.Value = _instantiator.BuildDefault(node.Type, Settings.CacheTypeConstructors);
+            if (node.Type != null)
+                node.Value = _instantiator.BuildDefault(node.Type, Settings.CacheTypeConstructors);
             return node.Value != null;
         }
 
@@ -108,16 +99,13 @@ namespace Das.Serializer
                     return parent.Type.GetGenericArguments()[1];
             }
             else if (_types.IsLeaf(parent.Type, true))
+            {
                 return parent.Type;
+            }
 
             return _serializationCore.TypeManipulator.GetPropertyType(parent.Type,
-                child.Name);
-        }
-
-        protected virtual Boolean TryGetExplicitType(INode node, out Type? type)
-        {
-            type = default!;
-            return false;
+                child.Name) ?? _serializationCore.TypeManipulator.GetPropertyType(parent.Type,
+                _typeInferrer.ToPropertyStyle(child.Name));
         }
 
         public void InferType(INode node)
@@ -129,21 +117,19 @@ namespace Das.Serializer
                     foundType = GetChildType(node.Parent, node)!;
 
                 if (foundType == null && node.Name != Const.Empty
-                    && Settings.PropertySearchDepth > TextPropertySearchDepths.ResolveByPropertyName)
-                {
+                                      && Settings.PropertySearchDepth > TextPropertySearchDepths.ResolveByPropertyName)
                     //type is null but we have a name. Try with the name as is
                     switch (Settings.PropertySearchDepth)
                     {
                         case TextPropertySearchDepths.AsTypeInLoadedModules:
                             foundType = _typeInferrer.GetTypeFromClearName(node.Name, true)
-                                ?? _typeInferrer.GetTypeFromClearName(
-                                    _typeInferrer.ToPropertyStyle(node.Name), true);
+                                        ?? _typeInferrer.GetTypeFromClearName(
+                                            _typeInferrer.ToPropertyStyle(node.Name), true);
                             break;
                         case TextPropertySearchDepths.AsTypeInNamespacesAndSystem:
                             foundType = _typeInferrer.GetTypeFromClearName(node.Name, true);
                             break;
                     }
-                }
             }
 
             if (foundType != null)
@@ -164,6 +150,17 @@ namespace Das.Serializer
             node.NodeType = _nodeTypeProvider.GetNodeType(node.Type, Settings.SerializationDepth);
         }
 
-        
+        protected virtual Boolean TryGetExplicitType(INode node, out Type? type)
+        {
+            type = default!;
+            return false;
+        }
+
+        protected static readonly NullNode NullNode = NullNode.Instance;
+        protected readonly IInstantiator _instantiator;
+        private readonly ISerializationCore _serializationCore;
+        private readonly ITypeInferrer _typeInferrer;
+        private readonly ITypeCore _types;
+        private readonly INodeTypeProvider _nodeTypeProvider;
     }
 }
