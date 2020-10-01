@@ -75,7 +75,7 @@ namespace Serializer.Tests
         [Fact]
         public void PrimitivePropertiesBinary()
         {
-            var sc = new SimpleClass
+            var sc = new SimpleClassObjectProperty
             {
                 GPA = 4.01M,
                 ID = 43,
@@ -87,7 +87,7 @@ namespace Serializer.Tests
 
             var bytes = srl.ToBytes(sc);
 
-            var sc2 = srl.FromBytes<SimpleClass>(bytes);
+            var sc2 = srl.FromBytes<SimpleClassObjectProperty>(bytes);
             var badProp = "";
             Assert.True(SlowEquality.AreEqual(sc, sc2, ref badProp));
         }
@@ -95,7 +95,7 @@ namespace Serializer.Tests
         [Fact]
         public void BoolAsObjectBinary()
         {
-            var sc = new SimpleClass
+            var sc = new SimpleClassObjectProperty
             {
                 GPA = 4.01M,
                 ID = 43,
@@ -107,7 +107,7 @@ namespace Serializer.Tests
             var srl = Serializer;
             var bytes = srl.ToBytes(sc);
 
-            var sc2 = srl.FromBytes<SimpleClass>(bytes);
+            var sc2 = srl.FromBytes<SimpleClassObjectProperty>(bytes);
             var badProp = "";
             Assert.True(SlowEquality.AreEqual(sc, sc2, ref badProp));
         }
@@ -115,7 +115,7 @@ namespace Serializer.Tests
         [Fact]
         public void EnumAsObjectBinary()
         {
-            var sc = new SimpleClass
+            var sc = new SimpleClassObjectProperty
             {
                 GPA = 4.01M,
                 ID = 43,
@@ -127,7 +127,7 @@ namespace Serializer.Tests
             var srl = Serializer;
             var bytes = srl.ToBytes(sc);
 
-            var sc2 = srl.FromBytes<SimpleClass>(bytes);
+            var sc2 = srl.FromBytes<SimpleClassObjectProperty>(bytes);
             var badProp = "";
             Assert.True(SlowEquality.AreEqual(sc, sc2, ref badProp));
         }
@@ -150,7 +150,7 @@ namespace Serializer.Tests
         {
             var srl = Serializer;
 
-            var sc = new SimpleClass
+            var sc = new SimpleClassObjectProperty
             {
                 Animal = Animals.Frog,
                 GPA = 2.1M,
@@ -159,7 +159,7 @@ namespace Serializer.Tests
 
 
             var bytes = srl.ToBytes(sc);
-            var sc2 = srl.FromBytes<SimpleClass>(bytes);
+            var sc2 = srl.FromBytes<SimpleClassObjectProperty>(bytes);
 
             var areEqual = SlowEquality.AreEqual(sc, sc2);
             Assert.True(areEqual);
@@ -318,12 +318,12 @@ namespace Serializer.Tests
         [Fact]
         public void BlockingBinary()
         {
-            var bc = new BlockingCollection<SimpleClass>();
-            bc.Add(SimpleClass.GetPrimitivePayload());
-            bc.Add(SimpleClass.GetNullPayload());
+            var bc = new BlockingCollection<SimpleClassObjectProperty>();
+            bc.Add(SimpleClassObjectProperty.GetPrimitivePayload());
+            bc.Add(SimpleClassObjectProperty.GetNullPayload());
 
             var b = Serializer.ToBytes(bc);
-            var res = Serializer.FromBytes<BlockingCollection<SimpleClass>>(b);
+            var res = Serializer.FromBytes<BlockingCollection<SimpleClassObjectProperty>>(b);
 
             for (var i = 0; i < bc.Count; i++)
             {
@@ -334,17 +334,17 @@ namespace Serializer.Tests
         [Fact]
         public void QueuesBinary()
         {
-            var qs = new Queue<SimpleClass>();
-            qs.Enqueue(SimpleClass.GetPrimitivePayload());
+            var qs = new Queue<SimpleClassObjectProperty>();
+            qs.Enqueue(SimpleClassObjectProperty.GetPrimitivePayload());
 
             var b = Serializer.ToBytes(qs);
-            var qs2 = Serializer.FromBytes<Queue<SimpleClass>>(b);
+            var qs2 = Serializer.FromBytes<Queue<SimpleClassObjectProperty>>(b);
 
-            var qc = new ConcurrentQueue<SimpleClass>();
-            qc.Enqueue(SimpleClass.GetNullPayload());
+            var qc = new ConcurrentQueue<SimpleClassObjectProperty>();
+            qc.Enqueue(SimpleClassObjectProperty.GetNullPayload());
 
             b = Serializer.ToBytes(qc);
-            var qc2 = Serializer.FromBytes<ConcurrentQueue<SimpleClass>>(b);
+            var qc2 = Serializer.FromBytes<ConcurrentQueue<SimpleClassObjectProperty>>(b);
 
         }
 
@@ -420,18 +420,18 @@ namespace Serializer.Tests
         {
             var cont = new SimpleContainer
             {
-                SimpleExample = SimpleClass.GetPrimitivePayload()
+                SimpleExample = SimpleClassObjectProperty.GetPrimitivePayload()
             };
             var std = Serializer;
             var bytes = std.ToBytes(cont);
             var cnt2 = std.FromBytes<SimpleContainer>(bytes);
 
             var classes = new List<ISimpleClass>();
-            classes.Add(SimpleClass.GetNullPayload());
-            classes.Add(SimpleClass.GetPrimitivePayload());
+            classes.Add(SimpleClassObjectProperty.GetNullPayload());
+            classes.Add(SimpleClassObjectProperty.GetPrimitivePayload());
 
             bytes = std.ToBytes(classes);
-            Serializer.SetTypeSurrogate(typeof(SimpleClass), typeof(SimpleClass2));
+            Serializer.SetTypeSurrogate(typeof(SimpleClassObjectProperty), typeof(SimpleClass2));
             var res = std.FromBytes<List<ISimpleClass>>(bytes);
         }
 
@@ -439,8 +439,8 @@ namespace Serializer.Tests
         public void SerializeAttributeBinary()
         {
             var waffle = new TestCompositeClass2();
-            waffle.SimpleLeft = SimpleClass.GetPrimitivePayload();
-            waffle.SimpleRight = SimpleClass.GetNullPayload();
+            waffle.SimpleLeft = SimpleClassObjectProperty.GetPrimitivePayload();
+            waffle.SimpleRight = SimpleClassObjectProperty.GetNullPayload();
 
             var std = Serializer;
             var bytes = std.ToBytes(waffle);
@@ -479,14 +479,14 @@ namespace Serializer.Tests
         [Fact]
         public void EventAsObjectPropBinary()
         {
-            var sc = new SimpleClass
+            var sc = new SimpleClassObjectProperty
             {
                 Payload = new EventArgs(), GPA = 5.0M, Animal = Animals.Frog, ID = 77
             };
 
             var srl = Serializer;
             var bytes = srl.ToBytes(sc);
-            var sc2 = srl.FromBytes<SimpleClass>(bytes);
+            var sc2 = srl.FromBytes<SimpleClassObjectProperty>(bytes);
 
             Assert.True(sc2.Payload.GetType() == typeof(EventArgs));
             Assert.True(sc.GPA == sc2.GPA && sc.Animal == sc2.Animal && sc.ID == sc2.ID);

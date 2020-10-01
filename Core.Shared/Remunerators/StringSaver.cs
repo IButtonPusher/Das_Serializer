@@ -365,6 +365,12 @@ namespace Das.Serializer
 
             lock (_sbLock)
             {
+                if (_sbPool.Count >= MaximumPoolSize)
+                    return;
+
+                if (sb.Capacity >= MaximumBuilderSize)
+                    return;
+
                 var half = _sbPool.Count / 2.0;
                 if (half.IsZero())
                 {
@@ -474,6 +480,9 @@ namespace Das.Serializer
                 return true;
             }
         }
+
+        private const Int32 MaximumPoolSize = 32;
+        private const Int32 MaximumBuilderSize = 1048576;
 
         private static readonly Object _sbLock;
         private static readonly List<StringBuilder> _sbPool;

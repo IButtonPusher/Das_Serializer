@@ -46,14 +46,14 @@ namespace Das
             _fieldGetters = new Dictionary<String, Func<Object, Object>>();
             _propertyAttributes = new DoubleDictionary<String, Type, Object>();
 
-            _fieldSetters = new SortedList<String, Action<Object, Object>>();
+            _fieldSetters = new SortedList<String, Action<Object, Object?>>();
 
             var cmp = isPropertyNamesCaseSensitive
                 ? StringComparer.Ordinal
                 : StringComparer.OrdinalIgnoreCase;
 
             _propertySetters = new SortedList<String, PropertySetter>(cmp);
-            _readOnlySetters = new SortedList<String, Action<Object, Object>>(cmp);
+            _readOnlySetters = new SortedList<String, Action<Object, Object?>>(cmp);
             MemberTypes = new Dictionary<String, INamedField>(cmp);
 
 
@@ -75,7 +75,7 @@ namespace Das
             PropertyCount = _propertySetters.Count;
         }
 
-        public virtual Type Type { get; }
+        public Type Type { get; }
 
         public SerializationDepth Depth { get; }
 
@@ -94,8 +94,10 @@ namespace Das
             return true;
         }
 
-        public virtual IPropertyValueIterator<IProperty> GetPropertyValues(Object o,
-                                                                           ISerializationDepth depth)
+        
+
+        public IPropertyValueIterator<IProperty> GetPropertyValues(Object o,
+                                                                   ISerializationDepth depth)
         {
             var isRespectXmlIgnoreAttribute = depth.IsRespectXmlIgnore;
             var cnt = _propGetterList.Count;
@@ -126,6 +128,17 @@ namespace Das
         {
             foreach (var kvp in GetValueGetters(depth))
                 yield return MemberTypes[kvp.Key];
+        }
+
+        public object? GetValue(Object o, String propertyName)
+        {
+            if (_propGetters.TryGetValue(propertyName, out var getter))
+                return getter(o);
+            if (_getOnly.TryGetValue(propertyName, out var getOnly))
+                return getOnly(o);
+            if (_getDontSerialize.TryGetValue(propertyName, out var notSerialized))
+                return notSerialized(o);
+            return null;
         }
 
         public IProperty? GetPropertyValue(Object o, String propertyName)
@@ -172,7 +185,7 @@ namespace Das
             return true;
         }
 
-        public Boolean SetValue(String propName, ref Object targetObj, Object propVal,
+        public Boolean SetValue(String propName, ref Object targetObj, Object? propVal,
                                 SerializationDepth depth)
         {
             if (_propertySetters.TryGetValue(propName, out var setDel))
@@ -224,7 +237,7 @@ namespace Das
         }
 
 
-        protected virtual PropertyValueIterator<IProperty> PropertyValues
+        protected PropertyValueIterator<IProperty> PropertyValues
             => _propertyValues.Value!;
 
         private void CreateFieldDelegates(Type type, ISerializationDepth depth)
@@ -355,8 +368,13 @@ namespace Das
             MemberTypes[pi.Name] = member;
         }
 
+        public override string ToString()
+        {
+            return GetType().Name + ": " + Type.FullName;
+        }
+
         private readonly Dictionary<String, Func<Object, Object>> _fieldGetters;
-        private readonly SortedList<String, Action<Object, Object>> _fieldSetters;
+        private readonly SortedList<String, Action<Object, Object?>> _fieldSetters;
 
         private readonly Dictionary<String, Func<Object, Object>> _getDontSerialize;
 
@@ -373,7 +391,7 @@ namespace Das
         protected readonly List<KeyValuePair<String, Func<Object, Object>>> _propGetterList;
 
         private readonly Dictionary<String, Func<Object, Object>> _propGetters;
-        private readonly SortedList<String, Action<Object, Object>> _readOnlySetters;
+        private readonly SortedList<String, Action<Object, Object?>> _readOnlySetters;
 
         private readonly ITypeManipulator _types;
         private readonly HashSet<String> _xmlIgnores;

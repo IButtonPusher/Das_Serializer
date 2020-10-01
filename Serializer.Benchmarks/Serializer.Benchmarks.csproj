@@ -57,6 +57,7 @@
     <Compile Include="JsonBenchmarks.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="XmlBenchmarks.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.editorconfig">
@@ -76,8 +77,5 @@
       <Name>Serializer.Tests</Name>
     </ProjectReference>
   </ItemGroup>
-  <Import Project="..\Core.Shared\Core.Shared.projitems" Label="Shared" />
-  <Import Project="..\Interfaces.Shared\Interfaces.Shared.projitems" Label="Shared" />
-  <Import Project="..\Serializer.Shared\Serializer.Shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

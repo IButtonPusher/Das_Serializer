@@ -22,7 +22,8 @@ namespace Das.Serializer.Remunerators
         {
         }
 
-        protected abstract TChildWriter GetChildWriter(IPrintNode node, IBinaryWriter parent,
+        protected abstract TChildWriter GetChildWriter(IPrintNode node, 
+                                                       IBinaryWriter parent,
                                                        Int32 index);
 
         public override IEnumerator<Byte> GetEnumerator()
@@ -100,7 +101,7 @@ namespace Das.Serializer.Remunerators
             }
         }
 
-        public IBinaryWriter Parent { get; protected set; }
+        public IBinaryWriter? Parent { get; protected set; }
 
         public abstract IBinaryWriter Push(IPrintNode node);
 

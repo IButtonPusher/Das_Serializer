@@ -41,10 +41,12 @@ namespace Das.Serializer
             set => _settings = value;
         }
 
-        //private static readonly ConcurrentDictionary<Type, ISet<PropertyInfo>>
-        //    CachedProperties2 = new ConcurrentDictionary<Type, ISet<PropertyInfo>>();
 
         public Boolean TryGetNullableType(Type candidate, out Type? primitive)
+            => TryGetNullableTypeImpl(candidate, out primitive);
+        
+
+        private static Boolean TryGetNullableTypeImpl(Type candidate, out Type? primitive)
         {
             primitive = null;
             if (!candidate.IsGenericType ||
@@ -135,10 +137,8 @@ namespace Das.Serializer
         [MethodImpl(256)]
         public Boolean IsCollection(Type type)
         {
-            var val = CollectionTypes.GetOrAdd(type, t =>
+            return CollectionTypes.GetOrAdd(type, t =>
                 t != Const.StrType && typeof(IEnumerable).IsAssignableFrom(t));
-
-            return val;
         }
 
 
@@ -303,9 +303,10 @@ namespace Das.Serializer
         // ReSharper disable once InconsistentNaming
         private static Boolean AmIALeaf(Type t, Boolean isStringCounts)
         {
-            return (t.IsValueType || isStringCounts &&
-                       t == Const.StrType)
-                   && Type.GetTypeCode(t) > TypeCode.DBNull;
+            return  // value type or a string if desired
+                (t.IsValueType || isStringCounts && t == Const.StrType)
+                    // not an object unless it's a nullable
+                   && (Type.GetTypeCode(t) > TypeCode.DBNull );//|| TryGetNullableTypeImpl(t, out _));
         }
 
         private static Type? GetKeyValuePair(Type dicType)

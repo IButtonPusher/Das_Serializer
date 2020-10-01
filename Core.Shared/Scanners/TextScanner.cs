@@ -24,10 +24,10 @@ namespace Das.Serializer
 
             PrimitiveScanner = state.PrimitiveScanner;
             EscapeChars = new List<Char> {Const.BackSlash};
-            WhiteSpaceChars = new List<Char>
-            {
-                Const.CarriageReturn, '\n', '\t', Const.Space
-            };
+            //WhiteSpaceChars = new List<Char>
+            //{
+            //    Const.CarriageReturn, '\n', '\t', Const.Space
+            //};
 
             RootNode = NullNode;
 
@@ -39,8 +39,9 @@ namespace Das.Serializer
         public T Deserialize<T>(Char[] source)
         {
             _resultType = typeof(T);
+            var len = source.Length;
 
-            for (var i = 0; i < source.Length; i++)
+            for (var i = 0; i < len; i++)
             {
                 var c = source[i];
                 PreProcessCharacter(ref c);
@@ -96,7 +97,7 @@ namespace Das.Serializer
                 : default!;
         }
 
-        protected abstract Boolean IsQuote(Char c);
+        protected abstract Boolean IsQuote(ref Char c);
 
 
         protected void OpenNode()
@@ -126,7 +127,7 @@ namespace Das.Serializer
 
         private void PreProcessCharacter(ref Char c)
         {
-            var iq = IsQuote(c);
+            var iq = IsQuote(ref c);
 
             if (_isQuoteOpen)
             {
@@ -183,6 +184,6 @@ namespace Das.Serializer
         [NotNull] protected String CurrentTagName;
 
         protected List<Char> EscapeChars;
-        protected List<Char> WhiteSpaceChars;
+        //protected List<Char> WhiteSpaceChars;
     }
 }

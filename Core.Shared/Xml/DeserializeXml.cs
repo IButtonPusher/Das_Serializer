@@ -18,6 +18,11 @@ namespace Das.Serializer
             return _FromXml<T>(xml);
         }
 
+        public T FromXmlEx<T>(String xml)
+        {
+            return XmlExpress.Deserialize<T>(xml);
+        }
+
         public async Task<T> FromXml<T>(FileInfo file)
         {
             using (TextReader tr = new StreamReader(file.FullName))
@@ -53,7 +58,11 @@ namespace Das.Serializer
         [MethodImpl(256)]
         private T _FromXml<T>(String xml)
         {
-            return _FromXml<T>(xml.ToCharArray());
+            using (var state = StateProvider.BorrowXml(Settings))
+            {
+                return state.Scanner.Deserialize<T>(xml);
+            }
+            //return _FromXml<T>(xml.ToCharArray());
         }
 
         [MethodImpl(256)]

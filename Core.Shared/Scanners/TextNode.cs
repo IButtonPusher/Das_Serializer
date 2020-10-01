@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    internal class TextNode : BaseNode<ITextNode>, ITextNode
+    public class TextNode : BaseNode<ITextNode>, ITextNode
     {
         public TextNode(String name, ISerializerSettings settings,
                         INodeManipulator nodeManipulator, INodeTypeProvider nodeTypeProvider,
@@ -33,11 +34,13 @@ namespace Das.Serializer
 
         public String Text => _text.ToString();
 
+        [MethodImpl(256)]
         public void Append(String str)
         {
             _text.Append(str);
         }
 
+        [MethodImpl(256)]
         public void Append(Char c)
         {
             _text.Append(c);

@@ -78,7 +78,7 @@ namespace Serializer.Tests
 			type2 = Serializer.TypeInferrer.GetTypeFromClearName(fullName, true);
 			Assert.Equal(type, type2);
 
-			type = typeof(Dictionary<String, SimpleClass>);
+			type = typeof(Dictionary<String, SimpleClassObjectProperty>);
             if (type?.FullName == null)
                 throw new Exception();
 			var wrongName = type.FullName.Replace("Serializer.Tests", "Serializer.Tests2");
@@ -91,7 +91,7 @@ namespace Serializer.Tests
 			type2 = Serializer.TypeInferrer.GetTypeFromClearName(str);
 			Assert.Equal(type, type2);
 
-			type = typeof(GenericClass<SimpleClass>);
+			type = typeof(GenericClass<SimpleClassObjectProperty>);
 			str = type.GetClearName(false);
 			Serializer.TypeInferrer.ClearCachedNames();
 			type2 = Serializer.TypeInferrer.GetTypeFromClearName(str, true);

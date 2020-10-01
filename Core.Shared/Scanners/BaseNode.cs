@@ -4,7 +4,8 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    internal abstract class BaseNode<TNode> : TypeCore, INode<TNode>
+    public abstract class BaseNode<TNode> : TypeCore,
+                                            INode<TNode>
         where TNode : INode<TNode>
     {
         protected BaseNode(ISerializerSettings settings) : base(settings)

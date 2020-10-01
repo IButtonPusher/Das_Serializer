@@ -6,70 +6,19 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using Das.Serializer.Scanners;
 
 namespace Das.Serializer.Json
 {
-    public class JsonExpress
+    public class JsonExpress : BaseExpress
     {
-        public JsonExpress(
-            IInstantiator instantiator,
-            ITypeManipulator types,
-            ITypeInferrer typeInference)
+        public JsonExpress(IInstantiator instantiator,
+                           ITypeManipulator types,
+                           ITypeInferrer typeInference)
         {
             _instantiator = instantiator;
             _types = types;
             _typeInference = typeInference;
-        }
-
-        [MethodImpl(256)]
-        private static Boolean AdvanceUntil(Char target, ref Int32 currentIndex, String json)
-        {
-            for (; currentIndex < json.Length; currentIndex++)
-            {
-                var current = json[currentIndex];
-
-                if (current == target)
-                    return true;
-
-                if (current == ']' || current == '}')
-                    return false;
-            }
-
-            return false;
-        }
-
-        [MethodImpl(256)]
-        private static Char AdvanceUntilAny(Char[] targets, ref Int32 currentIndex, String json)
-        {
-            for (; currentIndex < json.Length; currentIndex++)
-            {
-                var current = json[currentIndex];
-
-                for (var k = 0; k < targets.Length; k++)
-                    if (current == targets[k])
-                        return current;
-            }
-
-            throw new InvalidOperationException();
-        }
-
-        private static void AdvanceUntilFieldStart(ref Int32 currentIndex, String json)
-        {
-            while (true)
-                switch (json[currentIndex++])
-                {
-                    case ':':
-                        return;
-
-                    case ' ':
-                    case '\t':
-                    case '\n':
-                    case '\r':
-                        break;
-
-                    default:
-                        throw new InvalidOperationException();
-                }
         }
 
         public T Deserialize<T>(String json)
@@ -93,6 +42,29 @@ namespace Das.Serializer.Json
 
             return current!;
         }
+
+        
+
+        private static void AdvanceUntilFieldStart(ref Int32 currentIndex, String json)
+        {
+            while (true)
+                switch (json[currentIndex++])
+                {
+                    case ':':
+                        return;
+
+                    case ' ':
+                    case '\t':
+                    case '\n':
+                    case '\r':
+                        break;
+
+                    default:
+                        throw new InvalidOperationException();
+                }
+        }
+
+        
 
         private void DeserializeImpl<T>(ref T instance, ref Int32 currentIndex,
                                         String json, Type type)
@@ -152,10 +124,8 @@ namespace Das.Serializer.Json
                 if (prop.GetValue(parent, null) is IList list)
                     return list;
 
-            var germane = _types.GetGermaneType(type);
-
             return (type.IsArray
-                       ? _instantiator.BuildGenericList(germane)
+                       ? _instantiator.BuildGenericList(_types.GetGermaneType(type))
                        : _instantiator.BuildDefault(type, true) as IList)
                    ?? throw new InvalidOperationException();
         }
@@ -214,13 +184,12 @@ namespace Das.Serializer.Json
             return stringBuilder.ToString();
         }
 
-        private Object? GetValue(
-            ref Int32 currentIndex,
-            String json,
-            Type type,
-            StringBuilder stringBuilder,
-            Object? parent,
-            PropertyInfo prop)
+        private Object? GetValue(ref Int32 currentIndex,
+                                 String json,
+                                 Type type,
+                                 StringBuilder stringBuilder,
+                                 Object? parent,
+                                 PropertyInfo prop)
         {
             if (type.IsEnum)
                 return Enum.Parse(type,
@@ -324,8 +293,6 @@ namespace Das.Serializer.Json
                     return !TryGetNextString(ref currentIndex, json, stringBuilder)
                         ? default
                         : stringBuilder.ToString();
-
-                //return GetNextString(ref currentIndex, json, stringBuilder);
 
                 default:
                     throw new ArgumentOutOfRangeException();

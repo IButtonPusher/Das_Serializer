@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -133,7 +134,15 @@ namespace Das.Serializer
             }
 
             if (foundType != null)
+            {
+                if (node.Type != null && node.Type != foundType)
+                {}
+
+                if (node.Type == foundType)
+                    Debug.WriteLine("same same");
+
                 node.Type = foundType;
+            }
         }
 
         public void EnsureNodeType(INode node, NodeTypes specified)

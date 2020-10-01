@@ -30,7 +30,8 @@ namespace Das.Serializer
         public Object GetValue(Byte[]? input, Type type)
         {
             Object res;
-            if (input == null) return null;
+            if (input == null) 
+                return null;
 
             switch (Type.GetTypeCode(type))
             {

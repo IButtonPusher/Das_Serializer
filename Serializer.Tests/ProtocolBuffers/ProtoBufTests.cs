@@ -182,7 +182,7 @@ namespace Serializer.Tests.ProtocolBuffers
             {
                 o.Print(mc1, ms);
 
-                Debug.WriteLine("DAS\r\n-----------------------------------");
+                //Debug.WriteLine("DAS\r\n-----------------------------------");
                 //PrintMemoryStream(ms);
 
                 ms.Position = 0;
@@ -198,7 +198,7 @@ namespace Serializer.Tests.ProtocolBuffers
             {
                 ProtoBuf.Serializer.Serialize(ms, msg);
 
-                Debug.WriteLine("PNET\r\n-----------------------------------");
+                //Debug.WriteLine("PNET\r\n-----------------------------------");
                 //PrintMemoryStream(ms);
 
                 ms.Position = 0;
@@ -269,7 +269,7 @@ namespace Serializer.Tests.ProtocolBuffers
             {
                 ProtoBuf.Serializer.Serialize(ms, mc1);
                 
-                Debug.WriteLine("PNET\r\n-----------------------------------");
+                //Debug.WriteLine("PNET\r\n-----------------------------------");
                 //PrintMemoryStream(ms);
                 ms.Position = 0;
                 return ProtoBuf.Serializer.Deserialize<PackedArrayTest>(ms);

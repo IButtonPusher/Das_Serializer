@@ -8,8 +8,11 @@ namespace Das.Serializer
 {
     public class StateProvider : CoreContext, IStateProvider
     {
-        public StateProvider(ISerializationCore dynamicFacade, ITextContext xmlContext,
-                             ITextContext jsonContext, IBinaryContext binaryContext, ISerializerSettings settings)
+        public StateProvider(ISerializationCore dynamicFacade, 
+                             ITextContext xmlContext,
+                             ITextContext jsonContext, 
+                             IBinaryContext binaryContext, 
+                             ISerializerSettings settings)
             : base(dynamicFacade, settings)
         {
             XmlContext = xmlContext;

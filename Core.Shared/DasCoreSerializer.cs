@@ -1,13 +1,34 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Das.Serializer.Json;
 using Das.Serializer.ProtoBuf;
+using Das.Serializer.Xml;
 
 namespace Das.Serializer
 {
     public partial class DasCoreSerializer : BaseState, IMultiSerializer
     {
+        #if !NET40
+
+        public DasCoreSerializer() : this(new DefaultStateProvider(),
+            WriteAsync, ReadToEndAsync, ReadAsync){}
+
+        [MethodImpl(256)]
+        private static Task WriteAsync(TextWriter writer, String writeThis)
+            => writer.WriteAsync(writeThis);
+
+        [MethodImpl(256)]
+        private static Task<String> ReadToEndAsync(TextReader reader)
+            => reader.ReadToEndAsync();
+
+        [MethodImpl(256)]
+        private static Task<Int32> ReadAsync(Stream stream, Byte[] buffer, Int32 offset, Int32 count)
+            => stream.ReadAsync(buffer, offset, count);
+
+        #endif
+
         public DasCoreSerializer(IStateProvider stateProvider,
                                  ISerializerSettings settings,
                                  Func<TextWriter, String, Task> writeAsync,
@@ -23,6 +44,8 @@ namespace Das.Serializer
             _readAsync = readAsync;
 
             JsonExpress = new JsonExpress(ObjectInstantiator, TypeManipulator, TypeInferrer);
+            XmlExpress = new XmlExpress(ObjectInstantiator, TypeManipulator,
+                _settings, StateProvider.XmlContext.PrimitiveScanner);
         }
 
         public DasCoreSerializer(IStateProvider stateProvider,
@@ -79,6 +102,7 @@ namespace Das.Serializer
 
         private ISerializerSettings _settings;
 
-        protected JsonExpress JsonExpress;
+        protected readonly JsonExpress JsonExpress;
+        protected readonly XmlExpress XmlExpress;
     }
 }

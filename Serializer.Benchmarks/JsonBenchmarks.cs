@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using Das.Serializer;
@@ -11,31 +8,29 @@ namespace Serializer.Benchmarks
 {
     public class JsonBenchmarks
     {
-        private static DasSerializer Serializer;
-
-        private static SimpleClass NullPayload;
-        private static String NullPayloadJson;
-
         static JsonBenchmarks()
         {
             Serializer = new DasSerializer();
 
-            NullPayload = SimpleClass.GetNullPayload();
-            NullPayloadJson = Serializer.ToJson(NullPayload);
+            SimpleClassObjectProperty nullPayload = SimpleClassObjectProperty.GetNullPayload();
+            NullPayloadJson = Serializer.ToJson(nullPayload);
         }
 
 
         [Benchmark]
-        public SimpleClass PrimitivePropertiesJsonBaseline()
+        public SimpleClassObjectProperty PrimitivePropertiesJsonBaseline()
         {
-            return Serializer.FromJson<SimpleClass>(NullPayloadJson);
+            return Serializer.FromJson<SimpleClassObjectProperty>(NullPayloadJson);
         }
 
         [Benchmark]
-        public SimpleClass PrimitivePropertiesJsonExpress()
+        public SimpleClassObjectProperty PrimitivePropertiesJsonExpress()
         {
-            return Serializer.FromJsonEx<SimpleClass>(NullPayloadJson);
+            return Serializer.FromJsonEx<SimpleClassObjectProperty>(NullPayloadJson);
         }
-        
+
+        private static readonly DasSerializer Serializer;
+
+        private static readonly String NullPayloadJson;
     }
 }

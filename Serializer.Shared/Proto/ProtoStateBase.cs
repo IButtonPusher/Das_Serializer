@@ -8,13 +8,12 @@ namespace Das.Serializer.Proto
 {
     public abstract class ProtoStateBase
     {
-        protected ProtoStateBase(
-            ILGenerator il,
-            IProtoFieldAccessor currentField,
-            Type parentType,
-            Action<ILGenerator>? loadCurrentValueOntoStack,
-            IDictionary<Type, FieldBuilder> proxies,
-            ITypeCore types)
+        protected ProtoStateBase(ILGenerator il,
+                                 IProtoFieldAccessor currentField,
+                                 Type parentType,
+                                 Action<ILGenerator>? loadCurrentValueOntoStack,
+                                 IDictionary<Type, FieldBuilder> proxies,
+                                 ITypeCore types)
         {
             _il = il;
             _proxies = proxies;

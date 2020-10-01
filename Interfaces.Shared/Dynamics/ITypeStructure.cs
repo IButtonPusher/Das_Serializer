@@ -22,6 +22,8 @@ namespace Das.Serializer
 
         IProperty? GetPropertyValue(Object o, String propertyName);
 
+        Object? GetValue(Object o, String propertyName);
+
         /// <summary>
         ///     For a collection, returns the values.  Otherwise returns the property values
         /// </summary>
@@ -34,7 +36,7 @@ namespace Das.Serializer
 
         Boolean SetFieldValue<T>(String fieldName, Object targetObj, Object fieldVal);
 
-        Boolean SetValue(String propName, ref Object targetObj, Object propVal,
+        Boolean SetValue(String propName, ref Object targetObj, Object? propVal,
                          SerializationDepth depth);
 
 

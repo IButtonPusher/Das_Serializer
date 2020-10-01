@@ -9,7 +9,7 @@ namespace Das.Serializer.Remunerators
     {
         Int32 Length { get; }
 
-        IBinaryWriter Parent { get; }
+        IBinaryWriter? Parent { get; }
 
         Int32 SumLength { get; }
 

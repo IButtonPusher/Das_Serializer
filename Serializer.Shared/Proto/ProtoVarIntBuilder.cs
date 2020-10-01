@@ -8,10 +8,9 @@ namespace Das.Serializer.ProtoBuf
     // ReSharper disable once UnusedTypeParameter
     public partial class ProtoDynamicProvider<TPropertyAttribute>
     {
-        private void ScanAsVarInt(
-            ILGenerator il,
-            TypeCode typeCode,
-            ProtoWireTypes wireType)
+        private void ScanAsVarInt(ILGenerator il,
+                                  TypeCode typeCode,
+                                  ProtoWireTypes wireType)
         {
             switch (wireType)
             {
@@ -71,7 +70,6 @@ namespace Das.Serializer.ProtoBuf
                         case TypeCode.Single:
                             il.Emit(OpCodes.Ldarg_1);
 
-                            //il.Emit(OpCodes.Ldloc, s.ByteBufferField);
                             il.Emit(OpCodes.Ldsfld, _readBytesField);
                             il.Emit(OpCodes.Ldc_I4_0);
                             il.Emit(OpCodes.Ldc_I4_4);

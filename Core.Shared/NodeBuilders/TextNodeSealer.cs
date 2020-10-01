@@ -82,7 +82,20 @@ namespace Das.Serializer
 
                         var str = attr.Value;
 
-                        var val = _scanner.GetValue(str, type) ?? str;
+                        //trying to force it into a string leads to setting object's values to strings
+                        //which goes poorly...
+                        //var val = _scanner.GetValue(str, type) ?? str;
+
+                        var val = _scanner.GetValue(str, type);
+
+                        if (val == null)
+                        {
+                            if (Settings.PropertySearchDepth == TextPropertySearchDepths.AsTypeInLoadedModules)
+                                val = str;
+
+                            else continue;
+                        }
+
                         var wal = node.Value;
                         _objects.SetProperty(node.Type, attr.Key, ref wal!, val);
                     }

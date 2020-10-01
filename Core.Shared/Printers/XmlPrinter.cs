@@ -4,6 +4,8 @@ using System.Linq;
 using System.Security;
 using System.Threading.Tasks;
 using Das.Serializer;
+#pragma warning disable 8604
+#pragma warning disable 8602
 
 namespace Das.Printers
 {
@@ -141,6 +143,7 @@ namespace Das.Printers
                     Writer.Append(" ", Const.XmlType);
 
                     Writer.Append(Const.Equal, Const.StrQuote);
+                    // ReSharper disable once AssignNullToNotNullAttribute
                     Writer.Append(typeName, Const.StrQuote);
 
                     if (nodeType == NodeTypes.Primitive || nodeType == NodeTypes.Fallback)
@@ -150,7 +153,8 @@ namespace Das.Printers
                     }
                 }
                 else if (_stateProvider.TypeInferrer.IsLeaf(node.Type, true)
-                         || nodeType == NodeTypes.Fallback && current.IsTagOpen)
+                         || nodeType == NodeTypes.Fallback && current.IsTagOpen
+                         || _stateProvider.TypeInferrer.TryGetNullableType(node.Type, out _))
                 {
                     //if we got here with a leaf then the regular logic of trying to make it an attribute 
                     //doesn't apply => self close

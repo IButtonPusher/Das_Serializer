@@ -416,5 +416,13 @@ namespace Das.Extensions
 
             return method != null;
         }
+
+        [MethodImpl(256)]
+        public static String GetConsumingString(this StringBuilder sb)
+        {
+            var res = sb.ToString();
+            sb.Length = 0;
+            return res;
+        }
     }
 }

@@ -111,7 +111,7 @@ namespace Das.Streamers
         }
 
 
-        private Byte[] GetPrimitiveBytes(Type type)
+        private Byte[]? GetPrimitiveBytes(Type type)
         {
             while (true)
             {
@@ -187,7 +187,7 @@ namespace Das.Streamers
         }
 
 
-        public Object GetFallback(Type dataType, ref Int32 blockSize)
+        public Object? GetFallback(Type dataType, ref Int32 blockSize)
         {
             //collection data we have to open a new node and that has to get these bytes
             if (IsCollection(dataType))

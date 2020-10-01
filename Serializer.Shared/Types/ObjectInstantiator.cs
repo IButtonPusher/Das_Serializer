@@ -163,9 +163,9 @@ namespace Das.Serializer
             return constructor;
         }
 
-        public bool TryGetDefaultConstructor(Type type, out ConstructorInfo? ctor)
+        public bool TryGetDefaultConstructor(Type type, out ConstructorInfo ctor)
         {
-            if (Constructors.TryGetValue(type, out ctor))
+            if (Constructors.TryGetValue(type, out ctor!))
             {
                 if (ctor == null)
                     return false;
@@ -173,11 +173,11 @@ namespace Das.Serializer
                 if (ctor.GetParameters().Length == 0)
                     return true;
 
-                ctor = GetConstructor(type, new List<Type>(), out _);
+                ctor = GetConstructor(type, new List<Type>(), out _)!;
                 goto byeNow;
             }
 
-            ctor = GetConstructor(type, new List<Type>(), out _);
+            ctor = GetConstructor(type, new List<Type>(), out _)!;
             Constructors.TryAdd(type, ctor);
 
             byeNow:

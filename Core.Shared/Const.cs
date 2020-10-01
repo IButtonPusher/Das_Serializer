@@ -12,6 +12,7 @@ namespace Das.Serializer
         public const String Tsystem = "System";
         public const String WutXml = "?xml";
         public const String XmlType = "xsi:type";
+        public const String XmlNull = "xsi:nil";
         public const String Empty = "";
 
         public const String StrQuote = "\"";
@@ -24,6 +25,8 @@ namespace Das.Serializer
         public const Char SingleQuote = '\'';
         public const Char BackSlash = '\\';
         public const Char CarriageReturn = '\r';
+        public const Char NewLine = '\n';
+        public const Char Tab = '\t';
 
         public const Char OpenBrace = '{';
         public const Char CloseBrace = '}';

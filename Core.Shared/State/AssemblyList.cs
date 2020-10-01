@@ -149,7 +149,7 @@ namespace Das.Serializer
         private static Boolean TryGetRunning(String name, out Assembly assembly)
         {
             var running = GetRunning();
-            assembly = running.FirstOrDefault(n => AreEqual(name, n));
+            assembly = running.FirstOrDefault(n => AreEqual(name, n))!;
             return assembly != null;
         }
 
@@ -160,7 +160,7 @@ namespace Das.Serializer
             if (foundName != null)
                 return TryLoad(foundName, out assembly);
 
-            assembly = default;
+            assembly = default!;
             return false;
         }
 
@@ -186,7 +186,7 @@ namespace Das.Serializer
             }
 
             fail:
-            realMcKoy = default;
+            realMcKoy = default!;
             return false;
         }
 

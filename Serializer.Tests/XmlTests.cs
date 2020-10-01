@@ -52,12 +52,12 @@ namespace Serializer.Tests
 		[Fact]
 		public void PrimitivePropertiesXml()
 		{
-			var sc = SimpleClass.GetNullPayload();
+			var sc = SimpleClassObjectProperty.GetNullPayload();
 
 			var srl = new DasSerializer();
 			var xml = srl.ToXml(sc);
 
-			var sc2 = srl.FromXml<SimpleClass>(xml);
+			var sc2 = srl.FromXml<SimpleClassObjectProperty>(xml);
 			var badProp = "";
 			Assert.True(SlowEquality.AreEqual(sc, sc2, ref badProp));
 		}
@@ -66,7 +66,7 @@ namespace Serializer.Tests
 		[Fact]
 		public void XmlAsString()
 		{
-			var sc = SimpleClass.GetNullPayload();
+			var sc = SimpleClassObjectProperty.GetNullPayload();
 			sc.Name = System.Web.HttpUtility.HtmlDecode(@"&lt;DeployedStat Stat=&apos;Simple|PreFlop||*B3*|&apos; DisplayMode=&apos;Default&apos; Precision=&apos;1&apos; CacheIndex=&apos;341&apos; IsVersusHero=&apos;False&apos; Color=&apos;#000000&apos; MinimumSample=&apos;50&apos; ReportHeaderLabel=&apos;&apos;  Prefix=&apos;&apos; IsNegation=&apos;False&apos;&gt;
 &lt;Filters&gt;
 &lt;/Filters&gt;
@@ -75,7 +75,7 @@ namespace Serializer.Tests
 			var srl = new DasSerializer();
 			var xml = srl.ToXml(sc);
 
-			var sc2 = srl.FromXml<SimpleClass>(xml);
+			var sc2 = srl.FromXml<SimpleClassObjectProperty>(xml);
 			var badProp = "";
 			Assert.True(SlowEquality.AreEqual(sc, sc2, ref badProp));
 		}
@@ -86,13 +86,13 @@ namespace Serializer.Tests
 		[Fact]
 		public void ObjectReferenceTypeXml()
 		{
-			var sc = SimpleClass.GetNullPayload();
-			sc.Payload = SimpleClass.GetPrimitivePayload();
+			var sc = SimpleClassObjectProperty.GetNullPayload();
+			sc.Payload = SimpleClassObjectProperty.GetPrimitivePayload();
 			
 			var srl = new DasSerializer();
 			var xml = srl.ToXml(sc);
 
-			var sc2 = srl.FromXml<SimpleClass>(xml);
+			var sc2 = srl.FromXml<SimpleClassObjectProperty>(xml);
 			var badProp = "";
 			Assert.True(SlowEquality.AreEqual(sc, sc2, ref badProp));
 		}
@@ -234,12 +234,12 @@ namespace Serializer.Tests
 		[Fact]
 		public void BlockingXml()
 		{
-			var bc = new BlockingCollection<SimpleClass>();
-			bc.Add(SimpleClass.GetPrimitivePayload());
-			bc.Add(SimpleClass.GetNullPayload());
+			var bc = new BlockingCollection<SimpleClassObjectProperty>();
+			bc.Add(SimpleClassObjectProperty.GetPrimitivePayload());
+			bc.Add(SimpleClassObjectProperty.GetNullPayload());
 
 			var x = Serializer.ToXml(bc);
-			var res = Serializer.FromXml<BlockingCollection<SimpleClass>>(x);
+			var res = Serializer.FromXml<BlockingCollection<SimpleClassObjectProperty>>(x);
 
 			for (var i = 0; i < bc.Count; i++)
 			{
@@ -251,17 +251,17 @@ namespace Serializer.Tests
 		[Fact]
 		public void QueuesXml()
 		{
-			var qs = new Queue<SimpleClass>();
-			qs.Enqueue(SimpleClass.GetPrimitivePayload());
+			var qs = new Queue<SimpleClassObjectProperty>();
+			qs.Enqueue(SimpleClassObjectProperty.GetPrimitivePayload());
 
 			var x = Serializer.ToXml(qs);
-			var qs2 = Serializer.FromXml<Queue<SimpleClass>>(x);
+			var qs2 = Serializer.FromXml<Queue<SimpleClassObjectProperty>>(x);
 
-			var qc = new ConcurrentQueue<SimpleClass>();
-			qc.Enqueue(SimpleClass.GetNullPayload());
+			var qc = new ConcurrentQueue<SimpleClassObjectProperty>();
+			qc.Enqueue(SimpleClassObjectProperty.GetNullPayload());
 
 			x = Serializer.ToXml(qc);
-			var qc2 = Serializer.FromXml<ConcurrentQueue<SimpleClass>>(x);
+			var qc2 = Serializer.FromXml<ConcurrentQueue<SimpleClassObjectProperty>>(x);
 
 		}
 

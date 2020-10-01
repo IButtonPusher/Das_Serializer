@@ -81,7 +81,7 @@ namespace Das.Types
         }
 
         public Boolean TryCreateReadOnlyPropertySetter(PropertyInfo propertyInfo,
-                                                       out Action<Object, Object> setter)
+                                                       out Action<Object, Object?> setter)
         {
             var backingField = GetBackingField(propertyInfo);
             if (backingField == null)
@@ -92,7 +92,6 @@ namespace Das.Types
 
             setter = CreateFieldSetter(backingField);
             return true;
-            //return setter != null;
         }
 
         public Func<Object, Object> CreateFieldGetter(FieldInfo fieldInfo)
@@ -118,7 +117,7 @@ namespace Das.Types
             return (Func<Object, Object>) dynam.CreateDelegate(typeof(Func<Object, Object>));
         }
 
-        public Action<Object, Object> CreateFieldSetter(FieldInfo fieldInfo)
+        public Action<Object, Object?> CreateFieldSetter(FieldInfo fieldInfo)
         {
             var dynam = new DynamicMethod(
                 String.Empty
@@ -144,7 +143,7 @@ namespace Das.Types
 
 
             il.Emit(OpCodes.Ret);
-            return (Action<Object, Object>) dynam.CreateDelegate(typeof(Action<Object, Object>));
+            return (Action<Object, Object?>) dynam.CreateDelegate(typeof(Action<Object, Object?>));
         }
 
         public Func<Object, Object[], Object> CreateFuncCaller(MethodInfo method)
@@ -261,9 +260,6 @@ namespace Das.Types
 
         public Type? GetPropertyType(Type classType, String propName)
         {
-            //if (propName == null)
-            //    return default;
-
             var ts = GetTypeStructure(classType, DepthConstants.AllProperties);
             return ts.MemberTypes.TryGetValue(propName, out var res) ? res.Type : default;
         }
@@ -342,9 +338,9 @@ namespace Das.Types
                 res = (VoidMethod) dynam.CreateDelegate(typeof(VoidMethod));
             }
 
-            _cachedAdders.TryAdd(colType, res);
+            _cachedAdders.TryAdd(colType, res!);
 
-            return res;
+            return res!;
         }
 
 
@@ -363,9 +359,9 @@ namespace Das.Types
                 res = (VoidMethod) dynam.CreateDelegate(typeof(VoidMethod));
             }
 
-            _cachedAdders.TryAdd(colType, res);
+            _cachedAdders.TryAdd(colType, res!);
 
-            return res;
+            return res!;
         }
 
 
@@ -557,8 +553,6 @@ namespace Das.Types
 
             var doCache = Settings.CacheTypeConstructors;
 
-            // ReSharper disable once RedundantAssignment - wrong...
-            //ITypeStructure result = null;
 
             if (IsAlreadyExists(type, doCache, depth, collection, out var result))
                 return result;

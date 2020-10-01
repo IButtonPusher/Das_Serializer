@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 namespace Das.Serializer
 {
     public abstract class NodeProvider<T> : TypeCore,
-                                            IScanNodeProvider<T> where T : INode, IEnumerable<T>
+                                            IScanNodeProvider<T> 
+        where T : INode, IEnumerable<T>
     {
         protected NodeProvider(INodeTypeProvider typeProvider, ISerializerSettings settings)
             : base(settings)

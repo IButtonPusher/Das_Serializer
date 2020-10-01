@@ -112,15 +112,14 @@ namespace Das.Serializer.ProtoBuf
         /// <summary>
         ///     1
         /// </summary>
-        private void AddScanMethod(
-            Type parentType,
-            TypeBuilder bldr,
-            Type genericParent,
-            IEnumerable<IProtoFieldAccessor> fields,
-            Object? exampleObject,
-            Boolean canSetValuesInline,
-            MethodBase buildReturnValue,
-            IDictionary<Type, FieldBuilder> proxies)
+        private void AddScanMethod(Type parentType,
+                                   TypeBuilder bldr,
+                                   Type genericParent,
+                                   IEnumerable<IProtoFieldAccessor> fields,
+                                   Object? exampleObject,
+                                   Boolean canSetValuesInline,
+                                   MethodBase buildReturnValue,
+                                   IDictionary<Type, FieldBuilder> proxies)
         {
             var fieldArr = fields.ToArray();
 
@@ -282,7 +281,8 @@ namespace Das.Serializer.ProtoBuf
         }
 
 
-        private LocalBuilder InstantiateObjectToDefault(ILGenerator il, Type type,
+        private LocalBuilder InstantiateObjectToDefault(ILGenerator il, 
+                                                        Type type,
                                                         MethodBase? buildDefault,
                                                         IEnumerable<IProtoFieldAccessor> fields,
                                                         Object? exampleObject)

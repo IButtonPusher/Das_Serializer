@@ -5,14 +5,14 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    internal class XmlScanner : TextScanner
+    public class XmlScanner : TextScanner
     {
-        public XmlScanner(IConverterProvider converterProvider, ITextContext state)
+        public XmlScanner(IConverterProvider converterProvider, 
+                          ITextContext state)
             : base(converterProvider, state)
         {
             _nodes = state.ScanNodeProvider;
             EscapeChars = new List<Char>();
-            WhiteSpaceChars = new List<Char> {Const.CarriageReturn, '\n', '\t'};
         }
 
         public sealed override Boolean IsRespectXmlIgnore => true;
@@ -64,7 +64,7 @@ namespace Das.Serializer
         }
 
         [MethodImpl(256)]
-        protected sealed override Boolean IsQuote(Char c)
+        protected sealed override Boolean IsQuote(ref Char c)
         {
             return _isOpeningOrClosingTag && (c == Const.Quote || c == Const.SingleQuote);
         }
@@ -101,6 +101,7 @@ namespace Das.Serializer
                     _isOpeningOrClosingTag = true;
                     _isJustClosedTag = false;
                     break;
+
                 case '>':
                     if (_isClosingTag)
                         CloseTag();
@@ -114,6 +115,7 @@ namespace Das.Serializer
                     _isOpeningTag = false;
                     _isOpeningOrClosingTag = false;
                     break;
+
                 case '/':
                     if (!_isInsideTag)
                     {
@@ -124,8 +126,9 @@ namespace Das.Serializer
 
                     _isOpeningTag = false;
                     _isClosingTag = true;
-                    _isOpeningOrClosingTag = true;
+                    _isOpeningOrClosingTag = true; 
                     break;
+
                 case '=':
                     if (_isOpeningTag)
                     {
@@ -140,6 +143,7 @@ namespace Das.Serializer
                     }
 
                     break;
+
                 case Const.Space:
                     //<SomeTag someAttribute...
                     if (_isOpeningTag)
@@ -154,6 +158,7 @@ namespace Das.Serializer
                     }
 
                     break;
+
                 default:
                     if (_isNextTagPivot)
                     {

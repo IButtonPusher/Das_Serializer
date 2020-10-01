@@ -8,7 +8,9 @@ namespace Das.Serializer
     public class PropertyValueIterator<TProperty> : IPropertyValueIterator<TProperty>
         where TProperty : class, INamedValue
     {
+#pragma warning disable 8618
         public PropertyValueIterator()
+#pragma warning restore 8618
         {
             _propertyValues = new List<TProperty>();
         }
@@ -28,7 +30,7 @@ namespace Das.Serializer
         {
             _propertyValues.Clear();
             _current = 0;
-            _currentValue = null;
+            _currentValue = null!;
         }
 
         public Int32 Count => _propertyValues.Count;
@@ -67,6 +69,8 @@ namespace Das.Serializer
         }
 
         protected Int32 _current;
+
+
         protected TProperty _currentValue;
         protected readonly List<TProperty> _propertyValues;
     }

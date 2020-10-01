@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace Das.Serializer
@@ -70,7 +71,8 @@ namespace Das.Serializer
             OpenNode();
         }
 
-        protected sealed override Boolean IsQuote(Char c)
+        [MethodImpl(256)]
+        protected sealed override Boolean IsQuote(ref Char c)
         {
             return c == Const.Quote;
         }
@@ -108,8 +110,15 @@ namespace Das.Serializer
                     AddAttribute();
                     break;
 
+
+                case Const.CarriageReturn:
+                case Const.NewLine:
+                case Const.Tab:
+                case Const.Space:
+                    break;
+
                 default:
-                    if (!WhiteSpaceChars.Contains(c))
+                    //if (!WhiteSpaceChars.Contains(c))
                     {
                         //whitespace outside of quotes is immaterial
                         CurrentNode.Append(c);
