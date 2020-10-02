@@ -1,13 +1,13 @@
 ﻿using System;
-
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
     public class BinaryState : BaseState, IBinaryState
     {
-        internal BinaryState(IStateProvider stateProvider, ISerializerSettings settings, 
-            Func<IBinaryState, BinaryScanner> getScanner,
-            Func<ISerializationCore, ISerializerSettings, IBinaryPrimitiveScanner> getPrimitiveScanner)
+        internal BinaryState(IStateProvider stateProvider, ISerializerSettings settings,
+                             Func<IBinaryState, BinaryScanner> getScanner,
+                             Func<ISerializationCore, ISerializerSettings, IBinaryPrimitiveScanner> getPrimitiveScanner)
             : base(stateProvider, settings)
         {
             _settings = settings;
@@ -22,13 +22,10 @@ namespace Das.Serializer
         public IBinaryScanner Scanner { get; }
 
         public IBinaryPrimitiveScanner PrimitiveScanner { get; }
+
         IBinaryNodeProvider IBinaryContext.ScanNodeProvider => _nodeProvider;
 
         public override IScanNodeProvider ScanNodeProvider => _nodeProvider;
-
-        private readonly BinaryScanner _scanner;
-        private ISerializerSettings _settings;
-        private readonly IBinaryNodeProvider _nodeProvider;
 
         public override ISerializerSettings Settings
         {
@@ -44,5 +41,10 @@ namespace Das.Serializer
         {
             Scanner.Invalidate();
         }
+
+        private readonly IBinaryNodeProvider _nodeProvider;
+
+        private readonly BinaryScanner _scanner;
+        private ISerializerSettings _settings;
     }
 }

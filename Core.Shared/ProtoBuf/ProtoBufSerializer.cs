@@ -31,8 +31,8 @@ namespace Das.Serializer.ProtoBuf
         }
 
         public ProtoBufSerializer(IStateProvider stateProvider,
-            ISerializerSettings settings,
-            IProtoProvider typeProvider)
+                                  ISerializerSettings settings,
+                                  IProtoProvider typeProvider)
             : base(stateProvider, settings)
         {
             StateProvider = stateProvider;
@@ -43,7 +43,7 @@ namespace Das.Serializer.ProtoBuf
             where TObject : class
         {
             var printer = TypeProvider.GetProtoProxy<TObject>(true);
-            
+
             printer.Print(o, stream);
         }
 
@@ -55,7 +55,7 @@ namespace Das.Serializer.ProtoBuf
         }
 
 
-        public IProtoProxy<T> GetProtoProxy<T>(Boolean allowReadOnly = false) 
+        public IProtoProxy<T> GetProtoProxy<T>(Boolean allowReadOnly = false)
         {
             var proxy = TypeProvider.GetProtoProxy<T>(allowReadOnly);
             return proxy;
@@ -66,8 +66,8 @@ namespace Das.Serializer.ProtoBuf
             return TypeProvider.GetAutoProtoProxy<T>(allowReadOnly);
         }
 
-        public bool TryGetProtoField(PropertyInfo prop, Boolean isRequireAttribute, 
-            out IProtoFieldAccessor field)
+        public bool TryGetProtoField(PropertyInfo prop, Boolean isRequireAttribute,
+                                     out IProtoFieldAccessor field)
         {
             return TypeProvider.TryGetProtoField(prop, isRequireAttribute, out field);
         }
@@ -83,14 +83,13 @@ namespace Das.Serializer.ProtoBuf
             return TypeProvider.BuildDefaultValue<T>();
         }
 
-#if DEBUG
-
+        #if DEBUG
         public void DumpProxies()
         {
             TypeProvider.DumpProxies();
         }
 
-#endif
+        #endif
 
 
         public override IScanNodeProvider ScanNodeProvider

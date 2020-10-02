@@ -9,6 +9,6 @@ namespace Das.Serializer
         INodeSealer<ITextNode> Sealer { get; }
 
         ITextNode Get(String name, Dictionary<String, String> attributes,
-            ITextNode parent, ISerializationDepth depth);
+                      ITextNode parent, ISerializationDepth depth);
     }
 }

@@ -61,7 +61,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Objects\IProtoField.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\IProtoFieldAccessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\IProtoProperty.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Objects\IProtoPropertyIterator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\IStronglyTyped.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\IValueNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\NamedValueNode.cs" />

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection.Emit;
+using System.Threading.Tasks;
 using Das.Serializer.Proto;
 
 namespace Das.Serializer.ProtoBuf
@@ -8,48 +9,6 @@ namespace Das.Serializer.ProtoBuf
     // ReSharper disable once UnusedTypeParameter
     public partial class ProtoDynamicProvider<TPropertyAttribute>
     {
-
-        private void PrintVarInt(ProtoPrintState s)
-        {
-            var pv = s.CurrentField;
-
-            var code = pv.TypeCode;
-            var il = s.IL;
-
-            PrintHeaderBytes(pv.HeaderBytes, s);
-            
-            //s.LoadProxyToStack();
-            s.LoadCurrentFieldValueToStack();
-            il.Emit(OpCodes.Ldarg_2);
-
-            switch (code)
-            {
-                case TypeCode.Int32:
-                    il.Emit(OpCodes.Call, _writeInt32);
-                    break;
-
-                case TypeCode.Int64:
-                    il.Emit(OpCodes.Call, _writeInt64);
-                    break;
-
-                case TypeCode.Int16:
-                    il.Emit(OpCodes.Call, _writeInt16);
-                    break;
-
-                case TypeCode.Byte:
-                    il.Emit(OpCodes.Call, _writeInt8);
-                    break;
-
-                case TypeCode.Boolean:
-                    il.Emit(OpCodes.Call, _writeInt32);
-                    break;
-
-                default:
-                    throw new NotImplementedException();
-
-            }
-        }
-
         private void PrintPrimitive(ProtoPrintState s)
         {
             var pv = s.CurrentField;
@@ -83,7 +42,6 @@ namespace Das.Serializer.ProtoBuf
 
                 default:
                     throw new NotImplementedException();
-
             }
         }
 
@@ -93,7 +51,7 @@ namespace Das.Serializer.ProtoBuf
 
             var il = s.IL;
 
-            il.Emit(OpCodes.Ldsfld, _utf8); //this._utf8...
+            il.Emit(OpCodes.Ldsfld, Utf8); //this._utf8...
 
             pushStringValueToStack(s);
 
@@ -107,6 +65,46 @@ namespace Das.Serializer.ProtoBuf
             il.Emit(OpCodes.Ldloc, s.LocalBytes);
             il.Emit(OpCodes.Ldarg_2);
             il.Emit(OpCodes.Call, _writeBytes);
+        }
+
+        private void PrintVarInt(ProtoPrintState s)
+        {
+            var pv = s.CurrentField;
+
+            var code = pv.TypeCode;
+            var il = s.IL;
+
+            PrintHeaderBytes(pv.HeaderBytes, s);
+
+            //s.LoadProxyToStack();
+            s.LoadCurrentFieldValueToStack();
+            il.Emit(OpCodes.Ldarg_2);
+
+            switch (code)
+            {
+                case TypeCode.Int32:
+                    il.Emit(OpCodes.Call, _writeInt32);
+                    break;
+
+                case TypeCode.Int64:
+                    il.Emit(OpCodes.Call, WriteInt64);
+                    break;
+
+                case TypeCode.Int16:
+                    il.Emit(OpCodes.Call, _writeInt16);
+                    break;
+
+                case TypeCode.Byte:
+                    il.Emit(OpCodes.Call, _writeInt8);
+                    break;
+
+                case TypeCode.Boolean:
+                    il.Emit(OpCodes.Call, _writeInt32);
+                    break;
+
+                default:
+                    throw new NotImplementedException();
+            }
         }
     }
 }

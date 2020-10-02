@@ -16,8 +16,6 @@ namespace Das.Serializer
 
         T FromJson<T>(String json);
 
-        T FromJsonEx<T>(String json);
-
         T FromJson<T>(FileInfo file);
 
         T FromJson<T>(Stream stream);
@@ -25,6 +23,8 @@ namespace Das.Serializer
         Object FromJson(String json);
 
         Task<T> FromJsonAsync<T>(Stream stream);
+
+        T FromJsonEx<T>(String json);
 
         String JsonEscape(String str);
 

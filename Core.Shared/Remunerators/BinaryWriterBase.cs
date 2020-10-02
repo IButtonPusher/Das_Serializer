@@ -2,16 +2,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Das.Serializer.Remunerators
 {
     public abstract class BinaryWriterBase<TChildWriter> : BinaryWriterBase
         where TChildWriter : IBinaryWriter
     {
-        // ReSharper disable once CollectionNeverQueried.Local
-        protected readonly List<TChildWriter> Children =
-            new List<TChildWriter>();
-
         public BinaryWriterBase(Stream stream) : base(stream)
         {
         }
@@ -19,10 +16,15 @@ namespace Das.Serializer.Remunerators
         protected BinaryWriterBase(IBinaryWriter parent)
             : base(parent)
         {
-            
         }
 
-        protected BinaryWriterBase(){}
+        protected BinaryWriterBase()
+        {
+        }
+
+        protected abstract TChildWriter GetChildWriter(IPrintNode node, 
+                                                       IBinaryWriter parent,
+                                                       Int32 index);
 
         public override IEnumerator<Byte> GetEnumerator()
         {
@@ -38,26 +40,42 @@ namespace Das.Serializer.Remunerators
             return list;
         }
 
-        protected abstract TChildWriter GetChildWriter(IPrintNode node, IBinaryWriter parent,
-            Int32 index);
+        // ReSharper disable once CollectionNeverQueried.Local
+        protected readonly List<TChildWriter> Children =
+            new List<TChildWriter>();
     }
 
     public abstract class BinaryWriterBase : BinaryWriter, IBinaryWriter
     {
-        public abstract void WriteInt8(Byte value);
-        public abstract void WriteInt8(SByte value);
-        public abstract void WriteInt16(Int16 val);
-        public abstract void WriteInt16(UInt16 val);
-        public abstract void WriteInt32(Int32 value);
-        public abstract void WriteInt32(Int64 val);
-        public abstract void WriteInt64(Int64 val);
-        public abstract void WriteInt64(UInt64 val);
-
-        protected virtual unsafe void Write(Byte* bytes, Int32 count)
+        protected BinaryWriterBase(Stream stream) : base(stream)
         {
-            for (var c = 0; c < count; c++)
-                OutStream.WriteByte(bytes[c]);
         }
+
+        protected BinaryWriterBase(IBinaryWriter parent)
+            : base(parent.OutStream)
+        {
+            Parent = parent;
+        }
+
+        protected BinaryWriterBase()
+        {
+        }
+
+        public abstract void WriteInt8(Byte value);
+
+        public abstract void WriteInt8(SByte value);
+
+        public abstract void WriteInt16(Int16 val);
+
+        public abstract void WriteInt16(UInt16 val);
+
+        public abstract void WriteInt32(Int32 value);
+
+        public abstract void WriteInt32(Int64 val);
+
+        public abstract void WriteInt64(Int64 val);
+
+        public abstract void WriteInt64(UInt64 val);
 
         public virtual Int32 Length => GetDataLength();
 
@@ -83,23 +101,14 @@ namespace Das.Serializer.Remunerators
             }
         }
 
-        public IBinaryWriter Parent { get; protected set; }
+        public IBinaryWriter? Parent { get; protected set; }
 
         public abstract IBinaryWriter Push(IPrintNode node);
 
-        public virtual Int32 GetDataLength() => (Int32) OutStream.Length;
-
-        protected BinaryWriterBase(Stream stream) : base(stream)
+        public virtual Int32 GetDataLength()
         {
+            return (Int32) OutStream.Length;
         }
-
-        protected BinaryWriterBase(IBinaryWriter parent)
-            : base(parent.OutStream)
-        {
-            Parent = parent;
-        }
-
-        protected BinaryWriterBase() {}
 
         public virtual void Imbue(IBinaryWriter writer)
         {
@@ -108,6 +117,7 @@ namespace Das.Serializer.Remunerators
         }
 
         public abstract IEnumerator<Byte> GetEnumerator();
+
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
@@ -121,12 +131,26 @@ namespace Das.Serializer.Remunerators
         Boolean IRemunerable.IsEmpty => BaseStream.Length == 0;
 
 
-        public virtual IBinaryWriter Pop() => this;
+        public virtual IBinaryWriter Pop()
+        {
+            return this;
+        }
 
-        public virtual void Append(Byte[] data) => Write(data);
+        public virtual void Append(Byte[] data)
+        {
+            Write(data);
+        }
 
 
         public void Append(Byte[] data, Int32 limit)
-            => Write(data, 0, limit);
+        {
+            Write(data, 0, limit);
+        }
+
+        protected virtual unsafe void Write(Byte* bytes, Int32 count)
+        {
+            for (var c = 0; c < count; c++)
+                OutStream.WriteByte(bytes[c]);
+        }
     }
 }

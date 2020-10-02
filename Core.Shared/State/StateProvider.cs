@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-
+using System.Threading.Tasks;
 using Das.Serializer.State;
 
 namespace Das.Serializer
 {
     public class StateProvider : CoreContext, IStateProvider
     {
-        public StateProvider(ISerializationCore dynamicFacade, ITextContext xmlContext,
-            ITextContext jsonContext, IBinaryContext binaryContext, ISerializerSettings settings)
+        public StateProvider(ISerializationCore dynamicFacade, 
+                             ITextContext xmlContext,
+                             ITextContext jsonContext, 
+                             IBinaryContext binaryContext, 
+                             ISerializerSettings settings)
             : base(dynamicFacade, settings)
         {
             XmlContext = xmlContext;
@@ -19,45 +22,23 @@ namespace Das.Serializer
         }
 
         public ITextContext XmlContext { get; }
+
         public ITextContext JsonContext { get; }
+
         public IBinaryContext BinaryContext { get; }
 
         public override IScanNodeProvider ScanNodeProvider => BinaryContext.ScanNodeProvider;
 
         public IObjectConverter ObjectConverter { get; }
 
-        private static Queue<IBinaryLoaner> BinaryBuffer => _binaryBuffer.Value;
-
-        protected static readonly ThreadLocal<Queue<IBinaryLoaner>> _binaryBuffer
-            = new ThreadLocal<Queue<IBinaryLoaner>>(() => new Queue<IBinaryLoaner>());
-
-        private static Queue<IXmlLoaner> XmlBuffer => _xmlBuffer.Value;
-
-        protected static readonly ThreadLocal<Queue<IXmlLoaner>> _xmlBuffer
-            = new ThreadLocal<Queue<IXmlLoaner>>(() => new Queue<IXmlLoaner>());
-
-        private static Queue<IJsonLoaner> JsonBuffer => _jsonBuffer.Value;
-
-        protected static readonly ThreadLocal<Queue<IJsonLoaner>> _jsonBuffer
-            = new ThreadLocal<Queue<IJsonLoaner>>(() => new Queue<IJsonLoaner>());
-
-        private static void ReturnToLibrary(IBinaryLoaner loaned)
-            => BinaryBuffer.Enqueue(loaned);
-
-        private static void ReturnToLibrary(IXmlLoaner loaned)
-            => XmlBuffer.Enqueue(loaned);
-
-        private static void ReturnToLibrary(IJsonLoaner loaned)
-            => JsonBuffer.Enqueue(loaned);
-
         public IBinaryLoaner BorrowBinary(ISerializerSettings settings)
         {
             var buffer = BinaryBuffer;
             var state = buffer.Count > 0
                 ? buffer.Dequeue()
-                : new BinaryBorrawable(ReturnToLibrary, settings, this, 
-                    s => new BinaryScanner(s), 
-                    (c, s) => new BinaryPrimitiveScanner(c,s));
+                : new BinaryBorrawable(ReturnToLibrary, settings, this,
+                    s => new BinaryScanner(s),
+                    (c, s) => new BinaryPrimitiveScanner(c, s));
             state.UpdateSettings(settings);
             return state;
         }
@@ -81,5 +62,35 @@ namespace Das.Serializer
             state.UpdateSettings(settings);
             return state;
         }
+
+        private static Queue<IBinaryLoaner> BinaryBuffer => _binaryBuffer.Value;
+
+        private static Queue<IJsonLoaner> JsonBuffer => _jsonBuffer.Value;
+
+        private static Queue<IXmlLoaner> XmlBuffer => _xmlBuffer.Value;
+
+        private static void ReturnToLibrary(IBinaryLoaner loaned)
+        {
+            BinaryBuffer.Enqueue(loaned);
+        }
+
+        private static void ReturnToLibrary(IXmlLoaner loaned)
+        {
+            XmlBuffer.Enqueue(loaned);
+        }
+
+        private static void ReturnToLibrary(IJsonLoaner loaned)
+        {
+            JsonBuffer.Enqueue(loaned);
+        }
+
+        protected static readonly ThreadLocal<Queue<IBinaryLoaner>> _binaryBuffer
+            = new ThreadLocal<Queue<IBinaryLoaner>>(() => new Queue<IBinaryLoaner>());
+
+        protected static readonly ThreadLocal<Queue<IXmlLoaner>> _xmlBuffer
+            = new ThreadLocal<Queue<IXmlLoaner>>(() => new Queue<IXmlLoaner>());
+
+        protected static readonly ThreadLocal<Queue<IJsonLoaner>> _jsonBuffer
+            = new ThreadLocal<Queue<IJsonLoaner>>(() => new Queue<IJsonLoaner>());
     }
 }

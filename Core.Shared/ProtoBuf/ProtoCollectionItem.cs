@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Das.Serializer.ProtoBuf
 {
@@ -9,18 +10,17 @@ namespace Das.Serializer.ProtoBuf
             var germane = types.GetGermaneType(collectionType);
             var wire = ProtoBufSerializer.GetWireType(germane);
             var isValidLengthDelim = wire == ProtoWireTypes.LengthDelimited
-                                     && germane != Const.StrType 
+                                     && germane != Const.StrType
                                      && germane != Const.ByteArrayType;
             IsRepeatedField = isValidLengthDelim && types.IsCollection(germane);
 
             Name = String.Empty;
             Type = germane;
             WireType = wire;
-            Header = (Int32)wire + (fieldIndex << 3);
+            Header = (Int32) wire + (fieldIndex << 3);
             Index = 1;
             IsLeafType = types.IsLeaf(germane, false);
             TypeCode = Type.GetTypeCode(germane);
-
         }
 
         public Type Type { get; set; }

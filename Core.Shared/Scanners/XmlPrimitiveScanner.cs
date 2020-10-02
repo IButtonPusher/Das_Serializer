@@ -3,17 +3,12 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using System.Threading;
-
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
     public class XmlPrimitiveScanner : StringPrimitiveScanner
     {
-        public XmlPrimitiveScanner(ISerializationContext state) : base(state)
-        {
-            
-        }
-
         static XmlPrimitiveScanner()
         {
             Entities = new Dictionary<String, String>
@@ -26,24 +21,22 @@ namespace Das.Serializer
             };
         }
 
+        public XmlPrimitiveScanner(ISerializationContext state) : base(state)
+        {
+        }
+
         private static Dictionary<String, String> Entities { get; }
 
-        public override String Descape(String input) => HtmlDecode(input);
-
-        private static readonly ThreadLocal<StringBuilder> RawEntity
-            = new ThreadLocal<StringBuilder>(() => new StringBuilder());
-
-        private static readonly ThreadLocal<StringBuilder> Entity
-            = new ThreadLocal<StringBuilder>(() => new StringBuilder());
-
-        private static readonly ThreadLocal<StringBuilder> Output
-            = new ThreadLocal<StringBuilder>(() => new StringBuilder());
+        public override String Descape(String input)
+        {
+            return HtmlDecode(input);
+        }
 
         //https://github.com/mono/mono/blob/master/mcs/class/System.Web/System.Web.Util/HttpEncoder.cs
-        public static String HtmlDecode(String s)
+        public static String HtmlDecode(String? s)
         {
             if (s == null)
-                return null;
+                return null!;
 
             if (s.Length == 0)
                 return String.Empty;
@@ -116,13 +109,9 @@ namespace Das.Serializer
                         number = 0;
                         isHexValue = false;
                         if (c != '#')
-                        {
                             state = 2;
-                        }
                         else
-                        {
                             state = 3;
-                        }
 
                         entity.Append(c);
                         rawEntity.Append(c);
@@ -146,7 +135,9 @@ namespace Das.Serializer
                     if (c == ';')
                     {
                         if (number == 0)
+                        {
                             output.Append(rawEntity + ";");
+                        }
                         else if (number > 65535)
                         {
                             output.Append("&#");
@@ -195,15 +186,19 @@ namespace Das.Serializer
             }
 
             if (entity.Length > 0)
-            {
                 output.Append(entity);
-            }
-            else if (haveTrailingDigits)
-            {
-                output.Append(number.ToString(CultureInfo.InvariantCulture));
-            }
+            else if (haveTrailingDigits) output.Append(number.ToString(CultureInfo.InvariantCulture));
 
             return output.ToString();
         }
+
+        private static readonly ThreadLocal<StringBuilder> RawEntity
+            = new ThreadLocal<StringBuilder>(() => new StringBuilder());
+
+        private static readonly ThreadLocal<StringBuilder> Entity
+            = new ThreadLocal<StringBuilder>(() => new StringBuilder());
+
+        private static readonly ThreadLocal<StringBuilder> Output
+            = new ThreadLocal<StringBuilder>(() => new StringBuilder());
     }
 }

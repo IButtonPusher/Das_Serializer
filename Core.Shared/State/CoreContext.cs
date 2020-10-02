@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.ComponentModel;
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
@@ -14,11 +15,13 @@ namespace Das.Serializer
 
         public abstract IScanNodeProvider ScanNodeProvider { get; }
 
-        private readonly ConcurrentDictionary<Type, TypeConverter> _typeConverters;
-
         public TypeConverter GetTypeConverter(Type type)
-            => _typeConverters.TryGetValue(type, out var found) ? found :
-                _typeConverters.GetOrAdd(type, TypeDescriptor.GetConverter(type));
-        
+        {
+            return _typeConverters.TryGetValue(type, out var found)
+                ? found
+                : _typeConverters.GetOrAdd(type, TypeDescriptor.GetConverter(type));
+        }
+
+        private readonly ConcurrentDictionary<Type, TypeConverter> _typeConverters;
     }
 }

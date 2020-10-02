@@ -2,24 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
     public class TextNodeSealer : BaseNodeSealer<ITextNode>
     {
-        private readonly INodeManipulator _values;
-        private readonly INodeTypeProvider _typeProvider;
-        private readonly ISerializationCore _facade;
-        private readonly IStringPrimitiveScanner _scanner;
-        private readonly ITypeManipulator _typeManipulator;
-        private readonly IObjectManipulator _objects;
-
-        private static readonly NullNode NullNode = NullNode.Instance;
-
         public TextNodeSealer(INodeManipulator nodeValues,
-            IStringPrimitiveScanner scanner, ISerializationCore facade,
-            ISerializerSettings settings) : base(facade, nodeValues, settings)
+                              IStringPrimitiveScanner scanner, ISerializationCore facade,
+                              ISerializerSettings settings) : base(facade, nodeValues, settings)
         {
             _values = nodeValues;
             _typeProvider = facade.NodeTypeProvider;
@@ -28,6 +19,33 @@ namespace Das.Serializer
             _typeManipulator = facade.TypeManipulator;
             _scanner = scanner;
             _objects = facade.ObjectManipulator;
+        }
+
+        private void BuildFromReference(ITextNode node, String refValue)
+        {
+            var refLength = refValue.Length;
+            var chain = new Stack<ITextNode>();
+            var current = node.Parent;
+            while (NullNode != current)
+            {
+                chain.Push(current);
+                current = current.Parent;
+            }
+
+            current = chain.Pop();
+            var sb = new StringBuilder(current.Name);
+            while (sb.Length < refLength)
+            {
+                current = chain.Pop();
+                sb.Append($"/{current.Name}");
+            }
+
+            if (current.Value == null)
+                _values.TryBuildValue(current);
+
+            node.Value = current.Value;
+            if (NullNode != node.Parent && node.Value != null)
+                Imbue(node.Parent, node.Name, node.Value);
         }
 
         public override void CloseNode(ITextNode node)
@@ -55,7 +73,7 @@ namespace Das.Serializer
                             return;
                         }
 
-                        var type = node.Type != null 
+                        var type = node.Type != null
                             ? _typeManipulator.GetPropertyType(node.Type, attr.Key)
                             : null;
 
@@ -64,7 +82,20 @@ namespace Das.Serializer
 
                         var str = attr.Value;
 
-                        var val = _scanner.GetValue(str, type) ?? str;
+                        //trying to force it into a string leads to setting object's values to strings
+                        //which goes poorly...
+                        //var val = _scanner.GetValue(str, type) ?? str;
+
+                        var val = _scanner.GetValue(str, type);
+
+                        if (val == null)
+                        {
+                            if (Settings.PropertySearchDepth == TextPropertySearchDepths.AsTypeInLoadedModules)
+                                val = str;
+
+                            else continue;
+                        }
+
                         var wal = node.Value;
                         _objects.SetProperty(node.Type, attr.Key, ref wal!, val);
                     }
@@ -90,7 +121,7 @@ namespace Das.Serializer
 
                     #region collate property types, generate type, set prop values
 
-                    if (node.Type != null && 
+                    if (node.Type != null &&
                         _facade.TypeInferrer.IsCollection(node.Type))
                     {
                         var gt = _facade.TypeInferrer.GetGermaneType(node.Type);
@@ -134,16 +165,14 @@ namespace Das.Serializer
                         var propName = pv.Key;
                         var value = pv.Value;
                         if (!dynamicType.IsLegalValue(propName, value))
-                        {
                             if (value is String str)
                             {
                                 var propType = dynamicType.GetPropertyType(propName);
                                 if (propType == null)
                                     continue;
-                                
+
                                 value = _scanner.GetValue(str, propType);
                             }
-                        }
 
                         var wal = node.Value;
                         dynamicType.SetPropertyValue(ref wal!, propName, value);
@@ -157,7 +186,6 @@ namespace Das.Serializer
                 case NodeTypes.Fallback:
 
                     #region serialize/maybe takes string as a constructor
-                  
 
                     if (node.Text.Length == 0)
                     {
@@ -171,7 +199,7 @@ namespace Das.Serializer
 
                     if (node.Type != null)
                         node.Value = _scanner.GetValue(txt, node.Type);
-                        
+
                     if (isGoodReturnType && node.Value != null)
                         Imbue(node.Parent, node.Name, node.Value);
 
@@ -186,36 +214,9 @@ namespace Das.Serializer
                 Imbue(parent, node.Name, node.Value);
         }
 
-        private void BuildFromReference(ITextNode node, String refValue)
-        {
-            var refLength = refValue.Length;
-            var chain = new Stack<ITextNode>();
-            var current = node.Parent;
-            while (NullNode != current)
-            {
-                chain.Push(current);
-                current = current.Parent;
-            }
-
-            current = chain.Pop();
-            var sb = new StringBuilder(current.Name);
-            while (sb.Length < refLength)
-            {
-                current = chain.Pop();
-                sb.Append($"/{current.Name}");
-            }
-
-            if (current.Value == null)
-                _values.TryBuildValue(current);
-
-            node.Value = current.Value;
-            if (NullNode != node.Parent && node.Value != null)
-                Imbue(node.Parent, node.Name, node.Value);
-        }
-
 
         public override Boolean TryGetPropertyValue(ITextNode node, String key,
-            Type propertyType, out Object val)
+                                                    Type propertyType, out Object val)
         {
             var propKey = _facade.TypeInferrer.ToPropertyStyle(key);
 
@@ -236,5 +237,13 @@ namespace Das.Serializer
 
             return false;
         }
+
+        private static readonly NullNode NullNode = NullNode.Instance;
+        private readonly ISerializationCore _facade;
+        private readonly IObjectManipulator _objects;
+        private readonly IStringPrimitiveScanner _scanner;
+        private readonly ITypeManipulator _typeManipulator;
+        private readonly INodeTypeProvider _typeProvider;
+        private readonly INodeManipulator _values;
     }
 }

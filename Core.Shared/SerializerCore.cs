@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
     public abstract class SerializerCore : TypeCore, ISerializationCore
     {
-        protected SerializerCore(ISerializationCore dynamicFacade, 
-            ISerializerSettings settings)
+        protected SerializerCore(ISerializationCore dynamicFacade,
+                                 ISerializerSettings settings)
             : base(settings)
         {
             TextParser = dynamicFacade.TextParser;
@@ -26,7 +27,7 @@ namespace Das.Serializer
                 : new ConcurrentDictionary<Type, Type>(Surrogates);
         }
 
-        public ITextParser TextParser { get; }  
+        public ITextParser TextParser { get; }
 
         public IDynamicTypes DynamicTypes { get; }
 
@@ -35,16 +36,19 @@ namespace Das.Serializer
         public ITypeInferrer TypeInferrer { get; }
 
         public ITypeManipulator TypeManipulator { get; }
+
         public IAssemblyList AssemblyList { get; }
 
         public IObjectManipulator ObjectManipulator { get; }
 
-        protected readonly ConcurrentDictionary<Type, Type> Surrogates;
-
         IDictionary<Type, Type> ISerializationCore.Surrogates => Surrogates;
+
         public INodeTypeProvider NodeTypeProvider { get; }
 
         public INodePool PrintNodePool { get; }
+
         public INodeManipulator ScanNodeManipulator { get; }
+
+        protected readonly ConcurrentDictionary<Type, Type> Surrogates;
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace Das.Serializer.Remunerators
 {
@@ -16,13 +17,9 @@ namespace Das.Serializer.Remunerators
         {
         }
 
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-        protected override DeferredBinaryWriter GetChildWriter(IPrintNode node, IBinaryWriter parent, 
-            Int32 index)
+        IEnumerator IEnumerable.GetEnumerator()
         {
-            var list = new DeferredBinaryWriter(node, this);
-            return list;
+            return GetEnumerator();
         }
 
 
@@ -74,9 +71,13 @@ namespace Das.Serializer.Remunerators
             var pi = (Byte*) &val;
             Write(pi, 8);
         }
-       
 
-       
-        
+        protected override DeferredBinaryWriter GetChildWriter(IPrintNode node, 
+                                                               IBinaryWriter parent,
+                                                               Int32 index)
+        {
+            var list = new DeferredBinaryWriter(node, this);
+            return list;
+        }
     }
 }

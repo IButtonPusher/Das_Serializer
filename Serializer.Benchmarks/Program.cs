@@ -17,7 +17,9 @@ namespace Serializer.Benchmarks
 #if DEBUG
             //RunManyTimes();
 
-            RunJsonManyTimes();
+            //RunJsonManyTimes();
+
+            RunXmlManyTimes();
 
 #endif
 #if !DEBUG
@@ -40,6 +42,24 @@ namespace Serializer.Benchmarks
             {
                 bm.PrimitivePropertiesJsonBaseline();
                 bm.PrimitivePropertiesJsonExpress();
+
+            }
+        }
+
+        private static void RunXmlManyTimes()
+        {
+            var bm = new XmlBenchmarks();
+
+            for (var c = 0; c < 10000; c++)
+            {
+                bm.PrimitivePropertiesBaseline();
+                bm.PrimitivePropertiesExpress();
+
+                bm.PrimitiveCollectionBaseline();
+                bm.PrimitiveCollectionExpress();
+
+                bm.ObjectCollectionBaseline();
+                bm.ObjectCollectionExpress();
             }
 
         }

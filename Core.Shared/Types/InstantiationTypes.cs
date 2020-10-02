@@ -1,4 +1,7 @@
-﻿namespace Das.Types
+﻿using System;
+using System.Threading.Tasks;
+
+namespace Das.Types
 {
     public enum InstantiationTypes
     {

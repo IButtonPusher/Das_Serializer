@@ -1,26 +1,11 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
     public class ByteArray : IByteArray
     {
-        private Byte[] _bytes;
-        [ThreadStatic] private static Byte[]? _byteCache;
-
-        // ReSharper disable once UnusedMember.Global
-        public Byte[] Bytes
-        {
-            get => _bytes;
-            set
-            {
-                _bytes = value;
-                _lastIndex = 0;
-            }
-        }
-
-        private Int32 _lastIndex;
-
         public ByteArray(Byte[] array)
         {
             _bytes = array;
@@ -52,9 +37,6 @@ namespace Das.Serializer
             _lastIndex--;
         }
 
-        public static implicit operator ByteArray(Byte[] array) 
-            => new ByteArray(array);
-
         public Byte GetNextByte()
         {
             return _bytes[_lastIndex++];
@@ -82,7 +64,7 @@ namespace Das.Serializer
         public Byte[] IncludeBytes(Int32 count)
         {
             if (_byteCache == null)
-                _byteCache=new Byte[Math.Max(100, count)];
+                _byteCache = new Byte[Math.Max(100, count)];
             else if (_byteCache.Length < count)
                 _byteCache = new Byte[count];
 
@@ -95,5 +77,25 @@ namespace Das.Serializer
 
         public Int64 Index => _lastIndex;
 
+        // ReSharper disable once UnusedMember.Global
+        public Byte[] Bytes
+        {
+            get => _bytes;
+            set
+            {
+                _bytes = value;
+                _lastIndex = 0;
+            }
+        }
+
+        public static implicit operator ByteArray(Byte[] array)
+        {
+            return new ByteArray(array);
+        }
+
+        [ThreadStatic] private static Byte[]? _byteCache;
+        private Byte[] _bytes;
+
+        private Int32 _lastIndex;
     }
 }

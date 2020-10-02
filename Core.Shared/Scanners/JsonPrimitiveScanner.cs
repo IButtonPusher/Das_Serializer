@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
@@ -11,9 +12,6 @@ namespace Das.Serializer
         }
 
         private static StringBuilder Builder => _buffer.Value;
-
-        private static readonly ThreadLocal<StringBuilder> _buffer
-            = new ThreadLocal<StringBuilder>(() => new StringBuilder());
 
         public override String Descape(String input)
         {
@@ -84,7 +82,9 @@ namespace Das.Serializer
 
 
                     else
+                    {
                         sbString.Append(c);
+                    }
 
                     i++;
                 }
@@ -92,5 +92,8 @@ namespace Das.Serializer
 
             return sbString.ToString();
         }
+
+        private static readonly ThreadLocal<StringBuilder> _buffer
+            = new ThreadLocal<StringBuilder>(() => new StringBuilder());
     }
 }

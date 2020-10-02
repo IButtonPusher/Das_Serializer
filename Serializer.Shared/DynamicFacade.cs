@@ -1,33 +1,20 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Das.Types;
 
 namespace Das.Serializer
 {
-    internal class DynamicFacade : ISerializationCore
+    public class DynamicFacade : ISerializationCore
     {
-        public ITextParser TextParser { get; }
-        public IDynamicTypes DynamicTypes { get; }
-        public IInstantiator ObjectInstantiator { get; }
-        public ITypeInferrer TypeInferrer { get; }
-        public ITypeManipulator TypeManipulator { get; }
-
-        public IAssemblyList AssemblyList { get; }
-        public IObjectManipulator ObjectManipulator { get; }
-        public IDictionary<Type, Type> Surrogates { get; }
-        public INodeTypeProvider NodeTypeProvider { get; }
-
-        public INodePool PrintNodePool { get; }
-        public INodeManipulator ScanNodeManipulator { get; }
-
         public DynamicFacade(ISerializerSettings settings)
             : this(settings, new ConcurrentDictionary<Type, Type>())
         {
         }
 
         public DynamicFacade(ISerializerSettings settings,
-            IDictionary<Type, Type> typeSurrogates)
+                             IDictionary<Type, Type> typeSurrogates)
         {
             var assemblyList = new AssemblyList();
             AssemblyList = assemblyList;
@@ -42,7 +29,7 @@ namespace Das.Serializer
             var typeManipulator = new TypeManipulator(settings, PrintNodePool);
             TypeManipulator = typeManipulator;
 
-            var manipulator = new ObjectManipulator(typeManipulator);
+            var manipulator = new ObjectManipulator(typeManipulator, settings);
             ObjectManipulator = manipulator;
 
             var dynamicTypes = new DasTypeBuilder(settings, typeManipulator, manipulator);
@@ -57,11 +44,32 @@ namespace Das.Serializer
                 ? conc
                 : new ConcurrentDictionary<Type, Type>(typeSurrogates);
 
-            
+
             NodeTypeProvider = nodeTypeProvider;
 
             ScanNodeManipulator = new NodeManipulator(this, settings);
-            
         }
+
+        public ITextParser TextParser { get; }
+
+        public IDynamicTypes DynamicTypes { get; }
+
+        public IInstantiator ObjectInstantiator { get; }
+
+        public ITypeInferrer TypeInferrer { get; }
+
+        public ITypeManipulator TypeManipulator { get; }
+
+        public IAssemblyList AssemblyList { get; }
+
+        public IObjectManipulator ObjectManipulator { get; }
+
+        public IDictionary<Type, Type> Surrogates { get; }
+
+        public INodeTypeProvider NodeTypeProvider { get; }
+
+        public INodePool PrintNodePool { get; }
+
+        public INodeManipulator ScanNodeManipulator { get; }
     }
 }

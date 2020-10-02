@@ -1,11 +1,29 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Das.Serializer.Remunerators
 {
     public class ByteBuilder : IEnumerable<Byte>
     {
+        public ByteBuilder()
+        {
+            _backingList = new List<Byte>();
+        }
+
+        public IEnumerator<Byte> GetEnumerator()
+        {
+            return _backingList.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable) _backingList).GetEnumerator();
+        }
+
+        public Int32 Count => _backingList.Count;
+
         public Byte this[Int32 i]
         {
             // ReSharper disable once UnusedMember.Global
@@ -13,23 +31,17 @@ namespace Das.Serializer.Remunerators
             set => _backingList[i] = value;
         }
 
-        private readonly List<Byte> _backingList;
-
-        public Int32 Count => _backingList.Count;
-
-        public ByteBuilder()
+        public void Append(IEnumerable<Byte> buffer)
         {
-            _backingList = new List<Byte>();
+            _backingList.AddRange(buffer);
         }
 
-        public void Append(IEnumerable<Byte> buffer) => _backingList.AddRange(buffer);
 
+        public void Append(Byte b)
+        {
+            _backingList.Add(b);
+        }
 
-        public void Append(Byte b) => _backingList.Add(b);
-
-
-        public void Clear() => _backingList.Clear();
-        
 
         public void Append(Byte[] data, Int32 limit)
         {
@@ -53,14 +65,12 @@ namespace Das.Serializer.Remunerators
                 _backingList.Add(bytes[c]);
         }
 
-        public IEnumerator<Byte> GetEnumerator()
+
+        public void Clear()
         {
-            return _backingList.GetEnumerator();
+            _backingList.Clear();
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return ((IEnumerable) _backingList).GetEnumerator();
-        }
+        private readonly List<Byte> _backingList;
     }
 }

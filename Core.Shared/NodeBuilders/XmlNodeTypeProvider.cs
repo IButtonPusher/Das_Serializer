@@ -1,15 +1,12 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
     public class XmlNodeTypeProvider : NodeManipulator
     {
-        private readonly IStringPrimitiveScanner _scanner;
-        private readonly ITextParser _textParser;
-        private readonly ITypeInferrer _typeInferrer;
-
         public XmlNodeTypeProvider(ISerializationCore dynamicFacade,
-            IStringPrimitiveScanner scanner, ISerializerSettings settings)
+                                   IStringPrimitiveScanner scanner, ISerializerSettings settings)
             : base(dynamicFacade, settings)
         {
             _scanner = scanner;
@@ -17,7 +14,7 @@ namespace Das.Serializer
             _typeInferrer = dynamicFacade.TypeInferrer;
         }
 
-        protected override Boolean TryGetExplicitType(INode node, out Type type)
+        protected sealed override Boolean TryGetExplicitType(INode node, out Type type)
         {
             if (node.Attributes.TryGetValue(Const.XmlType, out var xmlType))
             {
@@ -28,9 +25,16 @@ namespace Das.Serializer
 
                 node.Attributes.Remove(Const.XmlType);
             }
-            else type = default!;
+            else
+            {
+                type = default!;
+            }
 
             return type != null;
         }
+
+        private readonly IStringPrimitiveScanner _scanner;
+        private readonly ITextParser _textParser;
+        private readonly ITypeInferrer _typeInferrer;
     }
 }

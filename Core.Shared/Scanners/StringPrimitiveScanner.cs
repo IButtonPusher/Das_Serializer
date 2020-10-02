@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Globalization;
-
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
@@ -11,9 +11,7 @@ namespace Das.Serializer
             _state = state;
         }
 
-        private readonly ISerializationContext _state;
-
-        public Object GetValue(String input, Type type)
+        public Object GetValue(String? input, Type type)
         {
             if (type == Const.ObjectType)
             {
@@ -31,21 +29,24 @@ namespace Das.Serializer
                     return dec;
             }
             else if (type.IsEnum)
+            {
                 return Enum.Parse(type, input);
+            }
 
             else if (type == Const.StrType)
+            {
                 return Descape(input);
+            }
 
             else if (Const.IConvertible.IsAssignableFrom(type))
+            {
                 return Convert.ChangeType(input, type, CultureInfo.InvariantCulture);
+            }
 
             else
             {
                 var ctor = type.GetConstructor(new[] {typeof(String)});
-                if (ctor != null)
-                {
-                    return Activator.CreateInstance(type, input);
-                }
+                if (ctor != null) return Activator.CreateInstance(type, input);
             }
 
             if (type == Const.ObjectType)
@@ -60,5 +61,7 @@ namespace Das.Serializer
         }
 
         public abstract String Descape(String input);
+
+        private readonly ISerializationContext _state;
     }
 }

@@ -1,4 +1,5 @@
-﻿
+﻿using System;
+using System.Threading.Tasks;
 
 namespace Das.Serializer.State
 {
@@ -15,7 +16,6 @@ namespace Das.Serializer.State
             Sealer = new TextNodeSealer(manipulator, PrimitiveScanner, dynamicFacade, settings);
         }
 
-        private readonly ITextNodeProvider _nodeProvider;
         ITextNodeProvider ITextContext.ScanNodeProvider => _nodeProvider;
 
         public override IScanNodeProvider ScanNodeProvider => _nodeProvider;
@@ -23,5 +23,7 @@ namespace Das.Serializer.State
         public INodeSealer<ITextNode> Sealer { get; }
 
         public IStringPrimitiveScanner PrimitiveScanner { get; }
+
+        private readonly ITextNodeProvider _nodeProvider;
     }
 }

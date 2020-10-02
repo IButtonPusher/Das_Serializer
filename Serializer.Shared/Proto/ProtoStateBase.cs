@@ -8,13 +8,12 @@ namespace Das.Serializer.Proto
 {
     public abstract class ProtoStateBase
     {
-        protected ProtoStateBase(
-            ILGenerator il,
-            IProtoFieldAccessor currentField,
-            Type parentType, 
-            Action<ILGenerator>? loadCurrentValueOntoStack,
-            IDictionary<Type, FieldBuilder> proxies,
-            ITypeCore types)
+        protected ProtoStateBase(ILGenerator il,
+                                 IProtoFieldAccessor currentField,
+                                 Type parentType,
+                                 Action<ILGenerator>? loadCurrentValueOntoStack,
+                                 IDictionary<Type, FieldBuilder> proxies,
+                                 ITypeCore types)
         {
             _il = il;
             _proxies = proxies;
@@ -25,12 +24,6 @@ namespace Das.Serializer.Proto
             LoadCurrentValueOntoStack = loadCurrentValueOntoStack;
         }
 
-
-        public FieldBuilder GetProxy(Type type)
-        {
-            return _proxies[type];
-        }
-
         public IProtoFieldAccessor CurrentField { get; set; }
 
         public ILGenerator IL => _il;
@@ -38,6 +31,12 @@ namespace Das.Serializer.Proto
         public Action<ILGenerator>? LoadCurrentValueOntoStack { get; }
 
         public Type ParentType { get; }
+
+
+        public FieldBuilder GetProxy(Type type)
+        {
+            return _proxies[type];
+        }
 
 
         public void LoadCurrentFieldValueToStack()

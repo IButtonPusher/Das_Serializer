@@ -2,6 +2,8 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using ProtoBuf;
+// ReSharper disable All
+#pragma warning disable 8618
 
 namespace Serializer.Tests.ProtocolBuffers
 {

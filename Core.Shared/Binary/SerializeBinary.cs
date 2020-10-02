@@ -1,16 +1,18 @@
-﻿using Das.Printers;
-using System;
+﻿using System;
 using System.IO;
-using Das.Serializer.Remunerators;
+using System.Threading.Tasks;
+using Das.Printers;
 using Das.Serializer.Files;
+using Das.Serializer.Remunerators;
 
 namespace Das.Serializer
 {
     public partial class DasCoreSerializer
     {
-        
-
-        public Byte[] ToBytes(Object o) => ToBytes(o, Const.ObjectType);
+        public Byte[] ToBytes(Object o)
+        {
+            return ToBytes(o, Const.ObjectType);
+        }
 
         public Byte[] ToBytes(Object o, Type asType)
         {
@@ -21,18 +23,22 @@ namespace Das.Serializer
                 using (var state = StateProvider.BorrowBinary(Settings))
                 using (var bp = new BinaryPrinter(bWriter, state))
                 {
-                    //var node = new NamedValueNode(Const.Root, o, asType);
                     using (var node = PrintNodePool.GetNamedValue(Const.Root, o, asType))
+                    {
                         bp.PrintNode(node);
+                    }
                 }
 
                 return ms.ToArray();
             }
         }
 
-        public Byte[] ToBytes<TObject>(TObject o) => o == null 
-            ? throw new ArgumentNullException(nameof(o)) 
-            : ToBytes(o, typeof(TObject));
+        public Byte[] ToBytes<TObject>(TObject o)
+        {
+            return o == null
+                ? throw new ArgumentNullException(nameof(o))
+                : ToBytes(o, typeof(TObject));
+        }
 
 
         // ReSharper disable once UnusedMember.Global
@@ -50,7 +56,9 @@ namespace Das.Serializer
             var bytes = ToBytes(o);
 
             using (var _ = new SafeFile(fi))
+            {
                 File.WriteAllBytes(fi.FullName, bytes);
+            }
         }
 
         // ReSharper disable once UnusedMember.Global

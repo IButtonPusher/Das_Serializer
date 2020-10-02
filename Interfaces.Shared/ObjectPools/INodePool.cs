@@ -16,6 +16,6 @@ namespace Das.Serializer
         IPrintNode GetPrintNode(INamedValue namedValue, Object? overrideValue);
 
         IProperty GetProperty(String propertyName, Object propertyValue,
-            Type propertyType, Type declaringType);
+                              Type propertyType, Type declaringType);
     }
 }

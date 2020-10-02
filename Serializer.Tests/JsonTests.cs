@@ -46,12 +46,12 @@ namespace Serializer.Tests
         [Fact]
         public void PrimitivePropertiesJson()
         {
-            var sc = SimpleClass.GetNullPayload();
+            var sc = SimpleClassObjectProperty.GetNullPayload();
 
             var srl = new DasSerializer();
             var json = srl.ToJson(sc);
 
-            var sc2 = srl.FromJson<SimpleClass>(json);
+            var sc2 = srl.FromJson<SimpleClassObjectProperty>(json);
             var badProp = "";
             Assert.True(SlowEquality.AreEqual(sc, sc2, ref badProp));
         }
@@ -61,7 +61,7 @@ namespace Serializer.Tests
         [Fact]
         public void ExcludeDefaultValuesJson()
         {
-            var sc = SimpleClass.GetNullPayload();
+            var sc = SimpleClassObjectProperty.GetNullPayload();
             sc.ID = 0;
             var settings = DasSettings.Default;
 
@@ -69,7 +69,7 @@ namespace Serializer.Tests
             settings.IsOmitDefaultValues = true;
             var json = srl.ToJson(sc);
 
-            var sc2 = srl.FromJson<SimpleClass>(json);
+            var sc2 = srl.FromJson<SimpleClassObjectProperty>(json);
             var badProp = "";
             Assert.True(SlowEquality.AreEqual(sc, sc2, ref badProp));
         }
@@ -77,7 +77,7 @@ namespace Serializer.Tests
         [Fact]
         public void ReadOnlyPropertiesJson()
         {
-            var sc = new SimpleClass("to everyone");
+            var sc = new SimpleClassObjectProperty("to everyone");
             sc.ID = 0;
             var settings = DasSettings.Default;
             settings.IsOmitDefaultValues = true;
@@ -86,7 +86,7 @@ namespace Serializer.Tests
 
             var json = srl.ToJson(sc);
 
-            var sc2 = srl.FromJson<SimpleClass>(json);
+            var sc2 = srl.FromJson<SimpleClassObjectProperty>(json);
             var badProp = "";
             Assert.True(SlowEquality.AreEqual(sc, sc2, ref badProp));
         }
@@ -156,7 +156,16 @@ namespace Serializer.Tests
             var json = Serializer.ToJson(mc1);
             var res = Serializer.FromJson<PrimitiveArray>(json);
             Assert.True(mc1.StringArray.SequenceEqual(res.StringArray));
+        }
 
+        [Fact]
+        public void ExplicitlyNullResult()
+        {
+            var json = "{\"id\":25,\"result\":null}";
+            var res = Serializer.FromJson<ResponseIdTest>(json);
+
+            var err = res.result?.error;
+            var test = res.result?.error?.message;
         }
 
         [Fact]
@@ -199,16 +208,16 @@ namespace Serializer.Tests
             }
         }
 
-        //[TestCategory("list"), TestCategory("json"), TestCategory("collections"), TestMethod]
+        
         [Fact]
         public void BlockingJson()
         {
-            var bc = new BlockingCollection<SimpleClass>();
-            bc.Add(SimpleClass.GetPrimitivePayload());
-            bc.Add(SimpleClass.GetNullPayload());
+            var bc = new BlockingCollection<SimpleClassObjectProperty>();
+            bc.Add(SimpleClassObjectProperty.GetPrimitivePayload());
+            bc.Add(SimpleClassObjectProperty.GetNullPayload());
 
             var json = Serializer.ToJson(bc);
-            var res = Serializer.FromJson<BlockingCollection<SimpleClass>>(json);
+            var res = Serializer.FromJson<BlockingCollection<SimpleClassObjectProperty>>(json);
 
             for (var i = 0; i < bc.Count; i++)
             {
@@ -219,22 +228,22 @@ namespace Serializer.Tests
             }
         }
 
-        //[TestCategory("queue"), TestCategory("json"), TestCategory("collections"), TestMethod]
+        
 
         [Fact]
         public void QueuesJson()
         {
-            var qs = new Queue<SimpleClass>();
-            qs.Enqueue(SimpleClass.GetPrimitivePayload());
+            var qs = new Queue<SimpleClassObjectProperty>();
+            qs.Enqueue(SimpleClassObjectProperty.GetPrimitivePayload());
 
             var js = Serializer.ToJson(qs);
-            var qs2 = Serializer.FromJson<Queue<SimpleClass>>(js);
+            var qs2 = Serializer.FromJson<Queue<SimpleClassObjectProperty>>(js);
 
-            var qc = new ConcurrentQueue<SimpleClass>();
-            qc.Enqueue(SimpleClass.GetNullPayload());
+            var qc = new ConcurrentQueue<SimpleClassObjectProperty>();
+            qc.Enqueue(SimpleClassObjectProperty.GetNullPayload());
 
             js = Serializer.ToJson(qc);
-            var qc2 = Serializer.FromJson<ConcurrentQueue<SimpleClass>>(js);
+            var qc2 = Serializer.FromJson<ConcurrentQueue<SimpleClassObjectProperty>>(js);
 
         }
 
@@ -302,7 +311,7 @@ namespace Serializer.Tests
         [Fact]
         public void ObjectPayloadKnownType()
         {
-            var sc = new SimpleClass
+            var sc = new SimpleClassObjectProperty
             {
                 ID = 4,
                 Name = "bob",
@@ -312,7 +321,7 @@ namespace Serializer.Tests
 
             var std = new DasSerializer();
             var json = std.ToJson(sc);
-            var test2 = std.FromJson<SimpleClass>(json);
+            var test2 = std.FromJson<SimpleClassObjectProperty>(json);
             Assert.True(sc.Equals(test2));
         }
 

@@ -1,15 +1,16 @@
-﻿using Das.Serializer.Proto;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading.Tasks;
+using Das.Serializer.Proto;
 
 namespace Das.Serializer.ProtoBuf
 {
     // ReSharper disable once UnusedType.Global
     // ReSharper disable once UnusedTypeParameter
-    public partial class ProtoDynamicProvider<TPropertyAttribute> : IStreamAccessor, 
-        // ReSharper disable once RedundantExtendsListEntry
-        IProtoProvider where TPropertyAttribute : Attribute
+    public partial class ProtoDynamicProvider<TPropertyAttribute> : IStreamAccessor,
+                                                                    // ReSharper disable once RedundantExtendsListEntry
+                                                                    IProtoProvider where TPropertyAttribute : Attribute
     {
         public IProtoProxy<T> GetAutoProtoProxy<T>(Boolean allowReadOnly = false)
         {
@@ -21,19 +22,6 @@ namespace Das.Serializer.ProtoBuf
         public T BuildDefaultValue<T>()
         {
             return _instantiator.BuildDefault<T>(true);
-        }
-        
-        private IProtoProxy<T> CreateAutoProxyTypeYesReadOnly<T>()
-        {
-            var type = typeof(T);
-
-            var fields = GetProtoFields(type, out var ctor);
-
-            var ptype = CreateProxyTypeImpl(type, ctor, fields, false, true, ctor) ??
-                   throw new InvalidOperationException();
-
-            return InstantiateProxyInstance<T>(ptype);
-
         }
 
         private IProtoProxy<T> CreateAutoProxyTypeNoReadOnly<T>()
@@ -48,9 +36,20 @@ namespace Das.Serializer.ProtoBuf
             return InstantiateProxyInstance<T>(ptype);
         }
 
+        private IProtoProxy<T> CreateAutoProxyTypeYesReadOnly<T>()
+        {
+            var type = typeof(T);
+
+            var fields = GetProtoFields(type, out var ctor);
+
+            var ptype = CreateProxyTypeImpl(type, ctor, fields, false, true, ctor) ??
+                        throw new InvalidOperationException();
+
+            return InstantiateProxyInstance<T>(ptype);
+        }
+
         private List<ProtoField> GetProtoFields(Type type, out ConstructorInfo useCtor)
         {
-
             _instantiator.TryGetDefaultConstructor(type, out var emptyCtor);
             var hasPropCtor = _instantiator.TryGetPropertiesConstructor(type, out var propCtor);
 
@@ -95,12 +94,10 @@ namespace Das.Serializer.ProtoBuf
 
                 if (TryGetProtoFieldImpl(current, true, p => next, out var protoField))
                     protoFields.Add(protoField);
-
             }
 
             useCtor = emptyCtor ?? propCtor;
             return protoFields;
         }
-
     }
 }

@@ -10,12 +10,12 @@ namespace Das.Serializer
     {
         Func<Object, Object> CreateFieldGetter(FieldInfo fieldInfo);
 
-        Action<Object, Object> CreateFieldSetter(FieldInfo fieldInfo);
+        Action<Object, Object?> CreateFieldSetter(FieldInfo fieldInfo);
 
         Func<Object, Object[], Object> CreateFuncCaller(MethodInfo method);
 
         Func<Object, Object> CreatePropertyGetter(Type targetType,
-            PropertyInfo propertyInfo);
+                                                  PropertyInfo propertyInfo);
 
         PropertySetter CreateSetMethod(MemberInfo memberInfo);
 
@@ -46,7 +46,7 @@ namespace Das.Serializer
         Type InstanceMemberType(MemberInfo info);
 
         Boolean TryCreateReadOnlyPropertySetter(PropertyInfo propertyInfo,
-            out Action<Object, Object> setter);
+                                                out Action<Object, Object?> setter);
 
         Boolean TryGetAddMethod(Type collectionType, out MethodInfo addMethod);
     }

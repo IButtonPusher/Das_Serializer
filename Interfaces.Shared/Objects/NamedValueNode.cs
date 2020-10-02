@@ -10,13 +10,17 @@ namespace Das.Serializer.Objects
     public class NamedValueNode : ValueNode, INamedValue
     {
         public NamedValueNode(Action<NamedValueNode> returnToSender,
-            String name, Object value, Type type)
+                              String name,
+                              Object value,
+                              Type type)
             : this(name, value, type)
         {
             _returnToSender = returnToSender;
         }
 
+#pragma warning disable 8618
         protected NamedValueNode()
+#pragma warning restore 8618
         {
         }
 
@@ -49,15 +53,7 @@ namespace Das.Serializer.Objects
 
         public String Name => _name;
 
-        public Boolean Equals(INamedField other)
-        {
-            if (ReferenceEquals(other, null))
-                return false;
-
-            return other.Type == Type && other.Name == Name;
-        }
-
-        public void Set(String name, Object value, Type type)
+        public virtual void Set(String name, Object value, Type type)
         {
             _name = name;
             _isEmptyInitialized = -1;

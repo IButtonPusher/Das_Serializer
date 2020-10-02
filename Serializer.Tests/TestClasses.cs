@@ -18,37 +18,106 @@ namespace Serializer.Tests
 	}
 
 
-	public class SimpleClass : ISimpleClass
+    public class SimpleClass
+    {
+        public Int32 ID { get; set; }
+        public String Name { get; set; }
+        public Decimal GPA { get; set; }
+
+        public DateTime? DateOfBirth { get; set; }
+
+        public DateTime HireDate { get; set; }
+
+        public TimeSpan ShiftPreference { get; set; }
+
+        public Animals Animal { get; set; }
+
+        public static T GetExample<T>() where T : SimpleClass, new()
+        {
+            return new T
+            {
+                ID = 345,
+                Name = "Bobby Tables",
+                GPA = 3.14M,
+                DateOfBirth = new DateTime(1980, 9, 4),
+                HireDate = new DateTime(2000, 12, 21),
+                ShiftPreference = TimeSpan.FromHours(9),
+                Animal = Animals.Sheep
+            };
+        }
+
+        public static SimpleClass GetExample() => GetExample<SimpleClass>();
+    }
+
+    public class SimpleClassWithPrimitiveCollection : SimpleClass
+    {
+		public List<Int32> LuckyNumbers { get; set; }
+
+        public SimpleClassWithPrimitiveCollection()
+        {
+            LuckyNumbers = new List<int>();
+        }
+
+        public new static SimpleClassWithPrimitiveCollection GetExample()
+        {
+            var res = GetExample<SimpleClassWithPrimitiveCollection>();
+			res.LuckyNumbers.AddRange(new []{6,14,77});
+
+            return res;
+        }
+    }
+
+    public class SimpleClassWithObjectCollection : SimpleClass
+    {
+        public List<SimpleClass> AllMySimpletions { get; set; }
+
+        public SimpleClassWithObjectCollection()
+        {
+            AllMySimpletions = new List<SimpleClass>();
+        }
+
+        public new static SimpleClassWithObjectCollection GetExample()
+        {
+            var res = GetExample<SimpleClassWithObjectCollection>();
+			res.DateOfBirth = new DateTime(1977, 6, 14);
+
+            var s1 = SimpleClass.GetExample();
+			res.AllMySimpletions.Add(s1);
+
+            var s2 = SimpleClass.GetExample();
+            s2.Name = "May Lou";
+            s2.Animal = Animals.Cow;
+            s2.GPA = 11.0M;
+
+            res.AllMySimpletions.Add(s2);
+
+            return res;
+        }
+    }
+
+
+	public class SimpleClassObjectProperty : SimpleClass, ISimpleClass
 	{
-		public Int32 ID { get; set; }
-		public String Name { get; set; }
-		public Decimal GPA { get; set; }
-		public Object Payload { get; set; }
-		public DateTime? DateOfBirth { get; set; }
+        public Object Payload { get; set; }
 
-		public String SuperSecret { get; }
+        public String SuperSecret { get; }
 
-		public DateTime HireDate { get; set; }
 
-		public TimeSpan ShiftPreference { get; set; }
-
-		public Animals Animal { get; set; }
-
-		public SimpleClass(String withSecret) : this()
+        public SimpleClassObjectProperty(String withSecret) : this()
 		{
 			SuperSecret = withSecret;
 		}
 
-		public SimpleClass()
+		public SimpleClassObjectProperty()
 		{
 			HireDate = new DateTime(1996, 6, 14);
 			ShiftPreference = new TimeSpan(8, 0, 0);
 			
 		}
 
-		public static SimpleClass GetNullPayload()
+		public static SimpleClassObjectProperty GetNullPayload()
 		{
-			var sc = new SimpleClass
+			var sc = new SimpleClassObjectProperty
 			{
 				GPA = 4.01M,
 				ID = 43,
@@ -58,9 +127,9 @@ namespace Serializer.Tests
 			return sc;
 		}
 
-		public static SimpleClass GetPrimitivePayload()
+		public static SimpleClassObjectProperty GetPrimitivePayload()
 		{
-			var sc = new SimpleClass
+			var sc = new SimpleClassObjectProperty
 			{
 				GPA = 2.67M,
 				ID = 4300,
@@ -74,7 +143,7 @@ namespace Serializer.Tests
 
 		public override bool Equals(object obj)
 		{
-			var sc = obj as SimpleClass;
+			var sc = obj as SimpleClassObjectProperty;
 			if (sc == null)
 				return false;
 			return ID == sc.ID && Name == sc.Name && GPA == sc.GPA && Object.Equals(Payload,
@@ -186,16 +255,16 @@ namespace Serializer.Tests
 
 	public class ObjectArray
 	{
-		public SimpleClass[] ItemArray { get; set; }
+		public SimpleClassObjectProperty[] ItemArray { get; set; }
 
 		public static ObjectArray Get()
 		{
 			return new ObjectArray
 			{
-				ItemArray = new SimpleClass[]
+				ItemArray = new SimpleClassObjectProperty[]
 			{
-				new SimpleClass { GPA = 5.3M, ID = 4, Name = "bob", Payload = "fff" },
-				new SimpleClass { GPA = 2.9M, ID = 74, Name = "suzy", Payload = "5555" }
+				new SimpleClassObjectProperty { GPA = 5.3M, ID = 4, Name = "bob", Payload = "fff" },
+				new SimpleClassObjectProperty { GPA = 2.9M, ID = 74, Name = "suzy", Payload = "5555" }
 			}
 			};
 
@@ -207,16 +276,16 @@ namespace Serializer.Tests
 
 	public class ObjectList
 	{
-		public List<SimpleClass> ItemList { get; set; }
+		public List<SimpleClassObjectProperty> ItemList { get; set; }
 
 		public static ObjectList Get()
 		{
 			return new ObjectList
 			{
-				ItemList = new List<SimpleClass>
+				ItemList = new List<SimpleClassObjectProperty>
 					{
-						new SimpleClass { GPA = 5.3M, ID = 4, Name = "bob", Payload = "fff" },
-						new SimpleClass { GPA = 2.9M, ID = 74, Name = "suzy", Payload = "5555" }
+						new SimpleClassObjectProperty { GPA = 5.3M, ID = 4, Name = "bob", Payload = "fff" },
+						new SimpleClassObjectProperty { GPA = 2.9M, ID = 74, Name = "suzy", Payload = "5555" }
 					}
 			};
 
@@ -280,8 +349,8 @@ namespace Serializer.Tests
 
 	public class TestCompositeClass : ITestCompositeClass
 	{
-		public SimpleClass SimpleLeft { get; set; }
-		public SimpleClass SimpleRight { get; set; }
+		public SimpleClassObjectProperty SimpleLeft { get; set; }
+		public SimpleClassObjectProperty SimpleRight { get; set; }
 
 		private TestCompositeClass()
 		{
@@ -291,14 +360,14 @@ namespace Serializer.Tests
 		public static TestCompositeClass Init()
 		{
 			var tcc = new TestCompositeClass();
-			tcc.SimpleLeft = new SimpleClass
+			tcc.SimpleLeft = new SimpleClassObjectProperty
 			{
 				ID = 6,
 				Name = "Some really long name that will use many bytes",
 				GPA = 1.23M,
 				Animal = Animals.Dog
 			};
-			tcc.SimpleRight = new SimpleClass
+			tcc.SimpleRight = new SimpleClassObjectProperty
 			{
 				ID = -5,
 				Name = null,
@@ -322,24 +391,24 @@ namespace Serializer.Tests
 	[SerializeAsType(typeof(AbstractComposite))]
 	public class TestCompositeClass2 : AbstractComposite, ITestCompositeClass
 	{
-		public SimpleClass SimpleLeft { get; set; }
+		public SimpleClassObjectProperty SimpleLeft { get; set; }
 
 
 		public TestCompositeClass2()
 		{
-			SimpleLeft = new SimpleClass();
-			SimpleRight = new SimpleClass();
+			SimpleLeft = new SimpleClassObjectProperty();
+			SimpleRight = new SimpleClassObjectProperty();
 		}
 	}
 
 	public interface ITestCompositeClass
 	{
-		SimpleClass SimpleLeft { get; set; }
+		SimpleClassObjectProperty SimpleLeft { get; set; }
 	}
 
 	public abstract class AbstractComposite
 	{
-		public SimpleClass SimpleRight { get; set; }
+		public SimpleClassObjectProperty SimpleRight { get; set; }
 	}
 
 	public class DeferredProperty
@@ -360,9 +429,27 @@ namespace Serializer.Tests
 		{
 			for (var i = 0; i < 10; i++)
 			{
-				yield return SimpleClass.GetNullPayload();
-				yield return SimpleClass.GetPrimitivePayload();
+				yield return SimpleClassObjectProperty.GetNullPayload();
+				yield return SimpleClassObjectProperty.GetPrimitivePayload();
 			}
 		}
 	}
+
+    public class ResponseIdTest
+    {
+		public Int32 id { get; set; }
+		public BaseResponseData result { get; set; }
+    }
+
+    public class BaseResponseData
+    {
+		public ResponseError error { get; set; }
+    }
+
+    public class ResponseError
+    {
+        public Int32 code { get; set; }
+
+        public String message { get; set; }
+    }
 }

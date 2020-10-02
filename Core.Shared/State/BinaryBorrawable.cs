@@ -1,16 +1,15 @@
 ﻿using System;
-
+using System.Threading.Tasks;
 
 namespace Das.Serializer.State
 {
     public class BinaryBorrawable : BinaryState, IBinaryLoaner
     {
-        private readonly Action<IBinaryLoaner> _returnToLibrary;
-
         internal BinaryBorrawable(Action<IBinaryLoaner> returnToLibrary,
-            ISerializerSettings settings, IStateProvider dynamicFacade,
-            Func<IBinaryState, BinaryScanner> getScanner,
-            Func<ISerializationCore, ISerializerSettings, IBinaryPrimitiveScanner> getPrimitiveScanner)
+                                  ISerializerSettings settings, IStateProvider dynamicFacade,
+                                  Func<IBinaryState, BinaryScanner> getScanner,
+                                  Func<ISerializationCore, ISerializerSettings, IBinaryPrimitiveScanner>
+                                      getPrimitiveScanner)
             : base(dynamicFacade, settings, getScanner, getPrimitiveScanner)
         {
             _returnToLibrary = returnToLibrary;
@@ -21,5 +20,7 @@ namespace Das.Serializer.State
             base.Dispose();
             _returnToLibrary(this);
         }
+
+        private readonly Action<IBinaryLoaner> _returnToLibrary;
     }
 }

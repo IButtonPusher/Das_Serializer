@@ -1,14 +1,12 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
     public class BinaryNodeSealer : BaseNodeSealer<IBinaryNode>
     {
-        private readonly INodeManipulator _nodeManipulator;
-        private readonly ISerializationCore _dynamicFacade;
-
         public BinaryNodeSealer(INodeManipulator nodeManipulator,
-            ISerializationCore dynamicFacade, ISerializerSettings settings)
+                                ISerializationCore dynamicFacade, ISerializerSettings settings)
             : base(dynamicFacade, nodeManipulator, settings)
         {
             _nodeManipulator = nodeManipulator;
@@ -49,10 +47,13 @@ namespace Das.Serializer
         }
 
         public override Boolean TryGetPropertyValue(IBinaryNode node, String key,
-            Type propertyType, out Object val)
+                                                    Type propertyType, out Object val)
         {
             var propKey = _dynamicFacade.TypeInferrer.ToPropertyStyle(key);
             return node.DynamicProperties.TryGetValue(propKey, out val);
         }
+
+        private readonly ISerializationCore _dynamicFacade;
+        private readonly INodeManipulator _nodeManipulator;
     }
 }

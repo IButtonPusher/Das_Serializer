@@ -11,7 +11,7 @@ namespace Das.Serializer
         ///     Searches base classes/interfaces more easily than using Type.GetProperty with
         ///     a labyrinth of BindingFlags
         /// </summary>
-        PropertyInfo FindPublicProperty(Type type, String propertyName);
+        PropertyInfo? FindPublicProperty(Type type, String propertyName);
 
         /// <summary>
         ///     if this is a generic collection of T or T[] it will return typeof(T)
@@ -20,7 +20,7 @@ namespace Das.Serializer
         Type GetGermaneType(Type ownerType);
 
         IEnumerable<PropertyInfo> GetPublicProperties(Type type,
-            Boolean numericFirst = true);
+                                                      Boolean numericFirst = true);
 
         Boolean HasEmptyConstructor(Type t);
 
@@ -33,7 +33,7 @@ namespace Das.Serializer
 
         Boolean IsCollection(Type type);
 
-        Boolean IsInstantiable(Type t);
+        Boolean IsInstantiable(Type? t);
 
         Boolean IsLeaf(Type t, Boolean isStringCounts);
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
@@ -12,13 +13,11 @@ namespace Das.Serializer
 
             var isNeeded = false;
             for (var c = 0; c < from.Length; c++)
-            {
-                if (chars.Contains(from[c]))
+                if (chars.Contains(@from[c]))
                 {
                     isNeeded = true;
                     break;
                 }
-            }
 
             if (!isNeeded)
                 return from;

@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace Das.Serializer.Remunerators
 {
     /// <summary>
-    /// Writes to a temporary collection that is eventually merged back into the main stream (or parent deferred)
-    /// along with the length of the data for fixed length deserialization
+    ///     Writes to a temporary collection that is eventually merged back into the main stream (or parent deferred)
+    ///     along with the length of the data for fixed length deserialization
     /// </summary>
     public unsafe class DeferredBinaryWriter : BinaryWriterWrapper, IBinaryWriter
     {
@@ -31,20 +32,16 @@ namespace Das.Serializer.Remunerators
                 _backingList.Append(0);
         }
 
-        private readonly ByteBuilder _backingList;
-        
-        private readonly IPrintNode _node;
-        private readonly IBinaryWriter _parent;
-        private readonly Boolean _isWrapPossible;
-        private Boolean _isPopped;
-
         [MethodImpl(256)]
-        protected sealed override void Write(Byte* bytes, Int32 count) => _backingList.Append(bytes, count);
+        public override void Write(Byte[] buffer)
+        {
+            _backingList.Append(buffer);
+        }
 
-        [MethodImpl(256)]
-        public override void Write(Byte[] buffer) => _backingList.Append(buffer);
-
-        void IRemunerable<Byte[]>.Append(Byte[] data, Int32 limit) => _backingList.Append(data, limit);
+        void IRemunerable<Byte[]>.Append(Byte[] data, Int32 limit)
+        {
+            _backingList.Append(data, limit);
+        }
 
 
         public override IBinaryWriter Pop()
@@ -59,22 +56,13 @@ namespace Das.Serializer.Remunerators
         }
 
         public override void Imbue(IBinaryWriter writer)
-            => _backingList.Append(writer);
-
-        public override IEnumerator<Byte> GetEnumerator() => _backingList.GetEnumerator();
-
-        public override String ToString() => _node + 
-                                             " Byte Count: " + _backingList.Count + " Length: " +
-                                             Length + " Nodes: " + Children.Count;
-        
-
-        [MethodImpl(256)]
-        private void SetLength(Int64 val)
         {
-            var pi = (Byte*) &val;
-            
-            for (var c = 0; c < 4; c++)
-                _backingList[c] = pi[c];
+            _backingList.Append(writer);
+        }
+
+        public override IEnumerator<Byte> GetEnumerator()
+        {
+            return _backingList.GetEnumerator();
         }
 
         Boolean IRemunerable.IsEmpty => _backingList.Count == 0 && Children.Count == 0;
@@ -98,11 +86,44 @@ namespace Das.Serializer.Remunerators
             }
         }
 
-        public override Int32 GetDataLength() => _backingList.Count;
+        public override Int32 GetDataLength()
+        {
+            return _backingList.Count;
+        }
 
         void IDisposable.Dispose()
         {
             _backingList.Clear();
         }
+
+
+        [MethodImpl(256)]
+        private void SetLength(Int64 val)
+        {
+            var pi = (Byte*) &val;
+
+            for (var c = 0; c < 4; c++)
+                _backingList[c] = pi[c];
+        }
+
+        public override String ToString()
+        {
+            return _node +
+                   " Byte Count: " + _backingList.Count + " Length: " +
+                   Length + " Nodes: " + Children.Count;
+        }
+
+        [MethodImpl(256)]
+        protected sealed override void Write(Byte* bytes, Int32 count)
+        {
+            _backingList.Append(bytes, count);
+        }
+
+        private readonly ByteBuilder _backingList;
+        private readonly Boolean _isWrapPossible;
+
+        private readonly IPrintNode _node;
+        private readonly IBinaryWriter _parent;
+        private Boolean _isPopped;
     }
 }

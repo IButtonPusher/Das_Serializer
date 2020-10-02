@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Das.Serializer.ProtoBuf
 {
@@ -19,8 +20,6 @@ namespace Das.Serializer.ProtoBuf
         {
             throw new NotImplementedException();
         }
-
-        
 
 
         public ProtoFieldAction GetProtoFieldAction(Type pType)

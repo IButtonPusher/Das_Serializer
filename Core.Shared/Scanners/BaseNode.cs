@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    internal abstract class BaseNode<TNode> : TypeCore, INode<TNode>
+    public abstract class BaseNode<TNode> : TypeCore,
+                                            INode<TNode>
         where TNode : INode<TNode>
     {
         protected BaseNode(ISerializerSettings settings) : base(settings)
@@ -15,15 +17,13 @@ namespace Das.Serializer
 
         public Boolean IsForceNullValue { get; set; }
 
-        private String _name;
-
         public String Name
         {
             get => _name;
             set => _name = value ?? throw new InvalidOperationException();
         }
 
-        
+
         TNode INode<TNode>.Parent
         {
             get => _parent;
@@ -35,14 +35,14 @@ namespace Das.Serializer
         public Object? Value { get; set; }
 
         public IDictionary<String, String> Attributes { get; }
+
         public IDictionary<String, Object> DynamicProperties { get; }
 
         public INode Parent => _parent;
+
         public NodeTypes NodeType { get; set; }
 
         public virtual Boolean IsEmpty => false;
-
-        private TNode _parent;
 
 
         public virtual void Clear()
@@ -58,6 +58,13 @@ namespace Das.Serializer
             NodeType = NodeTypes.None;
         }
 
-        public override String ToString() => $"Name: {Name} Type: {Type}: Val: {Value} ";
+        public override String ToString()
+        {
+            return $"Name: {Name} Type: {Type}: Val: {Value} ";
+        }
+
+        private String _name;
+
+        private TNode _parent;
     }
 }

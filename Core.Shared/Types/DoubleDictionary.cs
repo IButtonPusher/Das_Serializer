@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Das.Serializer.Types
 {
     public class DoubleDictionary<TKeyOne, TKeyTwo, TValue>
     {
-        private readonly Dictionary<TKeyOne, Dictionary<TKeyTwo, TValue>> _backing;
-
         public DoubleDictionary()
         {
             _backing = new Dictionary<TKeyOne, Dictionary<TKeyTwo, TValue>>();
@@ -38,6 +37,11 @@ namespace Das.Serializer.Types
             d.Add(k2, value);
         }
 
+        public void Clear()
+        {
+            _backing.Clear();
+        }
+
         public Boolean TryGetValue(TKeyOne k1, TKeyTwo k2, out TValue value)
         {
             if (_backing.TryGetValue(k1, out var d) && d.TryGetValue(k2, out value))
@@ -47,9 +51,6 @@ namespace Das.Serializer.Types
             return false;
         }
 
-        public void Clear()
-        {
-            _backing.Clear();
-        }
+        private readonly Dictionary<TKeyOne, Dictionary<TKeyTwo, TValue>> _backing;
     }
 }

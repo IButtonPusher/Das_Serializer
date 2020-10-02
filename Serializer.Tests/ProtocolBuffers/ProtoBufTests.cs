@@ -182,7 +182,7 @@ namespace Serializer.Tests.ProtocolBuffers
             {
                 o.Print(mc1, ms);
 
-                Debug.WriteLine("DAS\r\n-----------------------------------");
+                //Debug.WriteLine("DAS\r\n-----------------------------------");
                 //PrintMemoryStream(ms);
 
                 ms.Position = 0;
@@ -198,7 +198,7 @@ namespace Serializer.Tests.ProtocolBuffers
             {
                 ProtoBuf.Serializer.Serialize(ms, msg);
 
-                Debug.WriteLine("PNET\r\n-----------------------------------");
+                //Debug.WriteLine("PNET\r\n-----------------------------------");
                 //PrintMemoryStream(ms);
 
                 ms.Position = 0;
@@ -218,7 +218,7 @@ namespace Serializer.Tests.ProtocolBuffers
             using (var ms = new MemoryStream())
             {
                 o.Print(mc1, ms);
-                Debug.WriteLine("DAS\r\n-----------------------------------");
+                //Debug.WriteLine("DAS\r\n-----------------------------------");
                 //PrintMemoryStream(ms);
                 ms.Position = 0;
                 return o.Scan(ms);
@@ -234,7 +234,7 @@ namespace Serializer.Tests.ProtocolBuffers
             {
                 ProtoBuf.Serializer.Serialize(ms, mc1);
                 
-                Debug.WriteLine("PNET\r\n-----------------------------------");
+                //Debug.WriteLine("PNET\r\n-----------------------------------");
                 //PrintMemoryStream(ms);
                 ms.Position = 0;
                 return ProtoBuf.Serializer.Deserialize<CollectionsPropertyMessage>(ms);
@@ -253,7 +253,7 @@ namespace Serializer.Tests.ProtocolBuffers
             using (var ms = new MemoryStream())
             {
                 proxy.Print(mc1, ms);
-                Debug.WriteLine("DAS\r\n-----------------------------------");
+                //Debug.WriteLine("DAS\r\n-----------------------------------");
                 //PrintMemoryStream(ms);
                 ms.Position = 0;
                 return proxy.Scan(ms);
@@ -269,7 +269,7 @@ namespace Serializer.Tests.ProtocolBuffers
             {
                 ProtoBuf.Serializer.Serialize(ms, mc1);
                 
-                Debug.WriteLine("PNET\r\n-----------------------------------");
+                //Debug.WriteLine("PNET\r\n-----------------------------------");
                 //PrintMemoryStream(ms);
                 ms.Position = 0;
                 return ProtoBuf.Serializer.Deserialize<PackedArrayTest>(ms);
@@ -277,6 +277,7 @@ namespace Serializer.Tests.ProtocolBuffers
         }
 
         [Conditional("DEBUG")]
+        // ReSharper disable once UnusedMember.Local
         private static void PrintMemoryStream(MemoryStream ms)
         {
             var arr = ms.ToArray();

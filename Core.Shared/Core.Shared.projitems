@@ -43,7 +43,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\CoreProtoProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\ProtoBufSerializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\ProtoCollectionItem.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\ProtoDictionaryInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\ProtoScanningField.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\ByteBuilder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\DeferredBinaryWriter.cs" />
@@ -51,6 +50,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\BinaryWriterWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\ProtoBufWriter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\StringSaver.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Scanners\BaseExpress.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\BaseNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\BinaryNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\BinaryPrimitiveScanner.cs" />
@@ -70,6 +70,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)State\BinaryContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\BinaryState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\CoreContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)State\DefaultStateProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\JsonBorrowable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\JsonContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\StateProvider.cs" />
@@ -93,5 +94,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Util.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xml\DeserializeXml.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xml\SerializeXml.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xml\XmlExpress.cs" />
   </ItemGroup>
 </Project>

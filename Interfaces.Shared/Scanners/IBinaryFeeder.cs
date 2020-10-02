@@ -15,7 +15,7 @@ namespace Das.Streamers
 
         Double GetDouble();
 
-        Object GetFallback(Type dataType, ref Int32 blockSize);
+        Object? GetFallback(Type dataType, ref Int32 blockSize);
 
         Int32 GetInt32();
 
