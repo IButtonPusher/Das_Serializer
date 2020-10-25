@@ -4,7 +4,7 @@ using Das.Streamers;
 
 namespace Das.Serializer
 {
-    internal class BinaryScanner : SerializerCore, IBinaryScanner
+    public class BinaryScanner : SerializerCore, IBinaryScanner
     {
         public BinaryScanner(IBinaryContext state) : base(state, state.Settings)
         {

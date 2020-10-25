@@ -49,5 +49,7 @@ namespace Das.Serializer
                                                 out Action<Object, Object?> setter);
 
         Boolean TryGetAddMethod(Type collectionType, out MethodInfo addMethod);
+
+        VoidMethod CreateMethodCaller(MethodInfo method);
     }
 }

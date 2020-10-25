@@ -10,9 +10,10 @@ using Das.Serializer;
 namespace Das
 {
     [SuppressMessage("ReSharper", "UseMethodIsInstanceOfType")]
-    internal class ObjectConverter : SerializerCore, IObjectConverter
+    public class ObjectConverter : SerializerCore, IObjectConverter
     {
-        public ObjectConverter(IStateProvider dynamicFacade, ISerializerSettings settings)
+        public ObjectConverter(IStateProvider dynamicFacade, 
+                               ISerializerSettings settings)
             : base(dynamicFacade, settings)
         {
             _dynamicFacade = dynamicFacade;

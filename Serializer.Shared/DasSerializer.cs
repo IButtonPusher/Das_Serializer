@@ -32,17 +32,17 @@ namespace Das.Serializer
         {
         }
 
-        [MethodImpl(256)]
-        private static Task WriteAsync(TextWriter writer, String writeThis)
-            => writer.WriteAsync(writeThis);
+        //[MethodImpl(256)]
+        //private static Task WriteAsync(TextWriter writer, String writeThis)
+        //    => writer.WriteAsync(writeThis);
 
-        [MethodImpl(256)]
-        private static Task<String> ReadToEndAsync(TextReader reader)
-            => reader.ReadToEndAsync();
+        //[MethodImpl(256)]
+        //private static Task<String> ReadToEndAsync(TextReader reader)
+        //    => reader.ReadToEndAsync();
 
-        [MethodImpl(256)]
-        private static Task<Int32> ReadAsync(Stream stream, Byte[] buffer, Int32 offset, Int32 count)
-            => stream.ReadAsync(buffer, offset, count);
+        //[MethodImpl(256)]
+        //private static Task<Int32> ReadAsync(Stream stream, Byte[] buffer, Int32 offset, Int32 count)
+        //    => stream.ReadAsync(buffer, offset, count);
 
 
         #else

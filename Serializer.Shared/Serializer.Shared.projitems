@@ -29,15 +29,12 @@
     <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoStateBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoVarIntBuilder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Proto\ProxyLookup.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)State\DefaultStateProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\DasCodeGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\DasType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\DasTypeBuilder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\ObjectInstantiator.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Types\ObjectManipulator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoDynamicProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\TypeManipulator.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="$(MSBuildThisFileDirectory)State\" />
   </ItemGroup>
 </Project>

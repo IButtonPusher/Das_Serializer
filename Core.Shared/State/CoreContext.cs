@@ -7,7 +7,8 @@ namespace Das.Serializer
 {
     public abstract class CoreContext : SerializerCore, ISerializationContext
     {
-        public CoreContext(ISerializationCore dynamicFacade, ISerializerSettings settings)
+        public CoreContext(ISerializationCore dynamicFacade, 
+                           ISerializerSettings settings)
             : base(dynamicFacade, settings)
         {
             _typeConverters = new ConcurrentDictionary<Type, TypeConverter>();

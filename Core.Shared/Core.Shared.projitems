@@ -70,7 +70,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)State\BinaryContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\BinaryState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\CoreContext.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)State\DefaultStateProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\JsonBorrowable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\JsonContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\StateProvider.cs" />
@@ -86,9 +85,11 @@
     <Compile Include="$(MSBuildThisFileDirectory)TextCommon\StringAccessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TextCommon\StringBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TypeStructure.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Types\BaseTypeManipulator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\DoubleDictionary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\InstantiationTypes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\InvalidCollection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Types\ObjectManipulator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\TypeCore.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\TypeInference.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Util.cs" />

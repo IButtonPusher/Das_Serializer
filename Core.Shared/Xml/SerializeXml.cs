@@ -53,7 +53,6 @@ namespace Das.Serializer
 
             using (var writer = new StringSaver())
             {
-                
                 var doCopy = true;
                 var amAnonymous = IsAnonymousType(asType);
 

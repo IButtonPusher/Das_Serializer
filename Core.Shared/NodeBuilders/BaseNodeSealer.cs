@@ -142,8 +142,8 @@ namespace Das.Serializer
 
         protected void ConstructFromProperties(ref TNode node)
         {
-            if (node.Type == null || !_facade.ObjectInstantiator.TryGetPropertiesConstructor(
-                node.Type, out var cInfo))
+            if (node.Type == null || 
+                !_facade.ObjectInstantiator.TryGetPropertiesConstructor(node.Type, out var cInfo))
                 return;
 
             var values = new List<Object>();

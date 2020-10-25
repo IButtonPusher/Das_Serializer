@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    internal class BinaryNode : BaseNode<IBinaryNode>, IBinaryNode
+    public class BinaryNode : BaseNode<IBinaryNode>, IBinaryNode
     {
         public BinaryNode(String name, ISerializerSettings settings) : base(settings)
         {

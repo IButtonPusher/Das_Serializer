@@ -9,7 +9,7 @@ using Das.Serializer;
 
 namespace Das.Printers
 {
-    internal class XmlPrinter : TextPrinter
+    public class XmlPrinter : TextPrinter
     {
         public XmlPrinter(ITextRemunerable writer, ISerializationState stateProvider,
                           ISerializerSettings settings)

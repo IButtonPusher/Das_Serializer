@@ -45,7 +45,9 @@ namespace Das.Types
             return GetPropertyResult(obj, obj.GetType(), propertyName)?.Value;
         }
 
-        public Boolean TryGetPropertyValue(Object obj, String propertyName, out Object result)
+        public Boolean TryGetPropertyValue(Object obj, 
+                                           String propertyName, 
+                                           out Object result)
         {
             if (obj == null)
             {
@@ -121,7 +123,9 @@ namespace Das.Types
             return str.SetValue(propName, ref targetObj, propVal, SerializationDepth.AllProperties);
         }
 
-        public void SetMutableProperties(IEnumerable<PropertyInfo> mutable, Object source, Object target)
+        public void SetMutableProperties(IEnumerable<PropertyInfo> mutable,
+                                         Object source, 
+                                         Object target)
         {
             foreach (var m in mutable)
             {
@@ -156,7 +160,7 @@ namespace Das.Types
                     throw new NotSupportedException(
                         "Use the GenericMethod(...) extension for this method");
 
-                target = TypeManipulator.CreateMethodCaller(meth);
+                target = _typeDelegates.CreateMethodCaller(meth);
 
                 meths.TryAdd(methodName, target);
             }

@@ -10,7 +10,7 @@ namespace Das.Serializer
     {
         protected BaseNode(ISerializerSettings settings) : base(settings)
         {
-            DynamicProperties = new Dictionary<String, Object>();
+            DynamicProperties = new Dictionary<String, Object?>();
             Attributes = new Dictionary<String, String>();
             Name = Const.Empty;
         }
@@ -36,7 +36,7 @@ namespace Das.Serializer
 
         public IDictionary<String, String> Attributes { get; }
 
-        public IDictionary<String, Object> DynamicProperties { get; }
+        public IDictionary<String, Object?> DynamicProperties { get; }
 
         public INode Parent => _parent;
 

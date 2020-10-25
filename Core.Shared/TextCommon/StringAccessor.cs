@@ -13,6 +13,11 @@ namespace Das.Serializer
             _accessing = accessing;
         }
 
+        static StringAccessor()
+        {
+            Empty = new StringAccessor(String.Empty);
+        }
+
         public Char this[Int32 index] => _accessing[index];
 
         public String[] Split()
@@ -89,12 +94,12 @@ namespace Das.Serializer
         }
 
 
-        public static implicit operator StringAccessor(String? accessMe)
+        public static implicit operator StringAccessor?(String? accessMe)
         {
             return accessMe == null ? null : new StringAccessor(accessMe);
         }
 
-        public static implicit operator String(StringAccessor accessMe)
+        public static implicit operator String?(StringAccessor? accessMe)
         {
             return accessMe?._accessing;
         }
@@ -126,5 +131,7 @@ namespace Das.Serializer
         }
 
         private readonly String _accessing;
+
+        public static StringAccessor Empty;
     }
 }

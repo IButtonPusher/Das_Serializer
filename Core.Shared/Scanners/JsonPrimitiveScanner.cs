@@ -77,6 +77,11 @@ namespace Das.Serializer
                                     enumerator.MoveNext();
                                 i += 4;
                                 break;
+
+                            case '\\':
+                                sbString.Append('\\');
+                                //sbString.Append('\\');
+                                break;
                         }
                     }
 

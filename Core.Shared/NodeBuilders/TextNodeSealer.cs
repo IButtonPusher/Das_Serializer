@@ -215,8 +215,10 @@ namespace Das.Serializer
         }
 
 
-        public override Boolean TryGetPropertyValue(ITextNode node, String key,
-                                                    Type propertyType, out Object val)
+        public override Boolean TryGetPropertyValue(ITextNode node, 
+                                                    String key,
+                                                    Type propertyType, 
+                                                    out Object val)
         {
             var propKey = _facade.TypeInferrer.ToPropertyStyle(key);
 

@@ -187,34 +187,46 @@ namespace Das.Serializer
 
             _buildingResult = 0;
 
-            if (_firstGroup == COMMA)
+            switch (_firstGroup)
             {
-                if (_dotGroup > 0 || _currentGroup > 0 || fromString[0] == ZERO)
-                    _buildingResult = _commaGroup
-                                      / Math.Pow(10, _commaGroupLength);
-                else
-                    _buildingResult = _commaGroup;
-
-                if (_dotGroupLength > 0)
-                    _buildingResult += _dotGroup;
-
-                _buildingResult += _currentGroup *
-                                   Math.Pow(10, _dotGroupLength);
-            }
-            else if (_firstGroup == DOT)
-            {
-                if (_commaGroup > 0 || _commaGroupLength > 0 || _currentGroup > 0
-                    || fromString[0] == ZERO)
-                    _buildingResult = _dotGroup
-                                      / Math.Pow(10, _dotGroupLength);
-                else
-                    _buildingResult = _dotGroup;
-
-                if (_commaGroupLength > 0)
+                case COMMA when _commaGroupLength % 3 == 0:
                     _buildingResult += _commaGroup;
 
-                _buildingResult += _currentGroup *
-                                   Math.Pow(10, _commaGroupLength);
+                    _buildingResult += _dotGroup * Math.Pow(10, _commaGroupLength);
+
+                    break;
+
+                case COMMA:
+                {
+                    if (_dotGroup > 0 || _currentGroup > 0 || fromString[0] == ZERO)
+                        _buildingResult = _commaGroup
+                                          / Math.Pow(10, _commaGroupLength);
+                    else
+                        _buildingResult = _commaGroup;
+
+                    if (_dotGroupLength > 0)
+                        _buildingResult += _dotGroup;
+
+                    _buildingResult += _currentGroup *
+                                       Math.Pow(10, _dotGroupLength);
+                    break;
+                }
+                case DOT:
+                {
+                    if (_commaGroup > 0 || _commaGroupLength > 0 || _currentGroup > 0
+                        || fromString[0] == ZERO)
+                        _buildingResult = _dotGroup
+                                          / Math.Pow(10, _dotGroupLength);
+                    else
+                        _buildingResult = _dotGroup;
+
+                    if (_commaGroupLength > 0)
+                        _buildingResult += _commaGroup;
+
+                    _buildingResult += _currentGroup *
+                                       Math.Pow(10, _commaGroupLength);
+                    break;
+                }
             }
 
             return _isNegation ? 0 - _buildingResult : _buildingResult;

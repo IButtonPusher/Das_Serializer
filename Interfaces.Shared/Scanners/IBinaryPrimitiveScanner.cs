@@ -7,6 +7,6 @@ namespace Das.Serializer
     {
         Int32 GetInt32(Byte[] arr);
 
-        String GetString(Byte[] tempByte);
+        String? GetString(Byte[] tempByte);
     }
 }
