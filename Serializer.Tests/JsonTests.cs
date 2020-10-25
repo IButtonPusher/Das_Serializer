@@ -307,14 +307,14 @@ namespace Serializer.Tests
         //	Assert.True(sc.Equals(test2));
         //}
 
-        //[TestCategory("json"), TestMethod]
+        
         [Fact]
         public void ObjectPayloadKnownType()
         {
             var sc = new SimpleClassObjectProperty
             {
                 ID = 4,
-                Name = "bob",
+                Name = "bob\\walters",
                 GPA = 3.14M,
                 Payload = true
             };

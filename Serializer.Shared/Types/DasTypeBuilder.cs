@@ -415,7 +415,9 @@ namespace Das.Types
         }
 
         public static PropertyBuilder CreateProperty(TypeBuilder tb,
-                                                     String propertyName, Type propertyType, Boolean addSetter,
+                                                     String propertyName, 
+                                                     Type propertyType, 
+                                                     Boolean addSetter,
                                                      out FieldInfo backingfield)
         {
             backingfield = tb.DefineField("_" + propertyName, propertyType, FieldAttributes.Private);

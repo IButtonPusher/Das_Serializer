@@ -4,9 +4,9 @@ using Das.Serializer.State;
 
 namespace Das.Serializer
 {
-    public class DefaultStateProvider : StateProvider
+    public class CoreStateProvider : StateProvider
     {
-        public DefaultStateProvider(ISerializerSettings settings)
+        public CoreStateProvider(ISerializerSettings settings)
             : this(settings,
                 GetDynamicFacade(settings,
                     out var xmlContext,
@@ -16,7 +16,7 @@ namespace Das.Serializer
         {
         }
 
-        private DefaultStateProvider(ISerializerSettings settings,
+        private CoreStateProvider(ISerializerSettings settings,
                                      ISerializationCore dynamicFacade,
                                      XmlContext xmlContext,
                                      JsonContext jsonContext,
@@ -26,7 +26,7 @@ namespace Das.Serializer
         {
         }
 
-        public DefaultStateProvider() : this(DasSettings.Default)
+        public CoreStateProvider() : this(DasSettings.Default)
         {
         }
 
@@ -36,7 +36,7 @@ namespace Das.Serializer
             out JsonContext jsonContext,
             out BinaryContext binaryContext)
         {
-            var dynamicFacade = new DynamicFacade(settings);
+            var dynamicFacade = new CoreFacade(settings);
 
             xmlContext = new XmlContext(dynamicFacade, settings);
             jsonContext = new JsonContext(dynamicFacade, settings);

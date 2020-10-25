@@ -5,7 +5,8 @@ namespace Das.Serializer
 {
     public abstract class BaseState : CoreContext, ISerializationState
     {
-        protected BaseState(ISerializationCore stateProvider, ISerializerSettings settings)
+        protected BaseState(ISerializationCore stateProvider, 
+                            ISerializerSettings settings)
             : base(stateProvider, settings)
         {
         }

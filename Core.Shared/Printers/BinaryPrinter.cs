@@ -12,7 +12,7 @@ using Das.Serializer.Remunerators;
 
 namespace Das.Printers
 {
-    internal class BinaryPrinter : PrinterBase, IDisposable, ISerializationDepth
+    public class BinaryPrinter : PrinterBase, IDisposable, ISerializationDepth
     {
         public BinaryPrinter(IBinaryWriter writer, IBinaryState stateProvider)
             : base(stateProvider)

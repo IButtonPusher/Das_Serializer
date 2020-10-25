@@ -1,6 +1,9 @@
 ﻿using System;
 using System.IO;
+#if !NET40
 using System.Runtime.CompilerServices;
+#endif
+
 using System.Threading.Tasks;
 using Das.Serializer.Json;
 using Das.Serializer.ProtoBuf;
@@ -12,19 +15,18 @@ namespace Das.Serializer
     {
         #if !NET40
 
-        public DasCoreSerializer() : this(new DefaultStateProvider(),
-            WriteAsync, ReadToEndAsync, ReadAsync){}
+        
 
         [MethodImpl(256)]
-        private static Task WriteAsync(TextWriter writer, String writeThis)
+        protected static Task WriteAsync(TextWriter writer, String writeThis)
             => writer.WriteAsync(writeThis);
 
         [MethodImpl(256)]
-        private static Task<String> ReadToEndAsync(TextReader reader)
+        protected static Task<String> ReadToEndAsync(TextReader reader)
             => reader.ReadToEndAsync();
 
         [MethodImpl(256)]
-        private static Task<Int32> ReadAsync(Stream stream, Byte[] buffer, Int32 offset, Int32 count)
+        protected static Task<Int32> ReadAsync(Stream stream, Byte[] buffer, Int32 offset, Int32 count)
             => stream.ReadAsync(buffer, offset, count);
 
         #endif

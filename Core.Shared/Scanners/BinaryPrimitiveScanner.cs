@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    internal class BinaryPrimitiveScanner : SerializerCore, IBinaryPrimitiveScanner
+    public class BinaryPrimitiveScanner : SerializerCore, IBinaryPrimitiveScanner
     {
         #region construction
 
@@ -27,9 +27,9 @@ namespace Das.Serializer
 
         #region public interface
 
-        public Object GetValue(Byte[]? input, Type type)
+        public Object? GetValue(Byte[]? input, Type type)
         {
-            Object res;
+            Object? res;
             if (input == null) 
                 return null;
 
@@ -62,7 +62,7 @@ namespace Das.Serializer
                     {
                         res = _instantiator.CreatePrimitiveObject(input, type);
                     }
-                    else if (TryGetNullableType(type, out type))
+                    else if (TryGetNullableType(type, out type!))
                     {
                         res = GetValue(input, type);
                     }
@@ -89,7 +89,7 @@ namespace Das.Serializer
         }
 
 
-        public virtual unsafe String GetString(Byte[] tempByte)
+        public virtual unsafe String? GetString(Byte[] tempByte)
         {
             if (tempByte == null)
                 return null;

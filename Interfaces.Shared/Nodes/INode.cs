@@ -13,7 +13,7 @@ namespace Das.Serializer
     {
         IDictionary<String, String> Attributes { get; }
 
-        IDictionary<String, Object> DynamicProperties { get; }
+        IDictionary<String, Object?> DynamicProperties { get; }
 
         Boolean IsEmpty { get; }
 

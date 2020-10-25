@@ -15,8 +15,12 @@ namespace Das.Serializer
         {
             if (CurrentTagName != Const.Empty && CurrentValue.Length > 0)
             {
+                // we also descape when we try to set the value so we end up double descaping
+                //CurrentNode.Attributes.Add(CurrentTagName,
+                //    PrimitiveScanner.Descape(CurrentValue.ToString()));
+
                 CurrentNode.Attributes.Add(CurrentTagName,
-                    PrimitiveScanner.Descape(CurrentValue.ToString()));
+                    CurrentValue.ToString());
 
                 CurrentTagName = Const.Empty;
                 CurrentValue.Clear();

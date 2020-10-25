@@ -47,9 +47,7 @@ namespace Serializer.Tests
 			Assert.True(someInt == int2 && int2 == int3 && int2 == int4);
 		}
 
-
-		//[TestCategory("object"), TestCategory("xml"), TestMethod]
-		[Fact]
+        [Fact]
 		public void PrimitivePropertiesXml()
 		{
 			var sc = SimpleClassObjectProperty.GetNullPayload();
@@ -60,10 +58,17 @@ namespace Serializer.Tests
 			var sc2 = srl.FromXml<SimpleClassObjectProperty>(xml);
 			var badProp = "";
 			Assert.True(SlowEquality.AreEqual(sc, sc2, ref badProp));
+
+
+            //var srl2 = new DasCoreSerializer();
+            //var xml2 = srl2.ToXml(sc);
+
+            //var sc3 = srl2.FromXml<SimpleClassObjectProperty>(xml);
+            
+            //Assert.True(SlowEquality.AreEqual(sc, sc2, ref badProp));
 		}
 
-		//[TestCategory("object"), TestCategory("xml"), TestMethod]
-		[Fact]
+        [Fact]
 		public void XmlAsString()
 		{
 			var sc = SimpleClassObjectProperty.GetNullPayload();
@@ -72,34 +77,54 @@ namespace Serializer.Tests
 &lt;/Filters&gt;
 &lt;/DeployedStat&gt;");
 			sc.Payload = sc.Name;
-			var srl = new DasSerializer();
-			var xml = srl.ToXml(sc);
 
-			var sc2 = srl.FromXml<SimpleClassObjectProperty>(xml);
-			var badProp = "";
-			Assert.True(SlowEquality.AreEqual(sc, sc2, ref badProp));
-		}
+            {
+                var srl = new DasSerializer();
+                var xml = srl.ToXml(sc);
 
-		
+                var sc2 = srl.FromXml<SimpleClassObjectProperty>(xml);
+                var badProp = "";
+                Assert.True(SlowEquality.AreEqual(sc, sc2, ref badProp));
+            }
 
-		//[TestCategory("object"), TestCategory("xml"), TestMethod]
-		[Fact]
+            //{
+            //    var srl = new DasCoreSerializer();
+            //    var xml = srl.ToXml(sc);
+
+            //    var sc2 = srl.FromXml<SimpleClassObjectProperty>(xml);
+            //    var badProp = "";
+            //    Assert.True(SlowEquality.AreEqual(sc, sc2, ref badProp));
+            //}
+        }
+
+        [Fact]
 		public void ObjectReferenceTypeXml()
 		{
 			var sc = SimpleClassObjectProperty.GetNullPayload();
 			sc.Payload = SimpleClassObjectProperty.GetPrimitivePayload();
-			
-			var srl = new DasSerializer();
-			var xml = srl.ToXml(sc);
 
-			var sc2 = srl.FromXml<SimpleClassObjectProperty>(xml);
-			var badProp = "";
-			Assert.True(SlowEquality.AreEqual(sc, sc2, ref badProp));
-		}
+            //{
+            //    var srl = new DasCoreSerializer();
+            //    var xml = srl.ToXml(sc);
 
+            //    var sc2 = srl.FromXml<SimpleClassObjectProperty>(xml);
+            //    var badProp = "";
+            //    Assert.True(SlowEquality.AreEqual(sc, sc2, ref badProp));
+            //}
 
-		//[TestCategory("object"), TestCategory("xml"), TestMethod]
-		[Fact]
+            {
+                var srl = new DasSerializer();
+                var xml = srl.ToXml(sc);
+
+                var sc2 = srl.FromXml<SimpleClassObjectProperty>(xml);
+                var badProp = "";
+                Assert.True(SlowEquality.AreEqual(sc, sc2, ref badProp));
+            }
+
+           
+        }
+
+        [Fact]
 		public void ObjectPropertiesXml()
 		{
 			var test = TestCompositeClass.Init();
@@ -112,8 +137,7 @@ namespace Serializer.Tests
 			Assert.True(SlowEquality.AreEqual(test, sc2, ref badProp));
 		}
 
-		//[TestCategory("object"), TestCategory("xml"), TestMethod]
-		[Fact]
+        [Fact]
 		public void CircularReferencesXml()
 		{
 			var sc1 = Teacher.Get();

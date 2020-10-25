@@ -13,29 +13,27 @@ using Das.Serializer;
 
 namespace Das.Types
 {
-    public class TypeManipulator : TypeCore, ITypeManipulator
+    public class TypeManipulator : BaseTypeManipulator, ITypeManipulator
     {
-        static TypeManipulator()
-        {
-            _lockNewType = new Object();
-            _knownSensitive = new ConcurrentDictionary<Type, ITypeStructure>();
-            _knownInsensitive = new ConcurrentDictionary<Type, ITypeStructure>();
-        }
+        //static TypeManipulator()
+        //{
+        //    _lockNewType = new Object();
+        //    _knownSensitive = new ConcurrentDictionary<Type, ITypeStructure>();
+        //    _knownInsensitive = new ConcurrentDictionary<Type, ITypeStructure>();
+        //}
 
         public TypeManipulator(ISerializerSettings settings, INodePool nodePool)
-            : base(settings)
+            : base(settings, nodePool)
         {
-            _nodePool = nodePool;
+           // _nodePool = nodePool;
             _cachedAdders = new ConcurrentDictionary<Type, VoidMethod>();
         }
-
-        //private static ThreadLocal<Dictionary<Type, IProtoScanStructure>> _scanStructures;
 
         /// <summary>
         ///     Returns a delegate that can be invoked to quickly get the value for an object
         ///     of targetType
         /// </summary>
-        public Func<Object, Object> CreatePropertyGetter(Type targetType,
+        public sealed override Func<Object, Object> CreatePropertyGetter(Type targetType,
                                                          PropertyInfo propertyInfo)
         {
             var setParamType = Const.ObjectType;
@@ -70,9 +68,9 @@ namespace Das.Types
         }
 
 
-        PropertySetter ITypeManipulator.CreateSetMethod(MemberInfo memberInfo)
+        public sealed override PropertySetter CreateSetMethod(MemberInfo memberInfo)
         {
-            return CreateSetMethod(memberInfo);
+            return CreateSetMethodImpl(memberInfo);
         }
 
         IEnumerable<FieldInfo> ITypeManipulator.GetRecursivePrivateFields(Type type)
@@ -80,8 +78,8 @@ namespace Das.Types
             return GetRecursivePrivateFields(type);
         }
 
-        public Boolean TryCreateReadOnlyPropertySetter(PropertyInfo propertyInfo,
-                                                       out Action<Object, Object?> setter)
+        public sealed override Boolean TryCreateReadOnlyPropertySetter(PropertyInfo propertyInfo,
+                                                                       out Action<Object, Object?> setter)
         {
             var backingField = GetBackingField(propertyInfo);
             if (backingField == null)
@@ -94,7 +92,7 @@ namespace Das.Types
             return true;
         }
 
-        public Func<Object, Object> CreateFieldGetter(FieldInfo fieldInfo)
+        public sealed override Func<Object, Object> CreateFieldGetter(FieldInfo fieldInfo)
         {
             var dynam = new DynamicMethod(String.Empty, Const.ObjectType, Const.SingleObjectTypeArray
                 , typeof(Func<Object, Object>), true);
@@ -117,7 +115,7 @@ namespace Das.Types
             return (Func<Object, Object>) dynam.CreateDelegate(typeof(Func<Object, Object>));
         }
 
-        public Action<Object, Object?> CreateFieldSetter(FieldInfo fieldInfo)
+        public sealed override Action<Object, Object?> CreateFieldSetter(FieldInfo fieldInfo)
         {
             var dynam = new DynamicMethod(
                 String.Empty
@@ -146,14 +144,15 @@ namespace Das.Types
             return (Action<Object, Object?>) dynam.CreateDelegate(typeof(Action<Object, Object?>));
         }
 
-        public Func<Object, Object[], Object> CreateFuncCaller(MethodInfo method)
+        public sealed override Func<Object, Object[], Object> CreateFuncCaller(MethodInfo method)
         {
             var dyn = CreateMethodCaller(method, false);
             return (Func<Object, Object[], Object>) dyn.CreateDelegate(typeof(Func<Object, Object[], Object>));
         }
 
 
-        public VoidMethod? GetAdder(Type collectionType, Object exampleValue)
+        public sealed override VoidMethod? GetAdder(Type collectionType, 
+                                                    Object exampleValue)
         {
             if (_cachedAdders.TryGetValue(collectionType, out var res))
                 return res;
@@ -184,7 +183,7 @@ namespace Das.Types
         /// <summary>
         ///     Gets a delegate to add an object to a non-generic collection
         /// </summary>
-        public VoidMethod GetAdder(IEnumerable collection, Type? type = null)
+        public sealed override VoidMethod GetAdder(IEnumerable collection, Type? type = null)
         {
             if (type == null)
                 type = collection.GetType();
@@ -219,7 +218,7 @@ namespace Das.Types
         /// <summary>
         ///     Detects the Add, Enqueue, Push etc method for generic collections
         /// </summary>
-        public MethodInfo? GetAddMethod<T>(IEnumerable<T> collection)
+        public sealed override MethodInfo? GetAddMethod<T>(IEnumerable<T> collection)
         {
             var cType = collection.GetType();
 
@@ -246,80 +245,80 @@ namespace Das.Types
             return null;
         }
 
-        public MethodInfo GetAddMethod(Type cType)
+        public sealed override MethodInfo GetAddMethod(Type cType)
         {
             var adder = GetAddMethodImpl(cType);
             return adder ?? throw new MissingMethodException(cType.FullName, "Add");
         }
 
-        public Boolean TryGetAddMethod(Type collectionType, out MethodInfo addMethod)
+        public sealed override Boolean TryGetAddMethod(Type collectionType, out MethodInfo addMethod)
         {
             addMethod = GetAddMethodImpl(collectionType)!;
             return addMethod != null;
         }
 
-        public Type? GetPropertyType(Type classType, String propName)
-        {
-            var ts = GetTypeStructure(classType, DepthConstants.AllProperties);
-            return ts.MemberTypes.TryGetValue(propName, out var res) ? res.Type : default;
-        }
+        //public Type? GetPropertyType(Type classType, String propName)
+        //{
+        //    var ts = GetTypeStructure(classType, DepthConstants.AllProperties);
+        //    return ts.MemberTypes.TryGetValue(propName, out var res) ? res.Type : default;
+        //}
 
-        public IEnumerable<INamedField> GetPropertiesToSerialize(Type type,
-                                                                 ISerializationDepth depth)
-        {
-            var str = GetTypeStructure(type, depth);
-            foreach (var pi in str.GetMembersToSerialize(depth))
-                yield return pi;
-        }
+        //public IEnumerable<INamedField> GetPropertiesToSerialize(Type type,
+        //                                                         ISerializationDepth depth)
+        //{
+        //    var str = GetTypeStructure(type, depth);
+        //    foreach (var pi in str.GetMembersToSerialize(depth))
+        //        yield return pi;
+        //}
 
-        public Type InstanceMemberType(MemberInfo info)
-        {
-            switch (info)
-            {
-                case PropertyInfo prop:
-                    return prop.PropertyType;
-                case FieldInfo field:
-                    return field.FieldType;
-                default:
-                    throw new InvalidOperationException();
-            }
-        }
+        //public Type InstanceMemberType(MemberInfo info)
+        //{
+        //    switch (info)
+        //    {
+        //        case PropertyInfo prop:
+        //            return prop.PropertyType;
+        //        case FieldInfo field:
+        //            return field.FieldType;
+        //        default:
+        //            throw new InvalidOperationException();
+        //    }
+        //}
 
-        public IEnumerable<MethodInfo> GetInterfaceMethods(Type type)
-        {
-            foreach (var parentInterface in type.GetInterfaces())
-            foreach (var pp in GetInterfaceMethods(parentInterface))
-                yield return pp;
+        //public IEnumerable<MethodInfo> GetInterfaceMethods(Type type)
+        //{
+        //    foreach (var parentInterface in type.GetInterfaces())
+        //    foreach (var pp in GetInterfaceMethods(parentInterface))
+        //        yield return pp;
 
-            foreach (var mi in type.GetMethods(InterfaceMethodBindings))
-            {
-                if (mi.IsPrivate)
-                    continue;
-                yield return mi;
-            }
-        }
+        //    foreach (var mi in type.GetMethods(InterfaceMethodBindings))
+        //    {
+        //        if (mi.IsPrivate)
+        //            continue;
+        //        yield return mi;
+        //    }
+        //}
 
-        public override Boolean HasSettableProperties(Type type)
-        {
-            if (_knownSensitive.TryGetValue(type, out var result) &&
-                result.Depth >= SerializationDepth.GetSetProperties)
-                return result.PropertyCount > 0;
+        //public override Boolean HasSettableProperties(Type type)
+        //{
+        //    if (_knownSensitive.TryGetValue(type, out var result) &&
+        //        result.Depth >= SerializationDepth.GetSetProperties)
+        //        return result.PropertyCount > 0;
 
-            return base.HasSettableProperties(type);
-        }
+        //    return base.HasSettableProperties(type);
+        //}
 
-        public ITypeStructure GetStructure<T>(ISerializationDepth depth)
-        {
-            return GetTypeStructure(typeof(T), depth);
-        }
+        //public ITypeStructure GetStructure<T>(ISerializationDepth depth)
+        //{
+        //    return GetTypeStructure(typeof(T), depth);
+        //}
 
-        public ITypeStructure GetTypeStructure(Type type, ISerializationDepth depth)
-        {
-            if (Settings.IsPropertyNamesCaseSensitive)
-                return ValidateCollection(type, depth, true);
+        //public ITypeStructure GetTypeStructure(Type type, ISerializationDepth depth)
+        //{
+        //    if (Settings.IsPropertyNamesCaseSensitive)
+        //        return ValidateCollection(type, depth, true);
 
-            return ValidateCollection(type, depth, false);
-        }
+        //    return ValidateCollection(type, depth, false);
+        //}
 
         /// <summary>
         ///     Gets a delegate to add an object to a generic collection
@@ -365,7 +364,7 @@ namespace Das.Types
         }
 
 
-        public static VoidMethod CreateMethodCaller(MethodInfo method)
+        public sealed override VoidMethod CreateMethodCaller(MethodInfo method)
         {
             var dyn = CreateMethodCaller(method, true);
             return (VoidMethod) dyn.CreateDelegate(typeof(VoidMethod));
@@ -419,7 +418,7 @@ namespace Das.Types
         ///     of targetType.  This method assumes this property has a setter. For properties
         ///     without a setter use CreateReadOnlyPropertySetter
         /// </summary>
-        private static PropertySetter CreateSetMethod(MemberInfo memberInfo)
+        private static PropertySetter CreateSetMethodImpl(MemberInfo memberInfo)
         {
             Type paramType;
             switch (memberInfo)
@@ -531,75 +530,75 @@ namespace Das.Types
             return backingField;
         }
 
-        public static IEnumerable<FieldInfo> GetRecursivePrivateFields(Type type)
-        {
-            while (true)
-            {
-                foreach (var field in type.GetFields(Const.NonPublic))
-                    yield return field;
+        //public static IEnumerable<FieldInfo> GetRecursivePrivateFields(Type type)
+        //{
+        //    while (true)
+        //    {
+        //        foreach (var field in type.GetFields(Const.NonPublic))
+        //            yield return field;
 
-                var parent = type.BaseType;
-                if (parent == null) yield break;
+        //        var parent = type.BaseType;
+        //        if (parent == null) yield break;
 
-                type = parent;
-            }
-        }
+        //        type = parent;
+        //    }
+        //}
 
-        private ITypeStructure ValidateCollection(Type type, 
-                                                  ISerializationDepth depth,
-                                                  Boolean caseSensitive)
-        {
-            var collection = caseSensitive ? _knownSensitive : _knownInsensitive;
+        //private ITypeStructure ValidateCollection(Type type, 
+        //                                          ISerializationDepth depth,
+        //                                          Boolean caseSensitive)
+        //{
+        //    var collection = caseSensitive ? _knownSensitive : _knownInsensitive;
 
-            var doCache = Settings.CacheTypeConstructors;
-
-
-            if (IsAlreadyExists(type, doCache, depth, collection, out var result))
-                return result;
-
-            var pool = _nodePool;
-
-            lock (_lockNewType)
-            {
-                if (IsAlreadyExists(type, doCache, depth, collection, out result))
-                    return result;
-
-                result = new TypeStructure(type, caseSensitive, depth, this, pool);
-                if (!doCache)
-                    return result;
-
-                return collection.AddOrUpdate(type, result, (k, v) => v.Depth > result.Depth ? v : result);
-            }
-        }
-
-        private static Boolean IsAlreadyExists(Type type, 
-                                               Boolean doCache, 
-                                               ISerializationDepth depth,
-                                               ConcurrentDictionary<Type, ITypeStructure> collection,
-                                               out ITypeStructure res)
-        {
-            res = default!;
-
-            if (!doCache || !collection.TryGetValue(type, out res)) 
-                return false;
-
-            if (res.Depth < depth.SerializationDepth) return false;
+        //    var doCache = Settings.CacheTypeConstructors;
 
 
-            if (doCache && collection.TryGetValue(type, out res) &&
-                res.Depth >= depth.SerializationDepth)
-                return true;
+        //    if (IsAlreadyExists(type, doCache, depth, collection, out var result))
+        //        return result;
 
-            res = default!;
-            return false;
-        }
+        //    var pool = _nodePool;
 
-        private const BindingFlags InterfaceMethodBindings = BindingFlags.Instance |
-                                                             BindingFlags.Public | BindingFlags.NonPublic;
+        //    lock (_lockNewType)
+        //    {
+        //        if (IsAlreadyExists(type, doCache, depth, collection, out result))
+        //            return result;
+
+        //        result = new TypeStructure(type, caseSensitive, depth, this, pool);
+        //        if (!doCache)
+        //            return result;
+
+        //        return collection.AddOrUpdate(type, result, (k, v) => v.Depth > result.Depth ? v : result);
+        //    }
+        //}
+
+        //private static Boolean IsAlreadyExists(Type type, 
+        //                                       Boolean doCache, 
+        //                                       ISerializationDepth depth,
+        //                                       ConcurrentDictionary<Type, ITypeStructure> collection,
+        //                                       out ITypeStructure res)
+        //{
+        //    res = default!;
+
+        //    if (!doCache || !collection.TryGetValue(type, out res)) 
+        //        return false;
+
+        //    if (res.Depth < depth.SerializationDepth) return false;
 
 
-        private static readonly ConcurrentDictionary<Type, ITypeStructure> _knownSensitive;
-        private static readonly ConcurrentDictionary<Type, ITypeStructure> _knownInsensitive;
+        //    if (doCache && collection.TryGetValue(type, out res) &&
+        //        res.Depth >= depth.SerializationDepth)
+        //        return true;
+
+        //    res = default!;
+        //    return false;
+        //}
+
+        //private const BindingFlags InterfaceMethodBindings = BindingFlags.Instance |
+        //                                                     BindingFlags.Public | BindingFlags.NonPublic;
+
+
+        //private static readonly ConcurrentDictionary<Type, ITypeStructure> _knownSensitive;
+        //private static readonly ConcurrentDictionary<Type, ITypeStructure> _knownInsensitive;
 
         private static readonly Type[] ParamTypes =
         {
@@ -607,9 +606,9 @@ namespace Das.Types
         };
 
 
-        private static readonly Object _lockNewType;
+        //private static readonly Object _lockNewType;
 
         private readonly ConcurrentDictionary<Type, VoidMethod> _cachedAdders;
-        private readonly INodePool _nodePool;
+        //private readonly INodePool _nodePool;
     }
 }

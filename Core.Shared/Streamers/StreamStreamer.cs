@@ -8,7 +8,7 @@ using Das.Serializer;
 
 namespace Das.Streamers
 {
-    internal class StreamStreamer : IStreamWrapper<Char>
+    public class StreamStreamer : IStreamWrapper<Char>
     {
         public StreamStreamer(Stream stream)
         {

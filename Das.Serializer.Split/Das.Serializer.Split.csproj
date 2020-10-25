@@ -1,20 +1,19 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.0;net472</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1;net45</TargetFrameworks>
 	 <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.0.4-alpha</Version>
+    <Version>0.0.6-alpha</Version>
   </PropertyGroup>
 
   <PropertyGroup>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Description>Xml/Json/Protocol Buffers/Binary&lt;-&gt;Anything
+    <Description>Single assembly version: Das.Serializer
 
-Split into dlls to facilitate loose coupling via coding to abstractions:
-Das.Serializer.dll (fw/core)
-Serializer.Core.dll - no dynamic type generation (standard)
-Serializer.Interfaces (standard)</Description>
+var serializer = new DasSerializer();
+var o = serializer.FromXml(xml);
+o = serializer.FromJson(json);</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/IButtonPusher/Das_Serializer</PackageProjectUrl>
     <RepositoryUrl>https://github.com/IButtonPusher/Das_Serializer.git</RepositoryUrl>
@@ -29,12 +28,8 @@ Serializer.Interfaces (standard)</Description>
     <OutputPath>E:\src\Das\Serializer\Das.Serializer\bin\Debug\</OutputPath>
   </PropertyGroup>
 
-	
-
-  <Import Project="..\Serializer.Shared\Serializer.Shared.projitems" Label="Shared" />
-
   <ItemGroup>
-    <PackageReference Include="Das.Serializer.Core" Version="0.0.4-alpha" />
+    <PackageReference Include="Das.Serializer.Interfaces" Version="0.0.6-alpha" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
   </ItemGroup>
   
@@ -48,8 +43,13 @@ Serializer.Interfaces (standard)</Description>
    <LangVersion>8.0</LangVersion>
    <Nullable>enable</Nullable>
    <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
-   <AssemblyVersion>0.0.4.0</AssemblyVersion>
+   <AssemblyVersion>0.0.5.0</AssemblyVersion>
+   <FileVersion>0.0.5.0</FileVersion>
 </PropertyGroup>
+
+<Import Project="..\Core.Shared\Core.Shared.projitems" Label="Shared" />
+
+<Import Project="..\Serializer.Shared\Serializer.Shared.projitems" Label="Shared" />
 
 
 </Project>
