@@ -2,52 +2,54 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
     public interface ITypeManipulator : ITypeCore
     {
-        VoidMethod GetAdder(Type collectionType, Object exampleValue);
-
-        VoidMethod GetAdder(IEnumerable collection, Type collectionType = null);
-
-        PropertySetter CreateSetMethod(MemberInfo memberInfo);
-
-        Func<Object, Object> CreatePropertyGetter(Type targetType,
-            PropertyInfo propertyInfo);
-
-        Boolean TryCreateReadOnlyPropertySetter(PropertyInfo propertyInfo,
-            out Action<Object, Object> setter);
-
         Func<Object, Object> CreateFieldGetter(FieldInfo fieldInfo);
 
-        Action<Object, Object> CreateFieldSetter(FieldInfo fieldInfo);
+        Action<Object, Object?> CreateFieldSetter(FieldInfo fieldInfo);
 
         Func<Object, Object[], Object> CreateFuncCaller(MethodInfo method);
 
-        MethodInfo GetAddMethod<T>(IEnumerable<T> collection);
+        Func<Object, Object> CreatePropertyGetter(Type targetType,
+                                                  PropertyInfo propertyInfo);
 
-        Type GetPropertyType(Type classType, String propName);
+        PropertySetter CreateSetMethod(MemberInfo memberInfo);
+
+        VoidMethod? GetAdder(Type collectionType, Object exampleValue);
+
+        VoidMethod GetAdder(IEnumerable collection, Type? collectionType = null);
+
+        MethodInfo? GetAddMethod<T>(IEnumerable<T> collection);
+
+        MethodInfo GetAddMethod(Type collectionType);
+
+        IEnumerable<MethodInfo> GetInterfaceMethods(Type type);
 
         /// <summary>
-        /// read/write properties. Read only don't count for this number
+        ///     Recursive through base types without duplicates
         /// </summary>
-        Boolean HasSettableProperties(Type type);
+        IEnumerable<INamedField> GetPropertiesToSerialize(Type type, ISerializationDepth depth);
 
-        ITypeStructure GetStructure(Type type, ISerializationDepth depth);
+        Type? GetPropertyType(Type classType, String propName);
+
+        IEnumerable<FieldInfo> GetRecursivePrivateFields(Type type);
 
         // ReSharper disable once UnusedMember.Global
         ITypeStructure GetStructure<T>(ISerializationDepth depth);
 
-        /// <summary>
-        /// Recursive through base types without duplicates
-        /// </summary>
-        IEnumerable<MemberInfo> GetPropertiesToSerialize(Type type, ISerializationDepth depth);
+        ITypeStructure GetTypeStructure(Type type, ISerializationDepth depth);
 
         Type InstanceMemberType(MemberInfo info);
 
-        IEnumerable<MethodInfo> GetInterfaceMethods(Type type);
+        Boolean TryCreateReadOnlyPropertySetter(PropertyInfo propertyInfo,
+                                                out Action<Object, Object?> setter);
 
-        IEnumerable<FieldInfo> GetRecursivePrivateFields(Type type);
+        Boolean TryGetAddMethod(Type collectionType, out MethodInfo addMethod);
+
+        VoidMethod CreateMethodCaller(MethodInfo method);
     }
 }

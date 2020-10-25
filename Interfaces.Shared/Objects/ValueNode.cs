@@ -1,26 +1,49 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Das.Serializer.Objects
 {
     /// <summary>
-    /// A type/value association
+    ///     A type/value association
     /// </summary>
-    public class ValueNode
+    public class ValueNode : IValueNode
     {
         public ValueNode(Object value) : this(value, value?.GetType())
         {
         }
 
-        public ValueNode(Object value, Type type)
+        protected ValueNode()
         {
-            Value = value;
-            Type = type;
         }
 
-        public Object Value { get; }
+        public ValueNode(Object value, Type? type)
+        {
+            _value = value;
+            _type = type;
+        }
 
-        public Type Type { get; set; }
+        public Object? Value => _value;
 
-        public override String ToString() => (Type?.Name ?? "?") + ": = " + Value;
+        public Type? Type
+        {
+            get => _type;
+            set => _type = value;
+        }
+
+        // ReSharper disable once UnusedMember.Global
+        protected void Set(Object value, Type type)
+        {
+            _value = value;
+            _type = type;
+        }
+
+        public override String ToString()
+        {
+            return (Type?.Name ?? "?") + ": = " + Value;
+        }
+
+        protected Type? _type;
+
+        protected Object? _value;
     }
 }

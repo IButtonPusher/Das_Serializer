@@ -1,68 +1,83 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Das.Serializer;
-using Serializer.Core;
-using Serializer.Core.Binary;
 
 namespace Das.Streamers
 {
-    internal class BinaryFeeder : SerializerCore, IBinaryFeeder
+    public class BinaryFeeder : SerializerCore, IBinaryFeeder
     {
         public BinaryFeeder(IBinaryPrimitiveScanner primitiveScanner,
-            ISerializationCore dynamicFacade, IByteArray bytes, ISerializerSettings settings,
-            BinaryLogger logger)
+                            ISerializationCore dynamicFacade, IByteArray bytes, ISerializerSettings settings)
             : base(dynamicFacade, settings)
         {
             _scanner = primitiveScanner;
             _typeInferrer = dynamicFacade.TypeInferrer;
 
             _currentBytes = bytes;
-            _logger = logger;
-        }
-
-        public BinaryFeeder(IBinaryPrimitiveScanner primitiveScanner,
-            ISerializationCore dynamicFacade, IEnumerable<Byte[]> source, ISerializerSettings settings,
-            BinaryLogger logger)
-            : this(primitiveScanner, dynamicFacade, Extract(source), settings, logger)
-        {
-        }
-
-
-        private static IByteArray Extract(IEnumerable<Byte[]> source)
-        {
-            using (var enumerator = source.GetEnumerator())
-            {
-                enumerator.MoveNext();
-                return new ByteArray(enumerator.Current);
-            }
+            _currentEndIndex = (Int32) _currentBytes.Length - 1;
         }
 
         #region fields
 
-        private readonly IByteArray _currentBytes;
+        protected IByteArray _currentBytes;
+        protected Int32 _currentEndIndex;
 
-        private readonly BinaryLogger _logger;
+        public virtual Int32 GetInt32()
+        {
+            return (Int32) GetPrimitive(typeof(Int32));
+        }
 
-        public Int32 Index => _byteIndex;
 
-        private Int32 _byteIndex;
+        public Double GetDouble()
+        {
+            var bytes = GetBytes(8);
+            var res = _scanner.GetValue(bytes, typeof(Double));
+            return (Double) res;
+        }
+
+        public Int32 PeekInt32(Int32 advanceIf)
+        {
+            if (_currentBytes.Length <= _byteIndex)
+                return -1;
+
+            var val = GetInt32();
+            if (val != advanceIf)
+            {
+                _byteIndex--;
+                _currentBytes.StepBack();
+            }
+
+            return val;
+        }
+
+
+        public Int32 Index
+        {
+            get => _byteIndex;
+            protected set => _byteIndex = value;
+        }
+
+        public virtual Boolean HasMoreBytes => _byteIndex < _currentEndIndex;
+
+        protected Int32 _byteIndex;
 
         private readonly IBinaryPrimitiveScanner _scanner;
         private readonly ITypeInferrer _typeInferrer;
 
         #endregion
-       
+
 
         #region public interface
 
         /// <summary>
-        /// Returns the amount of bytes that the next object will use.  Advances
-        /// the byte index forward by 4 bytes
+        ///     Returns the amount of bytes that the next object will use.  Advances
+        ///     the byte index forward by 4 bytes
         /// </summary>
-        public Int32 GetNextBlockSize()
+        public virtual Int32 GetNextBlockSize()
         {
             var forInt = _currentBytes[_byteIndex, 4];
-            
+
             var length = _scanner.GetInt32(forInt);
 
             _byteIndex += 4;
@@ -70,9 +85,15 @@ namespace Das.Streamers
             return length;
         }
 
-        public Byte GetCircularReferenceIndex() => GetBytes(1)[0];
+        public Byte GetCircularReferenceIndex()
+        {
+            return GetBytes(1)[0];
+        }
 
-        public T GetPrimitive<T>() => (T) GetPrimitive(typeof(T));
+        public T GetPrimitive<T>()
+        {
+            return (T) GetPrimitive(typeof(T));
+        }
 
 
         public Object GetPrimitive(Type type)
@@ -82,7 +103,15 @@ namespace Das.Streamers
             return res;
         }
 
-        private Byte[] GetPrimitiveBytes(Type type)
+        public Single GetInt8()
+        {
+            var bytes = GetBytes(4);
+            var res = _scanner.GetValue(bytes, typeof(Single));
+            return (Single) res;
+        }
+
+
+        private Byte[]? GetPrimitiveBytes(Type type)
         {
             while (true)
             {
@@ -108,7 +137,10 @@ namespace Das.Streamers
                 {
                     if (length == -1) return null;
                 }
-                else if (length == 0) return null;
+                else if (length == 0)
+                {
+                    return null;
+                }
 
                 return GetBytes(length);
             }
@@ -121,7 +153,7 @@ namespace Das.Streamers
         }
 
         /// <summary>
-        /// takes the next 4 bytes for length then the next N bytes and turns them into a Type
+        ///     takes the next 4 bytes for length then the next N bytes and turns them into a Type
         /// </summary>
         public Type GetNextType()
         {
@@ -140,21 +172,22 @@ namespace Das.Streamers
         }
 
 
-        public Byte[] GetBytes(Int32 count)
+        public virtual Byte[] GetBytes(Int32 count)
         {
-            try
-            {
-                var res = _currentBytes[_byteIndex, count];
-
-                return res;
-            }
-            finally
-            {
-                _byteIndex += count;
-            }
+            var res = _currentBytes[_byteIndex, count];
+            _byteIndex += count;
+            return res;
         }
 
-        public Object GetFallback(Type dataType, ref Int32 blockSize)
+        [MethodImpl(256)]
+        public Byte[] IncludeBytes(Int32 count)
+        {
+            _byteIndex += count;
+            return _currentBytes.IncludeBytes(count);
+        }
+
+
+        public Object? GetFallback(Type dataType, ref Int32 blockSize)
         {
             //collection data we have to open a new node and that has to get these bytes
             if (IsCollection(dataType))
@@ -170,10 +203,12 @@ namespace Das.Streamers
                 bytes = GetBytes(blockSize);
             }
             else
+            {
                 bytes = GetBytesForValueTypeObject(dataType);
+            }
 
             var res = _scanner.GetValue(bytes, dataType);
-            _logger.Debug("fallback to " + res);
+            //_logger.Debug("fallback to " + res);
             return res;
         }
 

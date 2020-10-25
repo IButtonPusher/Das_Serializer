@@ -1,8 +1,8 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using Das;
+﻿using System;
+using Das.Serializer;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace UnitTestProject1
+namespace Serializer.Tests
 {
     [TestClass]
     public class InstantiationTests

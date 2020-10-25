@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
@@ -6,6 +7,6 @@ namespace Das.Serializer
     {
         NodeTypes GetNodeType(INode node, SerializationDepth depth);
 
-        NodeTypes GetNodeType(Type type, SerializationDepth depth);
+        NodeTypes GetNodeType(Type? type, SerializationDepth depth);
     }
 }

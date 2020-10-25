@@ -1,6 +1,9 @@
-﻿namespace Das.Types
+﻿using System;
+using System.Threading.Tasks;
+
+namespace Das.Types
 {
-    internal enum InstantiationTypes
+    public enum InstantiationTypes
     {
         NullObject,
         EmptyString,

@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Threading.Tasks;
 
-namespace Das.Scanners
+namespace Das.Serializer
 {
-    public interface IPrimitiveScanner<in T>
+    public interface IPrimitiveScanner<in T> where T : class
     {
-        Object GetValue(T input, Type type);
+        Object? GetValue(T input, Type type);
     }
 }

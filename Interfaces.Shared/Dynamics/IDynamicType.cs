@@ -1,18 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
     public interface IDynamicType : IDynamicAccessor
     {
-        Dictionary<String, PropertySetter> PublicSetters { get; }
+        Type ManagedType { get; }
 
         Dictionary<String, Func<Object, Object>> PublicGetters { get; }
 
-        Type ManagedType { get; }
+        Dictionary<String, PropertySetter> PublicSetters { get; }
+
+        Type? GetPropertyType(String propertyName);
 
         Boolean IsLegalValue(String forProperty, Object value);
-
-        Type GetPropertyType(String propertyName);
     }
 }

@@ -1,23 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using Das.Scanners;
-using Das.Serializer;
-using Das.Serializer.Scanners;
+using System.Threading.Tasks;
 
-namespace Serializer.Core.NodeBuilders
+namespace Das.Serializer.NodeBuilders
 {
     public class BinaryNodeProvider : NodeProvider<IBinaryNode>, IBinaryNodeProvider
     {
         public BinaryNodeProvider(ISerializationCore dynamicFacade, ISerializerSettings settings)
-            : this(dynamicFacade, new NodeTypeProvider(dynamicFacade, settings), settings)
+            : this(dynamicFacade, new NodeManipulator(dynamicFacade, settings),
+                dynamicFacade.NodeTypeProvider, settings)
         {
         }
 
         public BinaryNodeProvider(ISerializationCore dynamicFacade, INodeManipulator nodeManipulator,
-            ISerializerSettings settings)
-            : base(nodeManipulator, settings)
+                                  INodeTypeProvider nodeTypes, ISerializerSettings settings)
+            : base(nodeTypes, settings)
         {
-            Sealer = new BinaryNodeSealer(TypeProvider, dynamicFacade, settings);
+            Sealer = new BinaryNodeSealer(nodeManipulator, dynamicFacade, settings);
             _nodes = nodeManipulator;
         }
 
@@ -40,14 +39,20 @@ namespace Serializer.Core.NodeBuilders
                 index++;
             }
 
-            TypeProvider.TryBuildValue(current);
+            _nodes.TryBuildValue(current);
             node.Value = current.Value;
             current.PendingReferences.Add(node);
         }
 
-        private readonly INodeManipulator _nodes;
-
         public INodeSealer<IBinaryNode> Sealer { get; }
+
+        public IBinaryNode Get(String name, IBinaryNode parent, Type type)
+        {
+            var node = Get(name, type);
+            node.Parent = parent;
+            _nodes.EnsureNodeType(node, node.NodeType);
+            return node;
+        }
 
         private IBinaryNode Get(String name, Type type)
         {
@@ -59,12 +64,6 @@ namespace Serializer.Core.NodeBuilders
             return item;
         }
 
-        public IBinaryNode Get(String name, IBinaryNode parent, Type type)
-        {
-            var node = Get(name, type);
-            node.Parent = parent;
-            _nodes.EnsureNodeType(node, node.NodeType);
-            return node;
-        }
+        private readonly INodeManipulator _nodes;
     }
 }

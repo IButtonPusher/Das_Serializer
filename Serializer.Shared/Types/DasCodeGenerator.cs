@@ -2,13 +2,14 @@
 using System.Diagnostics.Contracts;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
     public class DasCodeGenerator
     {
         public DasCodeGenerator(String assemblyName, String moduleName,
-            AssemblyBuilderAccess access)
+                                AssemblyBuilderAccess access)
         {
             _lock = new Object();
             _assemblyName = assemblyName;
@@ -17,17 +18,58 @@ namespace Das.Serializer
         }
 
         private AssemblyBuilder AssemblyBuilder =>
-            _assemblyBuilder ?? (_assemblyBuilder = GetAssemblyBuilder());
+            _assemblyBuilder ??= GetAssemblyBuilder();
 
         private ModuleBuilder ModuleBuilder =>
-            _moduleBuilder ?? (_moduleBuilder = GetModuleBuilder());
+            _moduleBuilder ??= GetModuleBuilder();
 
-        private AssemblyBuilder _assemblyBuilder;
-        private readonly String _assemblyName;
-        private ModuleBuilder _moduleBuilder;
-        private readonly String _moduleName;
-        private readonly AssemblyBuilderAccess _access;
-        private readonly Object _lock;
+        [Pure]
+        private AssemblyBuilder GetAssemblyBuilder()
+        {
+            var access = _access;
+            lock (_lock)
+            {
+                var asmName = new AssemblyName(_assemblyName);
+
+                #if NET40
+
+                return AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, access);
+
+                #else
+                return AssemblyBuilder.DefineDynamicAssembly(asmName, access);
+
+                #endif
+            }
+        }
+
+        // ReSharper disable once UnusedMember.Local
+        // ReSharper disable once MemberCanBeMadeStatic.Local
+        private Boolean GetCanSave()
+        {
+            #if NET45
+            return _access == AssemblyBuilderAccess.Save ||
+                    _access == AssemblyBuilderAccess.RunAndSave;
+            #else
+            return false;
+            #endif
+        }
+
+        [Pure]
+        private ModuleBuilder GetModuleBuilder()
+        {
+            lock (_lock)
+            {
+                #if NET45 || NET40
+
+                var canSave = GetCanSave();
+                //if we will be saving to disk, create the module to be saved as well.
+                if (canSave)
+                    return AssemblyBuilder.DefineDynamicModule(_moduleName, _moduleName + ".netmodule");
+                #endif
+
+                return AssemblyBuilder.DefineDynamicModule(_moduleName);
+            }
+        }
 
         public TypeBuilder GetTypeBuilder(String typeName)
         {
@@ -43,55 +85,20 @@ namespace Das.Serializer
             return typeBuilder;
         }
 
-        [Pure]
-        private AssemblyBuilder GetAssemblyBuilder()
+        // ReSharper disable once UnusedMember.Global
+        public void Save(String saveAs)
         {
-            var access = _access;
-            lock (_lock)
-            {
-                var asmName = new AssemblyName(_assemblyName);
-
-                #if NET40
-
-                return AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, _access);
-
-                #else
-                return AssemblyBuilder.DefineDynamicAssembly(asmName, access);
-
-                #endif
-            }
-        }
-
-        [Pure]
-        private ModuleBuilder GetModuleBuilder()
-        {
-            
-
-            lock (_lock)
-            {
-#if NET45 || NET40
-
-                var canSave = GetCanSave();
-                //if we will be saving to disk, create the module to be saved as well.
-                if (canSave)
-                    return AssemblyBuilder.DefineDynamicModule(_moduleName, _moduleName + ".netmodule");
-#endif
-
-                return AssemblyBuilder.DefineDynamicModule(_moduleName);
-
-            }
-        }
-        
-        // ReSharper disable once UnusedMember.Local
-        private Boolean GetCanSave()
-        {
-            #if NET45
-
-            return _access == AssemblyBuilderAccess.Save ||
-                    _access == AssemblyBuilderAccess.RunAndSave;
-            #else
-            return false;
+            #if NET45 || NET40
+            AssemblyBuilder.Save(saveAs);
             #endif
         }
+
+        private readonly AssemblyBuilderAccess _access;
+        private readonly String _assemblyName;
+        private readonly Object _lock;
+        private readonly String _moduleName;
+
+        private AssemblyBuilder? _assemblyBuilder;
+        private ModuleBuilder? _moduleBuilder;
     }
 }

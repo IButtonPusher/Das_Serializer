@@ -1,91 +1,26 @@
 ﻿using System;
-using Das.Serializer;
-using Das.Serializer.Scanners;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
-namespace Das.Scanners
+namespace Das.Serializer
 {
-    internal class JsonScanner : TextScanner
+    public class JsonScanner : TextScanner
     {
-        internal JsonScanner(IConverterProvider converterProvider, ITextContext state) :
+        public JsonScanner(IConverterProvider converterProvider, ITextContext state) :
             base(converterProvider, state)
         {
-        }
-
-        private static readonly NullNode NullNode = NullNode.Instance;
-
-        protected sealed override Boolean IsQuote(Char c) => c == Const.Quote;
-
-        protected override void ProcessCharacter(Char c)
-        {
-            switch (c)
-            {
-                case ':':
-                    CurrentTagName = CurrentValue.ToString();
-                    CurrentValue.Clear();
-                    return;
-                case Const.OpenBracket:
-                    CreateNode();
-                    CurrentTagName = Const.Empty;
-                    break;
-                case Const.OpenBrace:
-                    CreateNode();
-                    CurrentTagName = Const.Empty;
-                    return;
-                case Const.CloseBracket:
-                    AddAttribute();
-                    CloseNode();
-                    break;
-                case Const.CloseBrace:
-                    AddAttribute();
-                    CloseNode();
-                    break;
-                case Const.Comma:
-                    AddAttribute();
-                    break;
-                default:
-                    if (!WhiteSpaceChars.Contains(c))
-                    {
-                        //whitespace outside of quotes is immaterial
-                        CurrentNode.Append(c);
-                        CurrentValue.Append(c);
-                    }
-
-                    break;
-            }
-        }
-
-        private void CreateNode()
-        {
-            if (CurrentTagName == DasCoreSerializer.Val)
-            {
-                //don't make another node just for the val block
-                CurrentTagName = Const.Empty;
-                return;
-            }
-
-            if (NullNode == RootNode && CurrentTagName == Const.Empty)
-                CurrentTagName = Const.Root;
-
-            OpenNode();
-        }
-
-        private void CloseNode()
-        {
-            if (CurrentNode.Attributes.TryGetValue(DasCoreSerializer.Val, out var val))
-                CurrentNode.SetText(val);
-
-            Sealer.CloseNode(CurrentNode);
-
-            if (NullNode != CurrentNode.Parent)
-                CurrentNode = CurrentNode.Parent;
         }
 
         private void AddAttribute()
         {
             if (CurrentTagName != Const.Empty && CurrentValue.Length > 0)
             {
+                // we also descape when we try to set the value so we end up double descaping
+                //CurrentNode.Attributes.Add(CurrentTagName,
+                //    PrimitiveScanner.Descape(CurrentValue.ToString()));
+
                 CurrentNode.Attributes.Add(CurrentTagName,
-                    PrimitiveScanner.Descape(CurrentValue.ToString()));
+                    CurrentValue.ToString());
 
                 CurrentTagName = Const.Empty;
                 CurrentValue.Clear();
@@ -101,8 +36,7 @@ namespace Das.Scanners
 
                 if (CurrentNode.NodeType == NodeTypes.Collection)
                 {
-                    var val = PrimitiveScanner.GetValue(str, TypeInferrer.
-                        GetGermaneType(CurrentNode.Type));
+                    var val = PrimitiveScanner.GetValue(str, TypeInferrer.GetGermaneType(CurrentNode.Type));
                     Sealer.Imbue(CurrentNode, String.Empty, val);
                     CurrentValue.Clear();
                 }
@@ -114,5 +48,91 @@ namespace Das.Scanners
                 }
             }
         }
+
+        private void CloseNode()
+        {
+            if (CurrentNode.Attributes.TryGetValue(Const.Val, out var val))
+                CurrentNode.SetText(val);
+
+            Sealer.CloseNode(CurrentNode);
+
+            if (NullNode != CurrentNode.Parent)
+                CurrentNode = CurrentNode.Parent;
+        }
+
+        private void CreateNode()
+        {
+            if (CurrentTagName == Const.Val)
+            {
+                //don't make another node just for the val block
+                CurrentTagName = Const.Empty;
+                return;
+            }
+
+            if (NullNode == RootNode && CurrentTagName == Const.Empty)
+                CurrentTagName = Const.Root;
+
+            OpenNode();
+        }
+
+        [MethodImpl(256)]
+        protected sealed override Boolean IsQuote(ref Char c)
+        {
+            return c == Const.Quote;
+        }
+
+        protected sealed override void ProcessCharacter(Char c)
+        {
+            switch (c)
+            {
+                case ':':
+                    CurrentTagName = CurrentValue.ToString();
+                    CurrentValue.Clear();
+                    return;
+
+                case Const.OpenBracket:
+                    CreateNode();
+                    CurrentTagName = Const.Empty;
+                    break;
+
+                case Const.OpenBrace:
+                    CreateNode();
+                    CurrentTagName = Const.Empty;
+                    return;
+
+                case Const.CloseBracket:
+                    AddAttribute();
+                    CloseNode();
+                    break;
+
+                case Const.CloseBrace:
+                    AddAttribute();
+                    CloseNode();
+                    break;
+
+                case Const.Comma:
+                    AddAttribute();
+                    break;
+
+
+                case Const.CarriageReturn:
+                case Const.NewLine:
+                case Const.Tab:
+                case Const.Space:
+                    break;
+
+                default:
+                    //if (!WhiteSpaceChars.Contains(c))
+                    {
+                        //whitespace outside of quotes is immaterial
+                        CurrentNode.Append(c);
+                        CurrentValue.Append(c);
+                    }
+
+                    break;
+            }
+        }
+
+        private static readonly NullNode NullNode = NullNode.Instance;
     }
 }

@@ -1,47 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Das.Serializer;
-using Das.Serializer.Annotations;
-using Das.Serializer.Scanners;
-using Serializer.Core;
+using System.Threading.Tasks;
 
-namespace Das.Scanners
+namespace Das.Serializer
 {
     public abstract class TextScanner : SerializerCore, ITextScanner
     {
-        protected List<Char> EscapeChars;
-        protected List<Char> WhiteSpaceChars;
-
-        private static readonly NullNode NullNode = NullNode.Instance;
-
-        protected abstract Boolean IsQuote(Char c);
-
-        private readonly ITextNodeProvider _nodes;
-
-        private Boolean _isQuoteOpen;
-        private Boolean _isEscapeNext;
-        protected readonly StringBuilder CurrentValue;
-        
-        public ITextNode RootNode { get; protected set; }
-
-        [NotNull]
-        protected ITextNode CurrentNode;
-        protected readonly Dictionary<String, String> CurrentAttributes;
-        protected readonly IStringPrimitiveScanner PrimitiveScanner;
-
-        [NotNull]
-        protected String CurrentTagName;
-
-        protected Boolean HasCurrentTag => !String.IsNullOrWhiteSpace(CurrentTagName);
-
-        protected readonly ITextContext TextState;
-
-        protected readonly INodeSealer<ITextNode> Sealer;
-        protected readonly INodeManipulator Types;
-        private Type _resultType;
-        private readonly IObjectConverter _converter;
-
         protected TextScanner(IConverterProvider converterProvider, ITextContext state)
             : base(state, state.Settings)
         {
@@ -54,20 +19,85 @@ namespace Das.Scanners
             CurrentValue = new StringBuilder();
             CurrentAttributes = new Dictionary<String, String>();
             TextState = state;
-            Sealer = state.NodeProvider.Sealer;
-            Types = state.NodeProvider.TypeProvider;
+            Sealer = state.ScanNodeProvider.Sealer;
+            Types = state.ScanNodeManipulator;
 
             PrimitiveScanner = state.PrimitiveScanner;
             EscapeChars = new List<Char> {Const.BackSlash};
-            WhiteSpaceChars = new List<Char>
-            {
-                Const.CarriageReturn, '\n', '\t', Const.Space
-            };
+            //WhiteSpaceChars = new List<Char>
+            //{
+            //    Const.CarriageReturn, '\n', '\t', Const.Space
+            //};
 
             RootNode = NullNode;
 
-            _nodes = state.NodeProvider;
+            _nodes = state.ScanNodeProvider;
         }
+
+        public ITextNode RootNode { get; protected set; }
+
+        public T Deserialize<T>(Char[] source)
+        {
+            _resultType = typeof(T);
+            var len = source.Length;
+
+            for (var i = 0; i < len; i++)
+            {
+                var c = source[i];
+                PreProcessCharacter(ref c);
+            }
+
+            return GetResult<T>();
+        }
+
+        public T Deserialize<T>(String source)
+        {
+            _resultType = typeof(T);
+
+            var len = source.Length;
+
+            for (var c = 0; c < len; c++)
+            {
+                var current = source[c];
+                PreProcessCharacter(ref current);
+            }
+
+            return GetResult<T>();
+        }
+
+
+        public void Invalidate()
+        {
+            _isQuoteOpen = _isEscapeNext = false;
+            CurrentValue.Clear();
+            if (NullNode != RootNode)
+            {
+                _nodes.Put(RootNode);
+                RootNode = NullNode;
+            }
+
+            CurrentNode = NullNode;
+            CurrentAttributes.Clear();
+            CurrentTagName = Const.Empty;
+            _resultType = default;
+        }
+
+        public Boolean IsOmitDefaultValues { get; }
+
+        public SerializationDepth SerializationDepth { get; }
+
+        public virtual Boolean IsRespectXmlIgnore => false;
+
+        protected Boolean HasCurrentTag => !String.IsNullOrWhiteSpace(CurrentTagName);
+
+        private T GetResult<T>()
+        {
+            return RootNode.Value != null
+                ? TextState.ObjectManipulator.CastDynamic<T>(RootNode.Value, _converter, Settings)
+                : default!;
+        }
+
+        protected abstract Boolean IsQuote(ref Char c);
 
 
         protected void OpenNode()
@@ -77,7 +107,9 @@ namespace Das.Scanners
             CurrentNode = _nodes.Get(CurrentTagName, CurrentAttributes, hold, this);
 
             if (NullNode != hold)
+            {
                 hold.AddChild(CurrentNode);
+            }
             else if (!CurrentNode.IsEmpty)
             {
                 RootNode = CurrentNode;
@@ -85,7 +117,7 @@ namespace Das.Scanners
                 if (!TextState.TypeInferrer.IsUseless(rootType) &&
                     TextState.TypeInferrer.IsUseless(RootNode.Type))
 
-                    CurrentNode.Type = _resultType;
+                    CurrentNode.Type = _resultType!;
             }
             else
             {
@@ -93,57 +125,9 @@ namespace Das.Scanners
             }
         }
 
-        protected abstract void ProcessCharacter(Char c);
-
-        public T Deserialize<T>(Char[] source)
+        private void PreProcessCharacter(ref Char c)
         {
-            _resultType = typeof(T);
-
-            for (var i = 0; i < source.Length; i++)
-            {
-                var c = source[i];
-                PreProcessCharacter(c);
-            }
-
-            return GetResult<T>();
-        }
-
-        public T Deserialize<T>(IEnumerable<Char> source)
-        {
-            _resultType = typeof(T);
-
-            //check for BOM
-            //https://stackoverflow.com/questions/1317700/strip-byte-order-mark-from-string-in-c-sharp
-            using (var iterator = source.GetEnumerator())
-            {
-                if (!iterator.MoveNext())
-                    return default;
-
-                var c = iterator.Current;
-
-                if (c > Byte.MaxValue)
-                {
-                    if (!iterator.MoveNext())
-                        return default;
-                }
-
-                do
-                {
-                    c = iterator.Current;
-                    PreProcessCharacter(c);
-                }
-                while (iterator.MoveNext());
-            }
-
-            return GetResult<T>();
-        }
-
-        private T GetResult<T>() => TextState.ObjectManipulator.
-            CastDynamic<T>(RootNode.Value, _converter, Settings);
-
-        private void PreProcessCharacter(Char c)
-        {
-            var iq = IsQuote(c);
+            var iq = IsQuote(ref c);
 
             if (_isQuoteOpen)
             {
@@ -176,26 +160,30 @@ namespace Das.Scanners
                 }
         }
 
-       
+        protected abstract void ProcessCharacter(Char c);
 
-        public void Invalidate()
-        {
-            _isQuoteOpen = _isEscapeNext = false;
-            CurrentValue.Clear();
-            if (NullNode != RootNode)
-            {
-                _nodes.Put(RootNode);
-                RootNode = NullNode;
-            }
+        private static readonly NullNode NullNode = NullNode.Instance;
+        private readonly IObjectConverter _converter;
 
-            CurrentNode = NullNode;
-            CurrentAttributes.Clear();
-            CurrentTagName = Const.Empty;
-            _resultType = default;
-        }
+        private readonly ITextNodeProvider _nodes;
+        protected readonly Dictionary<String, String> CurrentAttributes;
+        protected readonly StringBuilder CurrentValue;
+        protected readonly IStringPrimitiveScanner PrimitiveScanner;
 
-        public Boolean IsOmitDefaultValues { get; }
-        public SerializationDepth SerializationDepth { get; }
-        public virtual Boolean IsRespectXmlIgnore => false;
+        protected readonly INodeSealer<ITextNode> Sealer;
+
+        protected readonly ITextContext TextState;
+        protected readonly INodeManipulator Types;
+        private Boolean _isEscapeNext;
+
+        private Boolean _isQuoteOpen;
+        private Type? _resultType;
+
+        [NotNull] protected ITextNode CurrentNode;
+
+        [NotNull] protected String CurrentTagName;
+
+        protected List<Char> EscapeChars;
+        //protected List<Char> WhiteSpaceChars;
     }
 }

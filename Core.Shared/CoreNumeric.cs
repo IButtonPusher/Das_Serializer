@@ -1,30 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Das.CoreExtensions;
+using System.Threading.Tasks;
+using Das.Extensions;
 
 // ReSharper disable UnusedMember.Global
 
-namespace Serializer
+namespace Das.Serializer
 {
     public class CoreNumeric : INumberExtractor
     {
-        private const Double TOLERANCE = 0.000001;
-
-        private const Char DOT = '.';
-        private const Char COMMA = ',';
-        private const Char ZERO = '0';
-        private const Char EOL = '\n';
-        private const Char NEG = '-';
-
-        public Int64 GetInt64(String fromString)
-        {
-            var str = String.Concat(fromString.Where(Char.IsNumber));
-            if (Int64.TryParse(str, out var yes))
-                return yes;
-            return 0;
-        }
-
         public Double GetCurrency(String fromString)
         {
             var isAnyValid = false;
@@ -36,6 +21,57 @@ namespace Serializer
             var isAnyValid = false;
             currency = GetCurrencyImpl(fromString, ref isAnyValid);
             return isAnyValid;
+        }
+
+
+        public String GetCurrencyText(String str)
+        {
+            IEnumerable<Char> GetValidChars()
+            {
+                var isDotDetected = false;
+                for (var i = 0; i < str.Length; i++)
+                {
+                    var ch = str[i];
+                    if (Char.IsDigit(ch))
+                    {
+                        yield return ch;
+                    }
+                    else if (!isDotDetected && ch == DOT && i < str.Length - 1)
+                    {
+                        isDotDetected = true;
+                        yield return ch;
+                    }
+                }
+            }
+
+            return String.Concat(GetValidChars());
+        }
+
+        public Double GetDouble(String fromString)
+        {
+            return Convert.ToDouble(GetCurrency(fromString));
+        }
+
+        public Int32 GetInt32(String fromString)
+        {
+            return Convert.ToInt32(GetCurrency(fromString));
+        }
+
+        public Double GetNumericalDifference(Double left, Double right)
+        {
+            if (right.IsZero())
+                return 0;
+
+            //right = baseline
+            if (left > right)
+                return (left / right - 1) * 100;
+
+            return (0 - (1 - left / right)) * 100;
+        }
+
+        public Boolean AreEqual(Double left, Double right)
+        {
+            return Math.Abs(left - right) < TOLERANCE;
         }
 
         private static Double GetCurrencyImpl(String fromString, ref Boolean isAnyValid)
@@ -67,7 +103,9 @@ namespace Serializer
                     }
                 }
                 else
-                    current = EOL; 
+                {
+                    current = EOL;
+                }
 
                 switch (current)
                 {
@@ -77,7 +115,6 @@ namespace Serializer
                     case EOL:
                         eol:
                         if (_commaGroupLength > 0 && _dotGroupLength > 0 && _currentGroupLength > 0)
-                        {
                             switch (_firstGroup)
                             {
                                 case COMMA:
@@ -87,7 +124,6 @@ namespace Serializer
                                     current = COMMA;
                                     break;
                             }
-                        }
                         else
                             current = _commaGroupLength.IsZero() ? COMMA : DOT;
 
@@ -109,7 +145,6 @@ namespace Serializer
                             _firstGroup = COMMA;
 
                         if (_commaGroup > 0)
-                        {
                             for (var mult = 1000; mult < Int32.MaxValue; mult *= 1000)
                             {
                                 if (_commaGroup >= mult)
@@ -118,7 +153,6 @@ namespace Serializer
                                 _commaGroup += _currentGroup * mult;
                                 break;
                             }
-                        }
                         else
                             _commaGroup = _currentGroup;
 
@@ -131,7 +165,6 @@ namespace Serializer
                             _firstGroup = DOT;
 
                         if (_dotGroup > 0)
-                        {
                             for (var mult = 1000; mult < Int32.MaxValue; mult *= 1000)
                             {
                                 if (_dotGroup >= mult)
@@ -139,7 +172,6 @@ namespace Serializer
                                 _dotGroup += _currentGroup * mult;
                                 break;
                             }
-                        }
                         else
                             _dotGroup = _currentGroup;
 
@@ -155,80 +187,66 @@ namespace Serializer
 
             _buildingResult = 0;
 
-            if (_firstGroup == COMMA)
+            switch (_firstGroup)
             {
-                if (_dotGroup > 0 || _currentGroup > 0 || fromString[0] == ZERO)
-                    _buildingResult = _commaGroup
-                                      / Math.Pow(10, _commaGroupLength);
-                else
-                    _buildingResult = _commaGroup;
-
-                if (_dotGroupLength > 0)
-                    _buildingResult += _dotGroup;
-
-                _buildingResult += _currentGroup *
-                                   Math.Pow(10, _dotGroupLength);
-            }
-            else if (_firstGroup == DOT)
-            {
-                if (_commaGroup > 0 || _commaGroupLength > 0 || _currentGroup > 0
-                    || fromString[0] == ZERO)
-                    _buildingResult = _dotGroup
-                                      / Math.Pow(10, _dotGroupLength);
-                else
-                    _buildingResult = _dotGroup;
-
-                if (_commaGroupLength > 0)
+                case COMMA when _commaGroupLength % 3 == 0:
                     _buildingResult += _commaGroup;
 
-                _buildingResult += _currentGroup *
-                                   Math.Pow(10, _commaGroupLength);
+                    _buildingResult += _dotGroup * Math.Pow(10, _commaGroupLength);
+
+                    break;
+
+                case COMMA:
+                {
+                    if (_dotGroup > 0 || _currentGroup > 0 || fromString[0] == ZERO)
+                        _buildingResult = _commaGroup
+                                          / Math.Pow(10, _commaGroupLength);
+                    else
+                        _buildingResult = _commaGroup;
+
+                    if (_dotGroupLength > 0)
+                        _buildingResult += _dotGroup;
+
+                    _buildingResult += _currentGroup *
+                                       Math.Pow(10, _dotGroupLength);
+                    break;
+                }
+                case DOT:
+                {
+                    if (_commaGroup > 0 || _commaGroupLength > 0 || _currentGroup > 0
+                        || fromString[0] == ZERO)
+                        _buildingResult = _dotGroup
+                                          / Math.Pow(10, _dotGroupLength);
+                    else
+                        _buildingResult = _dotGroup;
+
+                    if (_commaGroupLength > 0)
+                        _buildingResult += _commaGroup;
+
+                    _buildingResult += _currentGroup *
+                                       Math.Pow(10, _commaGroupLength);
+                    break;
+                }
             }
 
             return _isNegation ? 0 - _buildingResult : _buildingResult;
         }
 
-
-        public String GetCurrencyText(String str)
+        public Int64 GetInt64(String fromString)
         {
-            IEnumerable<Char> GetValidChars()
-            {
-                var isDotDetected = false;
-                for (var i = 0; i < str.Length; i++)
-                {
-                    var ch = str[i];
-                    if (Char.IsDigit(ch))
-                        yield return ch;
-                    else if (!isDotDetected && ch == DOT && i < str.Length - 1)
-                    {
-                        isDotDetected = true;
-                        yield return ch;
-                    }
-                }
-            }
-
-            return String.Concat(GetValidChars());
+            var str = String.Concat(fromString.Where(Char.IsNumber));
+            if (Int64.TryParse(str, out var yes))
+                return yes;
+            return 0;
         }
 
-        public Double GetDouble(String fromString) =>
-            Convert.ToDouble(GetCurrency(fromString));
+        private const Double TOLERANCE = 0.000001;
 
-        public Int32 GetInt32(String fromString)
-            => Convert.ToInt32(GetCurrency(fromString));
-
-        public Double GetNumericalDifference(Double left, Double right)
-        {
-            if (right.IsZero())
-                return 0;
-
-            //right = baseline
-            if (left > right)
-                return (left / right - 1) * 100;
-
-            return (0 - (1 - left / right)) * 100;
-        }
-
-        public Boolean AreEqual(Double left, Double right) => Math.Abs(left - right) < TOLERANCE;
+        private const Char DOT = '.';
+        private const Char COMMA = ',';
+        private const Char ZERO = '0';
+        private const Char EOL = '\n';
+        private const Char NEG = '-';
 
         [ThreadStatic] private static Double _buildingResult;
 

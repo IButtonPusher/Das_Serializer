@@ -1,8 +1,9 @@
-﻿
+﻿// ReSharper disable UnusedMember.Global
 
-// ReSharper disable UnusedMember.Global
+using System;
+using System.Threading.Tasks;
 
-namespace Serializer
+namespace Das.Serializer
 {
     public interface ITextParserProvider
     {

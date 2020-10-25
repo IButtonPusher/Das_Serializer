@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Das.Serializer;
 
 // ReSharper disable UnusedMember.Global
@@ -8,22 +9,29 @@ namespace Das.Extensions
 {
     public static class DynamicExtensions
     {
-        private static IStateProvider _ctx;
-
-        public static IStateProvider Context
+        static DynamicExtensions()
         {
-            get => _ctx ?? (_ctx = new DefaultStateProvider());
-            set => _ctx = value;
+            _ctx = new DefaultStateProvider();
         }
+
+        public static void CopyTo<T>(this T obj, ref T res) where T : class
+        {
+            _ctx.ObjectConverter.Copy(obj, ref res, _ctx.Settings);
+        }
+
+        //public static IStateProvider Context
+        //{
+        //    get => _ctx ?? (_ctx = new DefaultStateProvider());
+        //    private set => _ctx = value;
+        //}
 
 
         public static void Update<T>(this T updating, T withValuesOf) where T : class
         {
-            Context.ObjectConverter.Copy(withValuesOf, ref updating,
-                Context.Settings);
+            _ctx.ObjectConverter.Copy(withValuesOf, ref updating,
+                _ctx.Settings);
         }
 
-        public static void CopyTo<T>(this T obj, ref T res) where T : class
-            => Context.ObjectConverter.Copy(obj, ref res, Context.Settings);
+        private static readonly IStateProvider _ctx;
     }
 }

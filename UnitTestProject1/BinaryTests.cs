@@ -1,5 +1,4 @@
-﻿using Das;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -8,9 +7,10 @@ using System.Drawing;
 using System.Linq;
 using Das.Extensions;
 using Das.Serializer;
+
 // ReSharper disable All
 
-namespace UnitTestProject1
+namespace Serializer.Tests
 {
 	[TestClass]
 	public class BinaryTests : TestBase
@@ -276,7 +276,8 @@ namespace UnitTestProject1
 		}
 
 
-		[TestCategory("list"), TestCategory("binary"), TestCategory("collections"), TestMethod]
+		[TestCategory("list"), TestCategory("binary"), 
+         TestCategory("collections"), TestMethod]
 		public void ObjectListBinary()
 		{
 			var list1 = ObjectList.Get();
@@ -289,6 +290,22 @@ namespace UnitTestProject1
 				Assert.IsTrue(list1.ItemList[i].Equals(res.ItemList[i]));
 			}		
 		}
+
+        [TestCategory("list"), TestCategory("binary"), 
+         TestCategory("collections"), TestCategory("null"),
+         TestMethod]
+        public void NullListBinary()
+        {
+            var list1 = new ObjectList
+            {
+                ItemList = null
+            };
+
+            var byt = Serializer.ToBytes(list1);
+            var res = Serializer.FromBytes<ObjectList>(byt);
+
+           Assert.IsNull(res.ItemList);
+        }
 
         [TestCategory("list"), TestCategory("binary"), TestCategory("collections"), TestMethod]
         public void PrimitiveListBinary()

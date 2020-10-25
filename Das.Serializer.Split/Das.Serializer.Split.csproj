@@ -1,0 +1,55 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.1;net45</TargetFrameworks>
+	 <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>0.0.6-alpha</Version>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Description>Single assembly version: Das.Serializer
+
+var serializer = new DasSerializer();
+var o = serializer.FromXml(xml);
+o = serializer.FromJson(json);</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/IButtonPusher/Das_Serializer</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/IButtonPusher/Das_Serializer.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <RootNamespace>Das.Serializer</RootNamespace>
+    <Authors>Claus Trappberger</Authors>
+    <AssemblyName>Das.Serializer</AssemblyName>
+    <PackageId>Das.Serializer.Split</PackageId>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp3.0|AnyCPU'">
+    <OutputPath>E:\src\Das\Serializer\Das.Serializer\bin\Debug\</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Das.Serializer.Interfaces" Version="0.0.6-alpha" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+  </ItemGroup>
+  
+  <Target Name="CopyProjectReferencesToPackage" DependsOnTargets="ResolveReferences">
+    <ItemGroup>
+      <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths-&gt;WithMetadataValue('ReferenceSourceTarget', 'ProjectReference'))" />
+    </ItemGroup>
+  </Target>
+
+<PropertyGroup>
+   <LangVersion>8.0</LangVersion>
+   <Nullable>enable</Nullable>
+   <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
+   <AssemblyVersion>0.0.5.0</AssemblyVersion>
+   <FileVersion>0.0.5.0</FileVersion>
+</PropertyGroup>
+
+<Import Project="..\Core.Shared\Core.Shared.projitems" Label="Shared" />
+
+<Import Project="..\Serializer.Shared\Serializer.Shared.projitems" Label="Shared" />
+
+
+</Project>

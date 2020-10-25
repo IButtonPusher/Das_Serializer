@@ -1,14 +1,14 @@
-﻿using Das;
-using Das.Extensions;
+﻿using Das.Extensions;
 using Das.Serializer;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+
 // ReSharper disable All
 
-namespace UnitTestProject1
+namespace Serializer.Tests
 {
 	[TestClass]
 	public class TypeTests : TestBase
@@ -80,7 +80,7 @@ namespace UnitTestProject1
 			type = typeof(Dictionary<String, SimpleClass>);
             if (type?.FullName == null)
                 throw new Exception();
-			var wrongName = type.FullName.Replace("UnitTestProject1", "UnitTestProject2");
+			var wrongName = type.FullName.Replace("Serializer.Tests", "Serializer.Tests2");
 			type2 = Serializer.TypeInferrer.GetTypeFromClearName(wrongName);
 			Assert.AreNotEqual(type, type2);
 

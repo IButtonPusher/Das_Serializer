@@ -1,36 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
-using Das.Serializer.Annotations;
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
     public interface INode<TNode> : INode where TNode : INode<TNode>
     {
-        [NotNull]
-        new TNode Parent { get; set; }
+        [NotNull] new TNode Parent { get; set; }
     }
 
-    public interface INode
+    public interface INode : IValueNode
     {
-        [NotNull]
-        INode Parent { get; }
+        IDictionary<String, String> Attributes { get; }
 
-        Type Type { get; set; }
-
-        Object Value { get; set; }
-
-        Boolean IsForceNullValue { get; set; }
-
-        [NotNull]
-        String Name { get; }
+        IDictionary<String, Object?> DynamicProperties { get; }
 
         Boolean IsEmpty { get; }
 
+        Boolean IsForceNullValue { get; set; }
+
+        [NotNull] String Name { get; }
+
         NodeTypes NodeType { get; set; }
 
-        IDictionary<String, String> Attributes { get; }
+        [NotNull] INode Parent { get; }
 
-        IDictionary<String, Object> DynamicProperties { get; }
+        new Type? Type { get; set; }
+
+        new Object? Value { get; set; }
 
         void Clear();
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,57 +7,59 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using Das.Types;
-using Serializer.Core;
 
 namespace Das.Serializer
 {
     public class ObjectInstantiator : TypeCore, IInstantiator
     {
-        private readonly ConcurrentDictionary<Type, InstantiationTypes> InstantionTypes;
-        private readonly ConcurrentDictionary<Type, Func<Object>> Constructors;
-        private readonly ITypeInferrer _typeInferrer;
-        private readonly ITypeManipulator _typeManipulator;
-        private readonly IDictionary<Type, Type> _typeSurrogates;
-        private readonly IObjectManipulator _objectManipulator;
-        private readonly IDynamicTypes _dynamicTypes;
-        private readonly ConcurrentDictionary<Type, ConstructorInfo> CachedConstructors;
+        static ObjectInstantiator()
+        {
+            InstantionTypes = new ConcurrentDictionary<Type, InstantiationTypes>();
+            ConstructorDelegates = new ConcurrentDictionary<Type, Func<Object>>();
+            Constructors = new ConcurrentDictionary<Type, ConstructorInfo?>();
+            KnownOnDeserialize = new ConcurrentDictionary<Type, Boolean>();
+            GenericListDelegates = new ConcurrentDictionary<Type, Func<IList>>();
+        }
+
 
         public ObjectInstantiator(ITypeInferrer typeInferrer, ITypeManipulator typeManipulator,
-            IDictionary<Type, Type> typeSurrogates, IObjectManipulator objectManipulator,
-            IDynamicTypes dynamicTypes)
+                                  IDictionary<Type, Type> typeSurrogates, IObjectManipulator objectManipulator,
+                                  IDynamicTypes dynamicTypes)
             : base(typeManipulator.Settings)
         {
             _typeInferrer = typeInferrer;
             _typeManipulator = typeManipulator;
-            _typeSurrogates = typeSurrogates;
+            _typeSurrogates = new Dictionary<Type, Type>(typeSurrogates);
             _objectManipulator = objectManipulator;
             _dynamicTypes = dynamicTypes;
-            InstantionTypes = new ConcurrentDictionary<Type, InstantiationTypes>();
-            Constructors = new ConcurrentDictionary<Type, Func<Object>>();
-            CachedConstructors = new ConcurrentDictionary<Type, ConstructorInfo>();
         }
 
-        public Object BuildDefault(Type type, Boolean isCacheConstructors)
+        public Object? BuildDefault(Type type, Boolean isCacheConstructors)
         {
-            if (!_typeSurrogates.TryGetValue(type, out var typ))
-                typ = type;
+            if (_typeSurrogates.ContainsKey(type))
+                type = _typeSurrogates[type];
 
-            var instType = GetInstantiationType(typ);
+            var instType = GetInstantiationType(type);
 
             switch (instType)
             {
                 case InstantiationTypes.EmptyString:
                     return String.Empty;
                 case InstantiationTypes.DefaultConstructor:
-                    return Activator.CreateInstance(typ);
+                    return Activator.CreateInstance(type);
                 case InstantiationTypes.Emit:
-                    return CreateInstance(typ, isCacheConstructors);
+                    if (isCacheConstructors)
+                        return CreateInstanceCacheConstructor(type);
+                    else
+                        return CreateInstanceDetectConstructor(type);
+
                 case InstantiationTypes.EmptyArray:
-                    var germane = _typeInferrer.GetGermaneType(typ);
+                    var germane = _typeInferrer.GetGermaneType(type);
                     return Array.CreateInstance(germane, 0);
                 case InstantiationTypes.Uninitialized:
-                    return FormatterServices.GetUninitializedObject(typ);
+                    return FormatterServices.GetUninitializedObject(type);
                 case InstantiationTypes.NullObject:
                     return null;
                 case InstantiationTypes.Abstract:
@@ -81,20 +84,234 @@ namespace Das.Serializer
         public T BuildDefault<T>(Boolean isCacheConstructors)
         {
             var def = BuildDefault(typeof(T), isCacheConstructors);
-            return (T) def;
+            return def == null ? default! : (T) def;
         }
 
-        private static ConstructorInfo GetConstructor(Type type, IList<Type> genericArguments,
-            out Type[] argTypes)
+        public IList BuildGenericList(Type type)
+        {
+            var f = GenericListDelegates.GetOrAdd(type,
+                t => GetConstructorDelegate<Func<IList>>(typeof(List<>).MakeGenericType(t)));
+
+            return f();
+        }
+
+        public TDelegate GetConstructorDelegate<TDelegate>(Type type)
+            where TDelegate : Delegate
+        {
+            if (TryGetConstructorDelegate<TDelegate>(type, out var res))
+                return res;
+
+            throw new InvalidProgramException(
+                $"Type '{type.Name}' doesn't have the requested constructor.");
+        }
+
+        public bool TryGetConstructorDelegate<TDelegate>(Type type, out TDelegate result)
+            where TDelegate : Delegate
+        {
+            if (TryGetConstructorDelegate(type, typeof(TDelegate), out var maybe)
+                && maybe is TDelegate td)
+            {
+                result = td;
+                return true;
+            }
+
+            result = default!;
+            return false;
+        }
+
+        public void OnDeserialized(IValueNode node, ISerializationDepth depth)
+        {
+            if (node.Type == null || node.Value == null)
+                return;
+
+            var wasKnown = KnownOnDeserialize.TryGetValue(node.Type, out var dothProceed);
+
+            if (wasKnown && !dothProceed)
+                return;
+
+            var str = _typeManipulator.GetTypeStructure(node.Type, depth);
+            dothProceed = str.OnDeserialized(node.Value, _objectManipulator);
+            if (!wasKnown)
+                KnownOnDeserialize.TryAdd(node.Type, dothProceed);
+        }
+
+
+        public T CreatePrimitiveObject<T>(Byte[] rawValue, Type objType)
+        {
+            if (rawValue.Length == 0)
+                return default!;
+
+            var handle = GCHandle.Alloc(rawValue, GCHandleType.Pinned);
+            var structure = (T) Marshal.PtrToStructure(handle.AddrOfPinnedObject(), objType)!;
+            handle.Free();
+            return structure!;
+        }
+
+        public Object CreatePrimitiveObject(Byte[] rawValue, Type objType)
+        {
+            return CreatePrimitiveObject<Object>(rawValue, objType);
+        }
+
+        public Func<Object> GetDefaultConstructor(Type type)
+        {
+            if (!ConstructorDelegates.TryGetValue(type, out var constructor))
+            {
+                constructor = GetConstructorDelegate(type);
+                ConstructorDelegates.TryAdd(type, constructor);
+            }
+
+            return constructor;
+        }
+
+        public bool TryGetDefaultConstructor(Type type, out ConstructorInfo ctor)
+        {
+            if (Constructors.TryGetValue(type, out ctor!))
+            {
+                if (ctor == null)
+                    return false;
+
+                if (ctor.GetParameters().Length == 0)
+                    return true;
+
+                ctor = GetConstructor(type, new List<Type>(), out _)!;
+                goto byeNow;
+            }
+
+            ctor = GetConstructor(type, new List<Type>(), out _)!;
+            Constructors.TryAdd(type, ctor);
+
+            byeNow:
+            return ctor != null;
+        }
+
+        public bool TryGetDefaultConstructor<T>(out ConstructorInfo? ctor)
+        {
+            var type = typeof(T);
+
+            return TryGetDefaultConstructor(type, out ctor);
+        }
+
+        public bool TryGetDefaultConstructorDelegate<T>(out Func<T> res) where T : class
+        {
+            var type = typeof(T);
+            if (ConstructorDelegates.TryGetValue(type, out var constructor)
+                && constructor is Func<T> good)
+            {
+                res = good;
+                return true;
+            }
+
+            if (!TryGetConstructorDelegate<Func<T>>(typeof(T), out var del))
+            {
+                res = default!;
+                return false;
+            }
+
+            constructor = del;
+            ConstructorDelegates.TryAdd(type, constructor);
+
+            res = (constructor as Func<T>)!;
+            return true;
+        }
+
+        public Func<T> GetDefaultConstructor<T>() where T : class
+        {
+            var type = typeof(T);
+            if (!ConstructorDelegates.TryGetValue(type, out var constructor))
+            {
+                constructor = GetConstructorDelegate<T>();
+                ConstructorDelegates.TryAdd(type, constructor);
+            }
+
+            return (constructor as Func<T>)!;
+        }
+
+
+        private Object CreateInstanceCacheConstructor(Type type)
+        {
+            if (ConstructorDelegates.TryGetValue(type, out var constructor))
+                return constructor();
+
+            if (IsAnonymousType(type))
+                return CreateInstanceDetectConstructor(type);
+
+            constructor = GetConstructorDelegate(type);
+            ConstructorDelegates.TryAdd(type, constructor);
+            return constructor();
+        }
+
+        private Object CreateInstanceDetectConstructor(Type type)
+        {
+            var ctor = GetConstructor(type, new List<Type>(), out _)
+                       ?? throw new MissingMethodException(type.Name);
+            var ctored = ctor.Invoke(new Object[0]);
+            return ctored;
+        }
+
+        private static ConstructorInfo? GetConstructor(Type type, ICollection<Type> genericArguments,
+                                                       out Type[] argTypes)
         {
             argTypes = genericArguments.Count > 1
                 ? genericArguments.Take(genericArguments.Count - 1).ToArray()
                 : Type.EmptyTypes;
 
-            return type.GetConstructor(argTypes);
+            return type.GetConstructor(Const.AnyInstance, null, argTypes, null);
         }
 
-        public Delegate GetConstructorDelegate(Type type, Type delegateType)
+        public Func<T> GetConstructorDelegate<T>()
+        {
+            return GetConstructorDelegate<Func<T>>(typeof(T));
+        }
+
+
+        private static Func<Object> GetConstructorDelegate(Type type)
+        {
+            var delType = typeof(Func<>).MakeGenericType(type);
+
+            if (TryGetConstructorDelegate(type, delType, out var res))
+                return (Func<Object>) res;
+
+            throw new InvalidProgramException(
+                $"Type '{type.Name}' doesn't have the requested constructor.");
+        }
+
+        private InstantiationTypes GetInstantiationType(Type type)
+        {
+            if (InstantionTypes.TryGetValue(type, out var res))
+                return res;
+            if (type == typeof(String))
+            {
+                res = InstantiationTypes.EmptyString;
+            }
+            else if (type.IsArray)
+            {
+                res = InstantiationTypes.EmptyArray;
+            }
+            else if (!type.IsAbstract)
+            {
+                if (_typeInferrer.HasEmptyConstructor(type))
+                    res = _typeInferrer.IsCollection(type)
+                        ? InstantiationTypes.DefaultConstructor
+                        : InstantiationTypes.Emit;
+                else if (type.IsGenericType)
+                    res = InstantiationTypes.NullObject; //Nullable<T>
+                else
+                    res = InstantiationTypes.Uninitialized;
+            }
+            else if (_typeInferrer.IsCollection(type))
+            {
+                res = InstantiationTypes.EmptyArray;
+            }
+            else
+            {
+                return InstantiationTypes.Abstract;
+            }
+
+            InstantionTypes.TryAdd(type, res);
+            return res;
+        }
+
+        private static bool TryGetConstructorDelegate(Type type, Type delegateType, out Delegate result)
         {
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
@@ -107,8 +324,8 @@ namespace Das.Serializer
 
             if (constructor == null)
             {
-                throw new InvalidProgramException(
-                    $"Type '{type.Name}' doesn't have the requested constructor.");
+                result = default!;
+                return false;
             }
 
             var dynamicMethod = new DynamicMethod("DM$_" + type.Name, type, argTypes, type);
@@ -118,113 +335,20 @@ namespace Das.Serializer
 
             ilGen.Emit(OpCodes.Newobj, constructor);
             ilGen.Emit(OpCodes.Ret);
-            return dynamicMethod.CreateDelegate(delegateType);
-        }
-
-        public Func<Object> GetConstructorDelegate(Type type)
-            => (Func<Object>) GetConstructorDelegate(type, typeof(Func<Object>));
-
-        public void OnDeserialized(Object obj, ISerializationDepth depth)
-        {
-            if (obj == null)
-                return;
-            var str = _typeManipulator.GetStructure(obj.GetType(), depth);
-            str.OnDeserialized(obj, _objectManipulator);
-        }
-
-        public Boolean TryGetPropertiesConstructor(Type type, out ConstructorInfo constr)
-        {
-            constr = null;
-            var isAnomymous = IsAnonymousType(type);
-
-            if (!isAnomymous && CachedConstructors.TryGetValue(type, out constr))
-                return constr != null;
-
-            var rProps = new Dictionary<String, Type>(
-                StringComparer.OrdinalIgnoreCase);
-
-            foreach (var p in type.GetProperties().Where(p => !p.CanWrite && p.CanRead))
-                rProps.Add(p.Name, p.PropertyType);
-            foreach (var con in type.GetConstructors())
-            {
-                if (con.GetParameters().Length <= 0 || !con.GetParameters().All(p =>
-                        rProps.ContainsKey(p.Name) && rProps[p.Name] == p.ParameterType))
-                    continue;
-
-                constr = con;
-                break;
-            }
-
-            if (constr == null)
-                return false;
-
-            if (isAnomymous)
-                return true;
-
-
-            CachedConstructors.TryAdd(type, constr);
+            result = dynamicMethod.CreateDelegate(delegateType);
             return true;
         }
 
-        public T CreatePrimitiveObject<T>(Byte[] rawValue, Type objType)
-        {
-            if (rawValue.Length == 0)
-                return default;
+        private static readonly ConcurrentDictionary<Type, InstantiationTypes> InstantionTypes;
+        private static readonly ConcurrentDictionary<Type, Func<Object>> ConstructorDelegates;
+        private static readonly ConcurrentDictionary<Type, Func<IList>> GenericListDelegates;
+        private static readonly ConcurrentDictionary<Type, ConstructorInfo?> Constructors;
 
-            var handle = GCHandle.Alloc(rawValue, GCHandleType.Pinned);
-            var structure = (T) Marshal.PtrToStructure(handle.AddrOfPinnedObject(), objType);
-            handle.Free();
-            return structure;
-        }
-
-        public Object CreatePrimitiveObject(Byte[] rawValue, Type objType)
-            => CreatePrimitiveObject<Object>(rawValue, objType);
-
-        private InstantiationTypes GetInstantiationType(Type type)
-        {
-            if (InstantionTypes.TryGetValue(type, out var res))
-                return res;
-            if (type == typeof(String))
-                res = InstantiationTypes.EmptyString;
-            else if (type.IsArray)
-                res = InstantiationTypes.EmptyArray;
-            else if (!type.IsAbstract)
-            {
-                if (_typeInferrer.HasEmptyConstructor(type))
-                {
-                    if (_typeInferrer.IsCollection(type))
-                        res = InstantiationTypes.DefaultConstructor;
-                    else
-                        res = InstantiationTypes.Emit;
-                }
-                else if (type.IsGenericType)
-                    res = InstantiationTypes.NullObject; //Nullable<T>
-                else
-                    res = InstantiationTypes.Uninitialized;
-            }
-            else if (_typeInferrer.IsCollection(type))
-                res = InstantiationTypes.EmptyArray;
-            else return InstantiationTypes.Abstract;
-
-            InstantionTypes.TryAdd(type, res);
-            return res;
-        }
-
-        private Object CreateInstance(Type type, Boolean isCacheTypeConstructors)
-        {
-            if (!isCacheTypeConstructors || IsAnonymousType(type))
-            {
-                var ctor = GetConstructor(type, new List<Type>(), out _);
-                var ctored = ctor.Invoke(new Object[0]);
-                return ctored;
-            }
-
-            if (Constructors.TryGetValue(type, out var constructor))
-                return constructor();
-
-            constructor = GetConstructorDelegate(type);
-            Constructors.TryAdd(type, constructor);
-            return constructor();
-        }
+        private static readonly ConcurrentDictionary<Type, Boolean> KnownOnDeserialize;
+        private readonly IDynamicTypes _dynamicTypes;
+        private readonly IObjectManipulator _objectManipulator;
+        private readonly ITypeInferrer _typeInferrer;
+        private readonly ITypeManipulator _typeManipulator;
+        private readonly Dictionary<Type, Type> _typeSurrogates;
     }
 }

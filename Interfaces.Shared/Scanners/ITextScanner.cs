@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using Das.Scanners;
-using Das.Serializer.Annotations;
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    public interface ITextScanner : IScannerBase<IEnumerable<Char>>, IScannerBase<Char[]>,
-        ISerializationDepth
+    public interface ITextScanner : IScannerBase<String>,
+                                    //IScannerBase<IEnumerable<Char>>, 
+                                    IScannerBase<Char[]>,
+                                    ISerializationDepth
     {
-        [NotNull]
-        ITextNode RootNode { get; }
+        [NotNull] ITextNode RootNode { get; }
     }
 }

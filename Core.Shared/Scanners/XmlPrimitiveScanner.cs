@@ -3,18 +3,12 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using System.Threading;
-using Das.Scanners;
-using Das.Serializer;
+using System.Threading.Tasks;
 
-namespace Serializer.Core
+namespace Das.Serializer
 {
     public class XmlPrimitiveScanner : StringPrimitiveScanner
     {
-        public XmlPrimitiveScanner(ISerializationContext state) : base(state)
-        {
-            
-        }
-
         static XmlPrimitiveScanner()
         {
             Entities = new Dictionary<String, String>
@@ -27,24 +21,22 @@ namespace Serializer.Core
             };
         }
 
+        public XmlPrimitiveScanner(ISerializationContext state) : base(state)
+        {
+        }
+
         private static Dictionary<String, String> Entities { get; }
 
-        public override String Descape(String input) => HtmlDecode(input);
-
-        private static readonly ThreadLocal<StringBuilder> RawEntity
-            = new ThreadLocal<StringBuilder>(() => new StringBuilder());
-
-        private static readonly ThreadLocal<StringBuilder> Entity
-            = new ThreadLocal<StringBuilder>(() => new StringBuilder());
-
-        private static readonly ThreadLocal<StringBuilder> Output
-            = new ThreadLocal<StringBuilder>(() => new StringBuilder());
+        public override String Descape(String input)
+        {
+            return HtmlDecode(input);
+        }
 
         //https://github.com/mono/mono/blob/master/mcs/class/System.Web/System.Web.Util/HttpEncoder.cs
-        public static String HtmlDecode(String s)
+        public static String HtmlDecode(String? s)
         {
             if (s == null)
-                return null;
+                return null!;
 
             if (s.Length == 0)
                 return String.Empty;
@@ -66,8 +58,8 @@ namespace Serializer.Core
             // 3 -> '#' found after '&' and getting numbers
             var state = 0;
             var number = 0;
-            var is_hex_value = false;
-            var have_trailing_digits = false;
+            var isHexValue = false;
+            var haveTrailingDigits = false;
 
             for (var i = 0; i < len; i++)
             {
@@ -91,10 +83,10 @@ namespace Serializer.Core
                 if (c == '&')
                 {
                     state = 1;
-                    if (have_trailing_digits)
+                    if (haveTrailingDigits)
                     {
                         entity.Append(number.ToString(CultureInfo.InvariantCulture));
-                        have_trailing_digits = false;
+                        haveTrailingDigits = false;
                     }
 
                     output.Append(entity);
@@ -115,15 +107,11 @@ namespace Serializer.Core
                     else
                     {
                         number = 0;
-                        is_hex_value = false;
+                        isHexValue = false;
                         if (c != '#')
-                        {
                             state = 2;
-                        }
                         else
-                        {
                             state = 3;
-                        }
 
                         entity.Append(c);
                         rawEntity.Append(c);
@@ -147,7 +135,9 @@ namespace Serializer.Core
                     if (c == ';')
                     {
                         if (number == 0)
+                        {
                             output.Append(rawEntity + ";");
+                        }
                         else if (number > 65535)
                         {
                             output.Append("&#");
@@ -162,32 +152,32 @@ namespace Serializer.Core
                         state = 0;
                         entity.Length = 0;
                         rawEntity.Length = 0;
-                        have_trailing_digits = false;
+                        haveTrailingDigits = false;
                     }
-                    else if (is_hex_value && Uri.IsHexDigit(c))
+                    else if (isHexValue && Uri.IsHexDigit(c))
                     {
                         number = number * 16 + Uri.FromHex(c);
-                        have_trailing_digits = true;
+                        haveTrailingDigits = true;
                         rawEntity.Append(c);
                     }
                     else if (Char.IsDigit(c))
                     {
                         number = number * 10 + (c - '0');
-                        have_trailing_digits = true;
+                        haveTrailingDigits = true;
                         rawEntity.Append(c);
                     }
                     else if (number == 0 && (c == 'x' || c == 'X'))
                     {
-                        is_hex_value = true;
+                        isHexValue = true;
                         rawEntity.Append(c);
                     }
                     else
                     {
                         state = 2;
-                        if (have_trailing_digits)
+                        if (haveTrailingDigits)
                         {
                             entity.Append(number.ToString(CultureInfo.InvariantCulture));
-                            have_trailing_digits = false;
+                            haveTrailingDigits = false;
                         }
 
                         entity.Append(c);
@@ -196,15 +186,19 @@ namespace Serializer.Core
             }
 
             if (entity.Length > 0)
-            {
                 output.Append(entity);
-            }
-            else if (have_trailing_digits)
-            {
-                output.Append(number.ToString(CultureInfo.InvariantCulture));
-            }
+            else if (haveTrailingDigits) output.Append(number.ToString(CultureInfo.InvariantCulture));
 
             return output.ToString();
         }
+
+        private static readonly ThreadLocal<StringBuilder> RawEntity
+            = new ThreadLocal<StringBuilder>(() => new StringBuilder());
+
+        private static readonly ThreadLocal<StringBuilder> Entity
+            = new ThreadLocal<StringBuilder>(() => new StringBuilder());
+
+        private static readonly ThreadLocal<StringBuilder> Output
+            = new ThreadLocal<StringBuilder>(() => new StringBuilder());
     }
 }

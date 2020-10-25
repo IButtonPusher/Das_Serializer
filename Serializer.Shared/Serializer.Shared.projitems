@@ -6,19 +6,35 @@
     <SharedGUID>228fd1e5-7105-4531-804e-d0b97a2b58cb</SharedGUID>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
-    <Import_RootNamespace>Serializer.Shared</Import_RootNamespace>
+    <Import_RootNamespace>Das.Serializer</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NaiveMemoryStream.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DasSerializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DynamicExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DynamicFacade.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Proto\IValueExtractor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoAutoProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoPrimitiveBuilder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoPrintState.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoScanState.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoCollectionBuilder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoDynamicBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoEnumerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoPackedBuilder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoPrintBuilder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoProxyConstruction.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoScanBuilder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoStateBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoVarIntBuilder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Proto\ProxyLookup.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\DefaultStateProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\DasCodeGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\DasType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\DasTypeBuilder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\ObjectInstantiator.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Types\ObjectManipulator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoDynamicProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\TypeManipulator.cs" />
   </ItemGroup>
 </Project>

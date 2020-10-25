@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Serializer.Interfaces", "Se
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Serializer.Core", "Serializer.Core\Serializer.Core.csproj", "{AA0FCDF8-5BFA-4EB5-8590-B153F6EE0FEC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTestProject1", "UnitTestProject1\UnitTestProject1.csproj", "{C929D40C-3295-4D56-922B-0CEEE34DADA6}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Das.Serializer", "Das.Serializer\Das.Serializer.csproj", "{A9D2EF65-4059-4C0A-B513-D49AC3D66CF2}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Interfaces.Shared", "Interfaces.Shared\Interfaces.Shared.shproj", "{AEB86A21-7287-4A27-B467-1A0D1C66FA9F}"
@@ -19,6 +17,10 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Serializer.Shared", "Serial
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serializer.Benchmarks", "Serializer.Benchmarks\Serializer.Benchmarks.csproj", "{3DCBE685-4644-4F16-9F39-B7A2A320B487}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Das.Serializer.Split", "Das.Serializer.Split\Das.Serializer.Split.csproj", "{B631F449-68DD-4F5F-BD04-C2F2E5BF124D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serializer.Tests", "Serializer.Tests\Serializer.Tests.csproj", "{ECB2B428-C066-4D2B-B891-711B83951C65}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Serializer.Shared\Serializer.Shared.projitems*{228fd1e5-7105-4531-804e-d0b97a2b58cb}*SharedItemsImports = 13
@@ -26,8 +28,13 @@ Global
 		Interfaces.Shared\Interfaces.Shared.projitems*{a9d2ef65-4059-4c0a-b513-d49ac3d66cf2}*SharedItemsImports = 5
 		Serializer.Shared\Serializer.Shared.projitems*{a9d2ef65-4059-4c0a-b513-d49ac3d66cf2}*SharedItemsImports = 5
 		Interfaces.Shared\Interfaces.Shared.projitems*{aeb86a21-7287-4a27-b467-1a0d1c66fa9f}*SharedItemsImports = 13
+		Core.Shared\Core.Shared.projitems*{b631f449-68dd-4f5f-bd04-c2f2e5bf124d}*SharedItemsImports = 5
+		Serializer.Shared\Serializer.Shared.projitems*{b631f449-68dd-4f5f-bd04-c2f2e5bf124d}*SharedItemsImports = 5
 		Core.Shared\Core.Shared.projitems*{c6d160c0-8e1f-4387-8194-3f722e633a6b}*SharedItemsImports = 13
 		Interfaces.Shared\Interfaces.Shared.projitems*{c6e56268-9045-4dbb-b83a-f14c009a5944}*SharedItemsImports = 5
+		Core.Shared\Core.Shared.projitems*{ecb2b428-c066-4d2b-b891-711b83951c65}*SharedItemsImports = 4
+		Interfaces.Shared\Interfaces.Shared.projitems*{ecb2b428-c066-4d2b-b891-711b83951c65}*SharedItemsImports = 4
+		Serializer.Shared\Serializer.Shared.projitems*{ecb2b428-c066-4d2b-b891-711b83951c65}*SharedItemsImports = 4
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,25 +43,16 @@ Global
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{C6E56268-9045-4DBB-B83A-F14C009A5944}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C6E56268-9045-4DBB-B83A-F14C009A5944}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C6E56268-9045-4DBB-B83A-F14C009A5944}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C6E56268-9045-4DBB-B83A-F14C009A5944}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C6E56268-9045-4DBB-B83A-F14C009A5944}.TEST|Any CPU.ActiveCfg = TEST|Any CPU
 		{C6E56268-9045-4DBB-B83A-F14C009A5944}.TEST|Any CPU.Build.0 = TEST|Any CPU
 		{AA0FCDF8-5BFA-4EB5-8590-B153F6EE0FEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AA0FCDF8-5BFA-4EB5-8590-B153F6EE0FEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AA0FCDF8-5BFA-4EB5-8590-B153F6EE0FEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AA0FCDF8-5BFA-4EB5-8590-B153F6EE0FEC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{AA0FCDF8-5BFA-4EB5-8590-B153F6EE0FEC}.TEST|Any CPU.ActiveCfg = TEST|Any CPU
 		{AA0FCDF8-5BFA-4EB5-8590-B153F6EE0FEC}.TEST|Any CPU.Build.0 = TEST|Any CPU
-		{C929D40C-3295-4D56-922B-0CEEE34DADA6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C929D40C-3295-4D56-922B-0CEEE34DADA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C929D40C-3295-4D56-922B-0CEEE34DADA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C929D40C-3295-4D56-922B-0CEEE34DADA6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C929D40C-3295-4D56-922B-0CEEE34DADA6}.TEST|Any CPU.ActiveCfg = TEST|Any CPU
-		{C929D40C-3295-4D56-922B-0CEEE34DADA6}.TEST|Any CPU.Build.0 = TEST|Any CPU
 		{A9D2EF65-4059-4C0A-B513-D49AC3D66CF2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A9D2EF65-4059-4C0A-B513-D49AC3D66CF2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A9D2EF65-4059-4C0A-B513-D49AC3D66CF2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A9D2EF65-4059-4C0A-B513-D49AC3D66CF2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A9D2EF65-4059-4C0A-B513-D49AC3D66CF2}.TEST|Any CPU.ActiveCfg = Release|Any CPU
@@ -65,6 +63,17 @@ Global
 		{3DCBE685-4644-4F16-9F39-B7A2A320B487}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3DCBE685-4644-4F16-9F39-B7A2A320B487}.TEST|Any CPU.ActiveCfg = Release|Any CPU
 		{3DCBE685-4644-4F16-9F39-B7A2A320B487}.TEST|Any CPU.Build.0 = Release|Any CPU
+		{B631F449-68DD-4F5F-BD04-C2F2E5BF124D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B631F449-68DD-4F5F-BD04-C2F2E5BF124D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B631F449-68DD-4F5F-BD04-C2F2E5BF124D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B631F449-68DD-4F5F-BD04-C2F2E5BF124D}.TEST|Any CPU.ActiveCfg = Release|Any CPU
+		{B631F449-68DD-4F5F-BD04-C2F2E5BF124D}.TEST|Any CPU.Build.0 = Release|Any CPU
+		{ECB2B428-C066-4D2B-B891-711B83951C65}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECB2B428-C066-4D2B-B891-711B83951C65}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECB2B428-C066-4D2B-B891-711B83951C65}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECB2B428-C066-4D2B-B891-711B83951C65}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECB2B428-C066-4D2B-B891-711B83951C65}.TEST|Any CPU.ActiveCfg = Release|Any CPU
+		{ECB2B428-C066-4D2B-B891-711B83951C65}.TEST|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

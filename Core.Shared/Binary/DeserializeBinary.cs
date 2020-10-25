@@ -1,10 +1,9 @@
-﻿using Das.Streamers;
-using System;
+﻿using System;
 using System.IO;
-using Serializer.Core;
+using System.Threading.Tasks;
+using Das.Streamers;
 
-
-namespace Das
+namespace Das.Serializer
 {
     public partial class DasCoreSerializer
     {
@@ -12,16 +11,25 @@ namespace Das
         {
             using (var state = StateProvider.BorrowBinary(Settings))
             {
-                var bit = new BinaryIterator(bytes);
-                var res = state.Scanner.Deserialize<T>(bit);
+                var arr = new ByteArray(bytes);
+
+                var f = GetFeeder(state, arr);
+                var res = state.Scanner.Deserialize<T>(f);
                 return res;
             }
+        }
+
+        public Object FromBytes(Byte[] bytes)
+        {
+            return FromBytes<Object>(bytes);
         }
 
         public T FromBytes<T>(FileInfo file)
         {
             using (var stream = file.OpenRead())
+            {
                 return FromBytes<T>(stream);
+            }
         }
 
         public T FromBytes<T>(Stream stream)
@@ -29,14 +37,14 @@ namespace Das
             using (var state = StateProvider.BorrowBinary(Settings))
             {
                 var arr = new ByteStream(stream);
-                return state.Scanner.Deserialize<T>(arr);
+                var f = GetFeeder(state, arr);
+                return state.Scanner.Deserialize<T>(f);
             }
         }
 
-        public Object FromBytes(Byte[] bytes)
+        private IBinaryFeeder GetFeeder(IBinaryContext state, IByteArray arr)
         {
-            using (var state = StateProvider.BorrowBinary(Settings))
-                return state.Scanner.Deserialize<Object>(new BinaryIterator(bytes));
+            return new BinaryFeeder(state.PrimitiveScanner, state, arr, Settings);
         }
     }
 }

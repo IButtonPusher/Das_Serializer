@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Globalization;
-using Das.Serializer;
+using System.Threading.Tasks;
 
-
-namespace Das.Scanners
+namespace Das.Serializer
 {
     public abstract class StringPrimitiveScanner : IStringPrimitiveScanner
     {
@@ -12,9 +11,7 @@ namespace Das.Scanners
             _state = state;
         }
 
-        private readonly ISerializationContext _state;
-
-        public Object GetValue(String input, Type type)
+        public Object GetValue(String? input, Type type)
         {
             if (type == Const.ObjectType)
             {
@@ -32,30 +29,39 @@ namespace Das.Scanners
                     return dec;
             }
             else if (type.IsEnum)
+            {
                 return Enum.Parse(type, input);
+            }
 
             else if (type == Const.StrType)
+            {
                 return Descape(input);
+            }
 
             else if (Const.IConvertible.IsAssignableFrom(type))
+            {
                 return Convert.ChangeType(input, type, CultureInfo.InvariantCulture);
+            }
 
             else
             {
                 var ctor = type.GetConstructor(new[] {typeof(String)});
-                if (ctor != null)
-                {
-                    return Activator.CreateInstance(type, input);
-                }
+                if (ctor != null) return Activator.CreateInstance(type, input);
             }
 
             if (type == Const.ObjectType)
                 return input;
+
+            //todo: this is probably not good
+            if (input == "null")
+                return null!;
 
             var conv = _state.GetTypeConverter(type);
             return conv.ConvertFromInvariantString(input);
         }
 
         public abstract String Descape(String input);
+
+        private readonly ISerializationContext _state;
     }
 }

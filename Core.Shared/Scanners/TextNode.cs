@@ -1,19 +1,22 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
-using Das.Serializer;
+using System.Threading.Tasks;
 
-namespace Das.Scanners
+namespace Das.Serializer
 {
-    internal class TextNode : BaseNode<ITextNode>, ITextNode
+    public class TextNode : BaseNode<ITextNode>, ITextNode
     {
         public TextNode(String name, ISerializerSettings settings,
-            INodeManipulator nodeManipulator, ISerializationDepth depth) 
+                        INodeManipulator nodeManipulator, INodeTypeProvider nodeTypeProvider,
+                        ISerializationDepth depth)
             : base(settings)
         {
             _text = new StringBuilder();
             _nodeManipulator = nodeManipulator;
+            _nodeTypeProvider = nodeTypeProvider;
             _depth = depth;
             Name = name;
 
@@ -21,25 +24,28 @@ namespace Das.Scanners
                 StringComparer.InvariantCultureIgnoreCase);
         }
 
-      
-
-        private INodeManipulator _nodeManipulator;
-        private ISerializationDepth _depth;
-
         public void Set(String name, ISerializationDepth depth,
-            INodeManipulator nodeManipulator)
+                        INodeManipulator nodeManipulator)
         {
             Name = name;
             _depth = depth;
             _nodeManipulator = nodeManipulator;
         }
 
-        private readonly StringBuilder _text;
         public String Text => _text.ToString();
-        public void Append(String str) => _text.Append(str);
 
-        public void Append(Char c) => _text.Append(c);
-        
+        [MethodImpl(256)]
+        public void Append(String str)
+        {
+            _text.Append(str);
+        }
+
+        [MethodImpl(256)]
+        public void Append(Char c)
+        {
+            _text.Append(c);
+        }
+
 
         public IDictionary<String, ITextNode> Children { get; }
 
@@ -56,38 +62,38 @@ namespace Das.Scanners
         }
 
         public override Boolean IsEmpty => Name == Const.Empty && Type == null
-                                                        && Children.Count == 0;
+                                                               && Children.Count == 0;
 
 
         public IEnumerator<ITextNode> GetEnumerator()
         {
             foreach (var node in Children)
-            {
-                foreach (var grand in node.Value)
-                    yield return grand;
-            }
+            foreach (var grand in node.Value)
+                yield return grand;
 
             yield return this;
         }
 
-        public override String ToString() => $"Name: {Name} Type: {Type}: Val: {Value} Text: {Text}";
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
 
         public void AddChild(ITextNode node)
         {
             if (NodeType == NodeTypes.None)
             {
                 if (Type == null)
-                    _nodeManipulator.InferType(this);
+                    _nodeManipulator!.InferType(this);
 
                 if (!IsUseless(Type))
                 {
-                    NodeType = _nodeManipulator.GetNodeType(Type,
+                    NodeType = _nodeTypeProvider.GetNodeType(Type,
                         Settings.SerializationDepth);
 
                     if (node.Type == null)
                     {
-                        var someType = _nodeManipulator.GetChildType(this, node);
+                        var someType = _nodeManipulator!.GetChildType(this, node);
                         if (!IsUseless(someType))
                             node.Type = someType;
                     }
@@ -101,13 +107,9 @@ namespace Das.Scanners
                 Children.Add($"{Children.Count}", node);
 
             else if (node.Name != Const.Empty)
-            {
                 Children.Add(node.Name, node);
-            }
             else
-            {
                 Children.Add($"{Children.Count}", node);
-            }
         }
 
 
@@ -122,5 +124,18 @@ namespace Das.Scanners
         public SerializationDepth SerializationDepth => _depth.SerializationDepth;
 
         public Boolean IsRespectXmlIgnore => _depth.IsRespectXmlIgnore;
+
+        public override String ToString()
+        {
+            return $"Name: {Name} Type: {Type}: Val: {Value} Text: {Text}";
+        }
+
+        private readonly INodeTypeProvider _nodeTypeProvider;
+
+        private readonly StringBuilder _text;
+        private ISerializationDepth _depth;
+
+
+        private INodeManipulator? _nodeManipulator;
     }
 }

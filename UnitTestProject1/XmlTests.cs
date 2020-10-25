@@ -1,5 +1,4 @@
-﻿using Das;
-using Das.Serializer;
+﻿using Das.Serializer;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections;
@@ -8,9 +7,10 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Xml;
+
 // ReSharper disable All
 
-namespace UnitTestProject1
+namespace Serializer.Tests
 {
 	[TestClass]
 	public class XmlTests : TestBase

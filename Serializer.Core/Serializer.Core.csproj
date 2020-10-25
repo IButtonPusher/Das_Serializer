@@ -7,6 +7,15 @@
     <DelaySign>false</DelaySign>
     <AssemblyOriginatorKeyFile>CoreArmstrong.snk</AssemblyOriginatorKeyFile>
 	<SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
+	<RootNamespace>Das.Serializer</RootNamespace>
+	<Version>0.0.5-alpha</Version>
+	<PackageId>Das.Serializer.Core</PackageId>
+	<Authors>Claus Trappberger</Authors>
+	<Company />
+	<Product>Das.Serializer</Product>
+	<Description>No dynamic code generation or proto support.</Description>
+	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	<PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -22,68 +31,30 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Binary\**" />
-    <Compile Remove="Files\**" />
-    <Compile Remove="Json\**" />
-    <Compile Remove="NodeBuilders\**" />
-    <Compile Remove="Printers\**" />
-    <Compile Remove="Remunerators\**" />
-    <Compile Remove="Scanners\**" />
-    <Compile Remove="State\**" />
-    <Compile Remove="Streamers\**" />
-    <Compile Remove="TextCommon\**" />
-    <Compile Remove="Types\**" />
-    <Compile Remove="Xml\**" />
-    <EmbeddedResource Remove="Binary\**" />
-    <EmbeddedResource Remove="Files\**" />
-    <EmbeddedResource Remove="Json\**" />
-    <EmbeddedResource Remove="NodeBuilders\**" />
-    <EmbeddedResource Remove="Printers\**" />
-    <EmbeddedResource Remove="Remunerators\**" />
-    <EmbeddedResource Remove="Scanners\**" />
-    <EmbeddedResource Remove="State\**" />
-    <EmbeddedResource Remove="Streamers\**" />
-    <EmbeddedResource Remove="TextCommon\**" />
-    <EmbeddedResource Remove="Types\**" />
-    <EmbeddedResource Remove="Xml\**" />
-    <None Remove="Binary\**" />
-    <None Remove="Files\**" />
-    <None Remove="Json\**" />
-    <None Remove="NodeBuilders\**" />
-    <None Remove="Printers\**" />
-    <None Remove="Remunerators\**" />
-    <None Remove="Scanners\**" />
-    <None Remove="State\**" />
-    <None Remove="Streamers\**" />
-    <None Remove="TextCommon\**" />
-    <None Remove="Types\**" />
-    <None Remove="Xml\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="Attributes.cs" />
-    <Compile Remove="Const.cs" />
-    <Compile Remove="CoreExtensions.cs" />
-    <Compile Remove="CoreNumeric.cs" />
-    <Compile Remove="DasContext.cs" />
-    <Compile Remove="DasCoreSerializer.cs" />
-    <Compile Remove="DasSettings.cs" />
-    <Compile Remove="DynamicExtensions.cs" />
-    <Compile Remove="ISaveToFile.cs" />
-    <Compile Remove="ObjectConverter.cs" />
-    <Compile Remove="Properties\AssemblyInfo.cs" />
-    <Compile Remove="PropertyValue.cs" />
-    <Compile Remove="SerializerCore.cs" />
-    <Compile Remove="SerializerFactory.cs" />
-    <Compile Remove="TypeStructure.cs" />
-    <Compile Remove="Util.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Serializer.Interfaces\Serializer.Interfaces.csproj" />
-  </ItemGroup>
+<PropertyGroup>
+   <LangVersion>8.0</LangVersion>
+   <Nullable>enable</Nullable>
+   <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
+   <AssemblyVersion>0.0.5.0</AssemblyVersion>
+   <FileVersion>0.0.5.0</FileVersion>
+</PropertyGroup>
 
   <Import Project="..\Core.Shared\Core.Shared.projitems" Label="Shared" />
+  
+   <Target Name="CopyProjectReferencesToPackage" DependsOnTargets="ResolveReferences">
+    <ItemGroup>
+      <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths-&gt;WithMetadataValue('ReferenceSourceTarget', 'ProjectReference'))" />
+    </ItemGroup>
+  </Target>
+  
+   <ItemGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+     <PackageReference Include="Das.Serializer.Interfaces" Version="0.0.5-alpha" />
+   </ItemGroup>
+   
+   <ItemGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+     <ProjectReference Include="..\Serializer.Interfaces\Serializer.Interfaces.csproj">
+	 <Name>Serializer.Interfaces</Name>
+	 </ProjectReference>
+   </ItemGroup>
 
 </Project>

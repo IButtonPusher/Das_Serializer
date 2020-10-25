@@ -1,13 +1,12 @@
 ﻿using System;
-using Das.Scanners;
-using Das.Serializer;
+using System.Threading.Tasks;
 
-namespace Serializer.Core
+namespace Das.Serializer
 {
     public class TextState : BaseState, ITextState
     {
         public TextState(IStateProvider stateProvider,
-            ITextContext context, TextScanner scanner, ISerializerSettings settings)
+                         ITextContext context, TextScanner scanner, ISerializerSettings settings)
             : base(stateProvider, settings)
         {
             _context = context;
@@ -17,25 +16,21 @@ namespace Serializer.Core
         }
 
         public ITextScanner Scanner => _scanner;
+
         public IScannerBase<Char[]> ArrayScanner => _scanner;
 
-        private readonly TextScanner _scanner;
+        ITextNodeProvider ITextContext.ScanNodeProvider => _context.ScanNodeProvider;
 
-        ITextNodeProvider ITextContext.NodeProvider => _context.NodeProvider;
-        public override INodeProvider NodeProvider => _context.NodeProvider;
+        public override IScanNodeProvider ScanNodeProvider => _context.ScanNodeProvider;
 
         public INodeSealer<ITextNode> Sealer => _context.Sealer;
 
         public IStringPrimitiveScanner PrimitiveScanner { get; }
 
-        private readonly ITextContext _context;
-
         public override void Dispose()
         {
             Scanner.Invalidate();
         }
-
-        private ISerializerSettings _settings;
 
         public override ISerializerSettings Settings
         {
@@ -46,5 +41,11 @@ namespace Serializer.Core
                 _scanner.Settings = value;
             }
         }
+
+        private readonly ITextContext _context;
+
+        private readonly TextScanner _scanner;
+
+        private ISerializerSettings _settings;
     }
 }

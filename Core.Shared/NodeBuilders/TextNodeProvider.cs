@@ -1,26 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
-using Das.Scanners;
-using Das.Serializer;
+using System.Threading.Tasks;
 
-namespace Serializer.Core
+namespace Das.Serializer
 {
     public class TextNodeProvider : NodeProvider<ITextNode>, ITextNodeProvider
     {
         public TextNodeProvider(ISerializationCore facade, INodeManipulator nodeManipulator,
-            IStringPrimitiveScanner scanner, ISerializerSettings settings)
-            : base(nodeManipulator, settings)
+                                INodeTypeProvider nodeTypes,
+                                IStringPrimitiveScanner scanner, ISerializerSettings settings)
+            : base(facade.NodeTypeProvider, settings)
         {
             _nodeManipulator = nodeManipulator;
-            Sealer = new TextNodeSealer(TypeProvider, scanner, facade, settings);
+            _nodeTypes = nodeTypes;
+            Sealer = new TextNodeSealer(nodeManipulator, scanner, facade, settings);
         }
-
-        private readonly INodeManipulator _nodeManipulator;
 
         public INodeSealer<ITextNode> Sealer { get; }
 
         public ITextNode Get(String name, Dictionary<String, String> attributes,
-            ITextNode parent, ISerializationDepth depth)
+                             ITextNode parent, ISerializationDepth depth)
         {
             ITextNode node;
             var buffer = Buffer;
@@ -31,8 +30,10 @@ namespace Serializer.Core
                 node.Set(name, depth, _nodeManipulator);
             }
             else
-                node = new TextNode(name, Settings, _nodeManipulator, depth);
-            
+            {
+                node = new TextNode(name, Settings, _nodeManipulator, _nodeTypes, depth);
+            }
+
 
             node.Parent = parent;
 
@@ -41,5 +42,8 @@ namespace Serializer.Core
 
             return node;
         }
+
+        private readonly INodeManipulator _nodeManipulator;
+        private readonly INodeTypeProvider _nodeTypes;
     }
 }

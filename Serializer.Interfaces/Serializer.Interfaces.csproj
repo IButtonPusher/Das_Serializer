@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
     <RootNamespace>Das.Serializer</RootNamespace>
     <AssemblyName>Serializer.Interfaces</AssemblyName>
     <Configurations>Debug;Release;TEST</Configurations>
@@ -9,7 +9,29 @@
     <DelaySign>false</DelaySign>
     <AssemblyOriginatorKeyFile>InterfacesArmstrong.snk</AssemblyOriginatorKeyFile>
 	<SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
+	<Version>0.0.6-alpha</Version>
+	<Description>Abstractions only.  Intended for DI/IoC</Description>
+	<PackageId>Das.Serializer.Interfaces</PackageId>
+	<Authors>Claus Trappberger</Authors>
+	<Company />
+	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	<PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+   <LangVersion>8.0</LangVersion>
+   <Nullable>enable</Nullable>
+   <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
+   <AssemblyVersion>0.0.6.0</AssemblyVersion>
+   <RepositoryUrl>https://github.com/IButtonPusher/Das_Serializer</RepositoryUrl>
+   <PackageProjectUrl>https://github.com/IButtonPusher/Das_Serializer</PackageProjectUrl>
+   <RepositoryType>git</RepositoryType>
+</PropertyGroup>
+
 
   <ItemGroup>
     <Compile Remove="Dynamics\**" />

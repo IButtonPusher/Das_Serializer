@@ -1,9 +1,9 @@
 ﻿using System;
-using Das.Serializer;
+using System.Threading.Tasks;
 
-namespace Serializer.Core
+namespace Das.Serializer
 {
-    public class JsonNodeTypeProvider : NodeTypeProvider
+    public class JsonNodeTypeProvider : NodeManipulator
     {
         public JsonNodeTypeProvider(ISerializationCore dynamicFacade, ISerializerSettings settings)
             : base(dynamicFacade, settings)
@@ -11,19 +11,22 @@ namespace Serializer.Core
             _typeInferrer = dynamicFacade.TypeInferrer;
         }
 
-        private readonly ITypeInferrer _typeInferrer;
-
-        protected override Boolean TryGetExplicitType(INode node, out Type type)
+        protected sealed override Boolean TryGetExplicitType(INode node, out Type type)
         {
             if (node.Attributes.TryGetValue(Const.TypeWrap, out var typeName))
             {
-                type = _typeInferrer.GetTypeFromClearName(typeName);
+                type = _typeInferrer.GetTypeFromClearName(typeName)!;
                 node.Attributes.Remove(Const.TypeWrap);
             }
 
-            else type = default;
+            else
+            {
+                type = default!;
+            }
 
             return type != null;
         }
+
+        private readonly ITypeInferrer _typeInferrer;
     }
 }

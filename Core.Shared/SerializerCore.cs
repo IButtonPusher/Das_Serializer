@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using Das.Serializer;
+using System.Threading.Tasks;
 
-namespace Serializer.Core
+namespace Das.Serializer
 {
     public abstract class SerializerCore : TypeCore, ISerializationCore
     {
-        protected SerializerCore(ISerializationCore dynamicFacade, ISerializerSettings settings)
+        protected SerializerCore(ISerializationCore dynamicFacade,
+                                 ISerializerSettings settings)
             : base(settings)
         {
             TextParser = dynamicFacade.TextParser;
@@ -17,14 +18,16 @@ namespace Serializer.Core
             TypeManipulator = dynamicFacade.TypeManipulator;
             AssemblyList = dynamicFacade.AssemblyList;
             ObjectManipulator = dynamicFacade.ObjectManipulator;
+            NodeTypeProvider = dynamicFacade.NodeTypeProvider;
+            PrintNodePool = dynamicFacade.PrintNodePool;
+            ScanNodeManipulator = dynamicFacade.ScanNodeManipulator;
 
             Surrogates = dynamicFacade.Surrogates is ConcurrentDictionary<Type, Type> conc
                 ? conc
                 : new ConcurrentDictionary<Type, Type>(Surrogates);
         }
 
-
-        public ITextParser TextParser { get; }  
+        public ITextParser TextParser { get; }
 
         public IDynamicTypes DynamicTypes { get; }
 
@@ -33,14 +36,19 @@ namespace Serializer.Core
         public ITypeInferrer TypeInferrer { get; }
 
         public ITypeManipulator TypeManipulator { get; }
+
         public IAssemblyList AssemblyList { get; }
 
         public IObjectManipulator ObjectManipulator { get; }
 
-        protected readonly ConcurrentDictionary<Type, Type> Surrogates;
-
         IDictionary<Type, Type> ISerializationCore.Surrogates => Surrogates;
 
+        public INodeTypeProvider NodeTypeProvider { get; }
 
+        public INodePool PrintNodePool { get; }
+
+        public INodeManipulator ScanNodeManipulator { get; }
+
+        protected readonly ConcurrentDictionary<Type, Type> Surrogates;
     }
 }
