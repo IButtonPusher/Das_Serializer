@@ -22,9 +22,12 @@ EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Serializer.Shared\Serializer.Shared.projitems*{228fd1e5-7105-4531-804e-d0b97a2b58cb}*SharedItemsImports = 13
-		Serializer.Shared\Serializer.Shared.projitems*{a9d2ef65-4059-4c0a-b513-d49ac3d66cf2}*SharedItemsImports = 4
+		Core.Shared\Core.Shared.projitems*{a9d2ef65-4059-4c0a-b513-d49ac3d66cf2}*SharedItemsImports = 5
+		Interfaces.Shared\Interfaces.Shared.projitems*{a9d2ef65-4059-4c0a-b513-d49ac3d66cf2}*SharedItemsImports = 5
+		Serializer.Shared\Serializer.Shared.projitems*{a9d2ef65-4059-4c0a-b513-d49ac3d66cf2}*SharedItemsImports = 5
 		Interfaces.Shared\Interfaces.Shared.projitems*{aeb86a21-7287-4a27-b467-1a0d1c66fa9f}*SharedItemsImports = 13
 		Core.Shared\Core.Shared.projitems*{c6d160c0-8e1f-4387-8194-3f722e633a6b}*SharedItemsImports = 13
+		Interfaces.Shared\Interfaces.Shared.projitems*{c6e56268-9045-4dbb-b83a-f14c009a5944}*SharedItemsImports = 5
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
