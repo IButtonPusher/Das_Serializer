@@ -9,7 +9,8 @@ namespace Das.Serializer
     public abstract class BaseNodeSealer<TNode> : INodeSealer<TNode>
         where TNode : INode<TNode>, INode
     {
-        protected BaseNodeSealer(ISerializationCore facade, INodeManipulator values,
+        protected BaseNodeSealer(ISerializationCore facade, 
+                                 INodeManipulator values,
                                  ISerializerSettings settings)
         {
             _facade = facade;
@@ -21,7 +22,9 @@ namespace Das.Serializer
 
         public ISerializerSettings Settings { get; }
 
-        public void Imbue(TNode node, String name, Object value)
+        public void Imbue(TNode node, 
+                          String name, 
+                          Object value)
         {
             if (NullNode.Instance == node)
                 return;
@@ -126,8 +129,9 @@ namespace Das.Serializer
                 if (node.DynamicProperties.Count == 0)
                     return;
 
-                var addDelegate = _facade.TypeManipulator.GetAdder(node.Type,
-                    node.DynamicProperties.Values.First());
+                var addDelegate = node.DynamicProperties.Values.First() is {} valid
+                    ? _facade.TypeManipulator.GetAdder(node.Type,
+                        valid) : default;
                 if (addDelegate == null && node.Value is IEnumerable ienum)
                     addDelegate = _facade.TypeManipulator.GetAdder(ienum);
 
@@ -146,16 +150,27 @@ namespace Das.Serializer
                 !_facade.ObjectInstantiator.TryGetPropertiesConstructor(node.Type, out var cInfo))
                 return;
 
-            var values = new List<Object>();
+            var values = new List<Object?>();
             foreach (var conParam in cInfo.GetParameters())
+            {
                 if (TryGetPropertyValue(node, conParam.Name, conParam.ParameterType, out var val))
                     values.Add(val);
+                else
+                {
+                    if (!conParam.ParameterType.IsValueType ||
+                        _types.TryGetNullableType(conParam.ParameterType, out _))
+                    {
+                        values.Add(null);
+                    }
+                }
+            }
 
             node.Value = cInfo.Invoke(values.ToArray());
         }
 
         public abstract Boolean TryGetPropertyValue(TNode node, String key,
-                                                    Type propertyType, out Object val);
+                                                    Type propertyType, 
+                                                    out Object? val);
 
         private readonly ISerializationCore _facade;
         private readonly IObjectManipulator _objects;

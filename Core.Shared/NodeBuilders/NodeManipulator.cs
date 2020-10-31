@@ -25,7 +25,13 @@ namespace Das.Serializer
         {
             var propTypes = new List<DasProperty>();
             foreach (var prop in node.DynamicProperties)
-                propTypes.Add(new DasProperty(prop.Key, prop.Value.GetType(), new DasAttribute[0]));
+            {
+                if (prop.Value == null)
+                    continue;
+
+                propTypes.Add(new DasProperty(prop.Key, 
+                    prop.Value.GetType(), new DasAttribute[0]));
+            }
 
             //we have to build a type here because we only now know all the properties						
             var typeName = new StringBuilder(node.Name);

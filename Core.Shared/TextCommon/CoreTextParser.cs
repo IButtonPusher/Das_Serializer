@@ -10,7 +10,8 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    public class CoreTextParser : CoreNumeric, ITextParser
+    public class CoreTextParser : CoreNumeric, 
+                                  ITextParser
     {
         static CoreTextParser()
         {

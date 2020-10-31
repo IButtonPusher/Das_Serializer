@@ -5,7 +5,8 @@ using Das.Serializer;
 
 namespace Das.Streamers
 {
-    public class BinaryFeeder : SerializerCore, IBinaryFeeder
+    public class BinaryFeeder : SerializerCore, 
+                                IBinaryFeeder
     {
         public BinaryFeeder(IBinaryPrimitiveScanner primitiveScanner,
                             ISerializationCore dynamicFacade, IByteArray bytes, ISerializerSettings settings)
@@ -155,10 +156,12 @@ namespace Das.Streamers
         /// <summary>
         ///     takes the next 4 bytes for length then the next N bytes and turns them into a Type
         /// </summary>
-        public Type GetNextType()
+        public Type? GetNextType()
         {
             var bytes = GetTypeBytes();
             var str = _scanner.GetString(bytes);
+            if (str == null)
+                throw new InvalidOperationException();
 
             var typeName = _typeInferrer.GetTypeFromClearName(str);
 

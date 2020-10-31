@@ -32,7 +32,9 @@ namespace Das.Serializer
                         var wal = node.Value;
 
                         foreach (var pv in node.DynamicProperties)
+                        {
                             dynamicType.SetPropertyValue(ref wal!, pv.Key, pv.Value);
+                        }
 
                         node.Value = wal;
                     }
@@ -46,11 +48,13 @@ namespace Das.Serializer
                 item.Value = node.Value;
         }
 
-        public override Boolean TryGetPropertyValue(IBinaryNode node, String key,
-                                                    Type propertyType, out Object val)
+        public override Boolean TryGetPropertyValue(IBinaryNode node, 
+                                                    String key,
+                                                    Type propertyType, 
+                                                    out Object val)
         {
             var propKey = _dynamicFacade.TypeInferrer.ToPropertyStyle(key);
-            return node.DynamicProperties.TryGetValue(propKey, out val);
+            return node.DynamicProperties.TryGetValue(propKey, out val!);
         }
 
         private readonly ISerializationCore _dynamicFacade;

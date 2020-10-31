@@ -30,7 +30,7 @@ namespace Das.Streamers
         /// <summary>
         ///     takes the next 4 bytes for length then the next N bytes and turns them into a Type
         /// </summary>
-        Type GetNextType();
+        Type? GetNextType();
 
         Object GetPrimitive(Type type);
 

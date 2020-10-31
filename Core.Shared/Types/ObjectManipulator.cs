@@ -117,7 +117,7 @@ namespace Das.Types
         public Boolean SetProperty(Type classType, 
                                    String propName, 
                                    ref Object targetObj, 
-                                   Object propVal)
+                                   Object? propVal)
         {
             var str = _typeDelegates.GetTypeStructure(classType, DepthConstants.AllProperties);
             return str.SetValue(propName, ref targetObj, propVal, SerializationDepth.AllProperties);
@@ -136,7 +136,9 @@ namespace Das.Types
             }
         }
 
-        public Boolean SetPropertyValue(ref Object targetObj, String propName, Object propVal)
+        public Boolean SetPropertyValue(ref Object targetObj, 
+                                        String propName, 
+                                        Object? propVal)
         {
             return SetProperty(targetObj.GetType(), propName, ref targetObj!, propVal);
         }

@@ -7,7 +7,7 @@ namespace Das.Serializer
     {
         Boolean SetPropertyValue(ref Object targetObj,
                                  String propName,
-                                 Object propVal);
+                                 Object? propVal);
 
         Boolean TryGetPropertyValue(Object obj,
                                     String propertyName,

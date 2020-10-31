@@ -21,7 +21,8 @@ namespace Das.Serializer
 
         public Type ManagedType { get; }
 
-        public Boolean IsLegalValue(String forProperty, Object value)
+        public Boolean IsLegalValue(String forProperty, 
+                                    Object? value)
         {
             return _properties.TryGetValue(forProperty, out var prop) &&
                    prop.Type.IsInstanceOfType(value);
@@ -33,7 +34,7 @@ namespace Das.Serializer
         }
 
         public Boolean SetPropertyValue(ref Object targetObj, String propName,
-                                        Object propVal)
+                                        Object? propVal)
         {
             if (!PublicSetters.TryGetValue(propName, out var setter))
                 return false;

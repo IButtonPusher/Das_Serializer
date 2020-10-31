@@ -452,4 +452,45 @@ namespace Serializer.Tests
 
         public String message { get; set; }
     }
+
+    public class ArticleDto 
+    {
+        public ArticleDto(Int32 id, 
+                          String headline, 
+                          String url, 
+                          Int32 siteId, 
+                          Int32? categoryId, 
+                          Int64 signature,
+                          String signatureDescription, 
+                          Int32 score)
+        {
+            Id = id;
+            Headline = headline;
+            Url = url;
+            SiteId = siteId;
+            CategoryId = categoryId;
+            Signature = signature;
+            SignatureDescription = signatureDescription;
+            
+            Score = score;
+        }
+
+        public Int32 Id { get; }
+
+        public String Headline { get; }
+
+        public String Url { get; }
+
+        public Int32 SiteId { get; }
+
+        public Int32? CategoryId { get; }
+
+        public Int64 Signature { get; }
+
+        public String SignatureDescription { get; }
+
+        //public Boolean IsRead { get; }
+
+        public Int32 Score { get; }
+    }
 }

@@ -61,7 +61,7 @@ namespace Das.Serializer
         Boolean SetProperty(Type classType, 
                             String propName, 
                             ref Object targetObj,
-                            Object propVal);
+                            Object? propVal);
 
         /// <summary>
         ///     Tries to cast or convert as IConvertible. Otherwise returns false

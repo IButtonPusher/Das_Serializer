@@ -6,13 +6,16 @@ namespace Das.Serializer
     public class TextState : BaseState, ITextState
     {
         public TextState(IStateProvider stateProvider,
-                         ITextContext context, TextScanner scanner, ISerializerSettings settings)
+                         ITextContext context, 
+                         TextScanner scanner, 
+                         ISerializerSettings settings)
             : base(stateProvider, settings)
         {
             _context = context;
 
             PrimitiveScanner = _context.PrimitiveScanner;
             _scanner = scanner;
+            _settings = settings;
         }
 
         public ITextScanner Scanner => _scanner;

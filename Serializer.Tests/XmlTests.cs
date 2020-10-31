@@ -98,6 +98,17 @@ namespace Serializer.Tests
         }
 
         [Fact]
+        public void NoEmptyConstructorNullValueTypeValue()
+        {
+            var dto = new ArticleDto(1, "bob", "low", 2, null, 12344, "hello", -500);
+            //var srl = Serializer;
+            var srl = new DasSerializer();
+            var xml = srl.ToXml(dto);
+            var dto2 = srl.FromXml<ArticleDto>(xml);
+            Assert.True(SlowEquality.AreEqual(dto, dto2));
+        }
+
+        [Fact]
 		public void ObjectReferenceTypeXml()
 		{
 			var sc = SimpleClassObjectProperty.GetNullPayload();

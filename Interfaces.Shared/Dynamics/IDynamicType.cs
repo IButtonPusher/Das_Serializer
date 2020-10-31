@@ -14,6 +14,7 @@ namespace Das.Serializer
 
         Type? GetPropertyType(String propertyName);
 
-        Boolean IsLegalValue(String forProperty, Object value);
+        Boolean IsLegalValue(String forProperty, 
+                             Object? value);
     }
 }

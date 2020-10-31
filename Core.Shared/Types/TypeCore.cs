@@ -20,7 +20,8 @@ namespace Das.Serializer
             _typesKnownSettableProperties = new ConcurrentDictionary<Type, Boolean>();
             CachedConstructors = new ConcurrentDictionary<Type, ConstructorInfo>();
             CollectionTypes = new ConcurrentDictionary<Type, Boolean>();
-            Leaves = new ConcurrentDictionary<Type, Boolean>();
+            LeavesNotString = new ConcurrentDictionary<Type, Boolean>();
+            LeavesYesString = new ConcurrentDictionary<Type, bool>();
         }
 
         public TypeCore(ISerializerSettings settings)
@@ -263,7 +264,8 @@ namespace Das.Serializer
             return GetPublicProperties(type, false).FirstOrDefault(p => p.Name == propertyName);
         }
 
-        public Boolean TryGetPropertiesConstructor(Type type, out ConstructorInfo constr)
+        public Boolean TryGetPropertiesConstructor(Type type, 
+                                                   out ConstructorInfo constr)
         {
             constr = null!;
             var isAnomymous = IsAnonymousType(type);
@@ -276,7 +278,7 @@ namespace Das.Serializer
 
             foreach (var p in type.GetProperties().Where(p => !p.CanWrite && p.CanRead))
                 rProps[p.Name] = p.PropertyType;
-            //rProps.Add(p.Name, p.PropertyType);
+            
 
             foreach (var con in type.GetConstructors())
             {
@@ -340,12 +342,24 @@ namespace Das.Serializer
                    && (type.Attributes & TypeAttributes.Public) == TypeAttributes.NotPublic;
         }
 
-        public static Boolean IsLeaf(Type t, Boolean isStringCounts)
+        public static Boolean IsLeaf(Type t, 
+                                     Boolean isStringCounts)
         {
-            if (Leaves.TryGetValue(t, out var l))
+            if (isStringCounts)
+                return IsLeafImpl(t, true, LeavesYesString);
+
+            return IsLeafImpl(t, false, LeavesNotString);
+        }
+
+        [MethodImpl(256)]
+        private static Boolean IsLeafImpl(Type t,
+                                          Boolean isStringCounts,
+                                          ConcurrentDictionary<Type, Boolean> dic)
+        {
+            if (dic.TryGetValue(t, out var l))
                 return l;
 
-            return Leaves[t] = AmIALeaf(t, isStringCounts);
+            return dic[t] = AmIALeaf(t, isStringCounts);
         }
 
         protected static Boolean IsString(Type t)
@@ -370,7 +384,8 @@ namespace Das.Serializer
 
         private static readonly ConcurrentDictionary<Type, ConstructorInfo> CachedConstructors;
 
-        private static readonly ConcurrentDictionary<Type, Boolean> Leaves;
+        private static readonly ConcurrentDictionary<Type, Boolean> LeavesNotString;
+        private static readonly ConcurrentDictionary<Type, Boolean> LeavesYesString;
 
         private static readonly HashSet<Type> NumericTypes = new HashSet<Type>
         {
