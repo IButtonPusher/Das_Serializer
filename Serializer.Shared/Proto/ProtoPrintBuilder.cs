@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if GENERATECODE
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -280,3 +282,5 @@ namespace Das.Serializer.ProtoBuf
         }
     }
 }
+
+#endif

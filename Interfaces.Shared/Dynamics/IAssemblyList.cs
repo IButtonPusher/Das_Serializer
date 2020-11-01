@@ -12,6 +12,9 @@ namespace Das.Serializer
     {
         IEnumerable<Assembly> GetAll();
 
-        Boolean TryGetAssembly(String name, out Assembly assembly);
+        Boolean TryGetAssembly(String name, 
+                               out Assembly assembly);
+
+        Type? TryGetConcreteType(Type interfaceType);
     }
 }

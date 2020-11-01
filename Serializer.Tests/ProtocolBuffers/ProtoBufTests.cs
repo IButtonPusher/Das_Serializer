@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if GENERATECODE
+
+using System;
 using System.Diagnostics;
 using System.IO;
 using BenchmarkDotNet.Attributes;
@@ -617,3 +619,5 @@ namespace Serializer.Tests.ProtocolBuffers
 
 }
 
+
+#endif

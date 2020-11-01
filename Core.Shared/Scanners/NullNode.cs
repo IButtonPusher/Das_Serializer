@@ -77,7 +77,7 @@ namespace Das.Serializer
 
         public IDictionary<String, String> Attributes { get; }
 
-        public IDictionary<String, Object> DynamicProperties { get; }
+        public IDictionary<String, Object?> DynamicProperties { get; }
 
         public void Clear()
         {

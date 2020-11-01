@@ -7,7 +7,6 @@ namespace Das.Serializer
     {
         Int32 BytesNeeded(Type typ);
 
-
         void ClearCachedNames();
 
         /// <summary>
@@ -21,13 +20,13 @@ namespace Das.Serializer
         ///     MyAssembly.dll, MyProduct.MyNamespace.MyTypeName which would be faster than
         ///     not specifying the assembly name
         /// </example>
-        Type? GetTypeFromClearName(String clearName, Boolean isTryGeneric = false);
-
-        //Boolean IsDefaultValue(Object o);
+        Type? GetTypeFromClearName(String clearName, 
+                                   Boolean isTryGeneric = false);
 
         Boolean IsDefaultValue<T>(T value);
 
-        String ToClearName(Type type, Boolean isOmitAssemblyName);
+        String ToClearName(Type type, 
+                           Boolean isOmitAssemblyName);
 
         /// <summary>
         ///     Pascal cases the string

@@ -8,8 +8,8 @@ namespace Das.Serializer.Printers
     {
         public PrintNode(Action<PrintNode> returnToSender,
                          String name,
-                         Object value,
-                         Type type,
+                         Object? value,
+                         Type? type,
                          NodeTypes nodeType,
                          Boolean isWrapping = false)
             : base(name, value, type)

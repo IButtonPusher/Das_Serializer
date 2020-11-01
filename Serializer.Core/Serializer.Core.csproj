@@ -56,5 +56,15 @@
 	 <Name>Serializer.Interfaces</Name>
 	 </ProjectReference>
    </ItemGroup>
+   
+   <ItemGroup>
+     <Compile Remove="CoreFacade.cs" />
+     <Compile Remove="CoreInstantiator.cs" />
+     <Compile Remove="CoreSerializerCtor.cs" />
+     <Compile Remove="CoreStateProvider.cs" />
+     <Compile Remove="CoreTypeManipulator.cs" />
+     <Compile Remove="CoreTypeStructure.cs" />
+     <Compile Remove="NullTypeBuilder.cs" />
+   </ItemGroup>
 
 </Project>

@@ -10,7 +10,8 @@ namespace Das.Serializer
     {
         public TextNodeSealer(INodeManipulator nodeValues,
                               IStringPrimitiveScanner scanner, ISerializationCore facade,
-                              ISerializerSettings settings) : base(facade, nodeValues, settings)
+                              ISerializerSettings settings) 
+            : base(facade, nodeValues, settings)
         {
             _values = nodeValues;
             _typeProvider = facade.NodeTypeProvider;
@@ -85,14 +86,16 @@ namespace Das.Serializer
                         //trying to force it into a string leads to setting object's values to strings
                         //which goes poorly...
                         //var val = _scanner.GetValue(str, type) ?? str;
-
+                        
                         var val = _scanner.GetValue(str, type);
 
                         if (val == null)
                         {
                             if (Settings.PropertySearchDepth == TextPropertySearchDepths.AsTypeInLoadedModules)
                                 val = str;
-
+                            else if (Settings.AttributeValueSurrogates.TryGetValue(node, 
+                                attr.Key, str, out var found))
+                                val = found;
                             else continue;
                         }
 
@@ -244,6 +247,7 @@ namespace Das.Serializer
         private readonly ISerializationCore _facade;
         private readonly IObjectManipulator _objects;
         private readonly IStringPrimitiveScanner _scanner;
+        //private readonly IAttributeValueSurrogates _attributeValueSurrogates;
         private readonly ITypeManipulator _typeManipulator;
         private readonly INodeTypeProvider _typeProvider;
         private readonly INodeManipulator _values;

@@ -38,7 +38,7 @@ namespace Das.Serializer
         {
             if (!PublicSetters.TryGetValue(propName, out var setter))
                 return false;
-
+            
             setter(ref targetObj!, propVal);
             return true;
         }

@@ -1,18 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.1;net45</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1;net45;netstandard2.0</TargetFrameworks>
 	 <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.0.6-alpha</Version>
+    <Version>0.0.11-alpha</Version>
+    <Configurations>Debug;Release;TEST_NO_CODEGENERATION</Configurations>
   </PropertyGroup>
 
   <PropertyGroup>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Description>Single assembly version: Das.Serializer
-
+    <Description>
 var serializer = new DasSerializer();
+
 var o = serializer.FromXml(xml);
+
 o = serializer.FromJson(json);</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/IButtonPusher/Das_Serializer</PackageProjectUrl>
@@ -28,8 +30,12 @@ o = serializer.FromJson(json);</Description>
     <OutputPath>E:\src\Das\Serializer\Das.Serializer\bin\Debug\</OutputPath>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='TEST_NO_CODEGENERATION|netcoreapp3.0|AnyCPU'">
+    <OutputPath>E:\src\Das\Serializer\Das.Serializer\bin\Debug\</OutputPath>
+  </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="Das.Serializer.Interfaces" Version="0.0.6-alpha" />
+    <PackageReference Include="Das.Serializer.Interfaces" Version="0.0.11-alpha" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
   </ItemGroup>
   
@@ -43,13 +49,33 @@ o = serializer.FromJson(json);</Description>
    <LangVersion>8.0</LangVersion>
    <Nullable>enable</Nullable>
    <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
-   <AssemblyVersion>0.0.5.0</AssemblyVersion>
-   <FileVersion>0.0.5.0</FileVersion>
+   <AssemblyVersion>0.0.11.0</AssemblyVersion>
+   <FileVersion>0.0.11.0</FileVersion>
 </PropertyGroup>
 
 <Import Project="..\Core.Shared\Core.Shared.projitems" Label="Shared" />
 
 <Import Project="..\Serializer.Shared\Serializer.Shared.projitems" Label="Shared" />
+
+<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.1|AnyCPU'">
+  <DefineConstants>GENERATECODE</DefineConstants>
+</PropertyGroup>
+
+<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.1|AnyCPU'">
+  <DefineConstants>TRACE;DEBUG;GENERATECODE</DefineConstants>
+</PropertyGroup>
+
+<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net45|AnyCPU'">
+  <DefineConstants>GENERATECODE</DefineConstants>
+</PropertyGroup>
+
+<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net45|AnyCPU'">
+  <DefineConstants>TRACE;DEBUG;GENERATECODE</DefineConstants>
+</PropertyGroup>
+
+<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
+  <DefineConstants>TRACE;DEBUG</DefineConstants>
+</PropertyGroup>
 
 
 </Project>

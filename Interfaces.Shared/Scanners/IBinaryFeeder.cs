@@ -32,7 +32,7 @@ namespace Das.Streamers
         /// </summary>
         Type? GetNextType();
 
-        Object GetPrimitive(Type type);
+        Object? GetPrimitive(Type type);
 
         T GetPrimitive<T>();
 

@@ -33,6 +33,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Types\DasCodeGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\DasType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\DasTypeBuilder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Types\InvalidTypeBuilder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\ObjectInstantiator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoDynamicProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\TypeManipulator.cs" />

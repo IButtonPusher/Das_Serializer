@@ -14,16 +14,22 @@ namespace Serializer.Tests
 
         protected IProtoSerializer ProtoSerializer;
 
+        #if GENERATECODE
+
         public ProtoDynamicProvider<ProtoMemberAttribute> TypeProvider;
+
+        #endif
 
         public TestBase()
         {
             Settings = new ProtoBufOptions<ProtoMemberAttribute>(p => p.Tag);
             ProtoSerializer = Serializer.GetProtoSerializer(Settings);
+#if GENERATECODE
             TypeProvider = new ProtoDynamicProvider<ProtoMemberAttribute>(Settings,
                 Serializer.TypeManipulator,
                 Serializer.ObjectInstantiator,
                 Serializer.ObjectManipulator);
+#endif
         }
 
         public ProtoBufOptions<ProtoMemberAttribute> Settings { get; set; }

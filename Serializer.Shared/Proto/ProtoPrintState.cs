@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if GENERATECODE
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -160,3 +162,5 @@ namespace Das.Serializer.Proto
         private LocalBuilder? _childObjectStream;
     }
 }
+
+#endif

@@ -15,8 +15,6 @@ namespace Das.Serializer
     {
         #if !NET40
 
-        
-
         [MethodImpl(256)]
         protected static Task WriteAsync(TextWriter writer, String writeThis)
             => writer.WriteAsync(writeThis);
@@ -63,9 +61,10 @@ namespace Das.Serializer
         public override IScanNodeProvider ScanNodeProvider
             => StateProvider.BinaryContext.ScanNodeProvider;
 
-        public void SetTypeSurrogate(Type looksLike, Type isReally)
+        public void SetTypeSurrogate(Type looksLike, 
+                                     Type isReally)
         {
-            Surrogates.AddOrUpdate(looksLike, isReally, (k, v) => isReally);
+            Surrogates[looksLike] = isReally;
         }
 
         public Boolean TryDeleteSurrogate(Type lookedLike, Type wasReally)

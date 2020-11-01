@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Das.Serializer.Scanners;
+using System;
 using System.Threading.Tasks;
 
 // ReSharper disable UnusedMember.Global
@@ -57,5 +58,7 @@ namespace Das.Serializer
         ///     which may make it impossible for other deserializers or services to understand the data
         /// </summary>
         TypeSpecificity TypeSpecificity { get; set; }
+
+        IAttributeValueSurrogates AttributeValueSurrogates { get; set; }
     }
 }

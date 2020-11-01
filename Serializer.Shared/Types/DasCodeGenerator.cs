@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if GENERATECODE
+
+using System;
 using System.Diagnostics.Contracts;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -102,3 +104,5 @@ namespace Das.Serializer
         private ModuleBuilder? _moduleBuilder;
     }
 }
+
+#endif

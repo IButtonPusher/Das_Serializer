@@ -19,7 +19,8 @@ namespace Das.Serializer
             _failedToLoad = new HashSet<AssemblyName>();
         }
 
-        public Boolean TryGetAssembly(String name, out Assembly assembly)
+        public Boolean TryGetAssembly(String name, 
+                                      out Assembly assembly)
         {
             if (_actualAssemblies.TryGetValue(name, out assembly))
                 return true;
@@ -35,6 +36,23 @@ namespace Das.Serializer
 
             assembly = default!;
             return false;
+        }
+
+        public Type? TryGetConcreteType(Type interfaceType)
+        {
+            foreach (var asmName in GetRunningAndDependencies())
+            {
+                if (TryLoad(asmName, out var asm))
+                {
+                    foreach (var type in asm.GetTypes())
+                    {
+                        if (interfaceType.IsAssignableFrom(type))
+                            return type;
+                    }
+                }
+            }
+
+            return default;
         }
 
         public IEnumerable<Assembly> GetAll()

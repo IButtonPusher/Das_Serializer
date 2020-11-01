@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if GENERATECODE
+
+using System;
 using System.Collections;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -118,3 +120,5 @@ namespace Das.Serializer
         private readonly TState _protoBuildState;
     }
 }
+
+#endif

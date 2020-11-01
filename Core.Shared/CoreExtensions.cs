@@ -31,7 +31,8 @@ namespace Das.Extensions
         }
 
         [MethodImpl(256)]
-        public static Boolean AreEqualEnough(this Single f1, Single f2)
+        public static Boolean AreEqualEnough(this Single f1, 
+                                             Single f2)
         {
             return Math.Abs(f1 - f2) < 0.00001f;
         }
@@ -42,7 +43,8 @@ namespace Das.Extensions
             return Convert.ToInt32(d1) == i1;
         }
 
-        public static Boolean Congruent<T>(this IList<T>? left, IList<T>? right)
+        public static Boolean Congruent<T>(this IList<T>? left,
+                                           IList<T>? right)
         {
             if (ReferenceEquals(null, left))
                 return ReferenceEquals(null, right);
@@ -59,7 +61,8 @@ namespace Das.Extensions
             return true;
         }
 
-        public static Boolean ContainsAll<T>(this IList<T> left, List<T> right)
+        public static Boolean ContainsAll<T>(this IList<T> left, 
+                                             List<T> right)
         {
             if (left.Count != right.Count)
                 return false;

@@ -57,6 +57,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\BinaryScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\JsonPrimitiveScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\JsonScanner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Scanners\NullAttributeValueSurrogates.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\NullNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\StringPrimitiveScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\TextNode.cs" />

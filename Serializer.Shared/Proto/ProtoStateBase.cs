@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if GENERATECODE
+
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -73,3 +75,5 @@ namespace Das.Serializer.Proto
         private readonly ITypeCore _types;
     }
 }
+
+#endif

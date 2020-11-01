@@ -1,4 +1,7 @@
-﻿using System;
+﻿
+#if GENERATECODE
+
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -12,22 +15,29 @@ using Das.Serializer.Objects;
 
 namespace Das.Types
 {
-    public class DasTypeBuilder : TypeCore, IDynamicTypes
+    public class DasTypeBuilder : TypeCore, 
+                                  IDynamicTypes
     {
         static DasTypeBuilder()
         {
+            
             _codeGenerator = new DasCodeGenerator("DasSerializerTypes", "DAS_MODULE",
                 AssemblyBuilderAccess.Run);
+            _lockDynamic = new Object();
+            
+
             _createdTypes = new ConcurrentDictionary<String, Type>();
             _createdDTypes = new ConcurrentDictionary<String, DasType>();
-            _lockDynamic = new Object();
+            
         }
 
         internal DasTypeBuilder(ISerializerSettings settings, ITypeManipulator typeManipulator,
                                 IObjectManipulator objectManipulator) : base(settings)
         {
+
             _typeManipulator = typeManipulator;
             _objectManipulator = objectManipulator;
+
         }
 
         public Type GetDynamicImplementation(Type interfaceType)
@@ -291,6 +301,9 @@ namespace Das.Types
         private static readonly ConcurrentDictionary<String, DasType> _createdDTypes;
 
         private static readonly ConcurrentDictionary<String, Type> _createdTypes;
+        
+
+
         private static readonly DasCodeGenerator _codeGenerator;
 
         private static readonly Object _lockDynamic;
@@ -299,7 +312,7 @@ namespace Das.Types
         private readonly ITypeManipulator _typeManipulator;
 
 
-        #region private implementation
+        
 
         private static void CreateMethod(TypeBuilder tb, MethodInfo meth,
                                          MethodInfo? replacing = null)
@@ -501,6 +514,11 @@ namespace Das.Types
             }
         }
 
-        #endregion
+        
+
+
     }
 }
+
+
+#endif

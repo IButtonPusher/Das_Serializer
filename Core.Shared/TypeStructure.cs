@@ -185,7 +185,9 @@ namespace Das
             return true;
         }
 
-        public Boolean SetValue(String propName, ref Object targetObj, Object? propVal,
+        public Boolean SetValue(String propName, 
+                                ref Object targetObj, 
+                                Object? propVal,
                                 SerializationDepth depth)
         {
             if (_propertySetters.TryGetValue(propName, out var setDel))
@@ -216,9 +218,15 @@ namespace Das
             return true;
         }
 
-        public void SetPropertyValueUnsafe(String propName, ref Object targetObj, Object propVal)
+        public void SetPropertyValueUnsafe(String propName, 
+                                           ref Object targetObj, 
+                                           Object propVal)
         {
+            
             _propertySetters[propName](ref targetObj!, propVal);
+            
+
+            //_propertySetters[propName](ref targetObj!, propVal);
         }
 
 

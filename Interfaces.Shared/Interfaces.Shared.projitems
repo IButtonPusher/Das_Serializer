@@ -71,6 +71,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Objects\ValueNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\IStreamDelegate.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\ITextRemunerable.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Scanners\IAttributeValueSurrogates.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IBinaryFeeder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IBinaryPrimitiveScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IBinaryScanner.cs" />

@@ -12,7 +12,7 @@ namespace Das.Serializer
         {
             DynamicProperties = new Dictionary<String, Object?>();
             Attributes = new Dictionary<String, String>();
-            Name = Const.Empty;
+            _name = Const.Empty;
         }
 
         public Boolean IsForceNullValue { get; set; }

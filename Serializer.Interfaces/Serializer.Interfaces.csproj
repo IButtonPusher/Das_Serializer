@@ -4,12 +4,12 @@
     <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
     <RootNamespace>Das.Serializer</RootNamespace>
     <AssemblyName>Serializer.Interfaces</AssemblyName>
-    <Configurations>Debug;Release;TEST</Configurations>
+    <Configurations>Debug;Release;TEST;TEST_NO_CODEGENERATION</Configurations>
     <SignAssembly>true</SignAssembly>
     <DelaySign>false</DelaySign>
     <AssemblyOriginatorKeyFile>InterfacesArmstrong.snk</AssemblyOriginatorKeyFile>
 	<SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
-	<Version>0.0.6-alpha</Version>
+	<Version>0.0.11-alpha</Version>
 	<Description>Abstractions only.  Intended for DI/IoC</Description>
 	<PackageId>Das.Serializer.Interfaces</PackageId>
 	<Authors>Claus Trappberger</Authors>
@@ -26,11 +26,16 @@
    <LangVersion>8.0</LangVersion>
    <Nullable>enable</Nullable>
    <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
-   <AssemblyVersion>0.0.6.0</AssemblyVersion>
+   <AssemblyVersion>0.0.11.0</AssemblyVersion>
    <RepositoryUrl>https://github.com/IButtonPusher/Das_Serializer</RepositoryUrl>
    <PackageProjectUrl>https://github.com/IButtonPusher/Das_Serializer</PackageProjectUrl>
    <RepositoryType>git</RepositoryType>
+   <FileVersion>0.0.11.0</FileVersion>
 </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='TEST_NO_CODEGENERATION|netstandard2.0|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
 
 
   <ItemGroup>

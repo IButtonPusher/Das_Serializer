@@ -11,7 +11,8 @@ using Das.Serializer;
 
 namespace Das.Types
 {
-    public class TypeInference : TypeCore, ITypeInferrer
+    public class TypeInference : TypeCore, 
+                                 ITypeInferrer
     {
         static TypeInference()
         {
@@ -76,7 +77,8 @@ namespace Das.Types
             _cachedTypeNames = new ConcurrentDictionary<Type, String>();
         }
 
-        public TypeInference(IDynamicTypes dynamicTypes, IAssemblyList assemblyList,
+        public TypeInference(IDynamicTypes dynamicTypes, 
+                             IAssemblyList assemblyList,
                              ISerializerSettings settings) : base(settings)
         {
             _dynamicTypes = dynamicTypes;
@@ -89,7 +91,8 @@ namespace Das.Types
         }
 
 
-        public String ToClearName(Type type, Boolean isOmitAssemblyName)
+        public String ToClearName(Type type, 
+                                  Boolean isOmitAssemblyName)
         {
             if (!isOmitAssemblyName && _cachedTypeNames.TryGetValue(type, out var name))
                 return name;
@@ -188,42 +191,7 @@ namespace Das.Types
             return def.Equals(value);
         }
 
-        //public Boolean IsDefaultValue(Object o)
-        //{
-
-        //    switch (o)
-        //    {
-        //        case null:
-        //            return true;
-        //        case String str:
-        //            return str == String.Empty;
-        //        case DateTime dt:
-        //            return dt == DateTime.MinValue;
-        //        case IConvertible conv:
-        //            return Convert.ToInt32(conv) == 0;
-        //    }
-
-        //    var t = o.GetType();
-
-        //    if (!t.IsValueType || t == typeof(void))
-        //        return true;
-
-        //    if (t.IsEnum)
-        //    {
-        //        return Convert.ToInt32(o) == 0;
-        //    }
-
-        //    if (CachedDefaults.TryGetValue(t, out var def))
-        //        return def.Equals(o);
-
-        //    def = Activator.CreateInstance(t); //yuck
-        //    //this has to be activator.  A value type is dynamically made 
-        //    //made using only that!
-
-        //    CachedDefaults.TryAdd(t, def);
-        //    return def.Equals(o);
-        //}
-
+       
         public Type? GetTypeFromClearName(String clearName, Boolean isTryGeneric = false)
         {
             return FromClearName(clearName, true, isTryGeneric);

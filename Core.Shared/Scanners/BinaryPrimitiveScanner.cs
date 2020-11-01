@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
@@ -27,7 +28,7 @@ namespace Das.Serializer
 
         #region public interface
 
-        public Object? GetValue(Byte[]? input, Type type)
+        public Object? GetValue(Byte[] input, Type type)
         {
             Object? res;
             if (input == null) 

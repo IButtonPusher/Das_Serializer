@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if GENERATECODE
+
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection.Emit;
 using System.Threading.Tasks;
@@ -177,3 +179,5 @@ namespace Das.Serializer.ProtoBuf
         }
     }
 }
+
+#endif

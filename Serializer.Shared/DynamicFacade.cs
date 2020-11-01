@@ -32,7 +32,15 @@ namespace Das.Serializer
             var manipulator = new ObjectManipulator(typeManipulator, settings);
             ObjectManipulator = manipulator;
 
+            #if GENERATECODE
+
             var dynamicTypes = new DasTypeBuilder(settings, typeManipulator, manipulator);
+
+            #else
+
+            var dynamicTypes = new InvalidTypeBuilder(assemblyList);
+
+            #endif
             DynamicTypes = dynamicTypes;
 
             var typeInferrer = new TypeInference(dynamicTypes, assemblyList, settings);
@@ -52,7 +60,11 @@ namespace Das.Serializer
 
         public ITextParser TextParser { get; }
 
+
+
         public IDynamicTypes DynamicTypes { get; }
+
+
 
         public IInstantiator ObjectInstantiator { get; }
 

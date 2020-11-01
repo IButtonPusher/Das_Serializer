@@ -26,7 +26,7 @@ namespace Das.Streamers
 
         public virtual Int32 GetInt32()
         {
-            return (Int32) GetPrimitive(typeof(Int32));
+            return (Int32) GetPrimitive(typeof(Int32))!;
         }
 
 
@@ -34,7 +34,7 @@ namespace Das.Streamers
         {
             var bytes = GetBytes(8);
             var res = _scanner.GetValue(bytes, typeof(Double));
-            return (Double) res;
+            return (Double) res!;
         }
 
         public Int32 PeekInt32(Int32 advanceIf)
@@ -93,14 +93,15 @@ namespace Das.Streamers
 
         public T GetPrimitive<T>()
         {
-            return (T) GetPrimitive(typeof(T));
+            return (T) GetPrimitive(typeof(T))!;
         }
 
 
-        public Object GetPrimitive(Type type)
+        public Object? GetPrimitive(Type type)
         {
             var bytes = GetPrimitiveBytes(type);
-            var res = _scanner.GetValue(bytes, type);
+
+            var res = _scanner.GetValue(bytes!, type);
             return res;
         }
 
@@ -108,7 +109,7 @@ namespace Das.Streamers
         {
             var bytes = GetBytes(4);
             var res = _scanner.GetValue(bytes, typeof(Single));
-            return (Single) res;
+            return (Single) res!;
         }
 
 
@@ -128,7 +129,7 @@ namespace Das.Streamers
                     if (!hasValue)
                         return null;
 
-                    type = asPrimitive;
+                    type = asPrimitive!;
                     continue;
                 }
 

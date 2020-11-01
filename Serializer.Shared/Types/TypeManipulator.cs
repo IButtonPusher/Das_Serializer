@@ -1,4 +1,8 @@
-﻿using System;
+﻿#if !GENERATECODE
+using PropertySetter = System.Action<object, object>;
+#endif
+
+using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -28,6 +32,8 @@ namespace Das.Types
            // _nodePool = nodePool;
             _cachedAdders = new ConcurrentDictionary<Type, VoidMethod>();
         }
+
+        #if GENERATECODE
 
         /// <summary>
         ///     Returns a delegate that can be invoked to quickly get the value for an object
@@ -67,11 +73,82 @@ namespace Das.Types
             return (Func<Object, Object>)del;
         }
 
+#else
+
+        public sealed override Func<Object, Object> CreatePropertyGetter(Type targetType,
+                                                                PropertyInfo propertyInfo)
+        {
+            var methodInfo = propertyInfo.GetGetMethod();
+            var exTarget = Expression.Parameter(typeof(object), "t");
+            var exBody0 = Expression.Convert(exTarget, targetType);
+            var exBody = Expression.Call(exBody0, methodInfo);
+            var exBody2 = Expression.Convert(exBody, typeof(object));
+
+            var lambda = Expression.Lambda<Func<object, object>>(exBody2, exTarget);
+
+            var action = lambda.Compile();
+            return action;
+        }
+
+       
+
+        #endif
+
+       #if GENERATECODE
 
         public sealed override PropertySetter CreateSetMethod(MemberInfo memberInfo)
         {
             return CreateSetMethodImpl(memberInfo);
         }
+
+#else
+
+public override Serializer.PropertySetter CreateSetMethod(MemberInfo memberInfo)
+{
+    switch (memberInfo)
+    {
+        case PropertyInfo prop:
+            //var compiled = GetValueSetter(prop);
+            Serializer.PropertySetter setter =
+                (ref Object? target, Object? value) =>
+                {
+                    //compiled(target, value);
+                    prop.SetValue(target, value);
+                    var test = prop.GetValue(target);
+                    if (test != value)
+                    {}
+                };
+
+            return setter;
+
+        case FieldInfo field:
+            Serializer.PropertySetter fieldSetter = (ref Object? target, Object? value) =>
+            {
+                field.SetValue(target, value);
+            };
+            return fieldSetter;
+    }
+
+    throw new NotImplementedException();
+}
+
+        public static Action<object, object> GetValueSetter(PropertyInfo propertyInfo)
+        {
+            //var instance = Expression.Parameter(propertyInfo.DeclaringType, "i");
+            var instance = Expression.Parameter(typeof(object), "i");
+            var argument = Expression.Parameter(typeof(object), "a");
+
+            var setterCall = Expression.Call(
+                Expression.Convert(instance, propertyInfo.DeclaringType!),
+                propertyInfo.GetSetMethod(),
+                Expression.Convert(argument, propertyInfo.PropertyType));
+
+            return (Action<object, object>) Expression.Lambda(setterCall, instance, argument)
+                                                      .Compile();
+        }
+
+
+#endif
 
         IEnumerable<FieldInfo> ITypeManipulator.GetRecursivePrivateFields(Type type)
         {
@@ -91,6 +168,25 @@ namespace Das.Types
             setter = CreateFieldSetter(backingField);
             return true;
         }
+
+        #if !GENERATECODE
+
+        public sealed override Func<Object, Object> CreateFieldGetter(FieldInfo fieldInfo)
+        {
+            var input = Expression.Parameter(fieldInfo.DeclaringType 
+                                             ?? throw new InvalidOperationException());
+            return Expression.Lambda<Func<Object, Object>>(Expression.PropertyOrField(
+                input, fieldInfo.Name), input).Compile();
+        }
+
+        public sealed override Action<Object, Object?> CreateFieldSetter(FieldInfo fieldInfo)
+        {
+
+            Action<Object, Object?> bob = fieldInfo.SetValue;
+            return bob;
+        }
+
+        #else
 
         public sealed override Func<Object, Object> CreateFieldGetter(FieldInfo fieldInfo)
         {
@@ -115,7 +211,7 @@ namespace Das.Types
             return (Func<Object, Object>) dynam.CreateDelegate(typeof(Func<Object, Object>));
         }
 
-        public sealed override Action<Object, Object?> CreateFieldSetter(FieldInfo fieldInfo)
+         public sealed override Action<Object, Object?> CreateFieldSetter(FieldInfo fieldInfo)
         {
             var dynam = new DynamicMethod(
                 String.Empty
@@ -144,10 +240,22 @@ namespace Das.Types
             return (Action<Object, Object?>) dynam.CreateDelegate(typeof(Action<Object, Object?>));
         }
 
+#endif
+
+       
+
         public sealed override Func<Object, Object[], Object> CreateFuncCaller(MethodInfo method)
         {
-            var dyn = CreateMethodCaller(method, false);
-            return (Func<Object, Object[], Object>) dyn.CreateDelegate(typeof(Func<Object, Object[], Object>));
+            List<Type> args = new List<Type>(
+                method.GetParameters().Select(p => p.ParameterType));
+            Type delegateType;
+            if (method.ReturnType == typeof(void)) {
+                delegateType = Expression.GetActionType(args.ToArray());
+            } else {
+                args.Add(method.ReturnType);
+                delegateType = Expression.GetFuncType(args.ToArray());
+            }
+            return (Func<Object, Object[], Object>)Delegate.CreateDelegate(delegateType, null, method);
         }
 
 
@@ -257,68 +365,9 @@ namespace Das.Types
             return addMethod != null;
         }
 
-        //public Type? GetPropertyType(Type classType, String propName)
-        //{
-        //    var ts = GetTypeStructure(classType, DepthConstants.AllProperties);
-        //    return ts.MemberTypes.TryGetValue(propName, out var res) ? res.Type : default;
-        //}
 
-        //public IEnumerable<INamedField> GetPropertiesToSerialize(Type type,
-        //                                                         ISerializationDepth depth)
-        //{
-        //    var str = GetTypeStructure(type, depth);
-        //    foreach (var pi in str.GetMembersToSerialize(depth))
-        //        yield return pi;
-        //}
 
-        //public Type InstanceMemberType(MemberInfo info)
-        //{
-        //    switch (info)
-        //    {
-        //        case PropertyInfo prop:
-        //            return prop.PropertyType;
-        //        case FieldInfo field:
-        //            return field.FieldType;
-        //        default:
-        //            throw new InvalidOperationException();
-        //    }
-        //}
-
-        //public IEnumerable<MethodInfo> GetInterfaceMethods(Type type)
-        //{
-        //    foreach (var parentInterface in type.GetInterfaces())
-        //    foreach (var pp in GetInterfaceMethods(parentInterface))
-        //        yield return pp;
-
-        //    foreach (var mi in type.GetMethods(InterfaceMethodBindings))
-        //    {
-        //        if (mi.IsPrivate)
-        //            continue;
-        //        yield return mi;
-        //    }
-        //}
-
-        //public override Boolean HasSettableProperties(Type type)
-        //{
-        //    if (_knownSensitive.TryGetValue(type, out var result) &&
-        //        result.Depth >= SerializationDepth.GetSetProperties)
-        //        return result.PropertyCount > 0;
-
-        //    return base.HasSettableProperties(type);
-        //}
-
-        //public ITypeStructure GetStructure<T>(ISerializationDepth depth)
-        //{
-        //    return GetTypeStructure(typeof(T), depth);
-        //}
-
-        //public ITypeStructure GetTypeStructure(Type type, ISerializationDepth depth)
-        //{
-        //    if (Settings.IsPropertyNamesCaseSensitive)
-        //        return ValidateCollection(type, depth, true);
-
-        //    return ValidateCollection(type, depth, false);
-        //}
+       
 
         /// <summary>
         ///     Gets a delegate to add an object to a generic collection
@@ -331,10 +380,19 @@ namespace Das.Types
                 return res;
 
             var method = GetAddMethod(collection);
+
             if (method != null)
             {
+                #if GENERATECODE
+
                 var dynam = CreateMethodCaller(method, true);
                 res = (VoidMethod) dynam.CreateDelegate(typeof(VoidMethod));
+
+                #else
+
+                res = CreateMethodCaller(method);
+
+                #endif
             }
 
             _cachedAdders.TryAdd(colType, res!);
@@ -342,8 +400,8 @@ namespace Das.Types
             return res!;
         }
 
-
-        private VoidMethod CreateAddDelegate(ICollection collection, Type type)
+        private VoidMethod CreateAddDelegate(ICollection collection, 
+                                             Type type)
         {
             var colType = collection.GetType();
 
@@ -354,14 +412,28 @@ namespace Das.Types
             var method = type.GetMethod(nameof(IList.Add));
             if (method != null)
             {
+                #if GENERATECODE
+
                 var dynam = CreateMethodCaller(method, true);
                 res = (VoidMethod) dynam.CreateDelegate(typeof(VoidMethod));
+
+                #else
+
+                res = CreateMethodCaller(method);
+
+                #endif
             }
 
             _cachedAdders.TryAdd(colType, res!);
 
             return res!;
         }
+       
+
+
+        #if GENERATECODE
+
+        
 
 
         public sealed override VoidMethod CreateMethodCaller(MethodInfo method)
@@ -370,7 +442,8 @@ namespace Das.Types
             return (VoidMethod) dyn.CreateDelegate(typeof(VoidMethod));
         }
 
-        public static DynamicMethod CreateMethodCaller(MethodInfo method, Boolean isSuppressReturnValue)
+        public static DynamicMethod CreateMethodCaller(MethodInfo method, 
+                                                       Boolean isSuppressReturnValue)
         {
             Type[] argTypes = {Const.ObjectType, typeof(Object[])};
             var parms = method.GetParameters();
@@ -469,31 +542,54 @@ namespace Das.Types
             return (PropertySetter) setter.CreateDelegate(typeof(PropertySetter));
         }
 
-        private MethodInfo? GetAddMethodImpl(Type cType)
+       
+
+
+        #else
+
+        public override VoidMethod CreateMethodCaller(MethodInfo method)
         {
-            var germane = GetGermaneType(cType);
-
-            if (cType.TryGetMethod(nameof(ICollection<Object>.Add), out var adder, germane))
-                return adder;
-
-            if (typeof(List<>).IsAssignableFrom(cType) ||
-                typeof(Dictionary<,>).IsAssignableFrom(cType))
-                return cType.GetMethodOrDie(nameof(List<Object>.Add));
-
-            if (typeof(Stack<>).IsAssignableFrom(cType))
-                return cType.GetMethodOrDie(nameof(Stack<Object>.Push));
-
-            if (typeof(Queue<>).IsAssignableFrom(cType))
-                return cType.GetMethodOrDie(nameof(Queue<Object>.Enqueue));
-
-            if (typeof(IDictionary).IsAssignableFrom(cType))
+            VoidMethod bobbith = (target, paramValues) =>
             {
-                var gDic = typeof(IDictionary<,>).MakeGenericType(cType.GetGenericArguments());
-                return gDic.GetMethodOrDie(nameof(IDictionary<Object, Object>.Add));
-            }
+                method.Invoke(target, paramValues);
+                //bob.DynamicInvoke(target, paramValues);
+            };
 
-            return default;
+
+            return bobbith;
         }
+
+
+
+
+
+        #endif
+
+private MethodInfo? GetAddMethodImpl(Type cType)
+{
+    var germane = GetGermaneType(cType);
+
+    if (cType.TryGetMethod(nameof(ICollection<Object>.Add), out var adder, germane))
+        return adder;
+
+    if (typeof(List<>).IsAssignableFrom(cType) ||
+        typeof(Dictionary<,>).IsAssignableFrom(cType))
+        return cType.GetMethodOrDie(nameof(List<Object>.Add));
+
+    if (typeof(Stack<>).IsAssignableFrom(cType))
+        return cType.GetMethodOrDie(nameof(Stack<Object>.Push));
+
+    if (typeof(Queue<>).IsAssignableFrom(cType))
+        return cType.GetMethodOrDie(nameof(Queue<Object>.Enqueue));
+
+    if (typeof(IDictionary).IsAssignableFrom(cType))
+    {
+        var gDic = typeof(IDictionary<,>).MakeGenericType(cType.GetGenericArguments());
+        return gDic.GetMethodOrDie(nameof(IDictionary<Object, Object>.Add));
+    }
+
+    return default;
+}
 
         private static FieldInfo? GetBackingField(PropertyInfo pi)
         {

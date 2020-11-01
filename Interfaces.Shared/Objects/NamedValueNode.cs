@@ -11,7 +11,7 @@ namespace Das.Serializer.Objects
     {
         public NamedValueNode(Action<NamedValueNode> returnToSender,
                               String name,
-                              Object value,
+                              Object? value,
                               Type type)
             : this(name, value, type)
         {
@@ -24,9 +24,16 @@ namespace Das.Serializer.Objects
         {
         }
 
-        protected NamedValueNode(String name, Object value, Type type) : base(value, type)
+        protected NamedValueNode(String name, 
+                                 Object? value, 
+                                 Type? type) 
+            : base(value, type)
         {
-            Set(name, value, type);
+            _name = name;
+            _isEmptyInitialized = -1;
+            _type = type;
+            _value = value;
+           // Set(name, value, type);
         }
 
         public Boolean IsEmptyInitialized
@@ -48,12 +55,14 @@ namespace Das.Serializer.Objects
 
         public virtual void Dispose()
         {
-            _returnToSender(this);
+            _returnToSender?.Invoke(this);
         }
 
         public String Name => _name;
 
-        public virtual void Set(String name, Object value, Type type)
+        public virtual void Set(String name, 
+                                Object? value, 
+                                Type? type)
         {
             _name = name;
             _isEmptyInitialized = -1;
@@ -66,7 +75,7 @@ namespace Das.Serializer.Objects
             return "[" + Name + "]  " + base.ToString();
         }
 
-        private readonly Action<NamedValueNode> _returnToSender;
+        private readonly Action<NamedValueNode>? _returnToSender;
         protected Int32 _isEmptyInitialized;
         protected String _name;
     }

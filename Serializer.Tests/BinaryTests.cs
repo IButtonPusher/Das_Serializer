@@ -444,10 +444,17 @@ namespace Serializer.Tests
 
             var std = Serializer;
             var bytes = std.ToBytes(waffle);
+
+            #if GENERATECODE
+
             var test2 = std.FromBytes<AbstractComposite>(bytes);
+            #else
+            var test2 = std.FromBytes<AbstractComposite>(bytes);
+            #endif
 
             var badProp = "";
-            Assert.True(SlowEquality.AreEqual(waffle, test2, ref badProp));
+            var isOk = SlowEquality.AreEqual(waffle, test2, ref badProp);
+            Assert.True(isOk);
         }
 
         #region special
