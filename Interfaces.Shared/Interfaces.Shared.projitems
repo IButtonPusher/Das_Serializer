@@ -15,13 +15,15 @@
     <Compile Include="$(MSBuildThisFileDirectory)DtoExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IAssemblyList.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IConverterProvider.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IDynamicAccessor.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IDynamicType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IPropertyAccessor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IPropertyProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IPropertyType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IDynamicTypes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IInstantiator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IObjectConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IObjectManipulator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\ITypeStructureBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IValueSetter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IProtoProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ObjectPools\INodePool.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\ProtoFieldAction.cs" />

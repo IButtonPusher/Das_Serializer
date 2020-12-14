@@ -11,7 +11,8 @@ using Das.Serializer.Xml;
 
 namespace Das.Serializer
 {
-    public partial class DasCoreSerializer : BaseState, IMultiSerializer
+    public partial class DasCoreSerializer : BaseState,
+                                             IMultiSerializer
     {
         #if !NET40
 
@@ -43,9 +44,12 @@ namespace Das.Serializer
             _readToEndAsync = readToEndAsync;
             _readAsync = readAsync;
 
-            JsonExpress = new JsonExpress(ObjectInstantiator, TypeManipulator, TypeInferrer);
+            JsonExpress = new JsonExpress(ObjectInstantiator, TypeManipulator, 
+                TypeInferrer, stateProvider.ObjectManipulator);
             XmlExpress = new XmlExpress(ObjectInstantiator, TypeManipulator,
-                _settings, StateProvider.XmlContext.PrimitiveScanner);
+                _settings, StateProvider.XmlContext.PrimitiveScanner, TypeInferrer);
+
+            AttributeParser = new XmlPrimitiveScanner(this);
         }
 
         public DasCoreSerializer(IStateProvider stateProvider,
@@ -94,8 +98,6 @@ namespace Das.Serializer
 
         internal const String StrNull = "null";
 
-        internal const String RefTag = "__ref";
-        internal const String RefAttr = "$ref";
         internal const String Root = "Root";
         private readonly Func<Stream, Byte[], Int32, Int32, Task<Int32>> _readAsync;
         private readonly Func<TextReader, Task<String>> _readToEndAsync;
@@ -105,5 +107,7 @@ namespace Das.Serializer
 
         protected readonly JsonExpress JsonExpress;
         protected readonly XmlExpress XmlExpress;
+
+        public IStringPrimitiveScanner AttributeParser { get; }
     }
 }

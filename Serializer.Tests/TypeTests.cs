@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using Das.Types;
 using Xunit;
 
 // ReSharper disable All
@@ -14,8 +15,8 @@ namespace Serializer.Tests
 	//[TestClass]
 	public class TypeTests : TestBase
 	{
-		//[TestCategory("primitive"), TestCategory("types"), TestMethod]
-		public void PrimitiveType()
+        [Fact]
+        public void PrimitiveType()
 		{
 			var type = typeof(Int32);
 			var str = type.GetClearName(false);
@@ -28,8 +29,9 @@ namespace Serializer.Tests
 			Assert.Equal(type, type2);
 		}
 
-		//[TestCategory("namespace"), TestCategory("types"), TestMethod]
-		public void NamespaceType()
+		
+        [Fact]
+        public void NamespaceType()
 		{
 			var type = typeof(Encoding);
 			var str = type.GetClearName(false);
@@ -42,8 +44,9 @@ namespace Serializer.Tests
 			Assert.Equal(type, type2);
 		}
 
-		//[TestCategory("assembly"), TestCategory("types"), TestMethod]
-		public void AssemblyType()
+		
+        [Fact]
+        public void AssemblyType()
 		{
 			var type = typeof(DasSerializer);
 			var str = type.GetClearName(false);
@@ -56,8 +59,65 @@ namespace Serializer.Tests
 			Assert.Equal(type, type2);
 		}
 
-		//[TestCategory("generic"), TestCategory("types"), TestMethod]
-		public void GenericType()
+        [Fact]
+        public void PropertyGetters()
+        {
+            var getter = TypeManipulator.CreateDynamicPropertyGetter(typeof(ISimpleClass),
+                nameof(ISimpleClass.Name));
+
+            var inst = new SimpleClass2 {Name = "bobbith"};
+
+            var testRes = getter(inst);
+            Assert.Equal("bobbith", testRes);
+            
+            var ezProp = typeof(TestCompositeClass).GetProperty(
+                nameof(TestCompositeClass.SimpleLeft));
+            var func = TypeManipulator.CreateDynamicPropertyGetter(typeof(TestCompositeClass),
+                ezProp!);
+            
+            var obj = TestCompositeClass.Init();
+
+            var res = func(obj);
+            Assert.Equal(res, obj.SimpleLeft);
+            
+            
+            var func2 = TypeManipulator.CreateDynamicPropertyGetter(typeof(TestCompositeClass),
+                nameof(TestCompositeClass.SimpleLeft) + "." +
+                nameof(SimpleClassObjectProperty.Name));
+
+            
+            var res2 = func2(obj);
+            Assert.Equal(res2, obj.SimpleLeft.Name);
+
+        }
+
+        [Fact]
+        public void PropertySetters()
+        {
+            //var nameProp = typeof(SimpleClass).GetProperty(nameof(SimpleClass.Name));
+            //var setter = TypeManipulator.CreateDynamicSetter(nameProp);
+
+            //var inst = SimpleClass.GetExample();
+            //Object instance = inst;
+
+            //setter(ref instance, "suzy slammer");
+            //Assert.Equal("suzy slammer", inst.Name);
+
+            var inst2 = TestCompositeClass.Init();
+            Object instance2 = inst2;
+            
+            var func2 = TypeManipulator.CreateDynamicSetter(typeof(TestCompositeClass),
+                nameof(TestCompositeClass.SimpleLeft) + "." +
+                nameof(SimpleClassObjectProperty.Name));
+
+            func2(ref instance2, "wiley wamboozle");
+            
+            Assert.Equal("wiley wamboozle", inst2.SimpleLeft.Name);
+        }
+        
+		
+        [Fact]
+        public void GenericType()
 		{
 			//var extType = typeof(ExtensionMethods);
 

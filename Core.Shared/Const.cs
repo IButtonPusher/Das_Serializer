@@ -15,6 +15,9 @@ namespace Das.Serializer
         public const String XmlNull = "xsi:nil";
         public const String Empty = "";
 
+        public const String RefAttr = "$ref";
+        public const String RefTag = "__ref";
+
         public const String StrQuote = "\"";
         public const String Root = "$";
 

@@ -56,3 +56,4 @@
 /Das.Serializer.Split/Das.Serializer.Split.csproj.DotSettings
 /.vs/Serializer/v16/TestStore/6/testlog.manifest
 /.editorconfig
+/Serializer.Tests/bin

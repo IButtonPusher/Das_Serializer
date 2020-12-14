@@ -7,14 +7,17 @@ namespace Das.Serializer
 {
     public class JsonPrimitiveScanner : StringPrimitiveScanner
     {
-        public JsonPrimitiveScanner(ISerializationContext state) : base(state)
+        public JsonPrimitiveScanner(ISerializationContext state) : base(state.TypeInferrer)
         {
         }
 
         private static StringBuilder Builder => _buffer.Value;
 
-        public override String Descape(String input)
+        public override String Descape(String? input)
         {
+            if (input == null)
+                return null!;
+
             var isEscaped = false;
 
             foreach (var ct in input)

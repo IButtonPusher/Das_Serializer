@@ -22,9 +22,15 @@ namespace Das.Serializer
 
         Object FromJson(String json);
 
+        Object FromJson(String json, 
+                        Type type);
+
         Task<T> FromJsonAsync<T>(Stream stream);
 
         T FromJsonEx<T>(String json);
+
+        T FromJsonEx<T>(String json, 
+                        Object[] ctorValues);
 
         String JsonEscape(String str);
 

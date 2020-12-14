@@ -2,11 +2,13 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace Das.Serializer
 {
-    public abstract class BaseTypeManipulator : TypeCore, ITypeManipulator
+    public abstract class BaseTypeManipulator : TypeCore, 
+                                                ITypeManipulator
     {
         protected BaseTypeManipulator(ISerializerSettings settings, 
                                       INodePool nodePool) : base(settings)
@@ -36,13 +38,22 @@ namespace Das.Serializer
 
         public abstract Func<object, object[], object> CreateFuncCaller(MethodInfo method);
 
-        public abstract Func<object, object> CreatePropertyGetter(Type targetType, PropertyInfo propertyInfo);
+        public abstract Func<object, object> CreatePropertyGetter(Type targetType, 
+                                                                  PropertyInfo propertyInfo);
+
+        public abstract Func<object, object> CreatePropertyGetter(Type targetType, 
+                                                                  String propertyName);
 
         public abstract PropertySetter CreateSetMethod(MemberInfo memberInfo);
 
-        public abstract VoidMethod? GetAdder(Type collectionType, Object exampleValue);
+        public abstract PropertySetter? CreateSetMethod(Type declaringType, 
+                                                        String memberName);
 
-        public abstract VoidMethod GetAdder(IEnumerable collection, Type? collectionType = null);
+        public abstract VoidMethod? GetAdder(Type collectionType, 
+                                             Object exampleValue);
+
+        public abstract VoidMethod GetAdder(IEnumerable collection, 
+                                            Type? collectionType = null);
 
         public abstract MethodInfo? GetAddMethod<T>(IEnumerable<T> collection);
 
@@ -66,11 +77,12 @@ namespace Das.Serializer
                                                                  ISerializationDepth depth)
         {
             var str = GetTypeStructure(type, depth);
-            foreach (var pi in str.GetMembersToSerialize(depth))
+            foreach (var pi in str.GetMembersToSerialize(depth))   
                 yield return pi;
         }
 
-        public Type? GetPropertyType(Type classType, String propName)
+        public Type? GetPropertyType(Type classType, 
+                                     String propName)
         {
             var ts = GetTypeStructure(classType, DepthConstants.AllProperties);
             return ts.MemberTypes.TryGetValue(propName, out var res) ? res.Type : default;
@@ -184,6 +196,44 @@ namespace Das.Serializer
         private const BindingFlags InterfaceMethodBindings = BindingFlags.Instance |
                                                              BindingFlags.Public | BindingFlags.NonPublic;
 
-       
+
+        public IPropertyAccessor GetPropertyAccessor(Type declaringType, 
+                                                     String propertyName)
+        {
+            Debug.WriteLine("Create prop accesor for " + declaringType.Name + "->" + propertyName);
+            
+            var getter = CreatePropertyGetter(declaringType, propertyName);
+            var setter = CreateSetMethod(declaringType, propertyName);
+            return new SimplePropertyAccessor(declaringType, propertyName, getter, setter);
+
+        }
+
+        protected static MemberInfo GetMemberOrDie(Type declaringType,
+                                                   String propName)
+        {
+            var membersOnly = GetMembersOrDie(declaringType, propName);
+            if (membersOnly.Length != 1)
+                throw new AmbiguousMatchException(nameof(propName));
+
+            return membersOnly[0];
+        }
+        
+        protected static MemberInfo[] GetMembersOrDie(Type declaringType,
+                                                     String propertyName)
+        {
+            var membersOnly = declaringType.GetMember(propertyName);
+            if (membersOnly.Length == 0)
+                throw new MissingMemberException(declaringType.FullName, propertyName);
+
+            return membersOnly;
+
+        }
+        
+        protected static PropertyInfo GetPropertyOrDie(Type declaringType,
+                                                       String propertyName)
+        {
+            return declaringType.GetProperty(propertyName) ?? 
+                   throw new MissingMemberException(declaringType.FullName, propertyName);
+        }
     }
 }

@@ -18,16 +18,17 @@ namespace Das.Serializer
         public String ToXml<TObject>(TObject o)
         {
             var oType = typeof(TObject);
-            return ObjectToTypedXml(o, oType);
+            return ObjectToTypedXml(o!, oType);
         }
 
         public String ToXml<TTarget>(Object o)
         {
             var obj = ObjectManipulator.CastDynamic<TTarget>(o);
-            return ObjectToTypedXml(obj, typeof(TTarget));
+            return ObjectToTypedXml(obj!, typeof(TTarget));
         }
 
-        public async Task ToXml(Object o, FileInfo fi)
+        public async Task ToXml(Object o, 
+                                FileInfo fi)
         {
             var xml = ToXml(o);
             await XmlToFile(xml, fi);
@@ -42,7 +43,7 @@ namespace Das.Serializer
 
         public async Task ToXml<TObject>(TObject o, FileInfo fileName)
         {
-            var xml = ObjectToTypedXml(o, typeof(TObject));
+            var xml = ObjectToTypedXml(o!, typeof(TObject));
             await XmlToFile(xml, fileName);
         }
 

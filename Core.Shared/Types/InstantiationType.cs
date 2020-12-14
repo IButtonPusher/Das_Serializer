@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Das.Types
+namespace Das.Serializer
 {
-    public enum InstantiationTypes
+    public enum InstantiationType
     {
         NullObject,
         EmptyString,

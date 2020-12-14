@@ -20,6 +20,7 @@ namespace Das.Serializer
 
         public void Put(T node)
         {
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (node == null)
                 return;
 
@@ -32,7 +33,7 @@ namespace Das.Serializer
             foreach (var n in letsAdd)
             {
                 buffer.Enqueue(n);
-                if (buffer.Count > 1000)
+                if (buffer.Count > 100)
                     break;
             }
 

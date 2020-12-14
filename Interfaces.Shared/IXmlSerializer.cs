@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -10,13 +11,15 @@ namespace Das.Serializer
 {
     public interface IXmlSerializer
     {
-        /////////////////////////////////////////////////////////////////
-        //////////////////////////   XML  ///////////////////////////////
-        /////////////////////////////////////////////////////////////////
+       
+        IStringPrimitiveScanner AttributeParser { get; }
+        
 
         T FromXml<T>(String xml);
 
         T FromXmlEx<T>(String xml);
+
+        IEnumerable<T> FromXmlItems<T>(String xml);
 
         T FromXml<T>(Char[] xml);
 

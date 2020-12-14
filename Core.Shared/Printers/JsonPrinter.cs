@@ -9,7 +9,8 @@ namespace Das.Printers
 {
     public class JsonPrinter : TextPrinter
     {
-        public JsonPrinter(ITextRemunerable writer, ISerializationState stateProvider)
+        public JsonPrinter(ITextRemunerable writer, 
+                           ISerializationState stateProvider)
             : base(writer, stateProvider)
         {
             _stateProvider = stateProvider;

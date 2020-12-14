@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using Das.Serializer;
 using Serializer.Tests;
+// ReSharper disable All
 
 namespace Serializer.Benchmarks
 {

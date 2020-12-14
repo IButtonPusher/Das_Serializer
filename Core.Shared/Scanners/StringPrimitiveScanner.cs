@@ -6,12 +6,13 @@ namespace Das.Serializer
 {
     public abstract class StringPrimitiveScanner : IStringPrimitiveScanner
     {
-        public StringPrimitiveScanner(ISerializationContext state)
+        public StringPrimitiveScanner(ITypeCore state)
         {
             _state = state;
         }
 
-        public Object GetValue(String? input, Type type)
+        public Object GetValue(String? input,
+                               Type type)
         {
             if (type == Const.ObjectType)
             {
@@ -50,7 +51,7 @@ namespace Das.Serializer
             }
 
             if (type == Const.ObjectType)
-                return input;
+                return input!;
 
             //todo: this is probably not good
             if (input == "null")
@@ -60,8 +61,8 @@ namespace Das.Serializer
             return conv.ConvertFromInvariantString(input);
         }
 
-        public abstract String Descape(String input);
+        public abstract String Descape(String? input);
 
-        private readonly ISerializationContext _state;
+        private readonly ITypeCore _state;
     }
 }

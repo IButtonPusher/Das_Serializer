@@ -20,7 +20,20 @@ namespace Das.Types
     {
         static DasTypeBuilder()
         {
-            
+
+            // ReSharper disable once PossibleNullReferenceException
+
+           #if !NET40
+
+            _getCompletedTask = typeof(Task).GetProperty("CompletedTask",
+                BindingFlags.Static | BindingFlags.Public).GetGetMethod();
+
+            #else
+
+            _getCompletedTask = typeof(TaskEx).GetProperty(nameof(TaskEx.CompletedTask),
+                BindingFlags.Static | BindingFlags.Public).GetGetMethod();
+            #endif
+
             _codeGenerator = new DasCodeGenerator("DasSerializerTypes", "DAS_MODULE",
                 AssemblyBuilderAccess.Run);
             _lockDynamic = new Object();
@@ -31,7 +44,7 @@ namespace Das.Types
             
         }
 
-        internal DasTypeBuilder(ISerializerSettings settings, ITypeManipulator typeManipulator,
+        public DasTypeBuilder(ISerializerSettings settings, ITypeManipulator typeManipulator,
                                 IObjectManipulator objectManipulator) : base(settings)
         {
 
@@ -98,7 +111,7 @@ namespace Das.Types
         ///     are created but they return default primitives or null references
         /// </param>
         /// <param name="parentTypes">Can be a single unsealed class and/or 1-N interfaces</param>
-        public IDynamicType GetDynamicType(String typeName, IEnumerable<DasProperty> properties,
+        public IPropertyType GetDynamicType(String typeName, IEnumerable<DasProperty> properties,
                                            Boolean isCreatePropertyDelegates, IEnumerable<EventInfo> events,
                                            IDictionary<MethodInfo, MethodInfo>? methodReplacements,
                                            params Type[] parentTypes)
@@ -307,6 +320,7 @@ namespace Das.Types
         private static readonly DasCodeGenerator _codeGenerator;
 
         private static readonly Object _lockDynamic;
+        private static readonly MethodInfo _getCompletedTask;
         private readonly IObjectManipulator _objectManipulator;
 
         private readonly ITypeManipulator _typeManipulator;
@@ -354,6 +368,11 @@ namespace Das.Types
                     if (ctor != null)
                     {
                         il.Emit(OpCodes.Newobj, ctor);
+                        isRetted = true;
+                    }
+                    else if (returnType == typeof(Task))
+                    {
+                        il.Emit(OpCodes.Call, _getCompletedTask);
                         isRetted = true;
                     }
                 }
@@ -483,7 +502,12 @@ namespace Das.Types
                 CustomAttributeBuilder builder;
 
                 var types = new List<Type>();
-                foreach (var cVal in att.ConstructionValues) types.Add(cVal.GetType());
+
+                if (att.ConstructionValues is { })
+                {
+                    foreach (var cVal in att.ConstructionValues)
+                        types.Add(cVal.GetType());
+                }
 
                 var prms = types.ToArray();
                 var ctor = att.Type.GetConstructor(prms);
@@ -493,7 +517,7 @@ namespace Das.Types
 
                 if (att.PropertyValues.Count == 0)
                 {
-                    builder = new CustomAttributeBuilder(ctor, att.ConstructionValues);
+                    builder = new CustomAttributeBuilder(ctor, att.ConstructionValues!);
                 }
 
                 else

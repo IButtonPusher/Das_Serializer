@@ -3,11 +3,12 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer.Objects
 {
-    public class PropertyValueNode : NamedValueNode, IProperty
+    public class PropertyValueNode : NamedValueNode, 
+                                     IProperty
     {
         public PropertyValueNode(Action<PropertyValueNode> returnToSender, 
                                  String propertyName,
-                                 Object propertyValue, 
+                                 Object? propertyValue, 
                                  Type propertyType)
         {
             _isEmptyInitialized = -1;
@@ -18,6 +19,7 @@ namespace Das.Serializer.Objects
         }
 
 #pragma warning disable 8618
+        // ReSharper disable once UnusedMember.Global
         protected PropertyValueNode()
 #pragma warning restore 8618
         {
@@ -31,8 +33,8 @@ namespace Das.Serializer.Objects
         }
 
         public override void Set(String propertyName, 
-                        Object propertyValue,
-                        Type propertyType)
+                        Object? propertyValue,
+                        Type? propertyType)
         {
             _name = propertyName;
             _isEmptyInitialized = -1;

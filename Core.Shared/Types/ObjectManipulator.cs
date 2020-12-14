@@ -21,7 +21,9 @@ namespace Das.Types
                 ConcurrentDictionary<String, Func<Object, Object[], Object>>>();
         }
 
-        public IProperty? GetPropertyResult(Object o, Type asType, String propertyName)
+        public IProperty? GetPropertyResult(Object o, 
+                                            Type asType, 
+                                            String propertyName)
         {
             if (propertyName == null)
                 return default;

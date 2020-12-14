@@ -161,13 +161,14 @@ namespace Das.Serializer.ProtoBuf
             return InstantiateProxyInstance<T>(ptype);
         }
 
-        private Type? CreateProxyType(Type type, Boolean allowReadOnly)
+        private Type? CreateProxyType(Type type, 
+                                      Boolean allowReadOnly)
         {
             if (!_instantiator.TryGetDefaultConstructor(type, out var dtoctor) &&
                 !allowReadOnly)
                 throw new InvalidProgramException($"No valid constructor found for {type}");
 
-            var fields = GetProtoFields(type);
+            var fields = GetProtoPrintFields(type);
 
             var genericParent = typeof(ProtoDynamicBase<>).MakeGenericType(type);
             var retBldr = genericParent.GetMethodOrDie(
@@ -176,15 +177,14 @@ namespace Das.Serializer.ProtoBuf
             return CreateProxyTypeImpl(type, dtoctor, fields, true, allowReadOnly, retBldr);
         }
 
-        private Type? CreateProxyTypeImpl(
-            Type type,
-            ConstructorInfo dtoCtor,
-            IEnumerable<IProtoFieldAccessor> fields,
-            Boolean canSetValuesInline,
-            Boolean allowReadOnly,
-            MethodBase buildReturnValue)
+        private Type? CreateProxyTypeImpl(Type type,
+                                          ConstructorInfo dtoCtor,
+                                          IEnumerable<IProtoFieldAccessor> scanFields,
+                                          Boolean canSetValuesInline,
+                                          Boolean allowReadOnly,
+                                          MethodBase buildReturnValue)
         {
-            var fArr = fields.ToArray();
+            var scanFieldArr = scanFields.ToArray();
 
             var typeName = type.FullName ?? throw new InvalidOperationException();
 
@@ -193,19 +193,26 @@ namespace Das.Serializer.ProtoBuf
 
             var genericParent = typeof(ProtoDynamicBase<>).MakeGenericType(type);
 
-            var typeProxies = CreateProxyFields(bldr, fArr);
+            var typeProxies = CreateProxyFields(bldr, scanFieldArr);
 
             var ctor = AddConstructors(bldr, dtoCtor,
                 genericParent,
                 typeProxies.Values,
                 allowReadOnly);
 
-            AddPrintMethod(type, bldr, genericParent, fArr, typeProxies);
+            IEnumerable<IProtoFieldAccessor> printFields;
+            if (canSetValuesInline || allowReadOnly)
+                printFields = GetProtoPrintFields(type);
+            else
+                printFields = scanFieldArr;
+
+            AddPrintMethod(type, bldr, genericParent, printFields, typeProxies);
+            //AddPrintMethod(type, bldr, genericParent, scanFieldArr, typeProxies);
 
             if (ctor != null)
             {
                 var example = canSetValuesInline ? ctor.Invoke(new Object[0]) : default;
-                AddScanMethod(type, bldr, genericParent, fArr,
+                AddScanMethod(type, bldr, genericParent, scanFieldArr,
                     example!, canSetValuesInline,
                     buildReturnValue, typeProxies);
 
@@ -332,7 +339,7 @@ namespace Das.Serializer.ProtoBuf
         }
 
 
-        private List<IProtoFieldAccessor> GetProtoFields(Type type)
+        private List<IProtoFieldAccessor> GetProtoPrintFields(Type type)
         {
             var res = new List<IProtoFieldAccessor>();
             foreach (var prop in _types.GetPublicProperties(type))

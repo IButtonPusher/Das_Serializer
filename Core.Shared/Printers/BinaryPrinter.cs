@@ -14,7 +14,8 @@ namespace Das.Printers
 {
     public class BinaryPrinter : PrinterBase, IDisposable, ISerializationDepth
     {
-        public BinaryPrinter(IBinaryWriter writer, IBinaryState stateProvider)
+        public BinaryPrinter(IBinaryWriter writer, 
+                             IBinaryState stateProvider)
             : base(stateProvider)
         {
             _fallbackFormatter = new BinaryFormatter();

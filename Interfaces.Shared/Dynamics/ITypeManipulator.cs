@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    public interface ITypeManipulator : ITypeCore
+    public interface ITypeManipulator : ITypeCore,
+                                        IPropertyProvider
     {
         Func<Object, Object> CreateFieldGetter(FieldInfo fieldInfo);
 
@@ -16,12 +17,20 @@ namespace Das.Serializer
 
         Func<Object, Object> CreatePropertyGetter(Type targetType,
                                                   PropertyInfo propertyInfo);
+        
+        Func<Object, Object>? CreatePropertyGetter(Type targetType,
+                                                   String propertyName);
 
         PropertySetter CreateSetMethod(MemberInfo memberInfo);
 
-        VoidMethod? GetAdder(Type collectionType, Object exampleValue);
+        PropertySetter? CreateSetMethod(Type declaringType,
+                                        String memberName);
 
-        VoidMethod GetAdder(IEnumerable collection, Type? collectionType = null);
+        VoidMethod? GetAdder(Type collectionType, 
+                             Object exampleValue);
+
+        VoidMethod GetAdder(IEnumerable collection, 
+                            Type? collectionType = null);
 
         MethodInfo? GetAddMethod<T>(IEnumerable<T> collection);
 
@@ -32,9 +41,11 @@ namespace Das.Serializer
         /// <summary>
         ///     Recursive through base types without duplicates
         /// </summary>
-        IEnumerable<INamedField> GetPropertiesToSerialize(Type type, ISerializationDepth depth);
+        IEnumerable<INamedField> GetPropertiesToSerialize(Type type, 
+                                                          ISerializationDepth depth);
 
-        Type? GetPropertyType(Type classType, String propName);
+        Type? GetPropertyType(Type classType, 
+                              String propName);
 
         IEnumerable<FieldInfo> GetRecursivePrivateFields(Type type);
 

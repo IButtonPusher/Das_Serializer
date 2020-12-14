@@ -8,7 +8,10 @@ namespace Das.Serializer
                                             INode<TNode>
         where TNode : INode<TNode>
     {
-        protected BaseNode(ISerializerSettings settings) : base(settings)
+#pragma warning disable 8618
+        protected BaseNode(ISerializerSettings settings) : 
+#pragma warning restore 8618
+            base(settings)
         {
             DynamicProperties = new Dictionary<String, Object?>();
             Attributes = new Dictionary<String, String>();
@@ -54,7 +57,7 @@ namespace Das.Serializer
             Attributes.Clear();
             DynamicProperties.Clear();
 
-            _parent = default;
+            _parent = default!;
             NodeType = NodeTypes.None;
         }
 

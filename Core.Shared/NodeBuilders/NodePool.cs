@@ -48,7 +48,9 @@ namespace Das.Serializer
                 kvp.Value?.GetType() ?? typeof(Object));
         }
 
-        public IProperty GetProperty(String propertyName, Object propertyValue, Type propertyType,
+        public IProperty GetProperty(String propertyName, 
+                                     Object? propertyValue, 
+                                     Type propertyType,
                                      Type declaringType)
         {
             var buffer = PropertyBuffer.Value!;

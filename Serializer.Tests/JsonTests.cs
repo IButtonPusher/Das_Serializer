@@ -10,7 +10,7 @@ using Xunit;
 
 // ReSharper disable All
 
-namespace Serializer.Tests
+namespace Serializer.Tests.Json
 {
     public class JsonTests : TestBase
     {
@@ -168,6 +168,8 @@ namespace Serializer.Tests
             var test = res.result?.error?.message;
         }
 
+       
+
         [Fact]
         public void ClassWithObjectArrayJson()
         {
@@ -208,6 +210,24 @@ namespace Serializer.Tests
             }
         }
 
+        [Fact]
+        public void ListJson()
+        {
+            var bc = new List<SimpleClassObjectProperty>();
+            bc.Add(SimpleClassObjectProperty.GetPrimitivePayload());
+            bc.Add(SimpleClassObjectProperty.GetNullPayload());
+
+            var json = Serializer.ToJson(bc);
+            var res = Serializer.FromJson<List<SimpleClassObjectProperty>>(json);
+
+            for (var i = 0; i < bc.Count; i++)
+            {
+                var left = bc.Skip(i).First();
+                var right = res.Skip(i).First();
+
+                Assert.True(left.Equals(right));
+            }
+        }
         
         [Fact]
         public void BlockingJson()
@@ -264,29 +284,25 @@ namespace Serializer.Tests
                         easyTuple.Item2 == test2.Item2);
         }
 
-        ////[TestCategory("json"), TestMethod]
-        //public void GdiColorInferredJson()
-        //{
-        //	Color clr = Color.Purple;
-        //	var srl = GetTypeSpecifyingSerializer();
-
-        //	var xxx = srl.ToJson(clr);			
-
-        //	Color yeti = (Color)Serializer.FromJson(xxx);
-        //	Assert.Equal(clr, yeti);
-        //}
-
-        //[TestCategory("json"), TestCategory("special"), TestMethod]
+        
         [Fact]
         public void GdiColorExplicitJson()
         {
             var clr = Color.Purple;
             var srl = new DasSerializer();
 
-            var json = srl.ToJson(clr);
-            
-            var yeti = Serializer.FromJson<Color>(json);
-            Assert.Equal(clr, yeti);
+            var obj = new
+            {
+                Color = clr
+            };
+
+            //var json = srl.ToJson(clr);
+            //var yeti = Serializer.FromJson<Color>(json);
+            //Assert.Equal(clr, yeti);
+
+            var json = srl.ToJson(obj);
+            var yeti = Serializer.FromJson(json, obj.GetType());
+            Assert.Equal(obj, yeti);
         }
 
         ////[TestCategory("json"), TestMethod]

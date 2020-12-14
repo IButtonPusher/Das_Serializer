@@ -5,10 +5,11 @@ namespace Das.Serializer
 {
     public class XmlContext : CoreContext, ITextContext
     {
-        public XmlContext(ISerializationCore dynamicFacade, ISerializerSettings settings)
+        public XmlContext(ISerializationCore dynamicFacade, 
+                          ISerializerSettings settings)
             : base(dynamicFacade, settings)
         {
-            PrimitiveScanner = new XmlPrimitiveScanner(this);
+            PrimitiveScanner = new XmlPrimitiveScanner(dynamicFacade.TypeInferrer);
             var manipulator = new XmlNodeTypeProvider(dynamicFacade, PrimitiveScanner, settings);
 
             _nodeProvider = new TextNodeProvider(dynamicFacade, manipulator,

@@ -39,30 +39,36 @@ namespace Das.Types
             throw new NotSupportedException();
         }
 
-        public IDynamicType GetDynamicType(String typeName, 
-                                           IEnumerable<DasProperty> properties, 
-                                           Boolean isCreatePropertyDelegates,
-                                           IEnumerable<EventInfo> events, 
-                                           IDictionary<MethodInfo, MethodInfo> methodReplacements, 
-                                           params Type[] parentTypes)
+        public IPropertyType GetDynamicType(String typeName, 
+                                            IEnumerable<DasProperty> properties, 
+                                            Boolean isCreatePropertyDelegates,
+                                            IEnumerable<EventInfo> events, 
+                                            IDictionary<MethodInfo, MethodInfo> methodReplacements, 
+                                            params Type[] parentTypes)
         {
             throw new NotSupportedException();
         }
 
-        public Type GetDynamicType(String typeName, IDictionary<MethodInfo, MethodInfo> methodReplacements, IEnumerable<DasProperty> properties, IEnumerable<EventInfo> events,
+        public Type GetDynamicType(String typeName, 
+                                   IDictionary<MethodInfo, MethodInfo> methodReplacements, 
+                                   IEnumerable<DasProperty> properties, IEnumerable<EventInfo> events,
                                    params Type[] parentTypes)
         {
             throw new NotSupportedException();
         }
 
-        public bool TryGetDynamicType(String clearName, out Type? type)
+        public bool TryGetDynamicType(String clearName, 
+                                      out Type? type)
         {
-            throw new NotSupportedException();
+            type = default;
+            return false;
         }
 
-        public bool TryGetFromAssemblyQualifiedName(String assemblyQualified, out Type type)
+        public bool TryGetFromAssemblyQualifiedName(String assemblyQualified, 
+                                                    out Type type)
         {
-            throw new NotSupportedException();
+            type = default!;
+            return false;
         }
     }
 }

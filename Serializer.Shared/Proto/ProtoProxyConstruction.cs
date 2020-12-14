@@ -37,8 +37,10 @@ namespace Das.Serializer.ProtoBuf
             return dtoCtor;
         }
 
-        private static void AddDtoInstantiator(Type parentType, TypeBuilder bldr,
-                                               Type genericParent, ConstructorInfo ctor)
+        private static void AddDtoInstantiator(Type parentType, 
+                                               TypeBuilder bldr,
+                                               Type genericParent, 
+                                               ConstructorInfo ctor)
         {
             var abstractMethod = genericParent.GetMethodOrDie(
                 nameof(ProtoDynamicBase<Object>.BuildDefault));
@@ -116,12 +118,12 @@ namespace Das.Serializer.ProtoBuf
             bldr.DefineMethodOverride(method, abstractMethod);
         }
 
-        private void BuildOverrideConstructor(
-            ConstructorInfo baseCtor,
-            TypeBuilder builder,
-            ConstructorInfo dtoCtor, FieldInfo readOnlyBackingField,
-            IEnumerable<FieldBuilder> childProxies,
-            Boolean isDtoReadOnly)
+        private void BuildOverrideConstructor(ConstructorInfo baseCtor,
+                                              TypeBuilder builder,
+                                              ConstructorInfo dtoCtor, 
+                                              FieldInfo readOnlyBackingField,
+                                              IEnumerable<FieldBuilder> childProxies,
+                                              Boolean isDtoReadOnly)
         {
             var paramList = new List<Type>();
             paramList.AddRange(baseCtor.GetParameters().Select(p => p.ParameterType));
@@ -209,7 +211,8 @@ namespace Das.Serializer.ProtoBuf
             il.Emit(OpCodes.Ret);
         }
 
-        private static FieldBuilder CreateLocalProxy(IProtoFieldAccessor field, TypeBuilder builder,
+        private static FieldBuilder CreateLocalProxy(IProtoFieldAccessor field, 
+                                                     TypeBuilder builder,
                                                      Type germane)
         {
             var proxyType = typeof(IProtoProxy<>).MakeGenericType(germane);
@@ -217,9 +220,8 @@ namespace Das.Serializer.ProtoBuf
             return builder.DefineField($"_{field.Name}Proxy", proxyType, FieldAttributes.Private);
         }
 
-        private Dictionary<Type, FieldBuilder> CreateProxyFields(
-            TypeBuilder bldr,
-            IEnumerable<IProtoFieldAccessor> fields)
+        private Dictionary<Type, FieldBuilder> CreateProxyFields(TypeBuilder bldr,
+                                                                 IEnumerable<IProtoFieldAccessor> fields)
         {
             var typeProxies = new Dictionary<Type, FieldBuilder>();
 

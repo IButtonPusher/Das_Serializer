@@ -14,6 +14,7 @@ namespace Das.Serializer.ProtoBuf
                                                                     // ReSharper disable once RedundantExtendsListEntry
                                                                     IProtoProvider where TPropertyAttribute : Attribute
     {
+
         public IProtoProxy<T> GetAutoProtoProxy<T>(Boolean allowReadOnly = false)
         {
             return ProxyLookup<T>.Instance ??= allowReadOnly
@@ -30,9 +31,9 @@ namespace Das.Serializer.ProtoBuf
         {
             var type = typeof(T);
 
-            var fields = GetProtoFields(type, out var ctor);
+            var scanFields = GetProtoScanFields(type, out var ctor);
 
-            var ptype = CreateProxyTypeImpl(type, ctor, fields, false, false, ctor) ??
+            var ptype = CreateProxyTypeImpl(type, ctor, scanFields, false, false, ctor) ??
                         throw new InvalidOperationException();
 
             return InstantiateProxyInstance<T>(ptype);
@@ -42,15 +43,16 @@ namespace Das.Serializer.ProtoBuf
         {
             var type = typeof(T);
 
-            var fields = GetProtoFields(type, out var ctor);
+            var scanFields = GetProtoScanFields(type, out var ctor);
 
-            var ptype = CreateProxyTypeImpl(type, ctor, fields, false, true, ctor) ??
+            var ptype = CreateProxyTypeImpl(type, ctor, scanFields, false, true, ctor) ??
                         throw new InvalidOperationException();
 
             return InstantiateProxyInstance<T>(ptype);
         }
 
-        private List<ProtoField> GetProtoFields(Type type, out ConstructorInfo useCtor)
+        private List<ProtoField> GetProtoScanFields(Type type, 
+                                                out ConstructorInfo useCtor)
         {
             _instantiator.TryGetDefaultConstructor(type, out var emptyCtor);
             var hasPropCtor = _instantiator.TryGetPropertiesConstructor(type, out var propCtor);
@@ -71,7 +73,8 @@ namespace Das.Serializer.ProtoBuf
 
             var useProperties = new List<PropertyInfo>();
 
-            foreach (var prop in type.GetProperties())
+            foreach (var prop in _types.GetPublicProperties(type, false))
+            //foreach (var prop in type.GetProperties())
             {
                 var hasSetter = prop.GetSetMethod(true) != null;
                 if (hasSetter)

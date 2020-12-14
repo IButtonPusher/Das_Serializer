@@ -1,13 +1,13 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    public interface ISerializationContext : ISerializationCore, ISettingsUser
+    public interface ISerializationContext : ISerializationCore, 
+                                             ISettingsUser
     {
         IScanNodeProvider ScanNodeProvider { get; }
 
-        TypeConverter GetTypeConverter(Type type);
+        //TypeConverter GetTypeConverter(Type type);
     }
 }

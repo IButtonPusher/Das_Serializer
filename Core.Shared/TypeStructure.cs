@@ -12,7 +12,8 @@ using Das.Serializer.Types;
 
 namespace Das
 {
-    public class TypeStructure : TypeCore, ITypeStructure
+    public class TypeStructure : TypeCore, 
+                                 ITypeStructure
     {
         public TypeStructure(Type type,
                              Boolean isPropertyNamesCaseSensitive,
@@ -141,24 +142,66 @@ namespace Das
             return null;
         }
 
-        public IProperty? GetPropertyValue(Object o, String propertyName)
+        
+
+        public bool TryGetPropertyValue(Object obj, 
+                                        String propertyName, 
+                                        out Object result)
+        {
+            result = GetPropertyValueImpl(obj, propertyName, out _)!;
+            return result != null;
+        }
+
+        public object? GetPropertyValue(Object o, 
+                                        String propertyName)
+        {
+            return GetPropertyValueImpl(o, propertyName, out _);
+        }
+
+        private Object? GetPropertyValueImpl(Object o,
+                                             String propertyName,
+                                             out INamedField? mInfo)
+        {
+            if (!MemberTypes.TryGetValue(propertyName, out mInfo))
+            {
+                return null;
+            }
+
+            if (_propGetters.TryGetValue(propertyName, out var getter))
+                return getter(o);
+            if (_getOnly.TryGetValue(propertyName, out var getOnly))
+                return getOnly(o);
+            if (_getDontSerialize.TryGetValue(propertyName, out var notSerialized))
+                return notSerialized(o);
+
+            mInfo = null;
+            return null;
+        }
+
+        IProperty? ITypeStructure.GetPropertyValue(Object o, 
+                                           String propertyName)
         {
             try
             {
-                if (!MemberTypes.TryGetValue(propertyName, out var mInfo))
+                var val = GetPropertyValueImpl(o, propertyName, out var mInfo);
+                if (mInfo == null)
                     return null;
+                
+                //if (!MemberTypes.TryGetValue(propertyName, out var mInfo))
+                //    return null;
+                //var pType = mInfo.Type;
+
+                //Object val;
+
+                //if (_propGetters.TryGetValue(propertyName, out var getter))
+                //    val = getter(o);
+                //else if (_getOnly.TryGetValue(propertyName, out var getOnly))
+                //    val = getOnly(o);
+                //else if (_getDontSerialize.TryGetValue(propertyName, out var notSerialized))
+                //    val = notSerialized(o);
+                //else return null;
+
                 var pType = mInfo.Type;
-
-                Object val;
-
-                if (_propGetters.TryGetValue(propertyName, out var getter))
-                    val = getter(o);
-                else if (_getOnly.TryGetValue(propertyName, out var getOnly))
-                    val = getOnly(o);
-                else if (_getDontSerialize.TryGetValue(propertyName, out var notSerialized))
-                    val = notSerialized(o);
-                else return null;
-
                 var res = _nodePool.GetProperty(propertyName, val, pType, Type);
 
                 return res;
@@ -185,6 +228,13 @@ namespace Das
             return true;
         }
 
+        public Boolean SetPropertyValue(ref Object targetObj, 
+                                        String propName, 
+                                        Object? propVal)
+        {
+            return SetValue(propName, ref targetObj, propVal, Depth);
+        }
+        
         public Boolean SetValue(String propName, 
                                 ref Object targetObj, 
                                 Object? propVal,
@@ -224,9 +274,6 @@ namespace Das
         {
             
             _propertySetters[propName](ref targetObj!, propVal);
-            
-
-            //_propertySetters[propName](ref targetObj!, propVal);
         }
 
 
@@ -360,7 +407,8 @@ namespace Das
                 yield return kvp;
         }
 
-        private void SetPropertyForDynamicAccess(Type type, PropertyInfo pi)
+        private void SetPropertyForDynamicAccess(Type type, 
+                                                 PropertyInfo pi)
         {
             //even if a property will be excluded from serialization, we may still want
             //to set its value dynamically

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    public interface IDynamicType : IDynamicAccessor
+    public interface IPropertyType
     {
         Type ManagedType { get; }
 
@@ -16,5 +16,11 @@ namespace Das.Serializer
 
         Boolean IsLegalValue(String forProperty, 
                              Object? value);
+        
+        Boolean SetPropertyValue(ref Object targetObj,
+                                 String propName,
+                                 Object? propVal);
+        
+        
     }
 }

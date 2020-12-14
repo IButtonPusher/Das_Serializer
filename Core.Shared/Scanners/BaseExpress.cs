@@ -5,6 +5,7 @@ namespace Das.Serializer.Scanners
 {
     public abstract class BaseExpress
     {
+       
 
         [MethodImpl(256)]
         protected static Boolean AdvanceUntil(Char target, 
@@ -41,5 +42,14 @@ namespace Das.Serializer.Scanners
 
             throw new InvalidOperationException();
         }
+
+       
+
+       
+
+       
+
+       
+
     }
 }

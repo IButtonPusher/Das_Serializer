@@ -6,9 +6,18 @@ namespace Das.Serializer.ProtoBuf
 {
     public class ProtoField : IProtoFieldAccessor
     {
-        public ProtoField(String name, Type type, ProtoWireTypes wireType, Int32 fieldIndex,
-                          Int32 header, MethodInfo valueGetter, TypeCode typeCode, Boolean isLeaf,
-                          Boolean isRepeated, ProtoFieldAction fieldAction, Byte[] headerBytes, MethodInfo? setMethod)
+        public ProtoField(String name, 
+                          Type type, 
+                          ProtoWireTypes wireType, 
+                          Int32 fieldIndex,
+                          Int32 header, 
+                          MethodInfo valueGetter, 
+                          TypeCode typeCode, 
+                          Boolean isLeaf,
+                          Boolean isRepeated, 
+                          ProtoFieldAction fieldAction, 
+                          Byte[] headerBytes, 
+                          MethodInfo? setMethod)
         {
             GetMethod = valueGetter;
             TypeCode = typeCode;

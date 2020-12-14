@@ -61,22 +61,31 @@ namespace Das.Serializer
             {
                 case NodeTypes.Object:
 
-                    #region object = sum of attributes (primitives) and children (should already be imbued)
+                    //object = sum of attributes (primitives) and children (should already be imbued)
 
                     _values.TryBuildValue(node);
 
                     foreach (var attr in node.Attributes)
                     {
-                        if (attr.Key == DasCoreSerializer.RefTag ||
-                            attr.Key == DasCoreSerializer.RefAttr)
+                        var key = attr.Key;
+
+                        if (key == Const.RefTag ||
+                            key == Const.RefAttr)
                         {
                             BuildFromReference(node, attr.Value);
                             return;
                         }
 
                         var type = node.Type != null
-                            ? _typeManipulator.GetPropertyType(node.Type, attr.Key)
+                            ? _typeManipulator.GetPropertyType(node.Type, key)
                             : null;
+
+                        if (type == null && node.Type != null && 
+                            key.Length > 0 && char.IsLower(key[0]))
+                        {
+                            key = _facade.TypeInferrer.ToPropertyStyle(key);
+                            type = _typeManipulator.GetPropertyType(node.Type, key);
+                        }
 
                         if (type == null || node.Type == null)
                             continue;
@@ -94,18 +103,16 @@ namespace Das.Serializer
                             if (Settings.PropertySearchDepth == TextPropertySearchDepths.AsTypeInLoadedModules)
                                 val = str;
                             else if (Settings.AttributeValueSurrogates.TryGetValue(node, 
-                                attr.Key, str, out var found))
+                                key, str, out var found))
                                 val = found;
                             else continue;
                         }
 
                         var wal = node.Value;
-                        _objects.SetProperty(node.Type, attr.Key, ref wal!, val);
+                        _objects.SetProperty(node.Type, key, ref wal!, val);
                     }
 
                     break;
-
-                #endregion
 
                 case NodeTypes.Collection:
                     ConstructCollection(ref node);
@@ -122,7 +129,7 @@ namespace Das.Serializer
                     break;
                 case NodeTypes.Dynamic:
 
-                    #region collate property types, generate type, set prop values
+                    
 
                     if (node.Type != null &&
                         _facade.TypeInferrer.IsCollection(node.Type))
@@ -184,11 +191,10 @@ namespace Das.Serializer
 
                     break;
 
-                #endregion
 
                 case NodeTypes.Fallback:
 
-                    #region serialize/maybe takes string as a constructor
+                    // serialize/maybe takes string as a constructor
 
                     if (node.Text.Length == 0)
                     {
@@ -208,7 +214,7 @@ namespace Das.Serializer
 
                     break;
 
-                #endregion
+                
             }
 
             var parent = node.Parent;

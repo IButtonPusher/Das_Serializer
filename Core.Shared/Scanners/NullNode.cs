@@ -16,7 +16,7 @@ namespace Das.Serializer
         private NullNode()
         {
             Attributes = new InvalidCollection<String, String>();
-            DynamicProperties = new InvalidCollection<String, Object>();
+            DynamicProperties = new InvalidCollection<String, Object?>();
             Children = new InvalidCollection<String, ITextNode>();
             PendingReferences = new List<IBinaryNode>();
         }

@@ -3,14 +3,22 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    public interface IDynamicAccessor
+    public interface IPropertyAccessor
     {
+        Boolean CanRead { get; }
+        
+        Boolean CanWrite { get; }
+        
+        Type DeclaringType { get; }
+        
+        String PropertyPath {get;}
+        
         Boolean SetPropertyValue(ref Object targetObj,
-                                 String propName,
                                  Object? propVal);
 
         Boolean TryGetPropertyValue(Object obj,
-                                    String propertyName,
                                     out Object result);
+        
+        Object? GetPropertyValue(Object obj);
     }
 }

@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Xml;
 using Xunit;
@@ -12,7 +13,7 @@ using Xunit;
 
 // ReSharper disable All
 
-namespace Serializer.Tests
+namespace Serializer.Tests.Xml
 {	
 	public class XmlTests : TestBase
 	{
@@ -105,7 +106,28 @@ namespace Serializer.Tests
             var srl = new DasSerializer();
             var xml = srl.ToXml(dto);
             var dto2 = srl.FromXml<ArticleDto>(xml);
+            
             Assert.True(SlowEquality.AreEqual(dto, dto2));
+        }
+
+        [Fact]
+        public void HeadlineCollection()
+        {
+            var fi = new FileInfo(Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory,
+                "Xml",
+                "Headlines.txt"));
+
+            var xml = File.ReadAllText(fi.FullName);
+            var srl = new DasSerializer();
+            var count = 0;
+
+            foreach (var a in srl.FromXmlItems<ValueArticleDto>(xml))
+            {
+                count++;
+            }
+
+			Assert.True(count == 100);
         }
 
         [Fact]
@@ -314,6 +336,25 @@ namespace Serializer.Tests
 			Serializer.Settings.TypeSpecificity = TypeSpecificity.Discrepancy;
 			Assert.True(clr.R == yeti.R && clr.G == yeti.G && clr.B == yeti.B);
 		}
+
+        [Fact]
+        public void GuidPropertyImplicitImplementation()
+        {
+            var user = new User
+            {
+                UniqueId = Guid.NewGuid(),
+                id = 8675
+            };
+
+            var xml = Serializer.ToXml(user);
+
+            var user2 = Serializer.FromXml<User>(xml);
+            var user3 = Serializer.FromXmlEx<User>(xml);
+
+			var res = SlowEquality.AreEqual(user, user2) && 
+                      SlowEquality.AreEqual(user3, user2);
+			Assert.True(res);
+        }
 
 
         private DasSerializer GetTypeSpecifyingSerializer()

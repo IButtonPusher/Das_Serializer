@@ -3,21 +3,25 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+#if !GENERATECODE
 using System.Linq.Expressions;
-using System.Reflection;
+#else
 using System.Reflection.Emit;
+#endif
+using System.Reflection;
+
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
-using Das.Types;
 
 namespace Das.Serializer
 {
-    public class ObjectInstantiator : TypeCore, IInstantiator
+    public class ObjectInstantiator : TypeCore, 
+                                      IInstantiator
     {
         static ObjectInstantiator()
         {
-            InstantionTypes = new ConcurrentDictionary<Type, InstantiationTypes>();
+            InstantionTypes = new ConcurrentDictionary<Type, InstantiationType>();
             ConstructorDelegates = new ConcurrentDictionary<Type, Func<Object>>();
             Constructors = new ConcurrentDictionary<Type, ConstructorInfo?>();
             KnownOnDeserialize = new ConcurrentDictionary<Type, Boolean>();
@@ -25,8 +29,10 @@ namespace Das.Serializer
         }
 
 
-        public ObjectInstantiator(ITypeInferrer typeInferrer, ITypeManipulator typeManipulator,
-                                  IDictionary<Type, Type> typeSurrogates, IObjectManipulator objectManipulator,
+        public ObjectInstantiator(ITypeInferrer typeInferrer, 
+                                  ITypeManipulator typeManipulator,
+                                  IDictionary<Type, Type> typeSurrogates, 
+                                  IObjectManipulator objectManipulator,
                                   IDynamicTypes dynamicTypes)
             : base(typeManipulator.Settings)
         {
@@ -37,7 +43,8 @@ namespace Das.Serializer
             _dynamicTypes = dynamicTypes;
         }
 
-        public Object? BuildDefault(Type type, Boolean isCacheConstructors)
+        public Object? BuildDefault(Type type, 
+                                    Boolean isCacheConstructors)
         {
             if (_typeSurrogates.ContainsKey(type))
                 type = _typeSurrogates[type];
@@ -46,24 +53,31 @@ namespace Das.Serializer
 
             switch (instType)
             {
-                case InstantiationTypes.EmptyString:
+                case InstantiationType.EmptyString:
                     return String.Empty;
-                case InstantiationTypes.DefaultConstructor:
-                    return Activator.CreateInstance(type);
-                case InstantiationTypes.Emit:
+                
+                case InstantiationType.DefaultConstructor:
                     if (isCacheConstructors)
                         return CreateInstanceCacheConstructor(type);
                     else
                         return CreateInstanceDetectConstructor(type);
 
-                case InstantiationTypes.EmptyArray:
+                //return Activator.CreateInstance(type);
+
+                case InstantiationType.Emit:
+                    if (isCacheConstructors)
+                        return CreateInstanceCacheConstructor(type);
+                    else
+                        return CreateInstanceDetectConstructor(type);
+
+                case InstantiationType.EmptyArray:
                     var germane = _typeInferrer.GetGermaneType(type);
                     return Array.CreateInstance(germane, 0);
-                case InstantiationTypes.Uninitialized:
+                case InstantiationType.Uninitialized:
                     return FormatterServices.GetUninitializedObject(type);
-                case InstantiationTypes.NullObject:
+                case InstantiationType.NullObject:
                     return null;
-                case InstantiationTypes.Abstract:
+                case InstantiationType.Abstract:
                     switch (Settings.NotFoundBehavior)
                     {
                         case TypeNotFound.GenerateRuntime:
@@ -93,6 +107,7 @@ namespace Das.Serializer
             var f = GenericListDelegates.GetOrAdd(type,
                 t => GetConstructorDelegate<Func<IList>>(typeof(List<>).MakeGenericType(t)));
 
+
             return f();
         }
 
@@ -106,7 +121,8 @@ namespace Das.Serializer
                 $"Type '{type.Name}' doesn't have the requested constructor.");
         }
 
-        public bool TryGetConstructorDelegate<TDelegate>(Type type, out TDelegate result)
+        public bool TryGetConstructorDelegate<TDelegate>(Type type,
+                                                         out TDelegate result)
             where TDelegate : Delegate
         {
             if (TryGetConstructorDelegate(type, typeof(TDelegate), out var maybe)
@@ -249,7 +265,8 @@ namespace Das.Serializer
             return ctored;
         }
 
-        private static ConstructorInfo? GetConstructor(Type type, ICollection<Type> genericArguments,
+        private static ConstructorInfo? GetConstructor(Type type, 
+                                                       ICollection<Type> genericArguments,
                                                        out Type[] argTypes)
         {
             argTypes = genericArguments.Count > 1
@@ -276,36 +293,36 @@ namespace Das.Serializer
                 $"Type '{type.Name}' doesn't have the requested constructor.");
         }
 
-        private InstantiationTypes GetInstantiationType(Type type)
+        private InstantiationType GetInstantiationType(Type type)
         {
             if (InstantionTypes.TryGetValue(type, out var res))
                 return res;
             if (type == typeof(String))
             {
-                res = InstantiationTypes.EmptyString;
+                res = InstantiationType.EmptyString;
             }
             else if (type.IsArray)
             {
-                res = InstantiationTypes.EmptyArray;
+                res = InstantiationType.EmptyArray;
             }
             else if (!type.IsAbstract)
             {
                 if (_typeInferrer.HasEmptyConstructor(type))
                     res = _typeInferrer.IsCollection(type)
-                        ? InstantiationTypes.DefaultConstructor
-                        : InstantiationTypes.Emit;
+                        ? InstantiationType.DefaultConstructor
+                        : InstantiationType.Emit;
                 else if (type.IsGenericType)
-                    res = InstantiationTypes.NullObject; //Nullable<T>
+                    res = InstantiationType.NullObject; //Nullable<T>
                 else
-                    res = InstantiationTypes.Uninitialized;
+                    res = InstantiationType.Uninitialized;
             }
             else if (_typeInferrer.IsCollection(type))
             {
-                res = InstantiationTypes.EmptyArray;
+                res = InstantiationType.EmptyArray;
             }
             else
             {
-                return InstantiationTypes.Abstract;
+                return InstantiationType.Abstract;
             }
 
             InstantionTypes.TryAdd(type, res);
@@ -313,7 +330,7 @@ namespace Das.Serializer
         }
 
         private static bool TryGetConstructorDelegate(Type type, 
-                                                      Type delegateType, 
+                                                      Type delegateType,
                                                       out Delegate result)
         {
             if (type == null)
@@ -333,12 +350,32 @@ namespace Das.Serializer
 
             #if GENERATECODE
 
-            var dynamicMethod = new DynamicMethod("DM$_" + type.Name, type, argTypes, type);
+            var ownerType = type.IsGenericType
+                ? typeof(ObjectInstantiator)
+                : type;
+            //if (type.IsGenericType)
+            //{
+            //    var garg =  type.GetGenericArguments()[0];
+            //    if (!garg.IsValueType && garg != typeof(String))
+            //    {
+            //        if (!garg.IsInterface)
+            //            ownerType = garg;
+            //        else 
+            //            ownerType = typeof(ObjectInstantiator);
+            //    }
+            //}
+            
+            var dynamicMethod = new DynamicMethod("DM$_" + type.Name, type, argTypes, ownerType);
+            //var dynamicMethod = new DynamicMethod("DM$_" + type.Name, type, argTypes, type);
+            
             var ilGen = dynamicMethod.GetILGenerator();
+
             for (var i = 0; i < argTypes.Length; i++)
                 ilGen.Emit(OpCodes.Ldarg, i);
 
             ilGen.Emit(OpCodes.Newobj, constructor);
+
+
             ilGen.Emit(OpCodes.Ret);
             result = dynamicMethod.CreateDelegate(delegateType);
             return true;
@@ -434,7 +471,7 @@ namespace Das.Serializer
 
 
 
-        private static readonly ConcurrentDictionary<Type, InstantiationTypes> InstantionTypes;
+        private static readonly ConcurrentDictionary<Type, InstantiationType> InstantionTypes;
         private static readonly ConcurrentDictionary<Type, Func<Object>> ConstructorDelegates;
         private static readonly ConcurrentDictionary<Type, Func<IList>> GenericListDelegates;
         private static readonly ConcurrentDictionary<Type, ConstructorInfo?> Constructors;

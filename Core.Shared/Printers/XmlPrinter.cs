@@ -11,13 +11,14 @@ namespace Das.Printers
 {
     public class XmlPrinter : TextPrinter
     {
-        public XmlPrinter(ITextRemunerable writer, ISerializationState stateProvider,
+        public XmlPrinter(ITextRemunerable writer, 
+                          ISerializationState stateProvider,
                           ISerializerSettings settings)
             : base(writer, stateProvider, settings)
         {
             _stateProvider = stateProvider;
             PathSeparator = '/';
-            PathAttribute = DasCoreSerializer.RefTag;
+            PathAttribute = Const.RefTag;
             _formatStack.Push(new StackFormat(-1, false));
         }
 

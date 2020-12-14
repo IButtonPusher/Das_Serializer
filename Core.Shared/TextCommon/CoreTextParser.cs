@@ -400,12 +400,28 @@ namespace Das.Serializer
             return value;
         }
 
-        public String AsUSString(Double amount, Int32 decimalPlaces)
+        public String AsUSString(Double amount, 
+                                 Int32 decimalPlaces)
         {
-            return AsUSString((Decimal) amount, decimalPlaces);
+            if (double.IsInfinity(amount))
+            {}
+            
+            switch (decimalPlaces)
+            {
+                case 2:
+                    return amount.ToString("0.00", _enUs);
+                case 1:
+                    return amount.ToString("0.0", _enUs);
+                case 0:
+                    return amount.ToString("0", _enUs);
+                default:
+                    return amount.ToString("0." + String.Empty.PadLeft(decimalPlaces), _enUs);
+            }
+
         }
 
-        public String AsUSString(Decimal amount, Int32 decimalPlaces)
+        public String AsUSString(Decimal amount, 
+                                 Int32 decimalPlaces)
         {
             switch (decimalPlaces)
             {

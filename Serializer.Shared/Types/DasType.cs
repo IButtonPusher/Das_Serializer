@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    public class DasType : IDynamicType
+    public class DasType : IPropertyType
     {
         public DasType(Type managedType, IEnumerable<DasProperty> properties)
         {
@@ -43,7 +43,8 @@ namespace Das.Serializer
             return true;
         }
 
-        public Boolean TryGetPropertyValue(Object obj, String propertyName,
+        public Boolean TryGetPropertyValue(Object obj, 
+                                           String propertyName,
                                            out Object result)
         {
             if (!PublicGetters.TryGetValue(propertyName, out var getter))
@@ -54,6 +55,15 @@ namespace Das.Serializer
 
             result = getter(obj);
             return true;
+        }
+
+        public object? GetPropertyValue(Object obj, 
+                                        String propertyName)
+        {
+            if (TryGetPropertyValue(obj, propertyName, out var res))
+                return res;
+
+            return default;
         }
 
         public static implicit operator Type(DasType das)

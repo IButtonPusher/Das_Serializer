@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Reflection;
@@ -14,38 +15,117 @@ namespace Das.Serializer.Json
     {
         public JsonExpress(IInstantiator instantiator,
                            ITypeManipulator types,
-                           ITypeInferrer typeInference)
+                           ITypeInferrer typeInference,
+                           IObjectManipulator objectManipulator)
         {
             _instantiator = instantiator;
             _types = types;
             _typeInference = typeInference;
+            _objectManipulator = objectManipulator;
         }
 
-        public T Deserialize<T>(String json)
+        public T Deserialize<T>(String json,
+                                ISerializerSettings settings,
+                                Object[] ctorValues)
         {
-            var current = _instantiator.BuildDefault<T>(true);
-            var currentIndex = 0;
-            DeserializeImpl(ref current, ref currentIndex, json, typeof(T));
-
-            return current;
+            var res = Deserialize(json, typeof(T), settings, ctorValues);
+            return _objectManipulator.CastDynamic<T>(res);
         }
-
-        // ReSharper disable once UnusedMember.Global
-        public Object Deserialize(String json, Type type)
-        {
-            var current = _instantiator.BuildDefault(type, true)
-                          ?? throw new InvalidOperationException();
-
-            var currentIndex = 0;
-
-            DeserializeImpl(ref current, ref currentIndex, json, type);
-
-            return current!;
-        }
-
         
+        public Object Deserialize(String json, 
+                                  Type type,
+                                  ISerializerSettings settings,
+                                  Object[] ctorValues)
+        {
+            var currentIndex = 0;
+            Object? root = null;
+            var sb = new StringBuilder();
 
-        private static void AdvanceUntilFieldStart(ref Int32 currentIndex, String json)
+            if (_typeInference.IsCollection(type))
+            {
+                var collectionValue = GetCollectionValue(ref currentIndex, json, type,
+                    sb, null, null, ref root, ctorValues);
+                return collectionValue ?? throw new InvalidOperationException();
+            }
+            
+            if (_typeInference.IsLeaf(type, true))
+            {
+                if (settings.TypeSpecificity == TypeSpecificity.All)
+                {
+                    root = _instantiator.BuildDefault(type, true) ?? throw new InvalidOperationException();
+                    DeserializeImpl<Object>(ref root, ref currentIndex, json, type, 
+                        ref root, ctorValues);
+                    return root!;
+                }
+
+                
+                AdvanceUntil('{', ref currentIndex, json);
+                currentIndex++;
+
+                return GetValue(ref currentIndex, json,
+                    type, sb, null, null, ref root, ctorValues) ?? throw new InvalidOperationException();
+            }
+
+            var res = DeserializeImpl(ref root, ref currentIndex, json, type, sb, ctorValues);
+            return res;
+        }
+
+        private Object DeserializeImpl(ref Object? root,
+                                       ref Int32 currentIndex,
+                                       String json,
+                                       Type type,
+                                       StringBuilder stringBuilder,
+                                       Object[] ctorValues)
+        {
+            Object child;
+
+            if (_typeInference.HasEmptyConstructor(type))
+            {
+                child = _instantiator.BuildDefault(type, true)
+                        ?? throw new InvalidOperationException();
+                root ??= child;
+
+                DeserializeImpl(ref child, ref currentIndex, json, type,
+                    ref root, ctorValues);
+            }
+            else if (_typeInference.TryGetPropertiesConstructor(type, out var ctor))
+            {
+                var ctorParams = ctor.GetParameters();
+                var arr = new Object[ctorParams.Length];
+                BuildConstructorValues(ref currentIndex, ref arr, ctorParams,
+                    json, stringBuilder, ref root, ctorValues);
+
+                child = ctor.Invoke(arr);
+                root ??= child;
+            }
+            else throw new InvalidOperationException();
+
+            AdvanceUntil('}', ref currentIndex, json);
+            currentIndex++;
+
+            return child;
+        }
+
+        [MethodImpl(256)]
+        private static void SkipWhiteSpace(ref Int32 currentIndex,
+                                           String json)
+        {
+            for (; currentIndex < json.Length; currentIndex++)
+                switch (json[currentIndex])
+                {
+                    case ' ':
+                    case '\t':
+                    case '\n':
+                    case '\r':
+                        break;
+                    default:
+                        return;
+                }
+        }
+
+        [MethodImpl(256)]
+        private static void AdvanceUntilFieldStart(ref Int32 currentIndex, 
+                                                   String json)
         {
             while (true)
                 switch (json[currentIndex++])
@@ -64,10 +144,20 @@ namespace Das.Serializer.Json
                 }
         }
 
-        
+        [MethodImpl(256)]
+        private PropertyInfo? GetProperty(Type type,
+                                          String name)
+        {
+            return type.GetProperty(name) ?? type.GetProperty(
+                _typeInference.ToPropertyStyle(name));
+        }
 
-        private void DeserializeImpl<T>(ref T instance, ref Int32 currentIndex,
-                                        String json, Type type)
+        private void DeserializeImpl<T>(ref T instance, 
+                                        ref Int32 currentIndex,
+                                        String json, 
+                                        Type type,
+                                        ref Object? root,
+                                        Object[] ctorValues)
         {
             var stringBuilder = new StringBuilder();
 
@@ -75,7 +165,8 @@ namespace Das.Serializer.Json
 
             while (TryGetNextString(ref currentIndex, json, stringBuilder))
             {
-                var prop = type.GetProperty(stringBuilder.ToString());
+                //var prop = type.GetProperty(stringBuilder.ToString());
+                var prop = GetProperty(type, stringBuilder.ToString());
 
                 if (prop == null)
                     switch (stringBuilder.ToString())
@@ -92,11 +183,32 @@ namespace Das.Serializer.Json
                             AdvanceUntilFieldStart(ref currentIndex, json);
                             stringBuilder.Clear();
                             var val = GetValue(ref currentIndex, json,
-                                type, stringBuilder, instance, null!);
+                                type, stringBuilder, instance, null!, ref root, ctorValues);
                             instance = (T) val!;
                             stringBuilder.Clear();
 
                             return;
+
+                        case Const.RefAttr:
+                            //circular dependency
+                            stringBuilder.Clear();
+
+                            var current = root ?? throw new InvalidOperationException();
+
+                            var path = GetNextString(ref currentIndex, json, stringBuilder);
+                            stringBuilder.Clear();
+                            var tokens = path.Split('/');
+                            
+                            for (var c = 1; c < tokens.Length; c++)
+                            {
+                                current = _objectManipulator.GetPropertyValue(current, tokens[c])
+                                          ?? throw new InvalidOperationException();
+                            }
+
+
+                            instance = (T) current;
+                            return;
+
 
                         default:
                             //todo: ignore the value?
@@ -108,47 +220,192 @@ namespace Das.Serializer.Json
                 AdvanceUntilFieldStart(ref currentIndex, json);
 
                 var fieldValue = GetValue(ref currentIndex, json,
-                    prop.PropertyType, stringBuilder, instance, prop);
+                    prop.PropertyType, stringBuilder, instance, prop, ref root,
+                    ctorValues);
                 prop.SetValue(instance, fieldValue, null);
 
                 stringBuilder.Clear();
             }
         }
 
-        [MethodImpl(256)]
-        private IList GetCollection(PropertyInfo prop, Object? parent)
+        private void BuildConstructorValues(ref Int32 currentIndex,
+                                            ref Object[] instance,
+                                            ParameterInfo[] ctorParams,
+                                            String json,
+                                            StringBuilder stringBuilder,
+                                            ref Object? root,
+                                            Object[] ctorValues)
         {
-            var type = prop.PropertyType;
+            AdvanceUntil('{', ref currentIndex, json);
 
-            if (!type.IsArray)
+            while (TryGetNextString(ref currentIndex, json, stringBuilder))
+            {
+                var name = stringBuilder.ToString();
+                stringBuilder.Clear();
+
+                for (var c = 0; c < ctorParams.Length; c++)
+                {
+                    if (!String.Equals(ctorParams[c].Name, name,
+                        StringComparison.OrdinalIgnoreCase)) 
+                        continue;
+
+                    AdvanceUntilFieldStart(ref currentIndex, json);
+
+                    var fieldValue = GetValue(ref currentIndex, json,
+                        ctorParams[c].ParameterType, stringBuilder, null, null, 
+                        ref root, ctorValues);
+                    instance[c] = fieldValue ?? throw new ArgumentNullException(ctorParams[c].Name);
+                    stringBuilder.Clear();
+                    break;
+                }
+            }
+        }
+
+        private Object? GetCollectionValue(ref Int32 currentIndex,
+                                           String json,
+                                           Type type,
+                                           StringBuilder stringBuilder,
+                                           Object? parent,
+                                           PropertyInfo? prop,
+                                           ref Object? root,
+                                           Object[] ctorValues)
+        {
+            var germane = _types.GetGermaneType(type);
+
+            var next = AdvanceUntilAny(_arrayOrObjectOrNull, ref currentIndex, json);
+            if (next == '[')
+            {
+                currentIndex++;
+            }
+
+            else if (next == 'n')
+            {
+                if (json[++currentIndex] == 'u' &&
+                    json[++currentIndex] == 'l' &&
+                    json[++currentIndex] == 'l')
+                {
+                    return null;
+                }
+
+                throw new InvalidOperationException();
+            }
+            else
+            {
+                currentIndex++;
+                while (TryGetNextString(ref currentIndex, json, stringBuilder))
+                {
+                    switch (stringBuilder.ToString())
+                    {
+                        case Const.TypeWrap:
+                            stringBuilder.Clear();
+                            var typeName = GetNextString(ref currentIndex, json, stringBuilder);
+                            type = _typeInference.GetTypeFromClearName(typeName) ??
+                                   throw new TypeLoadException(typeName);
+                            stringBuilder.Clear();
+                            continue;
+
+                        case Const.Val:
+                            AdvanceUntilFieldStart(ref currentIndex, json);
+                            stringBuilder.Clear();
+                            var val = GetValue(ref currentIndex, json,
+                                type, stringBuilder, parent, prop, ref root,
+                                ctorValues);
+                            
+                            stringBuilder.Clear();
+
+                            return val ?? throw new InvalidOperationException();
+
+                        default:
+                            //todo: ignore the value?
+                            throw new InvalidOperationException();
+                    }
+                }
+            }
+
+
+            var collection = GetCollection(type, prop, parent);
+
+            while (true)
+            {
+                var current = GetValue(ref currentIndex, json, germane,
+                    stringBuilder, parent, prop, ref root, ctorValues);
+                if (current == null)
+                    break;
+
+                stringBuilder.Clear();
+
+                collection.Add(current);
+
+                if (!AdvanceUntil(',', ref currentIndex, json))
+                    break;
+
+                currentIndex++;
+            }
+
+            AdvanceUntil(']', ref currentIndex, json);
+            currentIndex++;
+
+            if (type.IsArray)
+            {
+                var arr = Array.CreateInstance(germane, collection.Count);
+                collection.CopyTo(arr, 0);
+                return arr;
+            }
+
+            if (collection is ValueCollectionWrapper wrapper)
+                return wrapper.GetBaseCollection();
+
+            return collection;
+        }
+
+        [MethodImpl(256)]
+        private IList GetCollection(Type type,
+                                    PropertyInfo? prop,
+                                    Object? parent)
+        {
+            if (!type.IsArray && prop != null)
                 if (prop.GetValue(parent, null) is IList list)
                     return list;
 
-            return (type.IsArray
-                       ? _instantiator.BuildGenericList(_types.GetGermaneType(type))
-                       : _instantiator.BuildDefault(type, true) as IList)
-                   ?? throw new InvalidOperationException();
+            var res = type.IsArray
+                ? _instantiator.BuildGenericList(_types.GetGermaneType(type))
+                : _instantiator.BuildDefault(type, true);
+            if (res is IList good)
+                return good;
+
+            if (res is ICollection collection &&
+                _types.GetAdder(collection, type) is {} adder)
+            {
+                //var adder = _types.GetAdder(collection, type) ?? throw new NotSupportedException();
+                return new ValueCollectionWrapper(collection, adder);
+            }
+
+            throw new InvalidOperationException();
         }
 
 
-        private static void GetNextPrimitive(
-            ref Int32 currentIndex,
-            String json,
-            StringBuilder stringBuilder)
+        private static void GetNext(ref Int32 currentIndex,
+                                    String json,
+                                    StringBuilder stringBuilder,
+                                    HashSet<Char> allowed)
         {
-            for (; currentIndex < json.Length; currentIndex++)
-                switch (json[currentIndex])
-                {
-                    case ' ':
-                    case '\t':
-                    case '\n':
-                    case '\r':
-                        break;
-                    default:
-                        goto next;
-                }
+            SkipWhiteSpace(ref currentIndex, json);
 
-            next:
+            for (; currentIndex < json.Length; currentIndex++)
+            {
+                var currentChar = json[currentIndex];
+                if (allowed.Contains(currentChar))
+                    stringBuilder.Append(currentChar);
+                else
+                    return;
+            }
+        }
+
+        private static void GetNextPrimitive(ref Int32 currentIndex,
+                                             String json,
+                                             StringBuilder stringBuilder)
+        {
+            SkipWhiteSpace(ref currentIndex, json);
 
             for (; currentIndex < json.Length; currentIndex++)
             {
@@ -176,7 +433,8 @@ namespace Das.Serializer.Json
 
         [MethodImpl(256)]
         private static String GetNextString(ref Int32 currentIndex,
-                                            String json, StringBuilder stringBuilder)
+                                            String json, 
+                                            StringBuilder stringBuilder)
         {
             if (!TryGetNextString(ref currentIndex, json, stringBuilder))
                 throw new InvalidOperationException();
@@ -184,12 +442,17 @@ namespace Das.Serializer.Json
             return stringBuilder.ToString();
         }
 
+        /// <summary>
+        /// Leaves the StringBuilder dirty!
+        /// </summary>
         private Object? GetValue(ref Int32 currentIndex,
                                  String json,
                                  Type type,
                                  StringBuilder stringBuilder,
                                  Object? parent,
-                                 PropertyInfo prop)
+                                 PropertyInfo? prop,
+                                 ref Object? root,
+                                 Object[] ctorValues)
         {
             if (type.IsEnum)
                 return Enum.Parse(type,
@@ -210,7 +473,16 @@ namespace Das.Serializer.Json
                 case TypeCode.Decimal:
                 case TypeCode.SByte:
                 case TypeCode.Byte:
+                    
                     GetNextPrimitive(ref currentIndex, json, stringBuilder);
+
+                    if (stringBuilder.Length == 0 && json[currentIndex] == '"')
+                    {
+                        // numeric value in quotes...
+                        currentIndex++;
+                        GetNextPrimitive(ref currentIndex, json, stringBuilder);
+                        currentIndex++;
+                    }
 
                     return Convert.ChangeType(stringBuilder.ToString(), code,
                         CultureInfo.InvariantCulture);
@@ -222,40 +494,11 @@ namespace Das.Serializer.Json
 
                     if (_types.IsCollection(type))
                     {
-                        var collection = GetCollection(prop, parent);
-
-                        var germane = _types.GetGermaneType(type);
-
-                        AdvanceUntil('[', ref currentIndex, json);
-
-                        while (true)
-                        {
-                            var current = GetValue(ref currentIndex, json, germane,
-                                stringBuilder, parent, prop);
-                            if (current == null)
-                                break;
-
-                            stringBuilder.Clear();
-
-                            collection.Add(current);
-
-                            if (!AdvanceUntil(',', ref currentIndex, json))
-                                break;
-
-                            currentIndex++;
-                        }
-
-                        if (type.IsArray)
-                        {
-                            var arr = Array.CreateInstance(germane, collection.Count);
-                            collection.CopyTo(arr, 0);
-                            return arr;
-                        }
-
-                        return collection;
+                        return GetCollectionValue(ref currentIndex, json, type, 
+                            stringBuilder, parent, prop, ref root, ctorValues);
                     }
 
-                    var next = AdvanceUntilAny(_objectOrString, ref currentIndex, json);
+                    var next = AdvanceUntilAny(_objectOrStringOrNull, ref currentIndex, json);
 
                     if (next == '"')
                     {
@@ -264,21 +507,32 @@ namespace Das.Serializer.Json
                             GetNextString(ref currentIndex, json, stringBuilder));
                     }
 
+                    else if (next == 'n')
+                    {
+                        if (json[++currentIndex] == 'u' &&
+                            json[++currentIndex] == 'l' &&
+                            json[++currentIndex] == 'l')
+                        {
+                            return null;
+                        }
+
+                        throw new InvalidOperationException();
+                    }
+
                     else
                     {
-                        var child = _instantiator.BuildDefault(type, true)
-                                    ?? throw new InvalidOperationException();
-                        DeserializeImpl(ref child, ref currentIndex, json, type);
-                        AdvanceUntil('}', ref currentIndex, json);
-                        currentIndex++;
-                        return child;
+                        // nested object
+                        return DeserializeImpl(ref root, ref currentIndex, 
+                            json, type, stringBuilder, ctorValues);
                     }
 
                 case TypeCode.DBNull:
                     break;
 
                 case TypeCode.Boolean:
-                    break;
+                    GetNext(ref currentIndex, json, stringBuilder, _boolChars);
+                    return Boolean.Parse(stringBuilder.ToString());
+                    
 
                 case TypeCode.Char:
                     if (!TryGetNextString(ref currentIndex, json, stringBuilder))
@@ -302,7 +556,8 @@ namespace Das.Serializer.Json
         }
 
         private static Boolean TryGetNextString(ref Int32 currentIndex,
-                                                String json, StringBuilder sbString)
+                                                String json, 
+                                                StringBuilder sbString)
         {
             if (!AdvanceUntil('"', ref currentIndex, json))
                 return false;
@@ -343,6 +598,13 @@ namespace Das.Serializer.Json
 
                             currentIndex += 4;
                             break;
+
+                        case '\\':
+                            sbString.Append('\\');
+                            break;
+
+                        default:
+                            throw new NotImplementedException();
                     }
                 }
                 else if (c == '\"')
@@ -360,9 +622,23 @@ namespace Das.Serializer.Json
             return false;
         }
 
-        private static readonly Char[] _objectOrString = {'"', '{'};
+        private static readonly Char[] _objectOrStringOrNull = {'"', '{', 'n'};
+        private static readonly Char[] _arrayOrObjectOrNull = {'[', '{', 'n'};
+        private static readonly HashSet<Char> _boolChars = new HashSet<char>(
+            new[]
+            {
+                't',
+                'r',
+                'u',
+                'e',
+                'f',
+                'a',
+                'l',
+                's'
+            });
         private readonly IInstantiator _instantiator;
         private readonly ITypeInferrer _typeInference;
+        private readonly IObjectManipulator _objectManipulator;
         private readonly ITypeManipulator _types;
     }
 }

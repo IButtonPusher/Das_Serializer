@@ -40,8 +40,6 @@ namespace Das.Printers
 
         protected Boolean IsPrintNullProperties;
 
-        //protected abstract TEFormat SequenceSeparator { get; }
-
         protected Boolean IsTextPrinter;
         protected IScanNodeProvider _nodeProvider;
         protected readonly INodePool _printNodePool;
@@ -50,7 +48,7 @@ namespace Das.Printers
         
 
         protected PrinterBase(ISerializationState stateProvider,
-                              ISerializerSettings settings) //: base(stateProvider, settings)
+                              ISerializerSettings settings)
         {
             Settings = settings;
             _stateProvider = stateProvider;
@@ -66,6 +64,8 @@ namespace Das.Printers
             IsTextPrinter = true;
             _isIgnoreCircularDependencies = stateProvider.Settings.CircularReferenceBehavior
                                             == CircularReference.NoValidation;
+
+            IsPrintNullProperties |= settings.CircularReferenceBehavior == CircularReference.IgnoreObject;
 
             _isOmitDefaultProperties = IsTextPrinter && settings.IsOmitDefaultValues;
         }

@@ -8,13 +8,13 @@ namespace Das.Printers
 {
     public abstract class TextPrinter : PrinterBase
     {
-        protected TextPrinter(ITextRemunerable writer, ISerializationState stateProvider,
+        protected TextPrinter(ITextRemunerable writer, 
+                              ISerializationState stateProvider,
                               ISerializerSettings settings)
             : base(stateProvider, settings)
         {
             writer.Undispose();
             Writer = writer;
-            _stateProvider = stateProvider;
             _tabs = new StringBuilder();
             _formatStack = new Stack<StackFormat>();
             _indenter = stateProvider.Settings.Indentation;
@@ -22,7 +22,8 @@ namespace Das.Printers
             _indentLength = _indenter.Length;
         }
 
-        protected TextPrinter(ITextRemunerable writer, ISerializationState stateProvider)
+        protected TextPrinter(ITextRemunerable writer, 
+                              ISerializationState stateProvider)
             : this(writer, stateProvider, stateProvider.Settings)
         {
         }
@@ -65,7 +66,7 @@ namespace Das.Printers
                     break;
                 default:
                     var isRequiresQuotes = IsRequiresQuotes(o);
-                    var converter = _stateProvider.GetTypeConverter(node.Type!);
+                    var converter = _typeInferrer.GetTypeConverter(node.Type!);
                     var str = converter.ConvertToInvariantString(o!);
                     PrintString(str!, isRequiresQuotes);
                     break;
@@ -89,7 +90,6 @@ namespace Das.Printers
         protected readonly String _indenter;
         private readonly Int32 _indentLength;
         protected readonly String _newLine;
-        private readonly ISerializationState _stateProvider;
 
         private readonly StringBuilder _tabs;
 

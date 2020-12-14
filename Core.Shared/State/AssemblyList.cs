@@ -171,7 +171,8 @@ namespace Das.Serializer
             return assembly != null;
         }
 
-        private static Boolean TryGetRunningAndDependencies(String name, out Assembly assembly)
+        private static Boolean TryGetRunningAndDependencies(String name, 
+                                                            out Assembly assembly)
         {
             var running = GetRunningAndDependencies();
             var foundName = running.FirstOrDefault(n => name.Equals(n.Name));
@@ -182,7 +183,8 @@ namespace Das.Serializer
             return false;
         }
 
-        private static Boolean TryLoad(AssemblyName name, out Assembly realMcKoy)
+        private static Boolean TryLoad(AssemblyName name,
+                                       out Assembly realMcKoy)
         {
             try
             {

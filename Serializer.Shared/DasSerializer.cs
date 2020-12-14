@@ -1,14 +1,14 @@
 ﻿#if !NET40
-using System.Runtime.CompilerServices;
+
 #else
 using Das.Serializer.ProtoBuf;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 #endif
 
 
-using System;
-using System.IO;
 
-using System.Threading.Tasks;
 
 
 namespace Das.Serializer

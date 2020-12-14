@@ -21,7 +21,7 @@ namespace Das.Serializer
             _nodeTypeProvider = serializationCore.NodeTypeProvider;
         }
 
-        public IDynamicType BuildDynamicType(INode node)
+        public IPropertyType BuildDynamicType(INode node)
         {
             var propTypes = new List<DasProperty>();
             foreach (var prop in node.DynamicProperties)

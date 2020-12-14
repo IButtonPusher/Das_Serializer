@@ -36,8 +36,8 @@ namespace Das.Serializer
 
                 if (CurrentNode.NodeType == NodeTypes.Collection)
                 {
-                    var val = PrimitiveScanner.GetValue(str, TypeInferrer.GetGermaneType(CurrentNode.Type));
-                    Sealer.Imbue(CurrentNode, String.Empty, val);
+                    var val = PrimitiveScanner.GetValue(str, TypeInferrer.GetGermaneType(CurrentNode.Type!));
+                    Sealer.Imbue(CurrentNode, String.Empty, val!);
                     CurrentValue.Clear();
                 }
                 else

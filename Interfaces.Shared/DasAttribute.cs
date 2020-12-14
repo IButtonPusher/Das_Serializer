@@ -12,7 +12,7 @@ namespace Das.Serializer
             PropertyValues = new Dictionary<String, Object>();
         }
 
-        public Object[] ConstructionValues { get; set; }
+        public Object[]? ConstructionValues { get; set; }
 
         public Dictionary<String, Object> PropertyValues { get; }
 

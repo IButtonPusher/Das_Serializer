@@ -33,7 +33,7 @@ namespace Das.Serializer
 
         private void BuildCollection(ref IBinaryNode node)
         {
-            var germane = TypeInferrer.GetGermaneType(node.Type);
+            var germane = TypeInferrer.GetGermaneType(node.Type!);
             var feeder = Feeder;
 
             var index = 0;
@@ -44,7 +44,7 @@ namespace Das.Serializer
                 while (feeder.Index < blockEnd)
                 {
                     var res = feeder.GetPrimitive(germane);
-                    _nodes.Sealer.Imbue(node, index.ToString(), res);
+                    _nodes.Sealer.Imbue(node, index.ToString(), res!);
                     index++;
                 }
 
@@ -63,7 +63,7 @@ namespace Das.Serializer
         {
             var fbType = node.Type;
             var nodeSize = node.BlockSize;
-            var val = Feeder.GetFallback(fbType, ref nodeSize);
+            var val = Feeder.GetFallback(fbType!, ref nodeSize);
             node.Value = val;
             node.BlockSize = nodeSize;
         }
@@ -90,7 +90,7 @@ namespace Das.Serializer
                     return;
 
                 case NodeTypes.Primitive:
-                    node.Value = Feeder.GetPrimitive(node.Type);
+                    node.Value = Feeder.GetPrimitive(node.Type!);
 
                     break;
             }
@@ -117,7 +117,7 @@ namespace Das.Serializer
             }
 
             var propVals = _state.TypeManipulator.GetPropertiesToSerialize(
-                node.Type, Settings);
+                node.Type!, Settings);
 
             foreach (var prop in propVals)
             {
@@ -127,7 +127,7 @@ namespace Das.Serializer
                 {
                     var val = Feeder.GetPrimitive(propType);
 
-                    _nodes.Sealer.Imbue(node, prop.Name, val);
+                    _nodes.Sealer.Imbue(node, prop.Name, val!);
                 }
                 else
                 {
@@ -147,7 +147,7 @@ namespace Das.Serializer
             BuildNext(ref _rootNode);
 
             if (_rootNode.Type != orgType)
-                return ObjectManipulator.CastDynamic<T>(_rootNode.Value);
+                return ObjectManipulator.CastDynamic<T>(_rootNode.Value!);
 
             if (_rootNode.Value != null)
                 _state.ObjectInstantiator.OnDeserialized(_rootNode, Settings);

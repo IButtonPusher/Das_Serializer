@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -9,10 +10,12 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    public class TypeCore : ITypeCore, IComparer<PropertyInfo>
+    public class TypeCore : ITypeCore, 
+                            IComparer<PropertyInfo>
     {
         static TypeCore()
         {
+            _typeConverters = new ConcurrentDictionary<Type, TypeConverter>();
             _cachedGermane = new ConcurrentDictionary<Type, Type>();
             CachedProperties = new ConcurrentDictionary<Type,
                 IEnumerable<PropertyInfo>>();
@@ -111,6 +114,13 @@ namespace Das.Serializer
 
             throw new InvalidOperationException("Cannot load ");
         }
+        
+        public TypeConverter GetTypeConverter(Type type)
+        {
+            return _typeConverters.TryGetValue(type, out var found)
+                ? found
+                : _typeConverters.GetOrAdd(type, TypeDescriptor.GetConverter(type));
+        }
 
         public virtual Boolean HasSettableProperties(Type type)
         {
@@ -156,7 +166,7 @@ namespace Das.Serializer
 
         public Boolean HasEmptyConstructor(Type t)
         {
-            return t.GetConstructor(Type.EmptyTypes) != null;
+            return t.GetConstructor(Const.AnyInstance, null, Type.EmptyTypes, null) != null;
         }
 
         public bool TryGetEmptyConstructor(Type t, out ConstructorInfo ctor)
@@ -399,5 +409,6 @@ namespace Das.Serializer
             CachedProperties;
 
         private ISerializerSettings _settings;
+        private static readonly ConcurrentDictionary<Type, TypeConverter> _typeConverters;
     }
 }

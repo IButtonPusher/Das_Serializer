@@ -21,13 +21,14 @@ namespace Das.Serializer
             };
         }
 
-        public XmlPrimitiveScanner(ISerializationContext state) : base(state)
+        public XmlPrimitiveScanner(ITypeCore typeInferrer) 
+            : base(typeInferrer)
         {
         }
 
         private static Dictionary<String, String> Entities { get; }
 
-        public override String Descape(String input)
+        public override String Descape(String? input)
         {
             return HtmlDecode(input);
         }

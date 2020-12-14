@@ -5,7 +5,7 @@ namespace Das.Serializer
 {
     public interface INodeManipulator
     {
-        IDynamicType BuildDynamicType(INode node);
+        IPropertyType BuildDynamicType(INode node);
 
         void EnsureNodeType(INode node, NodeTypes specified);
 

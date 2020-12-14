@@ -39,6 +39,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Printers\StackFormat.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Printers\TextPrinter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Printers\XmlPrinter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Properties\SimplePropertyAccessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PropertyValueIterator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\CoreProtoProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\ProtoBufSerializer.cs" />
@@ -62,6 +63,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\StringPrimitiveScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\TextNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\TextScanner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Scanners\ValueArgsBuilder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\XmlPrimitiveScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\XmlScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SerializerCore.cs" />
@@ -75,6 +77,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)State\JsonContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\StateProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\TextState.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)State\ValueCollectionWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\XmlBorrowable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\XmlContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Streamers\BinaryFeeder.cs" />
@@ -88,13 +91,14 @@
     <Compile Include="$(MSBuildThisFileDirectory)TypeStructure.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\BaseTypeManipulator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\DoubleDictionary.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Types\InstantiationTypes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Types\InstantiationType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\InvalidCollection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\ObjectManipulator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\TypeCore.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\TypeInference.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Util.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xml\DeserializeXml.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xml\ExpressIterator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xml\SerializeXml.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xml\XmlExpress.cs" />
   </ItemGroup>

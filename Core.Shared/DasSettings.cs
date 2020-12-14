@@ -17,7 +17,6 @@ namespace Das.Serializer
         public DasSettings()
         {
             IsPropertyNamesCaseSensitive = true;
-            //IsOmitDefaultValues = true;
             TypeSpecificity = TypeSpecificity.Discrepancy;
             SerializationDepth = SerializationDepth.GetSetProperties;
             TypeSearchNameSpaces = new[] {Const.Tsystem};
@@ -85,6 +84,10 @@ namespace Das.Serializer
 
         public Boolean CacheTypeConstructors { get; set; }
 
+        /// <summary>
+        /// Returns a mutable copy of the defaults. A new copy is generated each time
+        /// this property is accessed.
+        /// </summary>
         public static DasSettings Default => (DasSettings) _default.MemberwiseClone();
 
         //            private set => _default = value;

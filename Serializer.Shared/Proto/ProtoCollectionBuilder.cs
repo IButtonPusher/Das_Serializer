@@ -95,11 +95,10 @@ namespace Das.Serializer.ProtoBuf
         }
 
 
-        private void PrintEnumeratorCurrent(
-            LocalBuilder enumeratorCurrentValue,
-            ProtoPrintState s,
-            ILGenerator il,
-            Byte[] headerBytes)
+        private void PrintEnumeratorCurrent(LocalBuilder enumeratorCurrentValue,
+                                            ProtoPrintState s,
+                                            ILGenerator il,
+                                            Byte[] headerBytes)
         {
             var germane = _types.GetGermaneType(s.CurrentField.Type);
             var subAction = GetProtoFieldAction(germane);
@@ -133,9 +132,8 @@ namespace Das.Serializer.ProtoBuf
         }
 
 
-        private void ScanByteArray(
-            ILGenerator il,
-            LocalBuilder lastByteLocal)
+        private void ScanByteArray(ILGenerator il,
+                                   LocalBuilder lastByteLocal)
         {
             il.Emit(OpCodes.Ldarg_1);
             var holdForSet = il.DeclareLocal(typeof(Byte[]));
@@ -164,9 +162,8 @@ namespace Das.Serializer.ProtoBuf
         ///     ICollection[TProperty] where TProperty : ProtoContract
         ///     for a collection of proto contracts by way of a property of a parent contract
         /// </summary>
-        private void ScanCollection(
-            Type type,
-            IValueExtractor s)
+        private void ScanCollection(Type type,
+                                    IValueExtractor s)
         {
             var il = s.IL;
 

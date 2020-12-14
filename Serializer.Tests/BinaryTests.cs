@@ -12,7 +12,7 @@ using Xunit;
 
 // ReSharper disable All
 
-namespace Serializer.Tests
+namespace Serializer.Tests.Binary
 {
     public class BinaryTests : TestBase
     {

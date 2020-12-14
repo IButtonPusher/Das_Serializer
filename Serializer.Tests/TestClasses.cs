@@ -95,6 +95,27 @@ namespace Serializer.Tests
         }
     }
 
+    public class User : IUser
+    {
+        public User()
+        {
+            UniqueId = Guid.Empty;
+        }
+
+        public Int32 id { get; set; }
+        public Guid UniqueId { get; set; }
+
+        Int32 IUser.Id => id;
+
+        Guid IUser.UniqueId => UniqueId;
+    }
+
+    public interface IUser
+    {
+        Int32 Id { get; }
+
+        Guid UniqueId { get; }
+    }
 
 	public class SimpleClassObjectProperty : SimpleClass, ISimpleClass
 	{
@@ -453,7 +474,7 @@ namespace Serializer.Tests
         public String message { get; set; }
     }
 
-    public class ArticleDto 
+    public class ArticleDto
     {
         public ArticleDto(Int32 id, 
                           String headline, 
@@ -489,8 +510,55 @@ namespace Serializer.Tests
 
         public String SignatureDescription { get; }
 
-        //public Boolean IsRead { get; }
+        public Int32 Score { get; }
+
+        public override String ToString()
+        {
+            return Headline + " id: " + Id;
+        }
+    }
+
+    public readonly struct ValueArticleDto
+    {
+        public ValueArticleDto(Int32 id, 
+                               String headline, 
+                               String url, 
+                               Int32 siteId, 
+                               Int32? categoryId, 
+                               Int64 signature,
+                               String signatureDescription, 
+                               Int32 score)
+        {
+            Id = id;
+            Headline = headline;
+            Url = url;
+            SiteId = siteId;
+            CategoryId = categoryId;
+            Signature = signature;
+            SignatureDescription = signatureDescription;
+            
+            Score = score;
+        }
+
+        public Int32 Id { get; }
+
+        public String Headline { get; }
+
+        public String Url { get; }
+
+        public Int32 SiteId { get; }
+
+        public Int32? CategoryId { get; }
+
+        public Int64 Signature { get; }
+
+        public String SignatureDescription { get; }
 
         public Int32 Score { get; }
+
+        public override String ToString()
+        {
+            return Headline + " id: " + Id;
+        }
     }
 }

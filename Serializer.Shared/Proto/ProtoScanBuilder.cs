@@ -18,9 +18,9 @@ namespace Das.Serializer.ProtoBuf
     {
         /// <summary>
         ///     Puts the next field index on the stack.  Jumps to
-        ///     <param name="goNextLabel" />
         /// </summary>
-        private Label AddLoadCurrentFieldIndex(ILGenerator il, Label goNextLabel)
+        private Label AddLoadCurrentFieldIndex(ILGenerator il, 
+                                               Label goNextLabel)
         {
             /////////////////////////////
             // 1. GET CURRENT FIELD INDEX
@@ -39,12 +39,11 @@ namespace Das.Serializer.ProtoBuf
         /// <summary>
         ///     2.
         /// </summary>
-        private void AddPropertiesToScanMethod(
-            ProtoScanState state,
-            Label afterPropertyLabel,
-            Boolean canSetValuesInline,
-            LocalBuilder streamLength,
-            Object? exampleObject)
+        private void AddPropertiesToScanMethod(ProtoScanState state,
+                                               Label afterPropertyLabel,
+                                               Boolean canSetValuesInline,
+                                               LocalBuilder streamLength,
+                                               Object? exampleObject)
         {
             var il = state.IL;
             var fieldArr = state.Fields;
@@ -392,14 +391,13 @@ namespace Das.Serializer.ProtoBuf
         /// <summary>
         ///     Can be an actual field or an instance of a collection field.  Leaves the value on the stack
         /// </summary>
-        private void ScanValueToStack(
-            IValueExtractor s,
-            ILGenerator il,
-            Type fieldType,
-            TypeCode typeCode,
-            ProtoWireTypes wireType,
-            ProtoFieldAction fieldAction,
-            Boolean isValuePreInitialized)
+        private void ScanValueToStack(IValueExtractor s,
+                                      ILGenerator il,
+                                      Type fieldType,
+                                      TypeCode typeCode,
+                                      ProtoWireTypes wireType,
+                                      ProtoFieldAction fieldAction,
+                                      Boolean isValuePreInitialized)
         {
             switch (fieldAction)
             {
@@ -443,7 +441,8 @@ namespace Das.Serializer.ProtoBuf
             }
         }
 
-        private static void SetPropertiesFromLocals(ProtoScanState state, LocalBuilder returnValue)
+        private static void SetPropertiesFromLocals(ProtoScanState state, 
+                                                    LocalBuilder returnValue)
         {
             var il = state.IL;
 

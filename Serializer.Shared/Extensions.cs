@@ -6,6 +6,7 @@ using Das.Serializer;
 
 namespace Das.Extensions
 {
+    // ReSharper disable once UnusedType.Global
     public static class ExtensionMethods
     {
         public static ISerializationCore SerializationCore
@@ -22,10 +23,10 @@ namespace Das.Extensions
 
         public static T BuildDefault<T>(this Type type)
         {
-            return (T) type.BuildDefault();
+            return (T) type.BuildDefault()!;
         }
 
-        public static Object BuildDefault(this Type type)
+        public static Object? BuildDefault(this Type type)
         {
             return SerializationCore.ObjectInstantiator.BuildDefault(type, false);
         }
@@ -91,8 +92,8 @@ namespace Das.Extensions
                 ref obj, value);
         }
 
-        private static ISerializationCore _dynamicFacade;
+        private static ISerializationCore? _dynamicFacade;
 
-        private static ISerializerSettings _settings;
+        private static ISerializerSettings? _settings;
     }
 }

@@ -4,7 +4,8 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    public class TextNodeProvider : NodeProvider<ITextNode>, ITextNodeProvider
+    public class TextNodeProvider : NodeProvider<ITextNode>, 
+                                    ITextNodeProvider
     {
         public TextNodeProvider(ISerializationCore facade, INodeManipulator nodeManipulator,
                                 INodeTypeProvider nodeTypes,

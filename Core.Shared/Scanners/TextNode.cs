@@ -9,8 +9,10 @@ namespace Das.Serializer
 {
     public class TextNode : BaseNode<ITextNode>, ITextNode
     {
-        public TextNode(String name, ISerializerSettings settings,
-                        INodeManipulator nodeManipulator, INodeTypeProvider nodeTypeProvider,
+        public TextNode(String name, 
+                        ISerializerSettings settings,
+                        INodeManipulator nodeManipulator, 
+                        INodeTypeProvider nodeTypeProvider,
                         ISerializationDepth depth)
             : base(settings)
         {

@@ -7,7 +7,8 @@ using Das.Serializer.Objects;
 
 namespace Das.Serializer
 {
-    public interface ITypeStructure : ITypeStructureBase
+    public interface ITypeStructure : ITypeStructureBase,
+                                      IValueSetter
     {
         SerializationDepth Depth { get; }
 
@@ -22,7 +23,7 @@ namespace Das.Serializer
 
         IProperty? GetPropertyValue(Object o, String propertyName);
 
-        Object? GetValue(Object o, String propertyName);
+        
 
         /// <summary>
         ///     For a collection, returns the values.  Otherwise returns the property values
@@ -34,10 +35,9 @@ namespace Das.Serializer
 
         Boolean SetFieldValue(String fieldName, Object targetObj, Object fieldVal);
 
-        Boolean SetFieldValue<T>(String fieldName, Object targetObj, Object fieldVal);
-
-        Boolean SetValue(String propName, ref Object targetObj, Object? propVal,
-                         SerializationDepth depth);
+        Boolean SetFieldValue<T>(String fieldName, 
+                                 Object targetObj, 
+                                 Object fieldVal);
 
 
         Boolean TryGetAttribute<TAttribute>(String propertyName, out TAttribute value)
