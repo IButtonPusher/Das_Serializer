@@ -9,7 +9,7 @@
     <DelaySign>false</DelaySign>
     <AssemblyOriginatorKeyFile>InterfacesArmstrong.snk</AssemblyOriginatorKeyFile>
 	<SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
-	<Version>0.0.15-alpha</Version>
+	<Version>0.0.16-alpha</Version>
 	<Description>Abstractions only.  Intended for DI/IoC.  Intended to be used with Das.Serializer.Split where .net standard 2.0 assemblies reference the interfaces and 2.1 or Framework 4.5+ reference Das.Serializer.Split if the performance of dynamic code generation is preferred.</Description>
 	<PackageId>Das.Serializer.Interfaces</PackageId>
 	<Authors>Claus Trappberger</Authors>
@@ -26,11 +26,11 @@
    <LangVersion>8.0</LangVersion>
    <Nullable>enable</Nullable>
    <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
-   <AssemblyVersion>0.0.15.0</AssemblyVersion>
+   <AssemblyVersion>0.0.16.0</AssemblyVersion>
    <RepositoryUrl>https://github.com/IButtonPusher/Das_Serializer</RepositoryUrl>
    <PackageProjectUrl>https://github.com/IButtonPusher/Das_Serializer</PackageProjectUrl>
    <RepositoryType>git</RepositoryType>
-   <FileVersion>0.0.15.0</FileVersion>
+   <FileVersion>0.0.16.0</FileVersion>
 </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='TEST_NO_CODEGENERATION|netstandard2.0|AnyCPU'">

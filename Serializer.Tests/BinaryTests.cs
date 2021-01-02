@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
+
 using System.Drawing;
 using System.Linq;
 using Das.Extensions;
@@ -523,7 +523,7 @@ namespace Serializer.Tests.Binary
 
             var xxx = srl.ToBytes(pt);
             var yeti = Serializer.FromBytes<Point>(xxx);
-            Trace.WriteLine("over");
+            
             Assert.Equal(pt, yeti);
         }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Das.Serializer;
@@ -21,8 +22,8 @@ namespace Das.Types
                 ConcurrentDictionary<String, Func<Object, Object[], Object>>>();
         }
 
-        public IProperty? GetPropertyResult(Object o, 
-                                            Type asType, 
+        public IProperty? GetPropertyResult(Object o,
+                                            Type asType,
                                             String propertyName)
         {
             if (propertyName == null)
@@ -37,18 +38,20 @@ namespace Das.Types
             return GetPropertyResults(node, _settings);
         }
 
-        public T GetPropertyValue<T>(Object obj, String propertyName)
+        public T GetPropertyValue<T>(Object obj,
+                                     String propertyName)
         {
             return (T) GetPropertyResult(obj, obj.GetType(), propertyName)?.Value!;
         }
 
-        public object? GetPropertyValue(Object obj, String propertyName)
+        public object? GetPropertyValue(Object obj,
+                                        String propertyName)
         {
             return GetPropertyResult(obj, obj.GetType(), propertyName)?.Value;
         }
 
-        public Boolean TryGetPropertyValue(Object obj, 
-                                           String propertyName, 
+        public Boolean TryGetPropertyValue(Object obj,
+                                           String propertyName,
                                            out Object result)
         {
             if (obj == null)
@@ -65,7 +68,9 @@ namespace Das.Types
             return result != null;
         }
 
-        public Boolean TryGetPropertyValue<T>(Object obj, String propertyName, out T result)
+        public Boolean TryGetPropertyValue<T>(Object obj,
+                                              String propertyName,
+                                              out T result)
         {
             if (TryGetPropertyValue(obj, propertyName, out var res))
                 if (TryCastDynamic(res, out result))
@@ -83,8 +88,8 @@ namespace Das.Types
             if (val == null)
                 return new PropertyValueIterator<IProperty>();
 
-            var useType = _typeDelegates.IsUseless(value.Type) 
-                ? val.GetType() 
+            var useType = _typeDelegates.IsUseless(value.Type)
+                ? val.GetType()
                 : value.Type;
 
             var typeStruct = _typeDelegates.GetTypeStructure(useType!, DepthConstants.AllProperties);
@@ -92,21 +97,26 @@ namespace Das.Types
             return found;
         }
 
-        public Boolean SetFieldValue(Type classType, String fieldName,
-                                     Object targetObj, Object propVal)
+        public Boolean SetFieldValue(Type classType,
+                                     String fieldName,
+                                     Object targetObj,
+                                     Object propVal)
         {
             var str = _typeDelegates.GetTypeStructure(classType, DepthConstants.Full);
             return str.SetFieldValue(fieldName, targetObj, propVal);
         }
 
-        public Boolean SetFieldValue<T>(Type classType, String fieldName, Object targetObj,
+        public Boolean SetFieldValue<T>(Type classType,
+                                        String fieldName,
+                                        Object targetObj,
                                         Object fieldVal)
         {
             var str = _typeDelegates.GetTypeStructure(classType, DepthConstants.Full);
             return str.SetFieldValue<T>(fieldName, targetObj, fieldVal);
         }
 
-        public void SetFieldValues<TObject>(TObject obj, Action<ITypeStructure, TObject> action)
+        public void SetFieldValues<TObject>(TObject obj,
+                                            Action<ITypeStructure, TObject> action)
         {
             var s = _typeDelegates.GetTypeStructure(typeof(TObject), DepthConstants.Full);
             action(s, obj);
@@ -116,9 +126,9 @@ namespace Das.Types
         ///     Attempts to set a property value for a targetObj which is a property of name propName
         ///     in a class of type classType
         /// </summary>
-        public Boolean SetProperty(Type classType, 
-                                   String propName, 
-                                   ref Object targetObj, 
+        public Boolean SetProperty(Type classType,
+                                   String propName,
+                                   ref Object targetObj,
                                    Object? propVal)
         {
             var str = _typeDelegates.GetTypeStructure(classType, DepthConstants.AllProperties);
@@ -126,7 +136,7 @@ namespace Das.Types
         }
 
         public void SetMutableProperties(IEnumerable<PropertyInfo> mutable,
-                                         Object source, 
+                                         Object source,
                                          Object target)
         {
             foreach (var m in mutable)
@@ -138,14 +148,16 @@ namespace Das.Types
             }
         }
 
-        public Boolean SetPropertyValue(ref Object targetObj, 
-                                        String propName, 
+        public Boolean SetPropertyValue(ref Object targetObj,
+                                        String propName,
                                         Object? propVal)
         {
             return SetProperty(targetObj.GetType(), propName, ref targetObj!, propVal);
         }
 
-        public void Method(Object obj, String methodName, Object[] parameters,
+        public void Method(Object obj,
+                           String methodName,
+                           Object[] parameters,
                            BindingFlags flags = BindingFlags.Default | BindingFlags.Instance |
                                                 BindingFlags.Public)
         {
@@ -172,7 +184,10 @@ namespace Das.Types
             target(obj, parameters);
         }
 
-        public void GenericMethod(Object obj, String methodName, Type[] genericParameters, Object[] parameters,
+        public void GenericMethod(Object obj,
+                                  String methodName,
+                                  Type[] genericParameters,
+                                  Object[] parameters,
                                   BindingFlags flags =
                                       BindingFlags.Default | BindingFlags.Instance | BindingFlags.Public)
         {
@@ -182,7 +197,9 @@ namespace Das.Types
             meth.Invoke(obj, parameters);
         }
 
-        public Object Func(Object obj, String funcName, Object[] parameters,
+        public Object Func(Object obj,
+                           String funcName,
+                           Object[] parameters,
                            BindingFlags flags = BindingFlags.Default | BindingFlags.Instance | BindingFlags.Public)
         {
             var type = obj as Type ?? obj.GetType();
@@ -231,7 +248,9 @@ namespace Das.Types
             throw new InvalidCastException();
         }
 
-        public T CastDynamic<T>(Object o, IObjectConverter converter, ISerializerSettings settings)
+        public T CastDynamic<T>(Object o,
+                                IObjectConverter converter,
+                                ISerializerSettings settings)
         {
             if (TryCleanCast<T>(o, out var good))
                 return good;
@@ -239,7 +258,8 @@ namespace Das.Types
             return converter.ConvertEx<T>(o, settings);
         }
 
-        public Boolean TryCastDynamic<T>(Object o, out T casted)
+        public Boolean TryCastDynamic<T>(Object o,
+                                         out T casted)
         {
             if (TryCleanCast(o, out casted))
                 return true;
@@ -248,7 +268,8 @@ namespace Das.Types
             return false;
         }
 
-        private static Boolean TryCleanCast<T>(Object o, out T result)
+        private static Boolean TryCleanCast<T>(Object o,
+                                               out T result)
         {
             if (o is T ez)
             {
@@ -262,6 +283,21 @@ namespace Das.Types
                 o is IConvertible)
             {
                 result = (T) Convert.ChangeType(o, tt);
+                return true;
+            }
+
+            var implicitOperators = from m in o.GetType().GetMethods()
+                let mparams = m.GetParameters()
+                where string.Equals(m.Name, "op_Implicit") &&
+                      m.ReturnType == tt &&
+                      mparams.Length == 1 && 
+                      mparams[0].ParameterType == o.GetType()
+                select m;
+
+            var useImplicit = implicitOperators.FirstOrDefault();
+            if (useImplicit != null)
+            {
+                result = (T) useImplicit.Invoke(null, new[] { o} );
                 return true;
             }
 

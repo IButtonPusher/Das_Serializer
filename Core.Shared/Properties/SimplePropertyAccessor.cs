@@ -38,6 +38,18 @@ namespace Das.Serializer
             return true;
         }
 
+        public bool SetPropertyValue<TTarget>(ref TTarget targetObj, 
+                                              Object? propVal)
+        {
+            if (_setter == null)
+                return false;
+
+            Object? oTarget = targetObj;
+            
+            _setter(ref oTarget, propVal);
+            return true;
+        }
+
         public bool TryGetPropertyValue(Object obj,
                                         out Object result)
         {

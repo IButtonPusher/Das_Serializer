@@ -10,7 +10,8 @@ using Das.Serializer;
 namespace Das
 {
     [SuppressMessage("ReSharper", "UseMethodIsInstanceOfType")]
-    public class ObjectConverter : SerializerCore, IObjectConverter
+    public class ObjectConverter : SerializerCore, 
+                                   IObjectConverter
     {
         public ObjectConverter(IStateProvider dynamicFacade, 
                                ISerializerSettings settings)
@@ -24,12 +25,11 @@ namespace Das
         }
 
 
-        public T ConvertEx<T>(Object obj, ISerializerSettings settings)
+        public T ConvertEx<T>(Object obj, 
+                              ISerializerSettings settings)
         {
             if (obj is T already)
                 return already;
-
-            //_currentSettings = settings;
 
             var outType = typeof(T);
 

@@ -60,35 +60,50 @@ namespace Serializer.Tests
 		}
 
         [Fact]
+        public void CastDynamicViaImplicitOperator()
+        {
+            var saver = new StringSaver();
+            var sb = Serializer.ObjectManipulator.CastDynamic<StringBuilder>(saver);
+        }
+
+        [Fact]
         public void PropertyGetters()
         {
-            var getter = TypeManipulator.CreateDynamicPropertyGetter(typeof(ISimpleClass),
-                nameof(ISimpleClass.Name));
+            for (var c = 0; c < 5; c++)
+            {
+                var getter = TypeManipulator.CreateDynamicPropertyGetter(typeof(ISimpleClass),
+                    nameof(ISimpleClass.Name));
 
-            var inst = new SimpleClass2 {Name = "bobbith"};
+                var inst = new SimpleClass2 {Name = "bobbith"};
 
-            var testRes = getter(inst);
-            Assert.Equal("bobbith", testRes);
-            
-            var ezProp = typeof(TestCompositeClass).GetProperty(
-                nameof(TestCompositeClass.SimpleLeft));
-            var func = TypeManipulator.CreateDynamicPropertyGetter(typeof(TestCompositeClass),
-                ezProp!);
-            
-            var obj = TestCompositeClass.Init();
+                var testRes = getter(inst);
+                Assert.Equal("bobbith", testRes);
 
-            var res = func(obj);
-            Assert.Equal(res, obj.SimpleLeft);
-            
-            
-            var func2 = TypeManipulator.CreateDynamicPropertyGetter(typeof(TestCompositeClass),
-                nameof(TestCompositeClass.SimpleLeft) + "." +
-                nameof(SimpleClassObjectProperty.Name));
+                var ezProp = typeof(TestCompositeClass).GetProperty(
+                    nameof(TestCompositeClass.SimpleLeft));
+                var func = TypeManipulator.CreateDynamicPropertyGetter(typeof(TestCompositeClass),
+                    ezProp!);
 
-            
-            var res2 = func2(obj);
-            Assert.Equal(res2, obj.SimpleLeft.Name);
+                var obj = TestCompositeClass.Init();
 
+                var res = func(obj);
+                Assert.Equal(res, obj.SimpleLeft);
+
+
+                var func2 = TypeManipulator.CreateDynamicPropertyGetter(typeof(TestCompositeClass),
+                    nameof(TestCompositeClass.SimpleLeft) + "." +
+                    nameof(SimpleClassObjectProperty.Name));
+
+
+                var res2 = func2(obj);
+                Assert.Equal(res2, obj.SimpleLeft.Name);
+
+                var accessor = Serializer.TypeManipulator.GetPropertyAccessor(typeof(TestCompositeClass),
+                    nameof(TestCompositeClass.SimpleLeft));
+
+                var res3 = accessor.GetPropertyValue(obj);
+                Assert.Equal(res3, obj.SimpleLeft);
+            }
         }
 
         [Fact]

@@ -352,6 +352,7 @@ namespace Das.Serializer
             }
         }
 
+
         public static implicit operator StringBuilder(StringSaver sv)
         {
             return sv._sb;

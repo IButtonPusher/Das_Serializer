@@ -15,9 +15,11 @@ namespace Das.Serializer
 
         Func<Object, Object[], Object> CreateFuncCaller(MethodInfo method);
 
+        VoidMethod CreateMethodCaller(MethodInfo method);
+
         Func<Object, Object> CreatePropertyGetter(Type targetType,
                                                   PropertyInfo propertyInfo);
-        
+
         Func<Object, Object>? CreatePropertyGetter(Type targetType,
                                                    String propertyName);
 
@@ -26,10 +28,10 @@ namespace Das.Serializer
         PropertySetter? CreateSetMethod(Type declaringType,
                                         String memberName);
 
-        VoidMethod? GetAdder(Type collectionType, 
+        VoidMethod? GetAdder(Type collectionType,
                              Object exampleValue);
 
-        VoidMethod GetAdder(IEnumerable collection, 
+        VoidMethod GetAdder(IEnumerable collection,
                             Type? collectionType = null);
 
         MethodInfo? GetAddMethod<T>(IEnumerable<T> collection);
@@ -41,10 +43,10 @@ namespace Das.Serializer
         /// <summary>
         ///     Recursive through base types without duplicates
         /// </summary>
-        IEnumerable<INamedField> GetPropertiesToSerialize(Type type, 
+        IEnumerable<INamedField> GetPropertiesToSerialize(Type type,
                                                           ISerializationDepth depth);
 
-        Type? GetPropertyType(Type classType, 
+        Type? GetPropertyType(Type classType,
                               String propName);
 
         IEnumerable<FieldInfo> GetRecursivePrivateFields(Type type);
@@ -52,15 +54,15 @@ namespace Das.Serializer
         // ReSharper disable once UnusedMember.Global
         ITypeStructure GetStructure<T>(ISerializationDepth depth);
 
-        ITypeStructure GetTypeStructure(Type type, ISerializationDepth depth);
+        ITypeStructure GetTypeStructure(Type type,
+                                        ISerializationDepth depth);
 
         Type InstanceMemberType(MemberInfo info);
 
         Boolean TryCreateReadOnlyPropertySetter(PropertyInfo propertyInfo,
                                                 out Action<Object, Object?> setter);
 
-        Boolean TryGetAddMethod(Type collectionType, out MethodInfo addMethod);
-
-        VoidMethod CreateMethodCaller(MethodInfo method);
+        Boolean TryGetAddMethod(Type collectionType,
+                                out MethodInfo addMethod);
     }
 }

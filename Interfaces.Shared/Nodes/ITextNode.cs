@@ -4,7 +4,9 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    public interface ITextNode : INode<ITextNode>, IEnumerable<ITextNode>, ISerializationDepth
+    public interface ITextNode : INode<ITextNode>, 
+                                 IEnumerable<ITextNode>, 
+                                 ISerializationDepth
     {
         IDictionary<String, ITextNode> Children { get; }
 

@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using Das.Serializer.Types;
 
 namespace Das.Serializer
 {
@@ -21,6 +22,7 @@ namespace Das.Serializer
             _lockNewType = new Object();
             _knownSensitive = new ConcurrentDictionary<Type, ITypeStructure>();
             _knownInsensitive = new ConcurrentDictionary<Type, ITypeStructure>();
+            _cachedPropertyAccessors = new DoubleDictionary<Type, string, IPropertyAccessor>();
         }
 
         public override Boolean HasSettableProperties(Type type)
@@ -191,6 +193,7 @@ namespace Das.Serializer
         private static readonly Object _lockNewType; 
         private static readonly ConcurrentDictionary<Type, ITypeStructure> _knownSensitive;
         private static readonly ConcurrentDictionary<Type, ITypeStructure> _knownInsensitive;
+        private static readonly DoubleDictionary<Type, String, IPropertyAccessor> _cachedPropertyAccessors;
         private readonly INodePool _nodePool;
 
         private const BindingFlags InterfaceMethodBindings = BindingFlags.Instance |
@@ -200,12 +203,19 @@ namespace Das.Serializer
         public IPropertyAccessor GetPropertyAccessor(Type declaringType, 
                                                      String propertyName)
         {
-            Debug.WriteLine("Create prop accesor for " + declaringType.Name + "->" + propertyName);
-            
-            var getter = CreatePropertyGetter(declaringType, propertyName);
-            var setter = CreateSetMethod(declaringType, propertyName);
-            return new SimplePropertyAccessor(declaringType, propertyName, getter, setter);
+            lock (_lockNewType)
+            {
+                if (_cachedPropertyAccessors.TryGetValue(declaringType, propertyName, out var accessor))
+                    return accessor;
+                
+                var getter = CreatePropertyGetter(declaringType, propertyName);
+                var setter = CreateSetMethod(declaringType, propertyName);
+                accessor = new SimplePropertyAccessor(declaringType, propertyName, getter, setter);
 
+                _cachedPropertyAccessors.Add(declaringType, propertyName, accessor);
+                
+                return accessor;
+            }
         }
 
         protected static MemberInfo GetMemberOrDie(Type declaringType,

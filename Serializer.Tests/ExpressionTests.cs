@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Das.Types;
 using Xunit;
+// ReSharper disable All
+#pragma warning disable 8600
 
 namespace Serializer.Tests
 {

@@ -576,7 +576,7 @@ namespace Serializer.Tests.ProtocolBuffers
             }
         }
 
-        private static ByteArrayMessage ByteArrayMessage = new ByteArrayMessage
+        private static readonly ByteArrayMessage ByteArrayMessage = new ByteArrayMessage
         {
             ByteArray = new Byte[] {127, 0, 0, 1, 255, 123}
         };
