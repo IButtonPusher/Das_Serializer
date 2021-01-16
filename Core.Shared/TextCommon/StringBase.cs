@@ -6,7 +6,7 @@ namespace Das.Serializer
 {
     public abstract class StringBase
     {
-        protected String Remove(ISet<Char> chars, String from)
+        protected static String Remove(ISet<Char> chars, String from)
         {
             if (String.IsNullOrEmpty(from) || chars.Count == 0)
                 return from;

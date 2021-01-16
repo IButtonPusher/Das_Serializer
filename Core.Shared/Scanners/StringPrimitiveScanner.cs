@@ -31,6 +31,12 @@ namespace Das.Serializer
             }
             else if (type.IsEnum)
             {
+                if (ReferenceEquals(null, input))
+                {
+                    var enumVals = Enum.GetValues(type);
+                    return enumVals.GetValue(0);
+                }
+
                 return Enum.Parse(type, input);
             }
 
@@ -58,7 +64,7 @@ namespace Das.Serializer
                 return null!;
 
             var conv = _state.GetTypeConverter(type);
-            return conv.ConvertFromInvariantString(input);
+            return conv.ConvertFromInvariantString(input)!;
         }
 
         public abstract String Descape(String? input);

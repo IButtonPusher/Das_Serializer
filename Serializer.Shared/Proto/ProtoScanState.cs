@@ -66,44 +66,6 @@ namespace Das.Serializer.Proto
         /// </summary>
         public Dictionary<IProtoFieldAccessor, LocalBuilder> LocalFieldValues { get; }
 
-        private void AddKeyValuePair(IProtoFieldAccessor pv, ProtoScanState s)
-        {
-            var il = s.IL;
-
-            var canAdd = _types.TryGetAddMethod(pv.Type, out var adder);
-
-            if (!canAdd)
-                throw new NotImplementedException();
-
-
-            var germane = _types.GetGermaneType(pv.Type);
-
-            var kvp = il.DeclareLocal(germane);
-
-            il.Emit(OpCodes.Stloc, kvp);
-
-            var getKey = germane.GetterOrDie(nameof(KeyValuePair<object, object>.Key), out _);
-            var getValue = germane.GetterOrDie(nameof(KeyValuePair<object, object>.Value), out _);
-
-            il.Emit(OpCodes.Ldloca, kvp);
-            il.Emit(OpCodes.Call, getKey);
-
-            il.Emit(OpCodes.Ldloca, kvp);
-            il.Emit(OpCodes.Call, getValue);
-
-            il.Emit(OpCodes.Callvirt, adder);
-        }
-
-        private Type ArrayTypeToListOf(Type arrayType)
-        {
-            if (!arrayType.IsArray)
-                throw new TypeAccessException(nameof(arrayType));
-
-            var germane = _types.GetGermaneType(arrayType);
-
-            return typeof(List<>).MakeGenericType(germane);
-        }
-
         /// <summary>
         ///     Creates a local variable for every field.  Use only when there is no parameterless ctor
         /// </summary>
@@ -116,20 +78,6 @@ namespace Das.Serializer.Proto
                 if (local == null)
                     throw new InvalidOperationException(nameof(EnsureLocalFields));
             }
-        }
-
-        private void EnsureLocalFieldsForProperties(IEnumerable<IProtoFieldAccessor> fields)
-        {
-            foreach (var field in fields)
-                switch (field.FieldAction)
-                {
-                    case ProtoFieldAction.ChildObjectArray:
-                    case ProtoFieldAction.ChildPrimitiveArray:
-                        var local = GetLocalForField(field);
-                        if (local == null)
-                            throw new InvalidOperationException();
-                        break;
-                }
         }
 
         public Action<IProtoFieldAccessor, ProtoScanState> GetFieldSetCompletion(
@@ -158,13 +106,13 @@ namespace Das.Serializer.Proto
                     asPrimitive:
 
                     if (canSetValueInline)
-                    {
-                        res = (f, s) => s.IL.Emit(OpCodes.Callvirt, field.SetMethod!);
-                    }
+                        res = (f,
+                               s) => s.IL.Emit(OpCodes.Callvirt, field.SetMethod!);
                     else
                     {
                         var local = GetLocalForField(field);
-                        res = (f, s) => s.IL.Emit(OpCodes.Stloc, local);
+                        res = (f,
+                               s) => s.IL.Emit(OpCodes.Stloc, local);
                         return res;
                     }
 
@@ -173,7 +121,8 @@ namespace Das.Serializer.Proto
                 case ProtoFieldAction.ChildObjectCollection:
                 case ProtoFieldAction.ChildPrimitiveCollection:
                     if (canSetValueInline)
-                        res = (f, s) =>
+                        res = (f,
+                               s) =>
                         {
                             if (!s.TryGetAdderForField(field, out var adder))
                                 throw new NotSupportedException();
@@ -181,7 +130,8 @@ namespace Das.Serializer.Proto
                             s.IL.Emit(OpCodes.Callvirt, adder);
                         };
                     else
-                        res = (f, s) =>
+                        res = (f,
+                               s) =>
                         {
                             var local = GetLocalForField(field);
                             if (!_types.TryGetAddMethod(local.LocalType, out var adder))
@@ -198,7 +148,8 @@ namespace Das.Serializer.Proto
                 case ProtoFieldAction.ChildObjectArray:
                 case ProtoFieldAction.ChildPrimitiveArray:
 
-                    res = (f, s) =>
+                    res = (f,
+                           s) =>
                     {
                         var local = GetLocalForField(field);
                         if (!_types.TryGetAddMethod(local.LocalType, out var adder))
@@ -235,9 +186,13 @@ namespace Das.Serializer.Proto
                 case ProtoFieldAction.PackedArray:
 
                     if (canSetValueInline)
-                        res = (f, s) => _loadReturnValueOntoStack!(s.IL);
+                        res = (f,
+                               s) => _loadReturnValueOntoStack!(s.IL);
                     else
-                        res = (f, s) => { };
+                        res = (f,
+                               s) =>
+                        {
+                        };
 
                     return res;
 
@@ -247,13 +202,13 @@ namespace Das.Serializer.Proto
                 case ProtoFieldAction.Dictionary:
 
                     if (canSetValueInline)
-                    {
-                        res = (f, s) => LoadCurrentFieldValueToStack();
-                    }
+                        res = (f,
+                               s) => LoadCurrentFieldValueToStack();
                     else
                     {
                         var local = GetLocalForField(field);
-                        res = (f, s) => s.IL.Emit(OpCodes.Ldloc, local);
+                        res = (f,
+                               s) => s.IL.Emit(OpCodes.Ldloc, local);
                     }
 
                     return res;
@@ -262,7 +217,8 @@ namespace Das.Serializer.Proto
                 case ProtoFieldAction.ChildObjectArray:
                 case ProtoFieldAction.ChildPrimitiveArray:
 
-                    res = (f, s) =>
+                    res = (f,
+                           s) =>
                     {
                         var loko = GetLocalForField(field);
                         s.IL.Emit(OpCodes.Ldloc, loko);
@@ -301,7 +257,10 @@ namespace Das.Serializer.Proto
 
         public LocalBuilder GetLocalForParameter(ParameterInfo prm)
         {
-            foreach (var kvp in LocalFieldValues.Where(k => k.Key.Equals(prm))) return kvp.Value;
+            foreach (var kvp in LocalFieldValues.Where(k => k.Key.Equals(prm)))
+            {
+                return kvp.Value;
+            }
 
             throw new KeyNotFoundException(prm.Name);
         }
@@ -327,7 +286,8 @@ namespace Das.Serializer.Proto
             _il.Emit(OpCodes.Call, _streamAccessor.GetPositiveInt32);
         }
 
-        public Boolean TryGetAdderForField(IProtoFieldAccessor field, out MethodInfo adder)
+        public Boolean TryGetAdderForField(IProtoFieldAccessor field,
+                                           out MethodInfo adder)
         {
             var fieldType = field.Type;
 
@@ -344,6 +304,61 @@ namespace Das.Serializer.Proto
             }
 
             return _types.TryGetAddMethod(fieldType, out adder);
+        }
+
+        private void AddKeyValuePair(IProtoFieldAccessor pv,
+                                     ProtoScanState s)
+        {
+            var il = s.IL;
+
+            var canAdd = _types.TryGetAddMethod(pv.Type, out var adder);
+
+            if (!canAdd)
+                throw new NotImplementedException();
+
+
+            var germane = _types.GetGermaneType(pv.Type);
+
+            var kvp = il.DeclareLocal(germane);
+
+            il.Emit(OpCodes.Stloc, kvp);
+
+            var getKey = germane.GetterOrDie(nameof(KeyValuePair<object, object>.Key), out _);
+            var getValue = germane.GetterOrDie(nameof(KeyValuePair<object, object>.Value), out _);
+
+            il.Emit(OpCodes.Ldloca, kvp);
+            il.Emit(OpCodes.Call, getKey);
+
+            il.Emit(OpCodes.Ldloca, kvp);
+            il.Emit(OpCodes.Call, getValue);
+
+            il.Emit(OpCodes.Callvirt, adder);
+        }
+
+        private Type ArrayTypeToListOf(Type arrayType)
+        {
+            if (!arrayType.IsArray)
+                throw new TypeAccessException(nameof(arrayType));
+
+            var germane = _types.GetGermaneType(arrayType);
+
+            return typeof(List<>).MakeGenericType(germane);
+        }
+
+        private void EnsureLocalFieldsForProperties(IEnumerable<IProtoFieldAccessor> fields)
+        {
+            foreach (var field in fields)
+            {
+                switch (field.FieldAction)
+                {
+                    case ProtoFieldAction.ChildObjectArray:
+                    case ProtoFieldAction.ChildPrimitiveArray:
+                        var local = GetLocalForField(field);
+                        if (local == null)
+                            throw new InvalidOperationException();
+                        break;
+                }
+            }
         }
 
         private Boolean TryScanAndAddPackedArray(
@@ -386,7 +401,8 @@ namespace Das.Serializer.Proto
 
             var adder = baseAdd.MakeGenericMethod(field.Type);
 
-            res = (f, s) =>
+            res = (f,
+                   s) =>
             {
                 s.IL.Emit(OpCodes.Callvirt, field.GetMethod);
 

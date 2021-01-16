@@ -9,7 +9,9 @@ using Das.Extensions;
 
 namespace Das.Serializer
 {
-    public class StringSaver : StringBase, ITextRemunerable, ITextAccessor
+    public class StringSaver : StringBase, 
+                               ITextRemunerable, 
+                               ITextAccessor
     {
         static StringSaver()
         {
@@ -29,13 +31,15 @@ namespace Das.Serializer
                 _sb = new StringBuilder(seed);
         }
 
-        public StringSaver(String seed, Action<StringSaver> notifyDispose)
+        public StringSaver(String seed,
+                           Action<StringSaver> notifyDispose)
             : this(seed)
         {
             _notifyDispose = notifyDispose;
         }
 
-        public Boolean Contains(String str, StringComparison comparison)
+        public Boolean Contains(String str,
+                                StringComparison comparison)
         {
             return _sb.ToString().IndexOf(str, comparison) >= 0;
         }
@@ -57,7 +61,8 @@ namespace Das.Serializer
             return _sb.ToString().Split();
         }
 
-        public String[] Split(Char[] separators, StringSplitOptions options = StringSplitOptions.RemoveEmptyEntries)
+        public String[] Split(Char[] separators,
+                              StringSplitOptions options = StringSplitOptions.RemoveEmptyEntries)
         {
             return _sb.ToString().Split(separators, options);
         }
@@ -72,7 +77,8 @@ namespace Das.Serializer
             return Remove(chars, _sb.ToString());
         }
 
-        public String Substring(Int32 start, Int32 length)
+        public String Substring(Int32 start,
+                                Int32 length)
         {
             return _sb.ToString(start, length);
         }
@@ -106,19 +112,24 @@ namespace Das.Serializer
             return cnt;
         }
 
-        public void CopyTo(Int32 sourceIndex, Char[] destination, Int32 destinationIndex, Int32 count)
+        public void CopyTo(Int32 sourceIndex,
+                           Char[] destination,
+                           Int32 destinationIndex,
+                           Int32 count)
         {
             _sb.CopyTo(sourceIndex, destination, destinationIndex, count);
         }
 
 
-        void IRemunerable<String>.Append(String str, Int32 cnt)
+        void IRemunerable<String>.Append(String str,
+                                         Int32 cnt)
         {
             throw new NotSupportedException();
         }
 
         [MethodImpl(256)]
-        public Int32 IndexOf(String value, Int32 startIndex)
+        public Int32 IndexOf(String value,
+                             Int32 startIndex)
         {
             var length = value.Length;
             var maxSearchLength = Length - length + 1;
@@ -139,7 +150,8 @@ namespace Das.Serializer
             return -1;
         }
 
-        public String this[Int32 start, Int32 end] => _sb.ToString(start, end - start);
+        public String this[Int32 start,
+                           Int32 end] => _sb.ToString(start, end - start);
 
         [MethodImpl(256)]
         public void Append(String data)
@@ -151,7 +163,8 @@ namespace Das.Serializer
         }
 
         [MethodImpl(256)]
-        public void Append(String data1, String data2)
+        public void Append(String data1,
+                           String data2)
         {
             var len = _sb.Length + data1.Length + data2.Length;
             EnsureCapacity(len);
@@ -162,7 +175,8 @@ namespace Das.Serializer
 
 
         [MethodImpl(256)]
-        public void Append(Char data1, String data2)
+        public void Append(Char data1,
+                           String data2)
         {
             var len = _sb.Length + 1 + data2.Length;
             EnsureCapacity(len);
@@ -179,7 +193,8 @@ namespace Das.Serializer
             _sb.Append(txt);
         }
 
-        public Boolean Append<T>(IEnumerable<T> items, Char separator)
+        public Boolean Append<T>(IEnumerable<T> items,
+                                 Char separator)
             where T : IConvertible
         {
             using (var itar = items.GetEnumerator())
@@ -202,7 +217,9 @@ namespace Das.Serializer
         public void Append(IEnumerable<String> datas)
         {
             foreach (var data in datas)
+            {
                 _sb.Append(data);
+            }
         }
 
         [MethodImpl(256)]
@@ -212,7 +229,8 @@ namespace Das.Serializer
         }
 
         [MethodImpl(256)]
-        public void Insert(Int32 index, String str)
+        public void Insert(Int32 index,
+                           String str)
         {
             EnsureCapacity(str);
             _sb.Insert(index, str);
@@ -244,7 +262,8 @@ namespace Das.Serializer
         }
 
         // ReSharper disable once UnusedMember.Global
-        public void Remove(Int32 startIndex, Int32 length)
+        public void Remove(Int32 startIndex,
+                           Int32 length)
         {
             _sb.Remove(startIndex, length);
         }
@@ -278,7 +297,9 @@ namespace Das.Serializer
         }
 
         [MethodImpl(256)]
-        public void Append(String data1, String data2, String data3)
+        public void Append(String data1,
+                           String data2,
+                           String data3)
         {
             var len = _sb.Length + data1.Length + data2.Length + data3.Length;
             EnsureCapacity(len);
@@ -288,7 +309,8 @@ namespace Das.Serializer
             _sb.Append(data3);
         }
 
-        public Boolean Append<T>(IList<T> items, Char separator)
+        public Boolean Append<T>(IList<T> items,
+                                 Char separator)
         {
             if (items.Count == 0)
                 return false;
@@ -304,7 +326,8 @@ namespace Das.Serializer
             return true;
         }
 
-        public void Append(String[] datas, Char separator)
+        public void Append(String[] datas,
+                           Char separator)
         {
             if (datas.Length == 0)
                 return;
@@ -321,6 +344,26 @@ namespace Das.Serializer
             }
 
             _sb.Append(datas[datas.Length - 1]);
+        }
+
+
+        public static implicit operator StringBuilder(StringSaver sv)
+        {
+            return sv._sb;
+        }
+
+        public override String ToString()
+        {
+            return _sb.ToString();
+        }
+
+        public void TrimEnd()
+        {
+            for (var c = _sb.Length - 1; c >= 0; c--)
+                if (_sb[c] == ' ')
+                    _sb.Remove(c, 1);
+                else
+                    break;
         }
 
         [MethodImpl(256)]
@@ -350,12 +393,6 @@ namespace Das.Serializer
                 _sbPool.RemoveAt(0);
                 return sb;
             }
-        }
-
-
-        public static implicit operator StringBuilder(StringSaver sv)
-        {
-            return sv._sb;
         }
 
         private static void Recycle(StringBuilder sb)
@@ -410,20 +447,6 @@ namespace Das.Serializer
                     _sbPool.Add(sb);
                 }
             }
-        }
-
-        public override String ToString()
-        {
-            return _sb.ToString();
-        }
-
-        public void TrimEnd()
-        {
-            for (var c = _sb.Length - 1; c >= 0; c--)
-                if (_sb[c] == ' ')
-                    _sb.Remove(c, 1);
-                else
-                    break;
         }
 
         private static Boolean TryGetBiggerBackingBuilder(Int32 capacity,
