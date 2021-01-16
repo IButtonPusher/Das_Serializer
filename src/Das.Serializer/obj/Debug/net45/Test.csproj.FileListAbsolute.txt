@@ -1,7 +1,0 @@
-E:\src\Das\Serializer\Test\bin\Debug\net45\Test.dll
-E:\src\Das\Serializer\Test\bin\Debug\net45\Test.pdb
-E:\src\Das\Serializer\Test\obj\Debug\net45\Test.csprojAssemblyReference.cache
-E:\src\Das\Serializer\Test\obj\Debug\net45\Test.AssemblyInfoInputs.cache
-E:\src\Das\Serializer\Test\obj\Debug\net45\Test.AssemblyInfo.cs
-E:\src\Das\Serializer\Test\obj\Debug\net45\Test.dll
-E:\src\Das\Serializer\Test\obj\Debug\net45\Test.pdb

@@ -1,8 +1,0 @@
-E:\src\Das\Serializer\Das.Serializer\bin\TEST_NO_CODEGENERATION\net45\Das.Serializer.dll
-E:\src\Das\Serializer\Das.Serializer\bin\TEST_NO_CODEGENERATION\net45\Das.Serializer.pdb
-E:\src\Das\Serializer\Das.Serializer\obj\TEST_NO_CODEGENERATION\net45\Das.Serializer.AssemblyInfoInputs.cache
-E:\src\Das\Serializer\Das.Serializer\obj\TEST_NO_CODEGENERATION\net45\Das.Serializer.AssemblyInfo.cs
-E:\src\Das\Serializer\Das.Serializer\obj\TEST_NO_CODEGENERATION\net45\Das.Serializer.csproj.CoreCompileInputs.cache
-E:\src\Das\Serializer\Das.Serializer\obj\TEST_NO_CODEGENERATION\net45\Das.Serializer.dll
-E:\src\Das\Serializer\Das.Serializer\obj\TEST_NO_CODEGENERATION\net45\Das.Serializer.pdb
-E:\src\Das\Serializer\Das.Serializer\obj\TEST_NO_CODEGENERATION\net45\Das.Serializer.csprojAssemblyReference.cache

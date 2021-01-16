@@ -1,8 +1,0 @@
-E:\src\Das\Serializer\Test\bin\Debug\netstandard1.4\Test.deps.json
-E:\src\Das\Serializer\Test\bin\Debug\netstandard1.4\Test.dll
-E:\src\Das\Serializer\Test\bin\Debug\netstandard1.4\Test.pdb
-E:\src\Das\Serializer\Test\obj\Debug\netstandard1.4\Test.csprojAssemblyReference.cache
-E:\src\Das\Serializer\Test\obj\Debug\netstandard1.4\Test.AssemblyInfoInputs.cache
-E:\src\Das\Serializer\Test\obj\Debug\netstandard1.4\Test.AssemblyInfo.cs
-E:\src\Das\Serializer\Test\obj\Debug\netstandard1.4\Test.dll
-E:\src\Das\Serializer\Test\obj\Debug\netstandard1.4\Test.pdb

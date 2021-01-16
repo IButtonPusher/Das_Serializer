@@ -1,9 +1,0 @@
-E:\src\Das\Serializer\Das.Serializer.Split\bin\Release\netcoreapp3.0\Das.Serializer.deps.json
-E:\src\Das\Serializer\Das.Serializer.Split\bin\Release\netcoreapp3.0\Das.Serializer.dll
-E:\src\Das\Serializer\Das.Serializer.Split\bin\Release\netcoreapp3.0\Das.Serializer.pdb
-E:\src\Das\Serializer\Das.Serializer.Split\obj\Release\netcoreapp3.0\Das.Serializer.Split.csprojAssemblyReference.cache
-E:\src\Das\Serializer\Das.Serializer.Split\obj\Release\netcoreapp3.0\Das.Serializer.Split.AssemblyInfoInputs.cache
-E:\src\Das\Serializer\Das.Serializer.Split\obj\Release\netcoreapp3.0\Das.Serializer.Split.AssemblyInfo.cs
-E:\src\Das\Serializer\Das.Serializer.Split\obj\Release\netcoreapp3.0\Das.Serializer.dll
-E:\src\Das\Serializer\Das.Serializer.Split\obj\Release\netcoreapp3.0\Das.Serializer.pdb
-E:\src\Das\Serializer\Das.Serializer.Split\obj\Release\netcoreapp3.0\Das.Serializer.Split.csproj.CoreCompileInputs.cache
