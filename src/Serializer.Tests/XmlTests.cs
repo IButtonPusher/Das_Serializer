@@ -294,8 +294,7 @@ namespace Serializer.Tests.Xml
 			}
 		}
 
-		//[TestCategory("list"), TestCategory("xml"), TestCategory("collections"), TestMethod]
-		[Fact]
+        [Fact]
 		public void BlockingXml()
 		{
 			var bc = new BlockingCollection<SimpleClassObjectProperty>();
@@ -311,8 +310,7 @@ namespace Serializer.Tests.Xml
 			}
 		}
 
-		//[TestCategory("queue"), TestCategory("xml"), TestCategory("collections"), TestMethod]
-		[Fact]
+        [Fact]
 		public void QueuesXml()
 		{
 			var qs = new Queue<SimpleClassObjectProperty>();
@@ -329,16 +327,15 @@ namespace Serializer.Tests.Xml
 
 		}
 
-		//[TestCategory("xml"), TestCategory("special"), TestMethod]
-		[Fact]
+        [Fact]
 		public void GdiColorInferredXml()
 		{
 			Serializer.Settings.NotFoundBehavior = TypeNotFound.ThrowException;
 
 			var clr = Color.Purple;
 			Serializer.Settings.TypeSpecificity = TypeSpecificity.All;
-			var xxx = Serializer.ToXml(clr);
-            var diesel = Serializer.FromXml(xxx);
+			var xml = Serializer.ToXml(clr);
+            var diesel = Serializer.FromXml(xml);
             var yeti = (Color)diesel;
 			Serializer.Settings.TypeSpecificity = TypeSpecificity.Discrepancy;
 			Assert.True(clr.R == yeti.R && clr.G == yeti.G && clr.B == yeti.B);
