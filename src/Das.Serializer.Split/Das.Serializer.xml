@@ -1,0 +1,352 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Das.Serializer</name>
+    </assembly>
+    <members>
+        <member name="M:Das.Serializer.DasCoreSerializer.ToJson(System.Object)">
+            <summary>
+                Create a Json string from any object.  For more options set the Settings
+                property of the serializer instance or the factory on which this is invoked
+            </summary>
+            <param name="o">The object to serialize</param>
+        </member>
+        <member name="P:Das.Serializer.DasSettings.NotFoundBehavior">
+            <summary>
+                If an unknown type is in the serialized data, a dynamic type can be built
+                at runtime including properties.
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.DasSettings.IsPropertyNamesCaseSensitive">
+            <summary>
+                Particularly for Json pascal case is often used.  Setting this to false
+                and having multiple properties with the "same" name will be problematic
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.DasSettings.TypeSpecificity">
+            <summary>
+                Specifies under which circumstances the serializer will embed type information for
+                properties.  For xml the type of the root object is always the root node.  Choosing
+                All will cause the Json and binary formats to wrap their output in an extra node
+                which may make it impossible for other deserializers or services to understand the data
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.DasSettings.IsOmitDefaultValues">
+            <summary>
+                In Xml/Json only.  0 for integers, false for booleans, and any
+                val == default(ValsType) will be ommitted from the markup
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.DasSettings.SerializationDepth">
+            <summary>
+                Allows to set whether properties without setters and whether private fields
+                will be serialized.  Default is GetSetProperties
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.DasSettings.TypeSearchNameSpaces">
+            <summary>
+                Types from xml/json that are not namespace or assembly qualified will be
+                searched for in this collection of namespaces. Defaults to just System
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.DasSettings.PropertySearchDepth">
+            <summary>
+                Defines the depth of the search to resolve elements to their types when
+                deserializing text as JSON or XML
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.DasSettings.Indentation">
+            <summary>
+                Allows control over how much nested elements in json and xml are indented.
+                Use whitespace like spaces and tabs only
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.DasSettings.Default">
+            <summary>
+            Returns a mutable copy of the defaults. A new copy is generated each time
+            this property is accessed.
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.Json.JsonExpress.GetValue(System.Int32@,System.String,System.Type,System.Text.StringBuilder,System.Object,System.Reflection.PropertyInfo,System.Object@,System.Object[])">
+            <summary>
+            Leaves the StringBuilder dirty!
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1.ScanCollection(System.Type,Das.Serializer.Proto.IValueExtractor)">
+            <summary>
+                ICollection[TProperty] where TProperty : ProtoContract
+                for a collection of proto contracts by way of a property of a parent contract
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1.AddLoadCurrentFieldIndex(System.Reflection.Emit.ILGenerator,System.Reflection.Emit.Label)">
+            <summary>
+                Puts the next field index on the stack.  Jumps to
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1.AddPropertiesToScanMethod(Das.Serializer.Proto.ProtoScanState,System.Reflection.Emit.Label,System.Boolean,System.Reflection.Emit.LocalBuilder,System.Object)">
+            <summary>
+                2.
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1.AddScanMethod(System.Type,System.Reflection.Emit.TypeBuilder,System.Type,System.Collections.Generic.IEnumerable{Das.Serializer.IProtoFieldAccessor},System.Object,System.Boolean,System.Reflection.MethodBase,System.Collections.Generic.IDictionary{System.Type,System.Reflection.Emit.FieldBuilder})">
+            <summary>
+                1
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1.AddScanProperty(Das.Serializer.Proto.ProtoScanState,System.Reflection.Emit.Label,System.Boolean,System.Object)">
+            <summary>
+                3.
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1.ScanValueToStack(Das.Serializer.Proto.IValueExtractor,System.Reflection.Emit.ILGenerator,System.Type,System.TypeCode,Das.Serializer.ProtoBuf.ProtoWireTypes,Das.Serializer.ProtoFieldAction,System.Boolean)">
+            <summary>
+                Can be an actual field or an instance of a collection field.  Leaves the value on the stack
+            </summary>
+        </member>
+        <member name="F:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1._readBytesField">
+            <summary>
+                Thread static Byte[]
+            </summary>
+        </member>
+        <member name="F:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1._writeBytes">
+            <summary>
+                public static void Write(Byte[] vals, Stream _outStream)
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1.ReadStreamBytes">
+            <summary>
+                Stream.Read(...)
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1.GetPositiveInt32">
+            <summary>
+                static Int32 ProtoScanBase.GetPositiveInt32(Stream stream)
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1.Utf8">
+            <summary>
+                protected static Encoding Utf8;
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1.GetStringFromBytes">
+            <summary>
+                Encoding-> public virtual string GetString(byte[] bytes, int index, int count)
+            </summary>
+        </member>
+        <member name="T:Das.Serializer.Remunerators.DeferredBinaryWriter">
+            <summary>
+                Writes to a temporary collection that is eventually merged back into the main stream (or parent deferred)
+                along with the length of the data for fixed length deserialization
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.CoreTextParser.TrySkip(System.String,System.String,System.String@)">
+            <summary>
+                Returns the rest of the text if the text started with whenStartsWith
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.Xml.XmlExpress.DeserializeTagImpl``1(System.Object@,System.Int32@,System.String,System.Type,System.Text.StringBuilder,``0)">
+            <summary>
+                Assumes that the currentIndex points to the characater after the
+                root attribute
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.Xml.XmlExpress.DeserializeTag(System.Object@,System.Int32@,System.String,System.Type,System.Text.StringBuilder)">
+            <summary>
+                Assumes that the currentIndex points to the characater after the
+                root attribute
+            </summary>
+        </member>
+        <member name="F:Das.Serializer.Proto.ProtoPrintState._writeInt32">
+            <summary>
+                public static void ProtoBufWriter->WriteInt32(Int32 value, Stream _outStream)
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.Proto.ProtoScanState.LocalFieldValues">
+            <summary>
+                For values that will be ctor injected
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.Proto.ProtoScanState.EnsureLocalFields">
+            <summary>
+                Creates a local variable for every field.  Use only when there is no parameterless ctor
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.Proto.ProtoScanState.GetFieldSetInit(Das.Serializer.IProtoFieldAccessor,System.Boolean)">
+            <summary>
+                - For settable non-collections, loads the parent instance onto the stack so that once the data is on
+                the stack, the setter can be called
+                - For non-array collections loads the value so that the 'Add' method can be called
+                For non-packed arrays, loads a local List
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.Proto.ProtoScanState.LoadNextBytesIntoTempArray">
+            <summary>
+                Leaves the # of bytes read on the stack!
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.Proto.ProtoStateBase.LoadFieldProxy(Das.Serializer.IProtoFieldAccessor)">
+            <summary>
+                Leaves the field on the stack
+            </summary>
+        </member>
+        <member name="M:Das.Extensions.ExtensionMethods.GetClearName(System.Type,System.Boolean)">
+            <summary>
+                Creates an easier to read string depiction of a type name, particularly
+                with generics. Can be parsed back into a type using DasType.FromClearName(..)
+                into
+            </summary>
+            <param name="type"></param>
+            <param name="isOmitAssemblyName">
+                Guarantees that the output string will be
+                valid xml or json markup but may lead to slower deserialization
+            </param>
+        </member>
+        <member name="M:Das.Printers.PrinterBase.PrintNode(Das.Serializer.INamedValue)">
+            <summary>
+                For type wrapping has to occur one of the following has to be true
+                1. _settings.TypeSpecificity == All
+                2. _settings.TypeSpecificity == Discrepancy and val.GetType() != propType
+                -Xml should print this like an attribute __type="System.Int16" within the
+                tag it was going to do anyways
+                -Json should print it as a wrapper around the object
+                { "__type": "System.Int16", "__val": *Object's Json* }
+                -Binary can just put the type name/length bytes beforehand
+            </summary>
+        </member>
+        <member name="M:Das.Printers.PrinterBase.PrintObject(Das.Serializer.IPrintNode)">
+            <summary>
+                Every object passes through here.  Once we've gotten here we assume that any
+                type-wrapping has been performed already
+                1. Determine the right way to print this (as reference object, primitive etc)
+                2. Route to proper method
+            </summary>
+        </member>
+        <member name="M:Das.Printers.PrinterBase.TryHandleCircularReference(Das.Serializer.IPrintNode)">
+            <summary>
+                False if it's not a circular reference.  Handles the logic of what to do
+                if it is
+            </summary>
+        </member>
+        <member name="M:Das.Printers.PrinterBase.PrintReferenceType(Das.Serializer.IPrintNode)">
+            <summary>
+                prints most objects as series of properties
+            </summary>
+        </member>
+        <member name="M:Das.Printers.PrinterBase.PrintPrimitive(Das.Serializer.IPrintNode)">
+            <summary>
+                By the time we get here any wrapping should have happened already
+            </summary>
+        </member>
+        <member name="M:Das.Printers.TextPrinter.PrintPrimitive(Das.Serializer.IPrintNode)">
+            <summary>
+                xml puts all primitives as attributes and in quotes. Json does not put
+                numeric types in quotes
+            </summary>
+        </member>
+        <member name="M:Das.Streamers.BinaryFeeder.GetNextBlockSize">
+            <summary>
+                Returns the amount of bytes that the next object will use.  Advances
+                the byte index forward by 4 bytes
+            </summary>
+        </member>
+        <member name="M:Das.Streamers.BinaryFeeder.GetNextType">
+            <summary>
+                takes the next 4 bytes for length then the next N bytes and turns them into a Type
+            </summary>
+        </member>
+        <member name="M:Das.TypeStructure.GetMembersToSerialize(Das.Serializer.ISerializationDepth)">
+            <summary>
+                Returns properties and/or fields depending on specified depth
+            </summary>
+        </member>
+        <member name="M:Das.Types.ObjectManipulator.SetProperty(System.Type,System.String,System.Object@,System.Object)">
+            <summary>
+                Attempts to set a property value for a targetObj which is a property of name propName
+                in a class of type classType
+            </summary>
+        </member>
+        <member name="M:Das.Types.TypeInference.ToPropertyStyle(System.String)">
+            <summary>
+            Returns the name in PascalCase
+            </summary>
+        </member>
+        <member name="M:Das.Types.TypeInference.FromSingleToken(System.String,System.Boolean,System.Collections.Generic.IDictionary{System.String,System.String})">
+            <summary>
+                Prepends type search namespaces to name and tries to find. From just a single token
+                we can never find anything
+            </summary>
+        </member>
+        <member name="M:Das.Types.DasTypeBuilder.GetDynamicType(System.String,System.Collections.Generic.IEnumerable{Das.Serializer.DasProperty},System.Boolean,System.Collections.Generic.IEnumerable{System.Reflection.EventInfo},System.Collections.Generic.IDictionary{System.Reflection.MethodInfo,System.Reflection.MethodInfo},System.Type[])">
+            <summary>
+                Returns the type along with property/method delegates.  Results are cached.
+            </summary>
+            <param name="typeName">
+                The returned type may not get this exact name if a type with
+                the same name was created/invalidated
+            </param>
+            <param name="properties">
+                List of properties to be added to the type.  Properties
+                from an abstract base type or implemented interface(s) are added without specifying them here
+            </param>
+            <param name="isCreatePropertyDelegates">
+                Specifies whether the PublicGetters
+                and PublicSetters properties should have delegates to quickly get/set values
+                for properties.
+            </param>
+            <param name="events">public events to be published by the Type</param>
+            <param name="methodReplacements">
+                For interface implementations, the methods
+                are created but they return default primitives or null references
+            </param>
+            <param name="parentTypes">Can be a single unsealed class and/or 1-N interfaces</param>
+        </member>
+        <member name="M:Das.Types.DasTypeBuilder.GetDynamicType(System.String,System.Collections.Generic.IDictionary{System.Reflection.MethodInfo,System.Reflection.MethodInfo},System.Collections.Generic.IEnumerable{Das.Serializer.DasProperty},System.Collections.Generic.IEnumerable{System.Reflection.EventInfo},System.Type[])">
+            <summary>
+                Returns the type cached if it exists, builds/caches it otherwise
+            </summary>
+            <param name="typeName">The name of the type to be created</param>
+            <param name="methodReplacements">
+                or interface implementations, the methods
+                are created but they return default primitives or null references
+            </param>
+            <param name="properties">
+                properties from parent types do not need to be
+                specified
+            </param>
+            <param name="events">public events to be published by the Type</param>
+            <param name="parentTypes">
+                Can contain maximum one class and any amount of
+                interfaces
+            </param>
+            <returns></returns>
+        </member>
+        <member name="M:Das.Types.TypeManipulator.CreatePropertyGetter(System.Type,System.Reflection.PropertyInfo)">
+            <summary>
+                Returns a delegate that can be invoked to quickly get the value for an object
+                of targetType
+            </summary>
+        </member>
+        <member name="M:Das.Types.TypeManipulator.GetAdder(System.Collections.IEnumerable,System.Type)">
+            <summary>
+                Gets a delegate to add an object to a non-generic collection
+            </summary>
+        </member>
+        <member name="M:Das.Types.TypeManipulator.GetAddMethod``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+                Detects the Add, Enqueue, Push etc method for generic collections
+            </summary>
+        </member>
+        <member name="M:Das.Types.TypeManipulator.CreateAddDelegate``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+                Gets a delegate to add an object to a generic collection
+            </summary>
+        </member>
+        <member name="M:Das.Types.TypeManipulator.CreateSetMethodImpl(System.Reflection.MemberInfo)">
+            <summary>
+                Returns a delegate that can be invoked to quickly set the value for an object
+                of targetType.  This method assumes this property has a setter. For properties
+                without a setter use CreateReadOnlyPropertySetter
+            </summary>
+        </member>
+    </members>
+</doc>
