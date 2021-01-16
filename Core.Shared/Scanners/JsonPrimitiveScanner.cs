@@ -90,9 +90,7 @@ namespace Das.Serializer
 
 
                     else
-                    {
                         sbString.Append(c);
-                    }
 
                     i++;
                 }

@@ -13,7 +13,8 @@ namespace Das.Extensions
 {
     public static class CoreExtensionMethods
     {
-        public static Boolean AreCongruent<T>(this IReadOnlyList<T> left, IReadOnlyList<T> right)
+        public static Boolean AreCongruent<T>(this IReadOnlyList<T> left,
+                                              IReadOnlyList<T> right)
         {
             if (ReferenceEquals(null, left))
                 return ReferenceEquals(null, right);
@@ -31,14 +32,15 @@ namespace Das.Extensions
         }
 
         [MethodImpl(256)]
-        public static Boolean AreEqualEnough(this Single f1, 
+        public static Boolean AreEqualEnough(this Single f1,
                                              Single f2)
         {
             return Math.Abs(f1 - f2) < 0.00001f;
         }
 
         [MethodImpl(256)]
-        public static Boolean AreEqualEnough(this Int32 i1, Double d1)
+        public static Boolean AreEqualEnough(this Int32 i1,
+                                             Double d1)
         {
             return Convert.ToInt32(d1) == i1;
         }
@@ -61,38 +63,41 @@ namespace Das.Extensions
             return true;
         }
 
-        public static Boolean ContainsAll<T>(this IList<T> left, 
+        public static Boolean ContainsAll<T>(this IList<T> left,
                                              List<T> right)
         {
             if (left.Count != right.Count)
                 return false;
 
             foreach (var item in left)
+            {
                 if (!right.Contains(item))
                     return false;
+            }
 
             return true;
         }
 
-        private static MethodInfo Die(Type classType, String methodName)
-        {
-            throw new InvalidOperationException(classType.Name + "->" + methodName);
-        }
-
-        private static FieldInfo DieBart(Type classType, String fieldName)
-        {
-            throw new InvalidOperationException(classType.Name + "." + fieldName);
-        }
-
-        public static void ForEach<T>(this IEnumerable<T> source, Action<T> action,
+        public static void ForEach<T>(this IEnumerable<T> source,
+                                      Action<T> action,
                                       Boolean isIncludeNulls = true)
         {
             if (source == null)
                 return;
 
             foreach (var item in source)
+            {
                 if (isIncludeNulls || item != null)
                     action(item);
+            }
+        }
+
+        [MethodImpl(256)]
+        public static String GetConsumingString(this StringBuilder sb)
+        {
+            var res = sb.ToString();
+            sb.Length = 0;
+            return res;
         }
 
         public static ConstructorInfo GetDefaultConstructorOrDie(this Type classType)
@@ -122,7 +127,8 @@ namespace Das.Extensions
                    ?? DieBart(classType, fieldName);
         }
 
-        public static MethodInfo GetMethodOrDie(this Type classType, String methodName)
+        public static MethodInfo GetMethodOrDie(this Type classType,
+                                                String methodName)
         {
             var wot = classType.GetMethod(methodName, Type.EmptyTypes) ??
                       classType.GetMethod(methodName);
@@ -260,7 +266,8 @@ namespace Das.Extensions
                    ?? DieBart(classType, fieldName);
         }
 
-        public static MethodInfo GetterOrDie(this Type tType, String property,
+        public static MethodInfo GetterOrDie(this Type tType,
+                                             String property,
                                              out PropertyInfo propertyInfo,
                                              BindingFlags flags = BindingFlags.Public | BindingFlags.Instance)
         {
@@ -278,48 +285,71 @@ namespace Das.Extensions
 
 
         [MethodImpl(256)]
-        public static Boolean IsIn<T>(this T item, T c1, T c2, T c3,
-                                      T c4, T c5, T c6, T c7)
+        public static Boolean IsIn<T>(this T item,
+                                      T c1,
+                                      T c2,
+                                      T c3,
+                                      T c4,
+                                      T c5,
+                                      T c6,
+                                      T c7)
         {
             return Equals(item, c7) || item.IsIn(c1, c2, c3, c4, c5, c6);
         }
 
         [MethodImpl(256)]
-        public static Boolean IsIn<T>(this T item, T c1, T c2,
-                                      T c3, T c4, T c5, T c6)
+        public static Boolean IsIn<T>(this T item,
+                                      T c1,
+                                      T c2,
+                                      T c3,
+                                      T c4,
+                                      T c5,
+                                      T c6)
         {
             return Equals(item, c6) || item.IsIn(c1, c2, c3, c4, c5);
         }
 
         [MethodImpl(256)]
-        public static Boolean IsIn<T>(this T item, T c1, T c2,
-                                      T c3, T c4, T c5)
+        public static Boolean IsIn<T>(this T item,
+                                      T c1,
+                                      T c2,
+                                      T c3,
+                                      T c4,
+                                      T c5)
         {
             return Equals(item, c5) || item.IsIn(c1, c2, c3, c4);
         }
 
         [MethodImpl(256)]
-        public static Boolean IsIn<T>(this T item, T c1,
-                                      T c2, T c3, T c4)
+        public static Boolean IsIn<T>(this T item,
+                                      T c1,
+                                      T c2,
+                                      T c3,
+                                      T c4)
         {
             return Equals(item, c4) || item.IsIn(c1, c2, c3);
         }
 
         [MethodImpl(256)]
-        public static Boolean IsIn<T>(this T item, T c1,
-                                      T c2, T c3)
+        public static Boolean IsIn<T>(this T item,
+                                      T c1,
+                                      T c2,
+                                      T c3)
         {
             return Equals(item, c3) || item.IsIn(c1, c2);
         }
 
         [MethodImpl(256)]
-        public static Boolean IsIn<T>(this T item, T c1, T c2)
+        public static Boolean IsIn<T>(this T item,
+                                      T c1,
+                                      T c2)
         {
             return Equals(item, c1) || Equals(item, c2);
         }
 
         [MethodImpl(256)]
-        public static Boolean IsIn<T>(this T item, IEnumerable<T> collection)
+        public static Boolean IsIn<T>(this T item,
+                                      IEnumerable<T> collection)
         {
             return collection.Any(c => Equals(c, item));
         }
@@ -330,7 +360,9 @@ namespace Das.Extensions
             return t == typeof(String);
         }
 
-        public static MethodInfo SetterOrDie(this Type type, String property, BindingFlags flags =
+        public static MethodInfo SetterOrDie(this Type type,
+                                             String property,
+                                             BindingFlags flags =
                                                  BindingFlags.Public | BindingFlags.Instance)
         {
             return type.GetProperty(property, flags)?.GetSetMethod(true) ??
@@ -338,7 +370,9 @@ namespace Das.Extensions
         }
 
 
-        public static T[] Take<T>(this T[] arr, Int32 startIndex, Int32 length)
+        public static T[] Take<T>(this T[] arr,
+                                  Int32 startIndex,
+                                  Int32 length)
         {
             var res = new T[length];
             if (typeof(T).IsPrimitive)
@@ -351,7 +385,8 @@ namespace Das.Extensions
         }
 
 
-        public static String ToString<T>(this IList<T> list, Char sep,
+        public static String ToString<T>(this IList<T> list,
+                                         Char sep,
                                          Char? excludeWhenFirst = null)
         {
             if (list == null || list.Count == 0)
@@ -377,7 +412,8 @@ namespace Das.Extensions
             return sb.ToString();
         }
 
-        public static String ToString<T>(this IEnumerable<T> list, Char sep,
+        public static String ToString<T>(this IEnumerable<T> list,
+                                         Char sep,
                                          Char? excludeWhenFirst = null)
         {
             if (list == null)
@@ -400,7 +436,8 @@ namespace Das.Extensions
             return sb.ToString();
         }
 
-        public static Boolean TryGetMethod(this Type classType, String methodName,
+        public static Boolean TryGetMethod(this Type classType,
+                                           String methodName,
                                            out MethodInfo method,
                                            params Type[] parameters)
         {
@@ -408,7 +445,8 @@ namespace Das.Extensions
                 BindingFlags.Instance | BindingFlags.Public, parameters);
         }
 
-        public static Boolean TryGetMethod(this Type classType, String methodName,
+        public static Boolean TryGetMethod(this Type classType,
+                                           String methodName,
                                            out MethodInfo method,
                                            BindingFlags flags = BindingFlags.Instance | BindingFlags.Public,
                                            params Type[] parameters)
@@ -420,12 +458,16 @@ namespace Das.Extensions
             return method != null;
         }
 
-        [MethodImpl(256)]
-        public static String GetConsumingString(this StringBuilder sb)
+        private static MethodInfo Die(Type classType,
+                                      String methodName)
         {
-            var res = sb.ToString();
-            sb.Length = 0;
-            return res;
+            throw new InvalidOperationException(classType.Name + "->" + methodName);
+        }
+
+        private static FieldInfo DieBart(Type classType,
+                                         String fieldName)
+        {
+            throw new InvalidOperationException(classType.Name + "." + fieldName);
         }
     }
 }

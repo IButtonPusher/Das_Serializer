@@ -41,14 +41,10 @@ namespace Das.Serializer
             }
 
             else if (type == Const.StrType)
-            {
                 return Descape(input);
-            }
 
             else if (Const.IConvertible.IsAssignableFrom(type))
-            {
                 return Convert.ChangeType(input, type, CultureInfo.InvariantCulture);
-            }
 
             else
             {

@@ -68,10 +68,11 @@ namespace Das.Serializer
             _propertyValues.Add(property);
         }
 
+        protected readonly List<TProperty> _propertyValues;
+
         protected Int32 _current;
 
 
         protected TProperty _currentValue;
-        protected readonly List<TProperty> _propertyValues;
     }
 }

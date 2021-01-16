@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    public class TypeCore : ITypeCore, 
+    public class TypeCore : ITypeCore,
                             IComparer<PropertyInfo>
     {
         static TypeCore()
@@ -32,7 +32,8 @@ namespace Das.Serializer
             _settings = settings;
         }
 
-        public Int32 Compare(PropertyInfo? x, PropertyInfo? y)
+        public Int32 Compare(PropertyInfo? x,
+                             PropertyInfo? y)
         {
             if (ReferenceEquals(null, x) || ReferenceEquals(null, y))
                 return Int32.MaxValue;
@@ -46,19 +47,10 @@ namespace Das.Serializer
         }
 
 
-        public Boolean TryGetNullableType(Type candidate, out Type? primitive)
-            => TryGetNullableTypeImpl(candidate, out primitive);
-        
-
-        private static Boolean TryGetNullableTypeImpl(Type candidate, out Type? primitive)
+        public Boolean TryGetNullableType(Type candidate,
+                                          out Type? primitive)
         {
-            primitive = null;
-            if (!candidate.IsGenericType ||
-                candidate.GetGenericTypeDefinition() != typeof(Nullable<>))
-                return false;
-
-            primitive = candidate.GetGenericArguments()[0];
-            return true;
+            return TryGetNullableTypeImpl(candidate, out primitive);
         }
 
 
@@ -114,7 +106,7 @@ namespace Das.Serializer
 
             throw new InvalidOperationException("Cannot load ");
         }
-        
+
         public TypeConverter GetTypeConverter(Type type)
         {
             return _typeConverters.TryGetValue(type, out var found)
@@ -133,7 +125,8 @@ namespace Das.Serializer
             return yesOrNo;
         }
 
-        Boolean ITypeCore.IsLeaf(Type t, Boolean isStringCounts)
+        Boolean ITypeCore.IsLeaf(Type t,
+                                 Boolean isStringCounts)
         {
             return IsLeaf(t, isStringCounts);
         }
@@ -169,7 +162,8 @@ namespace Das.Serializer
             return t.GetConstructor(Const.AnyInstance, null, Type.EmptyTypes, null) != null;
         }
 
-        public bool TryGetEmptyConstructor(Type t, out ConstructorInfo ctor)
+        public bool TryGetEmptyConstructor(Type t,
+                                           out ConstructorInfo ctor)
         {
             ctor = t.GetConstructor(Const.AnyInstance, null, Type.EmptyTypes, null)!;
             return ctor != null;
@@ -180,49 +174,17 @@ namespace Das.Serializer
             return !IsUseless(t) && !t!.IsAbstract && !t.IsInterface;
         }
 
-        //public ISet<PropertyInfo> GetPublicProperties2(Type type, Boolean numericFirst = true)
-        //{
-        //    if (CachedProperties2.TryGetValue(type, out var results))
-        //        return results;
+        
 
-        //    if (numericFirst)
-        //        results = new SortedSet<PropertyInfo>(this);
-        //    else results = new HashSet<PropertyInfo>();
-
-        //    //todo: remove this and get it to work with explicits
-        //    if (type.IsInterface)
-        //    {
-        //        foreach (var parentInterface in type.GetInterfaces())
-        //        {
-        //            var letsAdd = GetPublicProperties2(parentInterface, false);
-
-        //            foreach (var l in letsAdd)
-        //                results.Add(l);
-        //        }
-        //    }
-        //    else
-        //    {
-        //        var bt = type.BaseType;
-
-        //        while (bt != null)
-        //        {
-        //            foreach (var pp in GetPublicProperties2(type.BaseType, false))
-        //                results.Add(pp);
-
-        //            bt = bt.BaseType;
-        //        }
-        //    }
-
-        //    CachedProperties2.TryAdd(type, results);
-        //    return results;
-        //}
-
-        public IEnumerable<PropertyInfo> GetPublicProperties(Type type, Boolean numericFirst = true)
+        public IEnumerable<PropertyInfo> GetPublicProperties(Type type,
+                                                             Boolean numericFirst = true)
         {
             if (CachedProperties.TryGetValue(type, out var res))
             {
                 foreach (var p in res)
+                {
                     yield return p;
+                }
 
                 yield break;
             }
@@ -237,8 +199,10 @@ namespace Das.Serializer
 
                 foreach (var parentInterface in type.GetInterfaces())
                 foreach (var pp in GetPublicProperties(parentInterface, false))
+                {
                     if (byName.Add(pp.Name))
                         results.Add(pp);
+                }
 
                 res = results;
             }
@@ -252,8 +216,10 @@ namespace Das.Serializer
 
                     foreach (var pp in GetPublicProperties(bt, false))
                         //type.BaseType, false)) //this has to have been unintentional...
+                    {
                         if (byName.Add(pp.Name))
                             results.Add(pp);
+                    }
 
                     bt = bt.BaseType;
                 }
@@ -266,15 +232,18 @@ namespace Das.Serializer
             CachedProperties.TryAdd(type, rar);
 
             foreach (var prop in rar)
+            {
                 yield return prop;
+            }
         }
 
-        public PropertyInfo? FindPublicProperty(Type type, String propertyName)
+        public PropertyInfo? FindPublicProperty(Type type,
+                                                String propertyName)
         {
             return GetPublicProperties(type, false).FirstOrDefault(p => p.Name == propertyName);
         }
 
-        public Boolean TryGetPropertiesConstructor(Type type, 
+        public Boolean TryGetPropertiesConstructor(Type type,
                                                    out ConstructorInfo constr)
         {
             constr = null!;
@@ -287,8 +256,10 @@ namespace Das.Serializer
                 StringComparer.OrdinalIgnoreCase);
 
             foreach (var p in type.GetProperties().Where(p => !p.CanWrite && p.CanRead))
+            {
                 rProps[p.Name] = p.PropertyType;
-            
+            }
+
 
             foreach (var con in type.GetConstructors())
             {
@@ -312,13 +283,49 @@ namespace Das.Serializer
             return true;
         }
 
-        // ReSharper disable once InconsistentNaming
-        private static Boolean AmIALeaf(Type t, Boolean isStringCounts)
+        public static Boolean IsLeaf(Type t,
+                                     Boolean isStringCounts)
         {
-            return  // value type or a string if desired
+            if (isStringCounts)
+                return IsLeafImpl(t, true, LeavesYesString);
+
+            return IsLeafImpl(t, false, LeavesNotString);
+        }
+
+        public static Decimal ToDecimal(Byte[] bytes)
+        {
+            var bits = new Int32[4];
+            for (var i = 0; i <= 15; i += 4)
+                bits[i / 4] = BitConverter.ToInt32(bytes, i);
+
+            return new Decimal(bits);
+        }
+
+
+        protected static Boolean IsAnonymousType(Type type)
+        {
+            return type.Namespace == null &&
+                   type.IsGenericType &&
+                   type.IsSealed && type.BaseType == Const.ObjectType &&
+                   Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false)
+                   && type.Name.Contains("AnonymousType")
+                   && (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))
+                   && (type.Attributes & TypeAttributes.Public) == TypeAttributes.NotPublic;
+        }
+
+        protected static Boolean IsString(Type t)
+        {
+            return t == Const.StrType;
+        }
+
+        // ReSharper disable once InconsistentNaming
+        private static Boolean AmIALeaf(Type t,
+                                        Boolean isStringCounts)
+        {
+            return // value type or a string if desired
                 (t.IsValueType || isStringCounts && t == Const.StrType)
-                    // not an object unless it's a nullable
-                   && (Type.GetTypeCode(t) > TypeCode.DBNull );//|| TryGetNullableTypeImpl(t, out _));
+                // not an object unless it's a nullable
+                && Type.GetTypeCode(t) > TypeCode.DBNull; //|| TryGetNullableTypeImpl(t, out _));
         }
 
         private static Type? GetKeyValuePair(Type dicType)
@@ -340,27 +347,6 @@ namespace Das.Serializer
             return null;
         }
 
-
-        protected static Boolean IsAnonymousType(Type type)
-        {
-            return type.Namespace == null &&
-                   type.IsGenericType &&
-                   type.IsSealed && type.BaseType == Const.ObjectType &&
-                   Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false)
-                   && type.Name.Contains("AnonymousType")
-                   && (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))
-                   && (type.Attributes & TypeAttributes.Public) == TypeAttributes.NotPublic;
-        }
-
-        public static Boolean IsLeaf(Type t, 
-                                     Boolean isStringCounts)
-        {
-            if (isStringCounts)
-                return IsLeafImpl(t, true, LeavesYesString);
-
-            return IsLeafImpl(t, false, LeavesNotString);
-        }
-
         [MethodImpl(256)]
         private static Boolean IsLeafImpl(Type t,
                                           Boolean isStringCounts,
@@ -372,18 +358,17 @@ namespace Das.Serializer
             return dic[t] = AmIALeaf(t, isStringCounts);
         }
 
-        protected static Boolean IsString(Type t)
-        {
-            return t == Const.StrType;
-        }
 
-        public static Decimal ToDecimal(Byte[] bytes)
+        private static Boolean TryGetNullableTypeImpl(Type candidate,
+                                                      out Type? primitive)
         {
-            var bits = new Int32[4];
-            for (var i = 0; i <= 15; i += 4)
-                bits[i / 4] = BitConverter.ToInt32(bytes, i);
+            primitive = null;
+            if (!candidate.IsGenericType ||
+                candidate.GetGenericTypeDefinition() != typeof(Nullable<>))
+                return false;
 
-            return new Decimal(bits);
+            primitive = candidate.GetGenericArguments()[0];
+            return true;
         }
 
 
@@ -408,7 +393,8 @@ namespace Das.Serializer
         private static readonly ConcurrentDictionary<Type, IEnumerable<PropertyInfo>>
             CachedProperties;
 
-        private ISerializerSettings _settings;
         private static readonly ConcurrentDictionary<Type, TypeConverter> _typeConverters;
+
+        private ISerializerSettings _settings;
     }
 }

@@ -17,6 +17,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)CoreNumeric.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DasCoreSerializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DasSettings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Exceptions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Files\SafeFile.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Json\JsonExpress.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Json\DeserializeJson.cs" />

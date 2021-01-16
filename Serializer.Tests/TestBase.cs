@@ -32,6 +32,18 @@ namespace Serializer.Tests
 #endif
         }
 
+
+        protected static Object GetAnonymousObject()
+        {
+            return new
+            {
+                Id = 123,
+                Name = "Bob",
+                NumericString = "8675309",
+                ZipCode = 90210
+            };
+        }
+
         public ProtoBufOptions<ProtoMemberAttribute> Settings { get; set; }
 
     }

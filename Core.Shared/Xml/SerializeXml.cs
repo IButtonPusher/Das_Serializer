@@ -27,27 +27,29 @@ namespace Das.Serializer
             return ObjectToTypedXml(obj!, typeof(TTarget));
         }
 
-        public async Task ToXml(Object o, 
+        public async Task ToXml(Object o,
                                 FileInfo fi)
         {
             var xml = ToXml(o);
             await XmlToFile(xml, fi);
         }
 
-        public async Task ToXml<TTarget>(Object o, FileInfo fi)
+        public async Task ToXml<TTarget>(Object o,
+                                         FileInfo fi)
         {
-            
             var xml = ToXml<TTarget>(o);
             await XmlToFile(xml, fi);
         }
 
-        public async Task ToXml<TObject>(TObject o, FileInfo fileName)
+        public async Task ToXml<TObject>(TObject o,
+                                         FileInfo fileName)
         {
             var xml = ObjectToTypedXml(o!, typeof(TObject));
             await XmlToFile(xml, fileName);
         }
 
-        private String ObjectToTypedXml(Object o, Type asType)
+        private String ObjectToTypedXml(Object o,
+                                        Type asType)
         {
             var settings = Settings;
             var nodeType = NodeTypeProvider.GetNodeType(asType, Settings.SerializationDepth);
@@ -91,7 +93,8 @@ namespace Das.Serializer
             }
         }
 
-        private async Task XmlToFile(String xml, FileInfo fi)
+        private async Task XmlToFile(String xml,
+                                     FileInfo fi)
         {
             using (TextWriter tr = new StreamWriter(fi.FullName))
             {

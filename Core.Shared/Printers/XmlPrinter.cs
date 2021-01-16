@@ -127,7 +127,6 @@ namespace Das.Printers
                     for (var c = 0; c < current.Tabs; c++)
                         Writer.Append(_indenter);
 
-                    //Writer.Append(tabBlob);
                     Writer.Append(OpenAttributes, node.Name);
                 }
                 else

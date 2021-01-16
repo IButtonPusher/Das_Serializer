@@ -209,12 +209,19 @@ namespace Serializer.Tests.Xml
 
 			//fail
 			srl.Settings.CircularReferenceBehavior = CircularReference.ThrowException;
-			try
-			{
-				srl.ToXml(sc1);
+            try
+            {
+                srl.ToXml(sc1);
+                Assert.True(false);
+            }
+            catch (CircularReferenceException)
+            {
+				Assert.True(true);
+            }
+            catch
+            {
 				Assert.True(false);
-			}
-			catch { }
+            }
 		}
 
 
@@ -427,8 +434,7 @@ namespace Serializer.Tests.Xml
 			Assert.True(Serializer.ToXml(mc2) == xml);
 		}
 
-		//[TestCategory("xml"), TestCategory("special"), TestMethod]
-		[Fact]
+        [Fact]
 		public void TuplesXml()
 		{
 			var easyTuple = new Tuple<string, long>("hello", 1337);
@@ -441,8 +447,7 @@ namespace Serializer.Tests.Xml
 				easyTuple.Item2 == test2.Item2);
 		}
 
-		//[TestCategory("xml"), TestCategory("special"), TestMethod]
-		[Fact]
+        [Fact]
 		public void VersionXml()
 		{
 			var v = new Version(3, 1, 4);
@@ -455,25 +460,17 @@ namespace Serializer.Tests.Xml
 			Assert.True(v == v2);
 		}
 
-		//[TestCategory("xml"), TestCategory("dynamic"), TestMethod]
-		[Fact]
+        [Fact]
 		public void AnonymousTypeXml()
 		{
-			var vvq = new
-			{
-				Id = 123,
-				Name = "Bob",
-				ZipCode = 90210
-			};
+            var vvq = GetAnonymousObject();
+
 			var srl = new DasSerializer();
 			var xml = srl.ToXml(vvq);
 			var res = srl.FromXml(xml);
 
             var isOk = SlowEquality.AreEqual(res, vvq);
             Assert.True(isOk);
-
-//			Assert.True(vvq.Id == res.Id && vvq.Name == res.Name &&
-//				vvq.ZipCode == res.ZipCode);
-		}
+        }
 	}
 }

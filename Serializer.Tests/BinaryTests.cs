@@ -410,8 +410,13 @@ namespace Serializer.Tests.Binary
                 srl.ToBytes(sc1);
                 Assert.True(false);
             }
+            catch (CircularReferenceException)
+            {
+                Assert.True(true);
+            }
             catch
             {
+                Assert.True(false);
             }
         }
 

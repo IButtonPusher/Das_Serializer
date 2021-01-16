@@ -100,7 +100,9 @@ namespace Das.Serializer
 
         public Boolean IsRespectXmlIgnore => true;
 
-        public void Set(String name, ISerializationDepth depth, INodeManipulator nodeManipulator)
+        public void Set(String name,
+                        ISerializationDepth depth,
+                        INodeManipulator nodeManipulator)
         {
         }
 
@@ -139,12 +141,14 @@ namespace Das.Serializer
             return 0;
         }
 
-        public static Boolean operator ==(NullNode nn, INode node)
+        public static Boolean operator ==(NullNode nn,
+                                          INode node)
         {
             return ReferenceEquals(node, nn);
         }
 
-        public static Boolean operator !=(NullNode nn, INode node)
+        public static Boolean operator !=(NullNode nn,
+                                          INode node)
         {
             return !ReferenceEquals(node, nn);
         }

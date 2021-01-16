@@ -11,7 +11,8 @@ namespace Das.Serializer
 {
     public class NodePool : INodePool
     {
-        public NodePool(ISerializerSettings settings, INodeTypeProvider nodeTypeProvider)
+        public NodePool(ISerializerSettings settings,
+                        INodeTypeProvider nodeTypeProvider)
         {
             _nodeTypeProvider = nodeTypeProvider;
             Settings = settings;
@@ -22,24 +23,26 @@ namespace Das.Serializer
             return GetPrintNodeImpl(namedValue);
         }
 
-        public IPrintNode GetPrintNode(INamedValue namedValue, Object? overrideValue)
+        public IPrintNode GetPrintNode(INamedValue namedValue,
+                                       Object? overrideValue)
         {
             var node = GetPrintNodeImpl(namedValue);
             node.SetValue(overrideValue);
             return node;
         }
 
-        public INamedValue GetNamedValue(String name, Object value, Type type)
+        public INamedValue GetNamedValue(String name,
+                                         Object value,
+                                         Type type)
         {
             var buffer = NamedNodeBuffer.Value!;
 
-            if (buffer.Count == 0) 
+            if (buffer.Count == 0)
                 return new NamedValueNode(ReturnToSender, name, value, type);
 
             var print = buffer.Dequeue();
             print.Set(name, value, type);
             return print;
-
         }
 
         public INamedValue GetNamedValue(DictionaryEntry kvp)
@@ -48,8 +51,8 @@ namespace Das.Serializer
                 kvp.Value?.GetType() ?? typeof(Object));
         }
 
-        public IProperty GetProperty(String propertyName, 
-                                     Object? propertyValue, 
+        public IProperty GetProperty(String propertyName,
+                                     Object? propertyValue,
                                      Type propertyType,
                                      Type declaringType)
         {
@@ -74,13 +77,12 @@ namespace Das.Serializer
             var buffer = PrintNodeBuffer.Value!;
             var nodeType = _nodeTypeProvider.GetNodeType(namedValue.Type, Settings.SerializationDepth);
 
-            if (buffer.Count <= 0) 
+            if (buffer.Count <= 0)
                 return new PrintNode(ReturnToSender, namedValue, nodeType);
 
             var print = buffer.Dequeue();
             print.Set(namedValue, nodeType);
             return print;
-
         }
 
         private static void ReturnToSender(PrintNode node)

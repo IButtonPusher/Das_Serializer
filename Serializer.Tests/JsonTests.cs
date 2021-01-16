@@ -143,8 +143,13 @@ namespace Serializer.Tests.Json
                 srl.ToJson(test);
                 Assert.True(false);
             }
+            catch (CircularReferenceException)
+            {
+                Assert.True(true);
+            }
             catch
             {
+                Assert.True(false);
             }
         }
 
@@ -168,7 +173,18 @@ namespace Serializer.Tests.Json
             var test = res.result?.error?.message;
         }
 
-       
+        [Fact]
+        public void AnonymousTypeJson()
+        {
+            var vvq = GetAnonymousObject();
+           
+            var srl = new DasSerializer();
+            var json = srl.ToJson(vvq);
+            var res = srl.FromJson(json);
+
+            var isOk = SlowEquality.AreEqual(res, vvq);
+            Assert.True(isOk);
+        }
 
         [Fact]
         public void ClassWithObjectArrayJson()

@@ -9,23 +9,26 @@ namespace Das.Serializer
     {
         public Object FromJson(String json)
         {
+            #if ALWAYS_EXPRESS
+
+            return JsonExpress.Deserialize<Object>(json, Settings, _empty);
+
+            #else
             using (var state = StateProvider.BorrowJson(Settings))
             {
                 return state.Scanner.Deserialize<Object>(json);
             }
+
+            #endif
         }
 
         public T FromJson<T>(String json)
         {
             #if ALWAYS_EXPRESS
-            
+
             return JsonExpress.Deserialize<T>(json, Settings, _empty);
 
             #else
-            
-            //return JsonExpress.Deserialize<T>(json);
-
-
             using (var state = StateProvider.BorrowJson(Settings))
             {
                 var res = state.Scanner.Deserialize<T>(json);
@@ -45,7 +48,7 @@ namespace Das.Serializer
             return JsonExpress.Deserialize<T>(json, Settings, _empty);
         }
 
-        public T FromJsonEx<T>(String json, 
+        public T FromJsonEx<T>(String json,
                                Object[] ctorValues)
         {
             return JsonExpress.Deserialize<T>(json, Settings, ctorValues);
@@ -57,7 +60,6 @@ namespace Das.Serializer
             return JsonExpress.Deserialize<T>(File.ReadAllText(file.FullName),
                 Settings, _empty);
             #else
-
             using (var fs = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
             {
                 return FromJson<T>(fs);
@@ -75,7 +77,6 @@ namespace Das.Serializer
                 return JsonExpress.Deserialize<T>(txt, Settings, _empty);
             }
             #else
-            
             var streamWrap = new StreamStreamer(stream);
             return FromJsonCharArray<T>(streamWrap);
             #endif
@@ -100,6 +101,7 @@ namespace Das.Serializer
         {
         }
 
+        // ReSharper disable once UnusedMember.Global
         protected virtual T FromJsonCharArray<T>(Char[] json)
         {
             using (var state = StateProvider.BorrowJson(Settings))
