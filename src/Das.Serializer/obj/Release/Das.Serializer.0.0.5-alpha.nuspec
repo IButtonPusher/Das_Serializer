@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>Das.Serializer</id>
+    <version>0.0.5-alpha</version>
+    <authors>Claus Trappberger</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <licenseUrl>https://licenses.nuget.org/MIT</licenseUrl>
+    <projectUrl>https://github.com/IButtonPusher/Das_Serializer</projectUrl>
+    <description>Xml/Json/Protocol Buffers/Binary&lt;-&gt;Anything
+Single dll (fw/core) to keep it simple</description>
+    <repository type="git" url="https://github.com/IButtonPusher/Das_Serializer.git" />
+    <dependencies>
+      <group targetFramework=".NETFramework4.5">
+        <dependency id="Microsoft.CSharp" version="4.7.0" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework=".NETStandard2.1">
+        <dependency id="Microsoft.CSharp" version="4.7.0" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="E:\src\Das\Serializer\Das.Serializer\bin\Release\net45\Das.Serializer.dll" target="lib\net45\Das.Serializer.dll" />
+    <file src="E:\src\Das\Serializer\Das.Serializer\bin\Release\netstandard2.1\Das.Serializer.dll" target="lib\netstandard2.1\Das.Serializer.dll" />
+  </files>
+</package>

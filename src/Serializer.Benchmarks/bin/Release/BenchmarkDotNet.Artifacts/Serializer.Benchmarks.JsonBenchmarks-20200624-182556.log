@@ -1,0 +1,279 @@
+// Validating benchmarks:
+// ***** BenchmarkRunner: Start   *****
+// ***** Found 2 benchmark(s) in total *****
+// ***** Building 1 exe(s) in Parallel: Start   *****
+BuildScript: E:\src\Das\Serializer\Serializer.Benchmarks\bin\Release\644ff6b2-40c8-422c-a5c6-db4bb923744c.bat
+// ***** Done, took 00:00:02 (2.34 sec)   *****
+// Found 2 benchmarks:
+//   JsonBenchmarks.PrimitivePropertiesJsonBaseline: DefaultJob
+//   JsonBenchmarks.PrimitivePropertiesJsonExpress: DefaultJob
+
+// **************************
+// Benchmark: JsonBenchmarks.PrimitivePropertiesJsonBaseline: DefaultJob
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: E:\src\Das\Serializer\Serializer.Benchmarks\bin\Release\644ff6b2-40c8-422c-a5c6-db4bb923744c.exe --benchmarkName "Serializer.Benchmarks.JsonBenchmarks.PrimitivePropertiesJsonBaseline" --job "Default" --benchmarkId 0 in 
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// Runtime=.NET Framework 4.8 (4.8.4180.0), X64 RyuJIT
+// GC=Concurrent Workstation
+// Job: DefaultJob
+
+OverheadJitting  1: 1 op, 302600.00 ns, 302.6000 us/op
+WorkloadJitting  1: 1 op, 18897900.00 ns, 18.8979 ms/op
+
+OverheadJitting  2: 16 op, 702000.00 ns, 43.8750 us/op
+WorkloadJitting  2: 16 op, 966400.00 ns, 60.4000 us/op
+
+WorkloadPilot    1: 16 op, 194000.00 ns, 12.1250 us/op
+WorkloadPilot    2: 32 op, 300900.00 ns, 9.4031 us/op
+WorkloadPilot    3: 64 op, 577500.00 ns, 9.0234 us/op
+WorkloadPilot    4: 128 op, 1188300.00 ns, 9.2836 us/op
+WorkloadPilot    5: 256 op, 2310000.00 ns, 9.0234 us/op
+WorkloadPilot    6: 512 op, 4711500.00 ns, 9.2021 us/op
+WorkloadPilot    7: 1024 op, 9162600.00 ns, 8.9479 us/op
+WorkloadPilot    8: 2048 op, 18353800.00 ns, 8.9618 us/op
+WorkloadPilot    9: 4096 op, 35928100.00 ns, 8.7715 us/op
+WorkloadPilot   10: 8192 op, 71302300.00 ns, 8.7039 us/op
+WorkloadPilot   11: 16384 op, 142332200.00 ns, 8.6873 us/op
+WorkloadPilot   12: 32768 op, 288925400.00 ns, 8.8173 us/op
+WorkloadPilot   13: 65536 op, 572780400.00 ns, 8.7399 us/op
+
+OverheadWarmup   1: 65536 op, 199100.00 ns, 3.0380 ns/op
+OverheadWarmup   2: 65536 op, 198500.00 ns, 3.0289 ns/op
+OverheadWarmup   3: 65536 op, 199500.00 ns, 3.0441 ns/op
+OverheadWarmup   4: 65536 op, 198400.00 ns, 3.0273 ns/op
+OverheadWarmup   5: 65536 op, 198400.00 ns, 3.0273 ns/op
+OverheadWarmup   6: 65536 op, 198400.00 ns, 3.0273 ns/op
+
+OverheadActual   1: 65536 op, 199700.00 ns, 3.0472 ns/op
+OverheadActual   2: 65536 op, 198400.00 ns, 3.0273 ns/op
+OverheadActual   3: 65536 op, 198500.00 ns, 3.0289 ns/op
+OverheadActual   4: 65536 op, 199600.00 ns, 3.0457 ns/op
+OverheadActual   5: 65536 op, 201000.00 ns, 3.0670 ns/op
+OverheadActual   6: 65536 op, 308300.00 ns, 4.7043 ns/op
+OverheadActual   7: 65536 op, 199700.00 ns, 3.0472 ns/op
+OverheadActual   8: 65536 op, 198400.00 ns, 3.0273 ns/op
+OverheadActual   9: 65536 op, 198400.00 ns, 3.0273 ns/op
+OverheadActual  10: 65536 op, 198500.00 ns, 3.0289 ns/op
+OverheadActual  11: 65536 op, 199600.00 ns, 3.0457 ns/op
+OverheadActual  12: 65536 op, 199700.00 ns, 3.0472 ns/op
+OverheadActual  13: 65536 op, 199700.00 ns, 3.0472 ns/op
+OverheadActual  14: 65536 op, 199600.00 ns, 3.0457 ns/op
+OverheadActual  15: 65536 op, 199700.00 ns, 3.0472 ns/op
+
+WorkloadWarmup   1: 65536 op, 571822900.00 ns, 8.7253 us/op
+WorkloadWarmup   2: 65536 op, 576825100.00 ns, 8.8017 us/op
+WorkloadWarmup   3: 65536 op, 571349400.00 ns, 8.7181 us/op
+WorkloadWarmup   4: 65536 op, 578091100.00 ns, 8.8210 us/op
+WorkloadWarmup   5: 65536 op, 571049900.00 ns, 8.7135 us/op
+WorkloadWarmup   6: 65536 op, 573354100.00 ns, 8.7487 us/op
+
+// BeforeActualRun
+WorkloadActual   1: 65536 op, 566970900.00 ns, 8.6513 us/op
+WorkloadActual   2: 65536 op, 574599500.00 ns, 8.7677 us/op
+WorkloadActual   3: 65536 op, 573200700.00 ns, 8.7463 us/op
+WorkloadActual   4: 65536 op, 571067000.00 ns, 8.7138 us/op
+WorkloadActual   5: 65536 op, 583623900.00 ns, 8.9054 us/op
+WorkloadActual   6: 65536 op, 575712700.00 ns, 8.7847 us/op
+WorkloadActual   7: 65536 op, 575654600.00 ns, 8.7838 us/op
+WorkloadActual   8: 65536 op, 571064000.00 ns, 8.7137 us/op
+WorkloadActual   9: 65536 op, 574859600.00 ns, 8.7717 us/op
+WorkloadActual  10: 65536 op, 570198800.00 ns, 8.7005 us/op
+WorkloadActual  11: 65536 op, 571732700.00 ns, 8.7239 us/op
+WorkloadActual  12: 65536 op, 571231800.00 ns, 8.7163 us/op
+WorkloadActual  13: 65536 op, 571699500.00 ns, 8.7234 us/op
+WorkloadActual  14: 65536 op, 574212200.00 ns, 8.7618 us/op
+WorkloadActual  15: 65536 op, 570691700.00 ns, 8.7081 us/op
+
+// AfterActualRun
+WorkloadResult   1: 65536 op, 566771300.00 ns, 8.6482 us/op
+WorkloadResult   2: 65536 op, 574399900.00 ns, 8.7646 us/op
+WorkloadResult   3: 65536 op, 573001100.00 ns, 8.7433 us/op
+WorkloadResult   4: 65536 op, 570867400.00 ns, 8.7107 us/op
+WorkloadResult   5: 65536 op, 575513100.00 ns, 8.7816 us/op
+WorkloadResult   6: 65536 op, 575455000.00 ns, 8.7807 us/op
+WorkloadResult   7: 65536 op, 570864400.00 ns, 8.7107 us/op
+WorkloadResult   8: 65536 op, 574660000.00 ns, 8.7686 us/op
+WorkloadResult   9: 65536 op, 569999200.00 ns, 8.6975 us/op
+WorkloadResult  10: 65536 op, 571533100.00 ns, 8.7209 us/op
+WorkloadResult  11: 65536 op, 571032200.00 ns, 8.7133 us/op
+WorkloadResult  12: 65536 op, 571499900.00 ns, 8.7204 us/op
+WorkloadResult  13: 65536 op, 574012600.00 ns, 8.7587 us/op
+WorkloadResult  14: 65536 op, 570492100.00 ns, 8.7050 us/op
+
+// AfterAll
+// Benchmark Process 14812 has exited with code 0
+
+Mean = 8.730 μs, StdErr = 0.010 μs (0.12%), N = 14, StdDev = 0.038 μs
+Min = 8.648 μs, Q1 = 8.711 μs, Median = 8.721 μs, Q3 = 8.763 μs, Max = 8.782 μs
+IQR = 0.052 μs, LowerFence = 8.632 μs, UpperFence = 8.842 μs
+ConfidenceInterval = [8.688 μs; 8.773 μs] (CI 99.9%), Margin = 0.043 μs (0.49% of Mean)
+Skewness = -0.32, Kurtosis = 2.29, MValue = 2
+
+// **************************
+// Benchmark: JsonBenchmarks.PrimitivePropertiesJsonExpress: DefaultJob
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: E:\src\Das\Serializer\Serializer.Benchmarks\bin\Release\644ff6b2-40c8-422c-a5c6-db4bb923744c.exe --benchmarkName "Serializer.Benchmarks.JsonBenchmarks.PrimitivePropertiesJsonExpress" --job "Default" --benchmarkId 1 in 
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// Runtime=.NET Framework 4.8 (4.8.4180.0), X64 RyuJIT
+// GC=Concurrent Workstation
+// Job: DefaultJob
+
+OverheadJitting  1: 1 op, 289500.00 ns, 289.5000 us/op
+WorkloadJitting  1: 1 op, 7714500.00 ns, 7.7145 ms/op
+
+OverheadJitting  2: 16 op, 697200.00 ns, 43.5750 us/op
+WorkloadJitting  2: 16 op, 800100.00 ns, 50.0063 us/op
+
+WorkloadPilot    1: 16 op, 117100.00 ns, 7.3188 us/op
+WorkloadPilot    2: 32 op, 202500.00 ns, 6.3281 us/op
+WorkloadPilot    3: 64 op, 389300.00 ns, 6.0828 us/op
+WorkloadPilot    4: 128 op, 796300.00 ns, 6.2211 us/op
+WorkloadPilot    5: 256 op, 1549600.00 ns, 6.0531 us/op
+WorkloadPilot    6: 512 op, 3237900.00 ns, 6.3240 us/op
+WorkloadPilot    7: 1024 op, 10409800.00 ns, 10.1658 us/op
+WorkloadPilot    8: 2048 op, 12126600.00 ns, 5.9212 us/op
+WorkloadPilot    9: 4096 op, 24376500.00 ns, 5.9513 us/op
+WorkloadPilot   10: 8192 op, 48775900.00 ns, 5.9541 us/op
+WorkloadPilot   11: 16384 op, 99157900.00 ns, 6.0521 us/op
+WorkloadPilot   12: 32768 op, 195775300.00 ns, 5.9746 us/op
+WorkloadPilot   13: 65536 op, 394768500.00 ns, 6.0237 us/op
+WorkloadPilot   14: 131072 op, 789071800.00 ns, 6.0201 us/op
+
+OverheadWarmup   1: 131072 op, 397200.00 ns, 3.0304 ns/op
+OverheadWarmup   2: 131072 op, 395100.00 ns, 3.0144 ns/op
+OverheadWarmup   3: 131072 op, 404900.00 ns, 3.0891 ns/op
+OverheadWarmup   4: 131072 op, 395000.00 ns, 3.0136 ns/op
+OverheadWarmup   5: 131072 op, 395000.00 ns, 3.0136 ns/op
+OverheadWarmup   6: 131072 op, 395200.00 ns, 3.0151 ns/op
+
+OverheadActual   1: 131072 op, 392800.00 ns, 2.9968 ns/op
+OverheadActual   2: 131072 op, 401100.00 ns, 3.0602 ns/op
+OverheadActual   3: 131072 op, 401100.00 ns, 3.0602 ns/op
+OverheadActual   4: 131072 op, 398900.00 ns, 3.0434 ns/op
+OverheadActual   5: 131072 op, 398800.00 ns, 3.0426 ns/op
+OverheadActual   6: 131072 op, 397400.00 ns, 3.0319 ns/op
+OverheadActual   7: 131072 op, 397400.00 ns, 3.0319 ns/op
+OverheadActual   8: 131072 op, 398400.00 ns, 3.0396 ns/op
+OverheadActual   9: 131072 op, 399000.00 ns, 3.0441 ns/op
+OverheadActual  10: 131072 op, 408600.00 ns, 3.1174 ns/op
+OverheadActual  11: 131072 op, 398700.00 ns, 3.0418 ns/op
+OverheadActual  12: 131072 op, 398700.00 ns, 3.0418 ns/op
+OverheadActual  13: 131072 op, 396500.00 ns, 3.0251 ns/op
+OverheadActual  14: 131072 op, 395100.00 ns, 3.0144 ns/op
+OverheadActual  15: 131072 op, 395000.00 ns, 3.0136 ns/op
+
+WorkloadWarmup   1: 131072 op, 783097500.00 ns, 5.9746 us/op
+WorkloadWarmup   2: 131072 op, 790401800.00 ns, 6.0303 us/op
+WorkloadWarmup   3: 131072 op, 788757200.00 ns, 6.0177 us/op
+WorkloadWarmup   4: 131072 op, 781200000.00 ns, 5.9601 us/op
+WorkloadWarmup   5: 131072 op, 786435400.00 ns, 6.0000 us/op
+WorkloadWarmup   6: 131072 op, 780884600.00 ns, 5.9577 us/op
+
+// BeforeActualRun
+WorkloadActual   1: 131072 op, 785158100.00 ns, 5.9903 us/op
+WorkloadActual   2: 131072 op, 788608800.00 ns, 6.0166 us/op
+WorkloadActual   3: 131072 op, 790708700.00 ns, 6.0326 us/op
+WorkloadActual   4: 131072 op, 781677200.00 ns, 5.9637 us/op
+WorkloadActual   5: 131072 op, 785287800.00 ns, 5.9913 us/op
+WorkloadActual   6: 131072 op, 790217700.00 ns, 6.0289 us/op
+WorkloadActual   7: 131072 op, 776553800.00 ns, 5.9246 us/op
+WorkloadActual   8: 131072 op, 781644300.00 ns, 5.9635 us/op
+WorkloadActual   9: 131072 op, 780212900.00 ns, 5.9526 us/op
+WorkloadActual  10: 131072 op, 791970400.00 ns, 6.0423 us/op
+WorkloadActual  11: 131072 op, 788625300.00 ns, 6.0167 us/op
+WorkloadActual  12: 131072 op, 781975500.00 ns, 5.9660 us/op
+WorkloadActual  13: 131072 op, 788342000.00 ns, 6.0146 us/op
+WorkloadActual  14: 131072 op, 796247700.00 ns, 6.0749 us/op
+WorkloadActual  15: 131072 op, 792639600.00 ns, 6.0474 us/op
+
+// AfterActualRun
+WorkloadResult   1: 131072 op, 784759400.00 ns, 5.9872 us/op
+WorkloadResult   2: 131072 op, 788210100.00 ns, 6.0136 us/op
+WorkloadResult   3: 131072 op, 790310000.00 ns, 6.0296 us/op
+WorkloadResult   4: 131072 op, 781278500.00 ns, 5.9607 us/op
+WorkloadResult   5: 131072 op, 784889100.00 ns, 5.9882 us/op
+WorkloadResult   6: 131072 op, 789819000.00 ns, 6.0258 us/op
+WorkloadResult   7: 131072 op, 776155100.00 ns, 5.9216 us/op
+WorkloadResult   8: 131072 op, 781245600.00 ns, 5.9604 us/op
+WorkloadResult   9: 131072 op, 779814200.00 ns, 5.9495 us/op
+WorkloadResult  10: 131072 op, 791571700.00 ns, 6.0392 us/op
+WorkloadResult  11: 131072 op, 788226600.00 ns, 6.0137 us/op
+WorkloadResult  12: 131072 op, 781576800.00 ns, 5.9630 us/op
+WorkloadResult  13: 131072 op, 787943300.00 ns, 6.0115 us/op
+WorkloadResult  14: 131072 op, 795849000.00 ns, 6.0718 us/op
+WorkloadResult  15: 131072 op, 792240900.00 ns, 6.0443 us/op
+
+// AfterAll
+// Benchmark Process 4884 has exited with code 0
+
+Mean = 5.999 μs, StdErr = 0.011 μs (0.18%), N = 15, StdDev = 0.042 μs
+Min = 5.922 μs, Q1 = 5.962 μs, Median = 6.012 μs, Q3 = 6.028 μs, Max = 6.072 μs
+IQR = 0.066 μs, LowerFence = 5.863 μs, UpperFence = 6.127 μs
+ConfidenceInterval = [5.954 μs; 6.043 μs] (CI 99.9%), Margin = 0.044 μs (0.74% of Mean)
+Skewness = -0.12, Kurtosis = 1.89, MValue = 2
+
+// ***** BenchmarkRunner: Finish  *****
+
+// * Export *
+  BenchmarkDotNet.Artifacts\results\Serializer.Benchmarks.JsonBenchmarks-report.csv
+  BenchmarkDotNet.Artifacts\results\Serializer.Benchmarks.JsonBenchmarks-report-github.md
+  BenchmarkDotNet.Artifacts\results\Serializer.Benchmarks.JsonBenchmarks-report.html
+
+// * Detailed results *
+JsonBenchmarks.PrimitivePropertiesJsonBaseline: DefaultJob
+Runtime = .NET Framework 4.8 (4.8.4180.0), X64 RyuJIT; GC = Concurrent Workstation
+Mean = 8.730 μs, StdErr = 0.010 μs (0.12%), N = 14, StdDev = 0.038 μs
+Min = 8.648 μs, Q1 = 8.711 μs, Median = 8.721 μs, Q3 = 8.763 μs, Max = 8.782 μs
+IQR = 0.052 μs, LowerFence = 8.632 μs, UpperFence = 8.842 μs
+ConfidenceInterval = [8.688 μs; 8.773 μs] (CI 99.9%), Margin = 0.043 μs (0.49% of Mean)
+Skewness = -0.32, Kurtosis = 2.29, MValue = 2
+-------------------- Histogram --------------------
+[8.628 μs ; 8.796 μs) | @@@@@@@@@@@@@@
+---------------------------------------------------
+
+JsonBenchmarks.PrimitivePropertiesJsonExpress: DefaultJob
+Runtime = .NET Framework 4.8 (4.8.4180.0), X64 RyuJIT; GC = Concurrent Workstation
+Mean = 5.999 μs, StdErr = 0.011 μs (0.18%), N = 15, StdDev = 0.042 μs
+Min = 5.922 μs, Q1 = 5.962 μs, Median = 6.012 μs, Q3 = 6.028 μs, Max = 6.072 μs
+IQR = 0.066 μs, LowerFence = 5.863 μs, UpperFence = 6.127 μs
+ConfidenceInterval = [5.954 μs; 6.043 μs] (CI 99.9%), Margin = 0.044 μs (0.74% of Mean)
+Skewness = -0.12, Kurtosis = 1.89, MValue = 2
+-------------------- Histogram --------------------
+[5.899 μs ; 6.088 μs) | @@@@@@@@@@@@@@@
+---------------------------------------------------
+
+// * Summary *
+
+BenchmarkDotNet=v0.12.1, OS=Windows 10.0.18363.900 (1909/November2018Update/19H2)
+AMD Ryzen Threadripper 2950X, 1 CPU, 32 logical and 16 physical cores
+  [Host]     : .NET Framework 4.8 (4.8.4180.0), X64 RyuJIT
+  DefaultJob : .NET Framework 4.8 (4.8.4180.0), X64 RyuJIT
+
+
+|                          Method |     Mean |     Error |    StdDev |
+|-------------------------------- |---------:|----------:|----------:|
+| PrimitivePropertiesJsonBaseline | 8.730 μs | 0.0426 μs | 0.0377 μs |
+|  PrimitivePropertiesJsonExpress | 5.999 μs | 0.0444 μs | 0.0415 μs |
+
+// * Hints *
+Outliers
+  JsonBenchmarks.PrimitivePropertiesJsonBaseline: Default -> 1 outlier  was  removed (8.91 μs)
+
+// * Legends *
+  Mean   : Arithmetic mean of all measurements
+  Error  : Half of 99.9% confidence interval
+  StdDev : Standard deviation of all measurements
+  1 μs   : 1 Microsecond (0.000001 sec)
+
+// ***** BenchmarkRunner: End *****
+// ** Remained 0 benchmark(s) to run **
+Run time: 00:00:33 (33.42 sec), executed benchmarks: 2
+
+Global total time: 00:00:35 (35.77 sec), executed benchmarks: 2
+// * Artifacts cleanup *

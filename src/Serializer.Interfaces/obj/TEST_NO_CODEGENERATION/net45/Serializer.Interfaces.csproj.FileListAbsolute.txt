@@ -1,0 +1,8 @@
+E:\src\Das\Serializer\Serializer.Interfaces\bin\TEST_NO_CODEGENERATION\net45\Serializer.Interfaces.dll
+E:\src\Das\Serializer\Serializer.Interfaces\bin\TEST_NO_CODEGENERATION\net45\Serializer.Interfaces.pdb
+E:\src\Das\Serializer\Serializer.Interfaces\obj\TEST_NO_CODEGENERATION\net45\Serializer.Interfaces.AssemblyInfoInputs.cache
+E:\src\Das\Serializer\Serializer.Interfaces\obj\TEST_NO_CODEGENERATION\net45\Serializer.Interfaces.AssemblyInfo.cs
+E:\src\Das\Serializer\Serializer.Interfaces\obj\TEST_NO_CODEGENERATION\net45\Serializer.Interfaces.csproj.CoreCompileInputs.cache
+E:\src\Das\Serializer\Serializer.Interfaces\obj\TEST_NO_CODEGENERATION\net45\Serializer.Interfaces.dll
+E:\src\Das\Serializer\Serializer.Interfaces\obj\TEST_NO_CODEGENERATION\net45\Serializer.Interfaces.pdb
+E:\src\Das\Serializer\Serializer.Interfaces\obj\TEST_NO_CODEGENERATION\net45\Serializer.Interfaces.csprojAssemblyReference.cache

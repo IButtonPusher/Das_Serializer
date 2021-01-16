@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>Das.Serializer.Interfaces</id>
+    <version>0.0.1-alpha</version>
+    <authors>Claus Trappberger</authors>
+    <owners>Claus Trappberger</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <licenseUrl>https://licenses.nuget.org/MIT</licenseUrl>
+    <description>Loose coupling - no unsafe code</description>
+    <dependencies>
+      <group targetFramework=".NETStandard2.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="E:\src\Das\Serializer\Serializer.Interfaces\bin\Debug\netstandard2.0\Serializer.Interfaces.dll" target="lib\netstandard2.0\Serializer.Interfaces.dll" />
+  </files>
+</package>

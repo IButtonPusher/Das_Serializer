@@ -1,0 +1,4 @@
+E:\src\Das\Serializer\Serializer.Core\obj\Release\netstandard2.0\Serializer.Core.csprojAssemblyReference.cache
+E:\src\Das\Serializer\Serializer.Core\obj\Release\netstandard2.0\Serializer.Core.AssemblyInfoInputs.cache
+E:\src\Das\Serializer\Serializer.Core\obj\Release\netstandard2.0\Serializer.Core.AssemblyInfo.cs
+E:\src\Das\Serializer\Serializer.Core\obj\Release\netstandard2.0\Serializer.Core.csproj.CoreCompileInputs.cache

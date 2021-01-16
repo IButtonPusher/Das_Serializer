@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>UnitTestProject1.ProtocolBuffers.ProtoBufTests-20191227-231134</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet=v0.12.0, OS=Windows 10.0.18362
+AMD Ryzen Threadripper 2950X, 1 CPU, 32 logical and 16 physical cores
+  [Host]     : .NET Framework 4.8 (4.8.4075.0), X64 RyuJIT
+  DefaultJob : .NET Framework 4.8 (4.8.4075.0), X64 RyuJIT
+</code></pre>
+<pre><code></code></pre>
+
+<table>
+<thead><tr><th>           Method</th><th>Mean</th><th>Error</th><th>StdDev</th>
+</tr>
+</thead><tbody><tr><td>DasSimpleMessage</td><td>669.0 ns</td><td>7.81 ns</td><td>7.31 ns</td>
+</tr><tr><td>ProtoNetSimpleMessage</td><td>1,149.5 ns</td><td>5.70 ns</td><td>5.33 ns</td>
+</tr><tr><td>DasDoubleMeessage</td><td>856.2 ns</td><td>6.78 ns</td><td>6.01 ns</td>
+</tr><tr><td>ProtoNetDoubleMeessage</td><td>1,162.9 ns</td><td>11.88 ns</td><td>11.11 ns</td>
+</tr><tr><td>DasStringMessage</td><td>895.4 ns</td><td>4.12 ns</td><td>3.86 ns</td>
+</tr><tr><td>ProtoNetStringMessage</td><td>1,514.0 ns</td><td>25.95 ns</td><td>23.00 ns</td>
+</tr><tr><td>DasMultiProperties</td><td>1,143.6 ns</td><td>15.04 ns</td><td>13.33 ns</td>
+</tr><tr><td>ProtoNetMultiProperties</td><td>1,589.6 ns</td><td>31.60 ns</td><td>43.25 ns</td>
+</tr><tr><td>DasComposedMessage</td><td>2,066.6 ns</td><td>9.40 ns</td><td>8.79 ns</td>
+</tr><tr><td>ProtoNetComposedMessage</td><td>1,848.6 ns</td><td>8.62 ns</td><td>8.06 ns</td>
+</tr><tr><td>ProtoNetByteArray</td><td>1,240.1 ns</td><td>5.76 ns</td><td>5.10 ns</td>
+</tr><tr><td>DasByteArray</td><td>743.0 ns</td><td>3.55 ns</td><td>3.32 ns</td>
+</tr></tbody></table>
+</body>
+</html>

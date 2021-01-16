@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>Serializer.Tests.ProtocolBuffers.ProtoBufTests-20200106-024350</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet=v0.12.0, OS=Windows 10.0.18362
+AMD Ryzen Threadripper 2950X, 1 CPU, 32 logical and 16 physical cores
+  [Host]     : .NET Framework 4.8 (4.8.4075.0), X64 RyuJIT
+  DefaultJob : .NET Framework 4.8 (4.8.4075.0), X64 RyuJIT
+</code></pre>
+<pre><code></code></pre>
+
+<table>
+<thead><tr><th>                  Method</th><th>Mean</th><th>Error</th><th>StdDev</th>
+</tr>
+</thead><tbody><tr><td>DasSimpleMessage</td><td>203.8 ns</td><td>1.57 ns</td><td>1.31 ns</td>
+</tr><tr><td>ProtoNetSimpleMessage</td><td>1,209.8 ns</td><td>9.81 ns</td><td>8.19 ns</td>
+</tr><tr><td>DasDoubleMessage</td><td>658.1 ns</td><td>5.75 ns</td><td>5.38 ns</td>
+</tr><tr><td>ProtoNetDoubleMeessage</td><td>1,182.2 ns</td><td>10.81 ns</td><td>10.11 ns</td>
+</tr><tr><td>DasStringMessage</td><td>761.6 ns</td><td>1.85 ns</td><td>1.64 ns</td>
+</tr><tr><td>ProtoNetStringMessage</td><td>1,483.3 ns</td><td>7.71 ns</td><td>7.21 ns</td>
+</tr><tr><td>DasDictionary</td><td>5,720.1 ns</td><td>42.68 ns</td><td>37.84 ns</td>
+</tr><tr><td>ProtoNetObjectDictionary</td><td>2,900.1 ns</td><td>24.95 ns</td><td>23.34 ns</td>
+</tr><tr><td>DasNegativeIntegerMessage</td><td>631.3 ns</td><td>4.65 ns</td><td>4.35 ns</td>
+</tr><tr><td>ProtoNetNegativeIntegerMessage</td><td>1,183.6 ns</td><td>11.44 ns</td><td>10.14 ns</td>
+</tr><tr><td>DasMultiProperties</td><td>954.2 ns</td><td>8.68 ns</td><td>8.12 ns</td>
+</tr><tr><td>DasMultiProperties_OLD</td><td>1,128.2 ns</td><td>15.10 ns</td><td>14.12 ns</td>
+</tr><tr><td>ProtoNetMultiProperties</td><td>1,532.9 ns</td><td>9.75 ns</td><td>9.12 ns</td>
+</tr><tr><td>DasComposedMessage</td><td>5,217.7 ns</td><td>32.80 ns</td><td>29.07 ns</td>
+</tr><tr><td>ProtoNetComposedMessage</td><td>3,209.0 ns</td><td>11.85 ns</td><td>10.51 ns</td>
+</tr><tr><td>DasByteArray</td><td>650.2 ns</td><td>5.01 ns</td><td>4.69 ns</td>
+</tr><tr><td>ProtoNetByteArray</td><td>1,248.3 ns</td><td>4.98 ns</td><td>4.16 ns</td>
+</tr></tbody></table>
+</body>
+</html>

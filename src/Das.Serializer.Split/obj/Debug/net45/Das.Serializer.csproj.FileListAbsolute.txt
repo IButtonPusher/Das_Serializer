@@ -1,0 +1,6 @@
+E:\src\Das\Serializer\Das.Serializer\bin\Debug\net45\Das.Serializer.dll
+E:\src\Das\Serializer\Das.Serializer\bin\Debug\net45\Das.Serializer.pdb
+E:\src\Das\Serializer\Das.Serializer\obj\Debug\net45\Das.Serializer.AssemblyInfoInputs.cache
+E:\src\Das\Serializer\Das.Serializer\obj\Debug\net45\Das.Serializer.AssemblyInfo.cs
+E:\src\Das\Serializer\Das.Serializer\obj\Debug\net45\Das.Serializer.dll
+E:\src\Das\Serializer\Das.Serializer\obj\Debug\net45\Das.Serializer.pdb

@@ -1,0 +1,1982 @@
+// Validating benchmarks:
+// ***** BenchmarkRunner: Start   *****
+// ***** Found 17 benchmark(s) in total *****
+// ***** Building 1 exe(s) in Parallel: Start   *****
+BuildScript: E:\src\Das\Serializer\Serializer.Benchmarks\bin\Release\8253b33b-2593-4c9f-98bb-37cc9c0d46a4.bat
+// ***** Done, took 00:00:02 (2.78 sec)   *****
+// Found 17 benchmarks:
+//   ProtoBufTests.DasSimpleMessage: DefaultJob
+//   ProtoBufTests.ProtoNetSimpleMessage: DefaultJob
+//   ProtoBufTests.DasDoubleMessage: DefaultJob
+//   ProtoBufTests.ProtoNetDoubleMeessage: DefaultJob
+//   ProtoBufTests.DasStringMessage: DefaultJob
+//   ProtoBufTests.ProtoNetStringMessage: DefaultJob
+//   ProtoBufTests.DasDictionary: DefaultJob
+//   ProtoBufTests.ProtoNetObjectDictionary: DefaultJob
+//   ProtoBufTests.DasNegativeIntegerMessage: DefaultJob
+//   ProtoBufTests.ProtoNetNegativeIntegerMessage: DefaultJob
+//   ProtoBufTests.DasMultiProperties: DefaultJob
+//   ProtoBufTests.DasMultiProperties_OLD: DefaultJob
+//   ProtoBufTests.ProtoNetMultiProperties: DefaultJob
+//   ProtoBufTests.DasComposedMessage: DefaultJob
+//   ProtoBufTests.ProtoNetComposedMessage: DefaultJob
+//   ProtoBufTests.DasByteArray: DefaultJob
+//   ProtoBufTests.ProtoNetByteArray: DefaultJob
+
+// **************************
+// Benchmark: ProtoBufTests.DasSimpleMessage: DefaultJob
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: E:\src\Das\Serializer\Serializer.Benchmarks\bin\Release\8253b33b-2593-4c9f-98bb-37cc9c0d46a4.exe --benchmarkName "Serializer.Tests.ProtocolBuffers.ProtoBufTests.DasSimpleMessage" --job "Default" --benchmarkId 0 in 
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// Runtime=.NET Framework 4.8 (4.8.4075.0), X64 RyuJIT
+// GC=Concurrent Workstation
+// Job: DefaultJob
+
+OverheadJitting  1: 1 op, 391900.00 ns, 391.9000 us/op
+WorkloadJitting  1: 1 op, 43108100.00 ns, 43.1081 ms/op
+
+WorkloadPilot    1: 2 op, 16500.00 ns, 8.2500 us/op
+WorkloadPilot    2: 3 op, 3600.00 ns, 1.2000 us/op
+WorkloadPilot    3: 4 op, 4500.00 ns, 1.1250 us/op
+WorkloadPilot    4: 5 op, 4200.00 ns, 840.0000 ns/op
+WorkloadPilot    5: 6 op, 3800.00 ns, 633.3333 ns/op
+WorkloadPilot    6: 7 op, 3500.00 ns, 500.0000 ns/op
+WorkloadPilot    7: 8 op, 4400.00 ns, 550.0000 ns/op
+WorkloadPilot    8: 9 op, 4000.00 ns, 444.4444 ns/op
+WorkloadPilot    9: 10 op, 4100.00 ns, 410.0000 ns/op
+WorkloadPilot   10: 11 op, 12300.00 ns, 1.1182 us/op
+WorkloadPilot   11: 12 op, 5700.00 ns, 475.0000 ns/op
+WorkloadPilot   12: 13 op, 10400.00 ns, 800.0000 ns/op
+WorkloadPilot   13: 14 op, 6400.00 ns, 457.1429 ns/op
+WorkloadPilot   14: 15 op, 10000.00 ns, 666.6667 ns/op
+WorkloadPilot   15: 16 op, 9200.00 ns, 575.0000 ns/op
+WorkloadPilot   16: 32 op, 13600.00 ns, 425.0000 ns/op
+WorkloadPilot   17: 64 op, 27000.00 ns, 421.8750 ns/op
+WorkloadPilot   18: 128 op, 36000.00 ns, 281.2500 ns/op
+WorkloadPilot   19: 256 op, 86300.00 ns, 337.1094 ns/op
+WorkloadPilot   20: 512 op, 140000.00 ns, 273.4375 ns/op
+WorkloadPilot   21: 1024 op, 320400.00 ns, 312.8906 ns/op
+WorkloadPilot   22: 2048 op, 560800.00 ns, 273.8281 ns/op
+WorkloadPilot   23: 4096 op, 1035800.00 ns, 252.8809 ns/op
+WorkloadPilot   24: 8192 op, 2626000.00 ns, 320.5566 ns/op
+WorkloadPilot   25: 16384 op, 4108200.00 ns, 250.7446 ns/op
+WorkloadPilot   26: 32768 op, 7948200.00 ns, 242.5598 ns/op
+WorkloadPilot   27: 65536 op, 15332700.00 ns, 233.9584 ns/op
+WorkloadPilot   28: 131072 op, 31724600.00 ns, 242.0395 ns/op
+WorkloadPilot   29: 262144 op, 73091600.00 ns, 278.8223 ns/op
+WorkloadPilot   30: 524288 op, 126753600.00 ns, 241.7633 ns/op
+WorkloadPilot   31: 1048576 op, 243357100.00 ns, 232.0834 ns/op
+WorkloadPilot   32: 2097152 op, 507398300.00 ns, 241.9464 ns/op
+
+WorkloadWarmup   1: 2097152 op, 551916300.00 ns, 263.1742 ns/op
+WorkloadWarmup   2: 2097152 op, 498350600.00 ns, 237.6321 ns/op
+WorkloadWarmup   3: 2097152 op, 510120200.00 ns, 243.2443 ns/op
+WorkloadWarmup   4: 2097152 op, 539995900.00 ns, 257.4901 ns/op
+WorkloadWarmup   5: 2097152 op, 517006500.00 ns, 246.5279 ns/op
+WorkloadWarmup   6: 2097152 op, 478494300.00 ns, 228.1639 ns/op
+WorkloadWarmup   7: 2097152 op, 510757300.00 ns, 243.5481 ns/op
+WorkloadWarmup   8: 2097152 op, 484959400.00 ns, 231.2467 ns/op
+
+// BeforeActualRun
+WorkloadActual   1: 2097152 op, 484717200.00 ns, 231.1312 ns/op
+WorkloadActual   2: 2097152 op, 480352100.00 ns, 229.0497 ns/op
+WorkloadActual   3: 2097152 op, 483435000.00 ns, 230.5198 ns/op
+WorkloadActual   4: 2097152 op, 478725100.00 ns, 228.2739 ns/op
+WorkloadActual   5: 2097152 op, 479166800.00 ns, 228.4845 ns/op
+WorkloadActual   6: 2097152 op, 479700200.00 ns, 228.7389 ns/op
+WorkloadActual   7: 2097152 op, 478955600.00 ns, 228.3838 ns/op
+WorkloadActual   8: 2097152 op, 479003500.00 ns, 228.4067 ns/op
+WorkloadActual   9: 2097152 op, 480906700.00 ns, 229.3142 ns/op
+WorkloadActual  10: 2097152 op, 481518100.00 ns, 229.6057 ns/op
+WorkloadActual  11: 2097152 op, 484020900.00 ns, 230.7992 ns/op
+WorkloadActual  12: 2097152 op, 484622700.00 ns, 231.0861 ns/op
+WorkloadActual  13: 2097152 op, 487716900.00 ns, 232.5615 ns/op
+WorkloadActual  14: 2097152 op, 485474600.00 ns, 231.4923 ns/op
+WorkloadActual  15: 2097152 op, 478090600.00 ns, 227.9714 ns/op
+
+// AfterActualRun
+WorkloadResult   1: 2097152 op, 484717200.00 ns, 231.1312 ns/op
+WorkloadResult   2: 2097152 op, 480352100.00 ns, 229.0497 ns/op
+WorkloadResult   3: 2097152 op, 483435000.00 ns, 230.5198 ns/op
+WorkloadResult   4: 2097152 op, 478725100.00 ns, 228.2739 ns/op
+WorkloadResult   5: 2097152 op, 479166800.00 ns, 228.4845 ns/op
+WorkloadResult   6: 2097152 op, 479700200.00 ns, 228.7389 ns/op
+WorkloadResult   7: 2097152 op, 478955600.00 ns, 228.3838 ns/op
+WorkloadResult   8: 2097152 op, 479003500.00 ns, 228.4067 ns/op
+WorkloadResult   9: 2097152 op, 480906700.00 ns, 229.3142 ns/op
+WorkloadResult  10: 2097152 op, 481518100.00 ns, 229.6057 ns/op
+WorkloadResult  11: 2097152 op, 484020900.00 ns, 230.7992 ns/op
+WorkloadResult  12: 2097152 op, 484622700.00 ns, 231.0861 ns/op
+WorkloadResult  13: 2097152 op, 487716900.00 ns, 232.5615 ns/op
+WorkloadResult  14: 2097152 op, 485474600.00 ns, 231.4923 ns/op
+WorkloadResult  15: 2097152 op, 478090600.00 ns, 227.9714 ns/op
+
+// AfterAll
+// Benchmark Process 30532 has exited with code 0
+
+Mean = 229.7213 ns, StdErr = 0.3694 ns (0.16%); N = 15, StdDev = 1.4306 ns
+Min = 227.9714 ns, Q1 = 228.4067 ns, Median = 229.3142 ns, Q3 = 231.0861 ns, Max = 232.5615 ns
+IQR = 2.6794 ns, LowerFence = 224.3875 ns, UpperFence = 235.1053 ns
+ConfidenceInterval = [228.1919 ns; 231.2507 ns] (CI 99.9%), Margin = 1.5294 ns (0.67% of Mean)
+Skewness = 0.44, Kurtosis = 1.71, MValue = 2
+
+// **************************
+// Benchmark: ProtoBufTests.ProtoNetSimpleMessage: DefaultJob
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: E:\src\Das\Serializer\Serializer.Benchmarks\bin\Release\8253b33b-2593-4c9f-98bb-37cc9c0d46a4.exe --benchmarkName "Serializer.Tests.ProtocolBuffers.ProtoBufTests.ProtoNetSimpleMessage" --job "Default" --benchmarkId 1 in 
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// Runtime=.NET Framework 4.8 (4.8.4075.0), X64 RyuJIT
+// GC=Concurrent Workstation
+// Job: DefaultJob
+
+OverheadJitting  1: 1 op, 343500.00 ns, 343.5000 us/op
+WorkloadJitting  1: 1 op, 76446400.00 ns, 76.4464 ms/op
+
+WorkloadPilot    1: 2 op, 25500.00 ns, 12.7500 us/op
+WorkloadPilot    2: 3 op, 6600.00 ns, 2.2000 us/op
+WorkloadPilot    3: 4 op, 7100.00 ns, 1.7750 us/op
+WorkloadPilot    4: 5 op, 8000.00 ns, 1.6000 us/op
+WorkloadPilot    5: 6 op, 9300.00 ns, 1.5500 us/op
+WorkloadPilot    6: 7 op, 9800.00 ns, 1.4000 us/op
+WorkloadPilot    7: 8 op, 11200.00 ns, 1.4000 us/op
+WorkloadPilot    8: 9 op, 11600.00 ns, 1.2889 us/op
+WorkloadPilot    9: 10 op, 12500.00 ns, 1.2500 us/op
+WorkloadPilot   10: 11 op, 14300.00 ns, 1.3000 us/op
+WorkloadPilot   11: 12 op, 17100.00 ns, 1.4250 us/op
+WorkloadPilot   12: 13 op, 18900.00 ns, 1.4538 us/op
+WorkloadPilot   13: 14 op, 31000.00 ns, 2.2143 us/op
+WorkloadPilot   14: 15 op, 21600.00 ns, 1.4400 us/op
+WorkloadPilot   15: 16 op, 22000.00 ns, 1.3750 us/op
+WorkloadPilot   16: 32 op, 44200.00 ns, 1.3813 us/op
+WorkloadPilot   17: 64 op, 68400.00 ns, 1.0688 us/op
+WorkloadPilot   18: 128 op, 131800.00 ns, 1.0297 us/op
+WorkloadPilot   19: 256 op, 274500.00 ns, 1.0723 us/op
+WorkloadPilot   20: 512 op, 533600.00 ns, 1.0422 us/op
+WorkloadPilot   21: 1024 op, 1080800.00 ns, 1.0555 us/op
+WorkloadPilot   22: 2048 op, 2285900.00 ns, 1.1162 us/op
+WorkloadPilot   23: 4096 op, 4791100.00 ns, 1.1697 us/op
+WorkloadPilot   24: 8192 op, 12385100.00 ns, 1.5119 us/op
+WorkloadPilot   25: 16384 op, 19257900.00 ns, 1.1754 us/op
+WorkloadPilot   26: 32768 op, 38500200.00 ns, 1.1749 us/op
+WorkloadPilot   27: 65536 op, 80370100.00 ns, 1.2264 us/op
+WorkloadPilot   28: 131072 op, 152734100.00 ns, 1.1653 us/op
+WorkloadPilot   29: 262144 op, 307876300.00 ns, 1.1745 us/op
+WorkloadPilot   30: 524288 op, 612103100.00 ns, 1.1675 us/op
+
+WorkloadWarmup   1: 524288 op, 614627300.00 ns, 1.1723 us/op
+WorkloadWarmup   2: 524288 op, 608806100.00 ns, 1.1612 us/op
+WorkloadWarmup   3: 524288 op, 612470400.00 ns, 1.1682 us/op
+WorkloadWarmup   4: 524288 op, 643117300.00 ns, 1.2266 us/op
+WorkloadWarmup   5: 524288 op, 649527800.00 ns, 1.2389 us/op
+WorkloadWarmup   6: 524288 op, 642958300.00 ns, 1.2263 us/op
+WorkloadWarmup   7: 524288 op, 619831800.00 ns, 1.1822 us/op
+WorkloadWarmup   8: 524288 op, 634630400.00 ns, 1.2105 us/op
+WorkloadWarmup   9: 524288 op, 639990500.00 ns, 1.2207 us/op
+WorkloadWarmup  10: 524288 op, 628785900.00 ns, 1.1993 us/op
+
+// BeforeActualRun
+WorkloadActual   1: 524288 op, 631266900.00 ns, 1.2040 us/op
+WorkloadActual   2: 524288 op, 613786700.00 ns, 1.1707 us/op
+WorkloadActual   3: 524288 op, 620632400.00 ns, 1.1838 us/op
+WorkloadActual   4: 524288 op, 611757100.00 ns, 1.1668 us/op
+WorkloadActual   5: 524288 op, 622366800.00 ns, 1.1871 us/op
+WorkloadActual   6: 524288 op, 620016100.00 ns, 1.1826 us/op
+WorkloadActual   7: 524288 op, 619271200.00 ns, 1.1812 us/op
+WorkloadActual   8: 524288 op, 618676100.00 ns, 1.1800 us/op
+WorkloadActual   9: 524288 op, 616548000.00 ns, 1.1760 us/op
+WorkloadActual  10: 524288 op, 617417900.00 ns, 1.1776 us/op
+WorkloadActual  11: 524288 op, 610062900.00 ns, 1.1636 us/op
+WorkloadActual  12: 524288 op, 629062300.00 ns, 1.1998 us/op
+WorkloadActual  13: 524288 op, 628033400.00 ns, 1.1979 us/op
+WorkloadActual  14: 524288 op, 639266500.00 ns, 1.2193 us/op
+WorkloadActual  15: 524288 op, 665663800.00 ns, 1.2697 us/op
+
+// AfterActualRun
+WorkloadResult   1: 524288 op, 631266900.00 ns, 1.2040 us/op
+WorkloadResult   2: 524288 op, 613786700.00 ns, 1.1707 us/op
+WorkloadResult   3: 524288 op, 620632400.00 ns, 1.1838 us/op
+WorkloadResult   4: 524288 op, 611757100.00 ns, 1.1668 us/op
+WorkloadResult   5: 524288 op, 622366800.00 ns, 1.1871 us/op
+WorkloadResult   6: 524288 op, 620016100.00 ns, 1.1826 us/op
+WorkloadResult   7: 524288 op, 619271200.00 ns, 1.1812 us/op
+WorkloadResult   8: 524288 op, 618676100.00 ns, 1.1800 us/op
+WorkloadResult   9: 524288 op, 616548000.00 ns, 1.1760 us/op
+WorkloadResult  10: 524288 op, 617417900.00 ns, 1.1776 us/op
+WorkloadResult  11: 524288 op, 610062900.00 ns, 1.1636 us/op
+WorkloadResult  12: 524288 op, 629062300.00 ns, 1.1998 us/op
+WorkloadResult  13: 524288 op, 628033400.00 ns, 1.1979 us/op
+WorkloadResult  14: 524288 op, 639266500.00 ns, 1.2193 us/op
+
+// AfterAll
+// Benchmark Process 22892 has exited with code 0
+
+Mean = 1.1850 us, StdErr = 0.0041 us (0.35%); N = 14, StdDev = 0.0155 us
+Min = 1.1636 us, Q1 = 1.1760 us, Median = 1.1819 us, Q3 = 1.1979 us, Max = 1.2193 us
+IQR = 0.0219 us, LowerFence = 1.1431 us, UpperFence = 1.2307 us
+ConfidenceInterval = [1.1676 us; 1.2025 us] (CI 99.9%), Margin = 0.0174 us (1.47% of Mean)
+Skewness = 0.63, Kurtosis = 2.45, MValue = 2
+
+// **************************
+// Benchmark: ProtoBufTests.DasDoubleMessage: DefaultJob
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: E:\src\Das\Serializer\Serializer.Benchmarks\bin\Release\8253b33b-2593-4c9f-98bb-37cc9c0d46a4.exe --benchmarkName "Serializer.Tests.ProtocolBuffers.ProtoBufTests.DasDoubleMessage" --job "Default" --benchmarkId 2 in 
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// Runtime=.NET Framework 4.8 (4.8.4075.0), X64 RyuJIT
+// GC=Concurrent Workstation
+// Job: DefaultJob
+
+OverheadJitting  1: 1 op, 443500.00 ns, 443.5000 us/op
+WorkloadJitting  1: 1 op, 42823600.00 ns, 42.8236 ms/op
+
+WorkloadPilot    1: 2 op, 23900.00 ns, 11.9500 us/op
+WorkloadPilot    2: 3 op, 4600.00 ns, 1.5333 us/op
+WorkloadPilot    3: 4 op, 4000.00 ns, 1.0000 us/op
+WorkloadPilot    4: 5 op, 4300.00 ns, 860.0000 ns/op
+WorkloadPilot    5: 6 op, 4100.00 ns, 683.3333 ns/op
+WorkloadPilot    6: 7 op, 4400.00 ns, 628.5714 ns/op
+WorkloadPilot    7: 8 op, 4500.00 ns, 562.5000 ns/op
+WorkloadPilot    8: 9 op, 4600.00 ns, 511.1111 ns/op
+WorkloadPilot    9: 10 op, 5300.00 ns, 530.0000 ns/op
+WorkloadPilot   10: 11 op, 5900.00 ns, 536.3636 ns/op
+WorkloadPilot   11: 12 op, 6000.00 ns, 500.0000 ns/op
+WorkloadPilot   12: 13 op, 6100.00 ns, 469.2308 ns/op
+WorkloadPilot   13: 14 op, 8400.00 ns, 600.0000 ns/op
+WorkloadPilot   14: 15 op, 7700.00 ns, 513.3333 ns/op
+WorkloadPilot   15: 16 op, 15500.00 ns, 968.7500 ns/op
+WorkloadPilot   16: 32 op, 12000.00 ns, 375.0000 ns/op
+WorkloadPilot   17: 64 op, 34000.00 ns, 531.2500 ns/op
+WorkloadPilot   18: 128 op, 47900.00 ns, 374.2188 ns/op
+WorkloadPilot   19: 256 op, 110200.00 ns, 430.4688 ns/op
+WorkloadPilot   20: 512 op, 169300.00 ns, 330.6641 ns/op
+WorkloadPilot   21: 1024 op, 378200.00 ns, 369.3359 ns/op
+WorkloadPilot   22: 2048 op, 734600.00 ns, 358.6914 ns/op
+WorkloadPilot   23: 4096 op, 1255400.00 ns, 306.4941 ns/op
+WorkloadPilot   24: 8192 op, 2456700.00 ns, 299.8901 ns/op
+WorkloadPilot   25: 16384 op, 5100000.00 ns, 311.2793 ns/op
+WorkloadPilot   26: 32768 op, 9604600.00 ns, 293.1091 ns/op
+WorkloadPilot   27: 65536 op, 22780100.00 ns, 347.5967 ns/op
+WorkloadPilot   28: 131072 op, 37147200.00 ns, 283.4106 ns/op
+WorkloadPilot   29: 262144 op, 80351800.00 ns, 306.5178 ns/op
+WorkloadPilot   30: 524288 op, 158004700.00 ns, 301.3700 ns/op
+WorkloadPilot   31: 1048576 op, 299310800.00 ns, 285.4450 ns/op
+WorkloadPilot   32: 2097152 op, 604440200.00 ns, 288.2195 ns/op
+
+WorkloadWarmup   1: 2097152 op, 660084000.00 ns, 314.7526 ns/op
+WorkloadWarmup   2: 2097152 op, 580551600.00 ns, 276.8286 ns/op
+WorkloadWarmup   3: 2097152 op, 575463900.00 ns, 274.4026 ns/op
+WorkloadWarmup   4: 2097152 op, 575164000.00 ns, 274.2596 ns/op
+WorkloadWarmup   5: 2097152 op, 576901800.00 ns, 275.0882 ns/op
+WorkloadWarmup   6: 2097152 op, 576559700.00 ns, 274.9251 ns/op
+WorkloadWarmup   7: 2097152 op, 575229400.00 ns, 274.2908 ns/op
+WorkloadWarmup   8: 2097152 op, 581832800.00 ns, 277.4395 ns/op
+WorkloadWarmup   9: 2097152 op, 578189400.00 ns, 275.7022 ns/op
+
+// BeforeActualRun
+WorkloadActual   1: 2097152 op, 578041500.00 ns, 275.6317 ns/op
+WorkloadActual   2: 2097152 op, 573086400.00 ns, 273.2689 ns/op
+WorkloadActual   3: 2097152 op, 577263100.00 ns, 275.2605 ns/op
+WorkloadActual   4: 2097152 op, 572422900.00 ns, 272.9525 ns/op
+WorkloadActual   5: 2097152 op, 571501400.00 ns, 272.5131 ns/op
+WorkloadActual   6: 2097152 op, 584671100.00 ns, 278.7929 ns/op
+WorkloadActual   7: 2097152 op, 585325500.00 ns, 279.1049 ns/op
+WorkloadActual   8: 2097152 op, 573575700.00 ns, 273.5022 ns/op
+WorkloadActual   9: 2097152 op, 586203000.00 ns, 279.5234 ns/op
+WorkloadActual  10: 2097152 op, 577967900.00 ns, 275.5966 ns/op
+WorkloadActual  11: 2097152 op, 591713900.00 ns, 282.1512 ns/op
+WorkloadActual  12: 2097152 op, 586349200.00 ns, 279.5931 ns/op
+WorkloadActual  13: 2097152 op, 612845100.00 ns, 292.2273 ns/op
+WorkloadActual  14: 2097152 op, 584084200.00 ns, 278.5131 ns/op
+WorkloadActual  15: 2097152 op, 606369400.00 ns, 289.1395 ns/op
+
+// AfterActualRun
+WorkloadResult   1: 2097152 op, 578041500.00 ns, 275.6317 ns/op
+WorkloadResult   2: 2097152 op, 573086400.00 ns, 273.2689 ns/op
+WorkloadResult   3: 2097152 op, 577263100.00 ns, 275.2605 ns/op
+WorkloadResult   4: 2097152 op, 572422900.00 ns, 272.9525 ns/op
+WorkloadResult   5: 2097152 op, 571501400.00 ns, 272.5131 ns/op
+WorkloadResult   6: 2097152 op, 584671100.00 ns, 278.7929 ns/op
+WorkloadResult   7: 2097152 op, 585325500.00 ns, 279.1049 ns/op
+WorkloadResult   8: 2097152 op, 573575700.00 ns, 273.5022 ns/op
+WorkloadResult   9: 2097152 op, 586203000.00 ns, 279.5234 ns/op
+WorkloadResult  10: 2097152 op, 577967900.00 ns, 275.5966 ns/op
+WorkloadResult  11: 2097152 op, 591713900.00 ns, 282.1512 ns/op
+WorkloadResult  12: 2097152 op, 586349200.00 ns, 279.5931 ns/op
+WorkloadResult  13: 2097152 op, 584084200.00 ns, 278.5131 ns/op
+
+// AfterAll
+// Benchmark Process 2248 has exited with code 0
+
+Mean = 276.6465 ns, StdErr = 0.8678 ns (0.31%); N = 13, StdDev = 3.1288 ns
+Min = 272.5131 ns, Q1 = 273.3855 ns, Median = 275.6317 ns, Q3 = 279.3142 ns, Max = 282.1512 ns
+IQR = 5.9286 ns, LowerFence = 264.4926 ns, UpperFence = 288.2071 ns
+ConfidenceInterval = [272.8996 ns; 280.3933 ns] (CI 99.9%), Margin = 3.7469 ns (1.35% of Mean)
+Skewness = 0.13, Kurtosis = 1.48, MValue = 2
+
+// **************************
+// Benchmark: ProtoBufTests.ProtoNetDoubleMeessage: DefaultJob
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: E:\src\Das\Serializer\Serializer.Benchmarks\bin\Release\8253b33b-2593-4c9f-98bb-37cc9c0d46a4.exe --benchmarkName "Serializer.Tests.ProtocolBuffers.ProtoBufTests.ProtoNetDoubleMeessage" --job "Default" --benchmarkId 3 in 
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// Runtime=.NET Framework 4.8 (4.8.4075.0), X64 RyuJIT
+// GC=Concurrent Workstation
+// Job: DefaultJob
+
+OverheadJitting  1: 1 op, 497500.00 ns, 497.5000 us/op
+WorkloadJitting  1: 1 op, 78012000.00 ns, 78.0120 ms/op
+
+WorkloadPilot    1: 2 op, 27800.00 ns, 13.9000 us/op
+WorkloadPilot    2: 3 op, 20200.00 ns, 6.7333 us/op
+WorkloadPilot    3: 4 op, 9300.00 ns, 2.3250 us/op
+WorkloadPilot    4: 5 op, 8600.00 ns, 1.7200 us/op
+WorkloadPilot    5: 6 op, 9700.00 ns, 1.6167 us/op
+WorkloadPilot    6: 7 op, 10200.00 ns, 1.4571 us/op
+WorkloadPilot    7: 8 op, 11700.00 ns, 1.4625 us/op
+WorkloadPilot    8: 9 op, 11900.00 ns, 1.3222 us/op
+WorkloadPilot    9: 10 op, 12900.00 ns, 1.2900 us/op
+WorkloadPilot   10: 11 op, 15300.00 ns, 1.3909 us/op
+WorkloadPilot   11: 12 op, 18700.00 ns, 1.5583 us/op
+WorkloadPilot   12: 13 op, 19200.00 ns, 1.4769 us/op
+WorkloadPilot   13: 14 op, 20800.00 ns, 1.4857 us/op
+WorkloadPilot   14: 15 op, 21400.00 ns, 1.4267 us/op
+WorkloadPilot   15: 16 op, 22100.00 ns, 1.3813 us/op
+WorkloadPilot   16: 32 op, 45800.00 ns, 1.4313 us/op
+WorkloadPilot   17: 64 op, 70900.00 ns, 1.1078 us/op
+WorkloadPilot   18: 128 op, 137000.00 ns, 1.0703 us/op
+WorkloadPilot   19: 256 op, 279300.00 ns, 1.0910 us/op
+WorkloadPilot   20: 512 op, 546000.00 ns, 1.0664 us/op
+WorkloadPilot   21: 1024 op, 1094300.00 ns, 1.0687 us/op
+WorkloadPilot   22: 2048 op, 2354900.00 ns, 1.1499 us/op
+WorkloadPilot   23: 4096 op, 4741500.00 ns, 1.1576 us/op
+WorkloadPilot   24: 8192 op, 9699500.00 ns, 1.1840 us/op
+WorkloadPilot   25: 16384 op, 19176500.00 ns, 1.1704 us/op
+WorkloadPilot   26: 32768 op, 38882000.00 ns, 1.1866 us/op
+WorkloadPilot   27: 65536 op, 77014900.00 ns, 1.1752 us/op
+WorkloadPilot   28: 131072 op, 153772500.00 ns, 1.1732 us/op
+WorkloadPilot   29: 262144 op, 319451500.00 ns, 1.2186 us/op
+WorkloadPilot   30: 524288 op, 651576300.00 ns, 1.2428 us/op
+
+WorkloadWarmup   1: 524288 op, 625171300.00 ns, 1.1924 us/op
+WorkloadWarmup   2: 524288 op, 624371000.00 ns, 1.1909 us/op
+WorkloadWarmup   3: 524288 op, 613753400.00 ns, 1.1706 us/op
+WorkloadWarmup   4: 524288 op, 612389600.00 ns, 1.1680 us/op
+WorkloadWarmup   5: 524288 op, 609944600.00 ns, 1.1634 us/op
+WorkloadWarmup   6: 524288 op, 616171600.00 ns, 1.1753 us/op
+WorkloadWarmup   7: 524288 op, 616578200.00 ns, 1.1760 us/op
+WorkloadWarmup   8: 524288 op, 614454300.00 ns, 1.1720 us/op
+WorkloadWarmup   9: 524288 op, 623665400.00 ns, 1.1895 us/op
+WorkloadWarmup  10: 524288 op, 622699300.00 ns, 1.1877 us/op
+
+// BeforeActualRun
+WorkloadActual   1: 524288 op, 619223100.00 ns, 1.1811 us/op
+WorkloadActual   2: 524288 op, 623878700.00 ns, 1.1900 us/op
+WorkloadActual   3: 524288 op, 633380300.00 ns, 1.2081 us/op
+WorkloadActual   4: 524288 op, 614538700.00 ns, 1.1721 us/op
+WorkloadActual   5: 524288 op, 635763000.00 ns, 1.2126 us/op
+WorkloadActual   6: 524288 op, 615719000.00 ns, 1.1744 us/op
+WorkloadActual   7: 524288 op, 616219400.00 ns, 1.1753 us/op
+WorkloadActual   8: 524288 op, 616937500.00 ns, 1.1767 us/op
+WorkloadActual   9: 524288 op, 617042000.00 ns, 1.1769 us/op
+WorkloadActual  10: 524288 op, 615797900.00 ns, 1.1745 us/op
+WorkloadActual  11: 524288 op, 615545800.00 ns, 1.1741 us/op
+WorkloadActual  12: 524288 op, 618704300.00 ns, 1.1801 us/op
+WorkloadActual  13: 524288 op, 623381000.00 ns, 1.1890 us/op
+WorkloadActual  14: 524288 op, 616148400.00 ns, 1.1752 us/op
+WorkloadActual  15: 524288 op, 616228600.00 ns, 1.1754 us/op
+
+// AfterActualRun
+WorkloadResult   1: 524288 op, 619223100.00 ns, 1.1811 us/op
+WorkloadResult   2: 524288 op, 623878700.00 ns, 1.1900 us/op
+WorkloadResult   3: 524288 op, 633380300.00 ns, 1.2081 us/op
+WorkloadResult   4: 524288 op, 614538700.00 ns, 1.1721 us/op
+WorkloadResult   5: 524288 op, 615719000.00 ns, 1.1744 us/op
+WorkloadResult   6: 524288 op, 616219400.00 ns, 1.1753 us/op
+WorkloadResult   7: 524288 op, 616937500.00 ns, 1.1767 us/op
+WorkloadResult   8: 524288 op, 617042000.00 ns, 1.1769 us/op
+WorkloadResult   9: 524288 op, 615797900.00 ns, 1.1745 us/op
+WorkloadResult  10: 524288 op, 615545800.00 ns, 1.1741 us/op
+WorkloadResult  11: 524288 op, 618704300.00 ns, 1.1801 us/op
+WorkloadResult  12: 524288 op, 623381000.00 ns, 1.1890 us/op
+WorkloadResult  13: 524288 op, 616148400.00 ns, 1.1752 us/op
+WorkloadResult  14: 524288 op, 616228600.00 ns, 1.1754 us/op
+
+// AfterAll
+// Benchmark Process 28920 has exited with code 0
+
+Mean = 1.1802 us, StdErr = 0.0026 us (0.22%); N = 14, StdDev = 0.0097 us
+Min = 1.1721 us, Q1 = 1.1745 us, Median = 1.1760 us, Q3 = 1.1811 us, Max = 1.2081 us
+IQR = 0.0065 us, LowerFence = 1.1647 us, UpperFence = 1.1909 us
+ConfidenceInterval = [1.1693 us; 1.1911 us] (CI 99.9%), Margin = 0.0109 us (0.92% of Mean)
+Skewness = 1.72, Kurtosis = 5.15, MValue = 2
+
+// **************************
+// Benchmark: ProtoBufTests.DasStringMessage: DefaultJob
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: E:\src\Das\Serializer\Serializer.Benchmarks\bin\Release\8253b33b-2593-4c9f-98bb-37cc9c0d46a4.exe --benchmarkName "Serializer.Tests.ProtocolBuffers.ProtoBufTests.DasStringMessage" --job "Default" --benchmarkId 4 in 
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// Runtime=.NET Framework 4.8 (4.8.4075.0), X64 RyuJIT
+// GC=Concurrent Workstation
+// Job: DefaultJob
+
+OverheadJitting  1: 1 op, 390200.00 ns, 390.2000 us/op
+WorkloadJitting  1: 1 op, 43821300.00 ns, 43.8213 ms/op
+
+WorkloadPilot    1: 2 op, 18500.00 ns, 9.2500 us/op
+WorkloadPilot    2: 3 op, 5000.00 ns, 1.6667 us/op
+WorkloadPilot    3: 4 op, 5600.00 ns, 1.4000 us/op
+WorkloadPilot    4: 5 op, 5000.00 ns, 1.0000 us/op
+WorkloadPilot    5: 6 op, 5600.00 ns, 933.3333 ns/op
+WorkloadPilot    6: 7 op, 5500.00 ns, 785.7143 ns/op
+WorkloadPilot    7: 8 op, 7600.00 ns, 950.0000 ns/op
+WorkloadPilot    8: 9 op, 7400.00 ns, 822.2222 ns/op
+WorkloadPilot    9: 10 op, 8300.00 ns, 830.0000 ns/op
+WorkloadPilot   10: 11 op, 8500.00 ns, 772.7273 ns/op
+WorkloadPilot   11: 12 op, 9500.00 ns, 791.6667 ns/op
+WorkloadPilot   12: 13 op, 9300.00 ns, 715.3846 ns/op
+WorkloadPilot   13: 14 op, 9900.00 ns, 707.1429 ns/op
+WorkloadPilot   14: 15 op, 9900.00 ns, 660.0000 ns/op
+WorkloadPilot   15: 16 op, 9900.00 ns, 618.7500 ns/op
+WorkloadPilot   16: 32 op, 40700.00 ns, 1.2719 us/op
+WorkloadPilot   17: 64 op, 43800.00 ns, 684.3750 ns/op
+WorkloadPilot   18: 128 op, 78600.00 ns, 614.0625 ns/op
+WorkloadPilot   19: 256 op, 178500.00 ns, 697.2656 ns/op
+WorkloadPilot   20: 512 op, 259700.00 ns, 507.2266 ns/op
+WorkloadPilot   21: 1024 op, 638600.00 ns, 623.6328 ns/op
+WorkloadPilot   22: 2048 op, 975600.00 ns, 476.3672 ns/op
+WorkloadPilot   23: 4096 op, 1860000.00 ns, 454.1016 ns/op
+WorkloadPilot   24: 8192 op, 4083900.00 ns, 498.5229 ns/op
+WorkloadPilot   25: 16384 op, 7206200.00 ns, 439.8315 ns/op
+WorkloadPilot   26: 32768 op, 14027100.00 ns, 428.0731 ns/op
+WorkloadPilot   27: 65536 op, 27898400.00 ns, 425.6958 ns/op
+WorkloadPilot   28: 131072 op, 56191600.00 ns, 428.7079 ns/op
+WorkloadPilot   29: 262144 op, 113548300.00 ns, 433.1524 ns/op
+WorkloadPilot   30: 524288 op, 222528900.00 ns, 424.4402 ns/op
+WorkloadPilot   31: 1048576 op, 440450500.00 ns, 420.0463 ns/op
+WorkloadPilot   32: 2097152 op, 874924900.00 ns, 417.1967 ns/op
+
+WorkloadWarmup   1: 2097152 op, 881420400.00 ns, 420.2940 ns/op
+WorkloadWarmup   2: 2097152 op, 876480700.00 ns, 417.9386 ns/op
+WorkloadWarmup   3: 2097152 op, 893090000.00 ns, 425.8585 ns/op
+WorkloadWarmup   4: 2097152 op, 878785500.00 ns, 419.0376 ns/op
+WorkloadWarmup   5: 2097152 op, 888308500.00 ns, 423.5785 ns/op
+WorkloadWarmup   6: 2097152 op, 880703000.00 ns, 419.9519 ns/op
+
+// BeforeActualRun
+WorkloadActual   1: 2097152 op, 888570600.00 ns, 423.7035 ns/op
+WorkloadActual   2: 2097152 op, 874641000.00 ns, 417.0613 ns/op
+WorkloadActual   3: 2097152 op, 883000600.00 ns, 421.0475 ns/op
+WorkloadActual   4: 2097152 op, 887069500.00 ns, 422.9877 ns/op
+WorkloadActual   5: 2097152 op, 872900700.00 ns, 416.2315 ns/op
+WorkloadActual   6: 2097152 op, 879842500.00 ns, 419.5416 ns/op
+WorkloadActual   7: 2097152 op, 886552400.00 ns, 422.7411 ns/op
+WorkloadActual   8: 2097152 op, 884994800.00 ns, 421.9984 ns/op
+WorkloadActual   9: 2097152 op, 872288700.00 ns, 415.9397 ns/op
+WorkloadActual  10: 2097152 op, 887672800.00 ns, 423.2754 ns/op
+WorkloadActual  11: 2097152 op, 926578000.00 ns, 441.8268 ns/op
+WorkloadActual  12: 2097152 op, 935172500.00 ns, 445.9250 ns/op
+WorkloadActual  13: 2097152 op, 953602200.00 ns, 454.7130 ns/op
+WorkloadActual  14: 2097152 op, 909826800.00 ns, 433.8392 ns/op
+WorkloadActual  15: 2097152 op, 913535300.00 ns, 435.6076 ns/op
+WorkloadActual  16: 2097152 op, 941466200.00 ns, 448.9261 ns/op
+WorkloadActual  17: 2097152 op, 935713200.00 ns, 446.1828 ns/op
+WorkloadActual  18: 2097152 op, 909911600.00 ns, 433.8797 ns/op
+WorkloadActual  19: 2097152 op, 936287800.00 ns, 446.4568 ns/op
+WorkloadActual  20: 2097152 op, 895321900.00 ns, 426.9228 ns/op
+WorkloadActual  21: 2097152 op, 889985900.00 ns, 424.3783 ns/op
+WorkloadActual  22: 2097152 op, 884543700.00 ns, 421.7833 ns/op
+WorkloadActual  23: 2097152 op, 891101200.00 ns, 424.9102 ns/op
+WorkloadActual  24: 2097152 op, 890879300.00 ns, 424.8044 ns/op
+WorkloadActual  25: 2097152 op, 879621400.00 ns, 419.4362 ns/op
+WorkloadActual  26: 2097152 op, 886277600.00 ns, 422.6101 ns/op
+
+// AfterActualRun
+WorkloadResult   1: 2097152 op, 888570600.00 ns, 423.7035 ns/op
+WorkloadResult   2: 2097152 op, 874641000.00 ns, 417.0613 ns/op
+WorkloadResult   3: 2097152 op, 883000600.00 ns, 421.0475 ns/op
+WorkloadResult   4: 2097152 op, 887069500.00 ns, 422.9877 ns/op
+WorkloadResult   5: 2097152 op, 872900700.00 ns, 416.2315 ns/op
+WorkloadResult   6: 2097152 op, 879842500.00 ns, 419.5416 ns/op
+WorkloadResult   7: 2097152 op, 886552400.00 ns, 422.7411 ns/op
+WorkloadResult   8: 2097152 op, 884994800.00 ns, 421.9984 ns/op
+WorkloadResult   9: 2097152 op, 872288700.00 ns, 415.9397 ns/op
+WorkloadResult  10: 2097152 op, 887672800.00 ns, 423.2754 ns/op
+WorkloadResult  11: 2097152 op, 926578000.00 ns, 441.8268 ns/op
+WorkloadResult  12: 2097152 op, 935172500.00 ns, 445.9250 ns/op
+WorkloadResult  13: 2097152 op, 953602200.00 ns, 454.7130 ns/op
+WorkloadResult  14: 2097152 op, 909826800.00 ns, 433.8392 ns/op
+WorkloadResult  15: 2097152 op, 913535300.00 ns, 435.6076 ns/op
+WorkloadResult  16: 2097152 op, 941466200.00 ns, 448.9261 ns/op
+WorkloadResult  17: 2097152 op, 935713200.00 ns, 446.1828 ns/op
+WorkloadResult  18: 2097152 op, 909911600.00 ns, 433.8797 ns/op
+WorkloadResult  19: 2097152 op, 936287800.00 ns, 446.4568 ns/op
+WorkloadResult  20: 2097152 op, 895321900.00 ns, 426.9228 ns/op
+WorkloadResult  21: 2097152 op, 889985900.00 ns, 424.3783 ns/op
+WorkloadResult  22: 2097152 op, 884543700.00 ns, 421.7833 ns/op
+WorkloadResult  23: 2097152 op, 891101200.00 ns, 424.9102 ns/op
+WorkloadResult  24: 2097152 op, 890879300.00 ns, 424.8044 ns/op
+WorkloadResult  25: 2097152 op, 879621400.00 ns, 419.4362 ns/op
+WorkloadResult  26: 2097152 op, 886277600.00 ns, 422.6101 ns/op
+
+// AfterAll
+// Benchmark Process 43020 has exited with code 0
+
+Mean = 429.1050 ns, StdErr = 2.2389 ns (0.52%); N = 26, StdDev = 11.4161 ns
+Min = 415.9397 ns, Q1 = 421.7833 ns, Median = 424.0409 ns, Q3 = 435.6076 ns, Max = 454.7130 ns
+IQR = 13.8243 ns, LowerFence = 401.0469 ns, UpperFence = 456.3440 ns
+ConfidenceInterval = [420.7648 ns; 437.4451 ns] (CI 99.9%), Margin = 8.3401 ns (1.94% of Mean)
+Skewness = 0.81, Kurtosis = 2.22, MValue = 2.25
+
+// **************************
+// Benchmark: ProtoBufTests.ProtoNetStringMessage: DefaultJob
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: E:\src\Das\Serializer\Serializer.Benchmarks\bin\Release\8253b33b-2593-4c9f-98bb-37cc9c0d46a4.exe --benchmarkName "Serializer.Tests.ProtocolBuffers.ProtoBufTests.ProtoNetStringMessage" --job "Default" --benchmarkId 5 in 
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// Runtime=.NET Framework 4.8 (4.8.4075.0), X64 RyuJIT
+// GC=Concurrent Workstation
+// Job: DefaultJob
+
+OverheadJitting  1: 1 op, 343500.00 ns, 343.5000 us/op
+WorkloadJitting  1: 1 op, 74734900.00 ns, 74.7349 ms/op
+
+WorkloadPilot    1: 2 op, 29200.00 ns, 14.6000 us/op
+WorkloadPilot    2: 3 op, 8500.00 ns, 2.8333 us/op
+WorkloadPilot    3: 4 op, 9500.00 ns, 2.3750 us/op
+WorkloadPilot    4: 5 op, 10500.00 ns, 2.1000 us/op
+WorkloadPilot    5: 6 op, 11300.00 ns, 1.8833 us/op
+WorkloadPilot    6: 7 op, 12700.00 ns, 1.8143 us/op
+WorkloadPilot    7: 8 op, 15200.00 ns, 1.9000 us/op
+WorkloadPilot    8: 9 op, 15700.00 ns, 1.7444 us/op
+WorkloadPilot    9: 10 op, 16800.00 ns, 1.6800 us/op
+WorkloadPilot   10: 11 op, 21200.00 ns, 1.9273 us/op
+WorkloadPilot   11: 12 op, 22500.00 ns, 1.8750 us/op
+WorkloadPilot   12: 13 op, 23400.00 ns, 1.8000 us/op
+WorkloadPilot   13: 14 op, 24200.00 ns, 1.7286 us/op
+WorkloadPilot   14: 15 op, 22900.00 ns, 1.5267 us/op
+WorkloadPilot   15: 16 op, 24700.00 ns, 1.5438 us/op
+WorkloadPilot   16: 32 op, 45800.00 ns, 1.4313 us/op
+WorkloadPilot   17: 64 op, 85300.00 ns, 1.3328 us/op
+WorkloadPilot   18: 128 op, 180300.00 ns, 1.4086 us/op
+WorkloadPilot   19: 256 op, 327400.00 ns, 1.2789 us/op
+WorkloadPilot   20: 512 op, 693100.00 ns, 1.3537 us/op
+WorkloadPilot   21: 1024 op, 1647700.00 ns, 1.6091 us/op
+WorkloadPilot   22: 2048 op, 2978900.00 ns, 1.4545 us/op
+WorkloadPilot   23: 4096 op, 6071500.00 ns, 1.4823 us/op
+WorkloadPilot   24: 8192 op, 12104800.00 ns, 1.4776 us/op
+WorkloadPilot   25: 16384 op, 24207800.00 ns, 1.4775 us/op
+WorkloadPilot   26: 32768 op, 47923300.00 ns, 1.4625 us/op
+WorkloadPilot   27: 65536 op, 95403100.00 ns, 1.4557 us/op
+WorkloadPilot   28: 131072 op, 190286600.00 ns, 1.4518 us/op
+WorkloadPilot   29: 262144 op, 385227800.00 ns, 1.4695 us/op
+WorkloadPilot   30: 524288 op, 764501700.00 ns, 1.4582 us/op
+
+WorkloadWarmup   1: 524288 op, 763841100.00 ns, 1.4569 us/op
+WorkloadWarmup   2: 524288 op, 764435600.00 ns, 1.4580 us/op
+WorkloadWarmup   3: 524288 op, 764237200.00 ns, 1.4577 us/op
+WorkloadWarmup   4: 524288 op, 760842200.00 ns, 1.4512 us/op
+WorkloadWarmup   5: 524288 op, 762647000.00 ns, 1.4546 us/op
+WorkloadWarmup   6: 524288 op, 767942400.00 ns, 1.4647 us/op
+WorkloadWarmup   7: 524288 op, 769377300.00 ns, 1.4675 us/op
+WorkloadWarmup   8: 524288 op, 799746400.00 ns, 1.5254 us/op
+WorkloadWarmup   9: 524288 op, 793526100.00 ns, 1.5135 us/op
+
+// BeforeActualRun
+WorkloadActual   1: 524288 op, 783163900.00 ns, 1.4938 us/op
+WorkloadActual   2: 524288 op, 814932800.00 ns, 1.5544 us/op
+WorkloadActual   3: 524288 op, 780564700.00 ns, 1.4888 us/op
+WorkloadActual   4: 524288 op, 770820400.00 ns, 1.4702 us/op
+WorkloadActual   5: 524288 op, 764748600.00 ns, 1.4586 us/op
+WorkloadActual   6: 524288 op, 764632500.00 ns, 1.4584 us/op
+WorkloadActual   7: 524288 op, 764372200.00 ns, 1.4579 us/op
+WorkloadActual   8: 524288 op, 763434100.00 ns, 1.4561 us/op
+WorkloadActual   9: 524288 op, 762037800.00 ns, 1.4535 us/op
+WorkloadActual  10: 524288 op, 761602400.00 ns, 1.4526 us/op
+WorkloadActual  11: 524288 op, 765594200.00 ns, 1.4603 us/op
+WorkloadActual  12: 524288 op, 763348400.00 ns, 1.4560 us/op
+WorkloadActual  13: 524288 op, 771653100.00 ns, 1.4718 us/op
+WorkloadActual  14: 524288 op, 769589300.00 ns, 1.4679 us/op
+WorkloadActual  15: 524288 op, 766365900.00 ns, 1.4617 us/op
+
+// AfterActualRun
+WorkloadResult   1: 524288 op, 783163900.00 ns, 1.4938 us/op
+WorkloadResult   2: 524288 op, 780564700.00 ns, 1.4888 us/op
+WorkloadResult   3: 524288 op, 770820400.00 ns, 1.4702 us/op
+WorkloadResult   4: 524288 op, 764748600.00 ns, 1.4586 us/op
+WorkloadResult   5: 524288 op, 764632500.00 ns, 1.4584 us/op
+WorkloadResult   6: 524288 op, 764372200.00 ns, 1.4579 us/op
+WorkloadResult   7: 524288 op, 763434100.00 ns, 1.4561 us/op
+WorkloadResult   8: 524288 op, 762037800.00 ns, 1.4535 us/op
+WorkloadResult   9: 524288 op, 761602400.00 ns, 1.4526 us/op
+WorkloadResult  10: 524288 op, 765594200.00 ns, 1.4603 us/op
+WorkloadResult  11: 524288 op, 763348400.00 ns, 1.4560 us/op
+WorkloadResult  12: 524288 op, 771653100.00 ns, 1.4718 us/op
+WorkloadResult  13: 524288 op, 769589300.00 ns, 1.4679 us/op
+WorkloadResult  14: 524288 op, 766365900.00 ns, 1.4617 us/op
+
+// AfterAll
+// Benchmark Process 44988 has exited with code 0
+
+Mean = 1.4648 us, StdErr = 0.0034 us (0.23%); N = 14, StdDev = 0.0127 us
+Min = 1.4526 us, Q1 = 1.4561 us, Median = 1.4594 us, Q3 = 1.4702 us, Max = 1.4938 us
+IQR = 0.0141 us, LowerFence = 1.4350 us, UpperFence = 1.4914 us
+ConfidenceInterval = [1.4505 us; 1.4791 us] (CI 99.9%), Margin = 0.0143 us (0.98% of Mean)
+Skewness = 1.16, Kurtosis = 3.02, MValue = 2
+
+// **************************
+// Benchmark: ProtoBufTests.DasDictionary: DefaultJob
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: E:\src\Das\Serializer\Serializer.Benchmarks\bin\Release\8253b33b-2593-4c9f-98bb-37cc9c0d46a4.exe --benchmarkName "Serializer.Tests.ProtocolBuffers.ProtoBufTests.DasDictionary" --job "Default" --benchmarkId 6 in 
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// Runtime=.NET Framework 4.8 (4.8.4075.0), X64 RyuJIT
+// GC=Concurrent Workstation
+// Job: DefaultJob
+
+OverheadJitting  1: 1 op, 366300.00 ns, 366.3000 us/op
+WorkloadJitting  1: 1 op, 65735900.00 ns, 65.7359 ms/op
+
+WorkloadPilot    1: 2 op, 159900.00 ns, 79.9500 us/op
+WorkloadPilot    2: 3 op, 28200.00 ns, 9.4000 us/op
+WorkloadPilot    3: 4 op, 31900.00 ns, 7.9750 us/op
+WorkloadPilot    4: 5 op, 37200.00 ns, 7.4400 us/op
+WorkloadPilot    5: 6 op, 43700.00 ns, 7.2833 us/op
+WorkloadPilot    6: 7 op, 49500.00 ns, 7.0714 us/op
+WorkloadPilot    7: 8 op, 62800.00 ns, 7.8500 us/op
+WorkloadPilot    8: 9 op, 70000.00 ns, 7.7778 us/op
+WorkloadPilot    9: 10 op, 82200.00 ns, 8.2200 us/op
+WorkloadPilot   10: 11 op, 72000.00 ns, 6.5455 us/op
+WorkloadPilot   11: 12 op, 126200.00 ns, 10.5167 us/op
+WorkloadPilot   12: 13 op, 115100.00 ns, 8.8538 us/op
+WorkloadPilot   13: 14 op, 98300.00 ns, 7.0214 us/op
+WorkloadPilot   14: 15 op, 97900.00 ns, 6.5267 us/op
+WorkloadPilot   15: 16 op, 116900.00 ns, 7.3063 us/op
+WorkloadPilot   16: 32 op, 212600.00 ns, 6.6438 us/op
+WorkloadPilot   17: 64 op, 430500.00 ns, 6.7266 us/op
+WorkloadPilot   18: 128 op, 763400.00 ns, 5.9641 us/op
+WorkloadPilot   19: 256 op, 1716100.00 ns, 6.7035 us/op
+WorkloadPilot   20: 512 op, 3001800.00 ns, 5.8629 us/op
+WorkloadPilot   21: 1024 op, 6123200.00 ns, 5.9797 us/op
+WorkloadPilot   22: 2048 op, 12023700.00 ns, 5.8709 us/op
+WorkloadPilot   23: 4096 op, 23339300.00 ns, 5.6981 us/op
+WorkloadPilot   24: 8192 op, 47150000.00 ns, 5.7556 us/op
+WorkloadPilot   25: 16384 op, 92831400.00 ns, 5.6660 us/op
+WorkloadPilot   26: 32768 op, 185929100.00 ns, 5.6741 us/op
+WorkloadPilot   27: 65536 op, 366503500.00 ns, 5.5924 us/op
+WorkloadPilot   28: 131072 op, 3606290100.00 ns, 27.5138 us/op
+
+WorkloadWarmup   1: 131072 op, 745380300.00 ns, 5.6868 us/op
+WorkloadWarmup   2: 131072 op, 742463200.00 ns, 5.6645 us/op
+WorkloadWarmup   3: 131072 op, 732376000.00 ns, 5.5876 us/op
+WorkloadWarmup   4: 131072 op, 739380300.00 ns, 5.6410 us/op
+WorkloadWarmup   5: 131072 op, 738736300.00 ns, 5.6361 us/op
+WorkloadWarmup   6: 131072 op, 741034700.00 ns, 5.6536 us/op
+WorkloadWarmup   7: 131072 op, 736004900.00 ns, 5.6153 us/op
+
+// BeforeActualRun
+WorkloadActual   1: 131072 op, 739292600.00 ns, 5.6404 us/op
+WorkloadActual   2: 131072 op, 740162900.00 ns, 5.6470 us/op
+WorkloadActual   3: 131072 op, 771448200.00 ns, 5.8857 us/op
+WorkloadActual   4: 131072 op, 884466600.00 ns, 6.7479 us/op
+WorkloadActual   5: 131072 op, 745768500.00 ns, 5.6898 us/op
+WorkloadActual   6: 131072 op, 754646100.00 ns, 5.7575 us/op
+WorkloadActual   7: 131072 op, 742839900.00 ns, 5.6674 us/op
+WorkloadActual   8: 131072 op, 740837600.00 ns, 5.6521 us/op
+WorkloadActual   9: 131072 op, 748185700.00 ns, 5.7082 us/op
+WorkloadActual  10: 131072 op, 739692200.00 ns, 5.6434 us/op
+WorkloadActual  11: 131072 op, 744783900.00 ns, 5.6823 us/op
+WorkloadActual  12: 131072 op, 779897900.00 ns, 5.9501 us/op
+WorkloadActual  13: 131072 op, 778226600.00 ns, 5.9374 us/op
+WorkloadActual  14: 131072 op, 765403300.00 ns, 5.8396 us/op
+WorkloadActual  15: 131072 op, 764194600.00 ns, 5.8303 us/op
+WorkloadActual  16: 131072 op, 748053000.00 ns, 5.7072 us/op
+WorkloadActual  17: 131072 op, 779773700.00 ns, 5.9492 us/op
+WorkloadActual  18: 131072 op, 794516500.00 ns, 6.0617 us/op
+WorkloadActual  19: 131072 op, 790389800.00 ns, 6.0302 us/op
+WorkloadActual  20: 131072 op, 764868700.00 ns, 5.8355 us/op
+WorkloadActual  21: 131072 op, 743909000.00 ns, 5.6756 us/op
+WorkloadActual  22: 131072 op, 743836300.00 ns, 5.6750 us/op
+WorkloadActual  23: 131072 op, 743454600.00 ns, 5.6721 us/op
+
+// AfterActualRun
+WorkloadResult   1: 131072 op, 739292600.00 ns, 5.6404 us/op
+WorkloadResult   2: 131072 op, 740162900.00 ns, 5.6470 us/op
+WorkloadResult   3: 131072 op, 771448200.00 ns, 5.8857 us/op
+WorkloadResult   4: 131072 op, 745768500.00 ns, 5.6898 us/op
+WorkloadResult   5: 131072 op, 754646100.00 ns, 5.7575 us/op
+WorkloadResult   6: 131072 op, 742839900.00 ns, 5.6674 us/op
+WorkloadResult   7: 131072 op, 740837600.00 ns, 5.6521 us/op
+WorkloadResult   8: 131072 op, 748185700.00 ns, 5.7082 us/op
+WorkloadResult   9: 131072 op, 739692200.00 ns, 5.6434 us/op
+WorkloadResult  10: 131072 op, 744783900.00 ns, 5.6823 us/op
+WorkloadResult  11: 131072 op, 779897900.00 ns, 5.9501 us/op
+WorkloadResult  12: 131072 op, 778226600.00 ns, 5.9374 us/op
+WorkloadResult  13: 131072 op, 765403300.00 ns, 5.8396 us/op
+WorkloadResult  14: 131072 op, 764194600.00 ns, 5.8303 us/op
+WorkloadResult  15: 131072 op, 748053000.00 ns, 5.7072 us/op
+WorkloadResult  16: 131072 op, 779773700.00 ns, 5.9492 us/op
+WorkloadResult  17: 131072 op, 794516500.00 ns, 6.0617 us/op
+WorkloadResult  18: 131072 op, 790389800.00 ns, 6.0302 us/op
+WorkloadResult  19: 131072 op, 764868700.00 ns, 5.8355 us/op
+WorkloadResult  20: 131072 op, 743909000.00 ns, 5.6756 us/op
+WorkloadResult  21: 131072 op, 743836300.00 ns, 5.6750 us/op
+WorkloadResult  22: 131072 op, 743454600.00 ns, 5.6721 us/op
+
+// AfterAll
+// Benchmark Process 34192 has exited with code 0
+
+Mean = 5.7790 us, StdErr = 0.0291 us (0.50%); N = 22, StdDev = 0.1366 us
+Min = 5.6404 us, Q1 = 5.6721 us, Median = 5.7077 us, Q3 = 5.8857 us, Max = 6.0617 us
+IQR = 0.2136 us, LowerFence = 5.3517 us, UpperFence = 6.2060 us
+ConfidenceInterval = [5.6678 us; 5.8902 us] (CI 99.9%), Margin = 0.1112 us (1.92% of Mean)
+Skewness = 0.67, Kurtosis = 1.94, MValue = 2
+
+// **************************
+// Benchmark: ProtoBufTests.ProtoNetObjectDictionary: DefaultJob
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: E:\src\Das\Serializer\Serializer.Benchmarks\bin\Release\8253b33b-2593-4c9f-98bb-37cc9c0d46a4.exe --benchmarkName "Serializer.Tests.ProtocolBuffers.ProtoBufTests.ProtoNetObjectDictionary" --job "Default" --benchmarkId 7 in 
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// Runtime=.NET Framework 4.8 (4.8.4075.0), X64 RyuJIT
+// GC=Concurrent Workstation
+// Job: DefaultJob
+
+OverheadJitting  1: 1 op, 514500.00 ns, 514.5000 us/op
+WorkloadJitting  1: 1 op, 110632700.00 ns, 110.6327 ms/op
+
+WorkloadPilot    1: 2 op, 32200.00 ns, 16.1000 us/op
+WorkloadPilot    2: 3 op, 17700.00 ns, 5.9000 us/op
+WorkloadPilot    3: 4 op, 19300.00 ns, 4.8250 us/op
+WorkloadPilot    4: 5 op, 21800.00 ns, 4.3600 us/op
+WorkloadPilot    5: 6 op, 22000.00 ns, 3.6667 us/op
+WorkloadPilot    6: 7 op, 24700.00 ns, 3.5286 us/op
+WorkloadPilot    7: 8 op, 26900.00 ns, 3.3625 us/op
+WorkloadPilot    8: 9 op, 30200.00 ns, 3.3556 us/op
+WorkloadPilot    9: 10 op, 31600.00 ns, 3.1600 us/op
+WorkloadPilot   10: 11 op, 35600.00 ns, 3.2364 us/op
+WorkloadPilot   11: 12 op, 37900.00 ns, 3.1583 us/op
+WorkloadPilot   12: 13 op, 53200.00 ns, 4.0923 us/op
+WorkloadPilot   13: 14 op, 50500.00 ns, 3.6071 us/op
+WorkloadPilot   14: 15 op, 52800.00 ns, 3.5200 us/op
+WorkloadPilot   15: 16 op, 55600.00 ns, 3.4750 us/op
+WorkloadPilot   16: 32 op, 99600.00 ns, 3.1125 us/op
+WorkloadPilot   17: 64 op, 194300.00 ns, 3.0359 us/op
+WorkloadPilot   18: 128 op, 436800.00 ns, 3.4125 us/op
+WorkloadPilot   19: 256 op, 757700.00 ns, 2.9598 us/op
+WorkloadPilot   20: 512 op, 1579200.00 ns, 3.0844 us/op
+WorkloadPilot   21: 1024 op, 3570200.00 ns, 3.4865 us/op
+WorkloadPilot   22: 2048 op, 6290900.00 ns, 3.0717 us/op
+WorkloadPilot   23: 4096 op, 12550700.00 ns, 3.0641 us/op
+WorkloadPilot   24: 8192 op, 24347400.00 ns, 2.9721 us/op
+WorkloadPilot   25: 16384 op, 47989400.00 ns, 2.9290 us/op
+WorkloadPilot   26: 32768 op, 96786200.00 ns, 2.9537 us/op
+WorkloadPilot   27: 65536 op, 189630800.00 ns, 2.8935 us/op
+WorkloadPilot   28: 131072 op, 378677400.00 ns, 2.8891 us/op
+WorkloadPilot   29: 262144 op, 759093200.00 ns, 2.8957 us/op
+
+WorkloadWarmup   1: 262144 op, 759428000.00 ns, 2.8970 us/op
+WorkloadWarmup   2: 262144 op, 760469600.00 ns, 2.9010 us/op
+WorkloadWarmup   3: 262144 op, 759955500.00 ns, 2.8990 us/op
+WorkloadWarmup   4: 262144 op, 758685700.00 ns, 2.8942 us/op
+WorkloadWarmup   5: 262144 op, 758644600.00 ns, 2.8940 us/op
+WorkloadWarmup   6: 262144 op, 762058600.00 ns, 2.9070 us/op
+WorkloadWarmup   7: 262144 op, 758057200.00 ns, 2.8918 us/op
+
+// BeforeActualRun
+WorkloadActual   1: 262144 op, 759715400.00 ns, 2.8981 us/op
+WorkloadActual   2: 262144 op, 760876400.00 ns, 2.9025 us/op
+WorkloadActual   3: 262144 op, 761549700.00 ns, 2.9051 us/op
+WorkloadActual   4: 262144 op, 757858900.00 ns, 2.8910 us/op
+WorkloadActual   5: 262144 op, 766845400.00 ns, 2.9253 us/op
+WorkloadActual   6: 262144 op, 761500100.00 ns, 2.9049 us/op
+WorkloadActual   7: 262144 op, 765188900.00 ns, 2.9190 us/op
+WorkloadActual   8: 262144 op, 761993600.00 ns, 2.9068 us/op
+WorkloadActual   9: 262144 op, 763864400.00 ns, 2.9139 us/op
+WorkloadActual  10: 262144 op, 761439000.00 ns, 2.9047 us/op
+WorkloadActual  11: 262144 op, 770082100.00 ns, 2.9376 us/op
+WorkloadActual  12: 262144 op, 760318200.00 ns, 2.9004 us/op
+WorkloadActual  13: 262144 op, 765302400.00 ns, 2.9194 us/op
+WorkloadActual  14: 262144 op, 761461500.00 ns, 2.9047 us/op
+WorkloadActual  15: 262144 op, 768336100.00 ns, 2.9310 us/op
+
+// AfterActualRun
+WorkloadResult   1: 262144 op, 759715400.00 ns, 2.8981 us/op
+WorkloadResult   2: 262144 op, 760876400.00 ns, 2.9025 us/op
+WorkloadResult   3: 262144 op, 761549700.00 ns, 2.9051 us/op
+WorkloadResult   4: 262144 op, 757858900.00 ns, 2.8910 us/op
+WorkloadResult   5: 262144 op, 766845400.00 ns, 2.9253 us/op
+WorkloadResult   6: 262144 op, 761500100.00 ns, 2.9049 us/op
+WorkloadResult   7: 262144 op, 765188900.00 ns, 2.9190 us/op
+WorkloadResult   8: 262144 op, 761993600.00 ns, 2.9068 us/op
+WorkloadResult   9: 262144 op, 763864400.00 ns, 2.9139 us/op
+WorkloadResult  10: 262144 op, 761439000.00 ns, 2.9047 us/op
+WorkloadResult  11: 262144 op, 770082100.00 ns, 2.9376 us/op
+WorkloadResult  12: 262144 op, 760318200.00 ns, 2.9004 us/op
+WorkloadResult  13: 262144 op, 765302400.00 ns, 2.9194 us/op
+WorkloadResult  14: 262144 op, 761461500.00 ns, 2.9047 us/op
+WorkloadResult  15: 262144 op, 768336100.00 ns, 2.9310 us/op
+
+// AfterAll
+// Benchmark Process 30492 has exited with code 0
+
+Mean = 2.9110 us, StdErr = 0.0034 us (0.12%); N = 15, StdDev = 0.0130 us
+Min = 2.8910 us, Q1 = 2.9025 us, Median = 2.9051 us, Q3 = 2.9194 us, Max = 2.9376 us
+IQR = 0.0169 us, LowerFence = 2.8772 us, UpperFence = 2.9447 us
+ConfidenceInterval = [2.8970 us; 2.9249 us] (CI 99.9%), Margin = 0.0139 us (0.48% of Mean)
+Skewness = 0.55, Kurtosis = 2.15, MValue = 2
+
+// **************************
+// Benchmark: ProtoBufTests.DasNegativeIntegerMessage: DefaultJob
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: E:\src\Das\Serializer\Serializer.Benchmarks\bin\Release\8253b33b-2593-4c9f-98bb-37cc9c0d46a4.exe --benchmarkName "Serializer.Tests.ProtocolBuffers.ProtoBufTests.DasNegativeIntegerMessage" --job "Default" --benchmarkId 8 in 
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// Runtime=.NET Framework 4.8 (4.8.4075.0), X64 RyuJIT
+// GC=Concurrent Workstation
+// Job: DefaultJob
+
+OverheadJitting  1: 1 op, 344300.00 ns, 344.3000 us/op
+WorkloadJitting  1: 1 op, 41330000.00 ns, 41.3300 ms/op
+
+WorkloadPilot    1: 2 op, 12100.00 ns, 6.0500 us/op
+WorkloadPilot    2: 3 op, 3900.00 ns, 1.3000 us/op
+WorkloadPilot    3: 4 op, 3800.00 ns, 950.0000 ns/op
+WorkloadPilot    4: 5 op, 3700.00 ns, 740.0000 ns/op
+WorkloadPilot    5: 6 op, 4200.00 ns, 700.0000 ns/op
+WorkloadPilot    6: 7 op, 4300.00 ns, 614.2857 ns/op
+WorkloadPilot    7: 8 op, 4500.00 ns, 562.5000 ns/op
+WorkloadPilot    8: 9 op, 4700.00 ns, 522.2222 ns/op
+WorkloadPilot    9: 10 op, 9800.00 ns, 980.0000 ns/op
+WorkloadPilot   10: 11 op, 5000.00 ns, 454.5455 ns/op
+WorkloadPilot   11: 12 op, 6500.00 ns, 541.6667 ns/op
+WorkloadPilot   12: 13 op, 6300.00 ns, 484.6154 ns/op
+WorkloadPilot   13: 14 op, 6400.00 ns, 457.1429 ns/op
+WorkloadPilot   14: 15 op, 7500.00 ns, 500.0000 ns/op
+WorkloadPilot   15: 16 op, 7300.00 ns, 456.2500 ns/op
+WorkloadPilot   16: 32 op, 11700.00 ns, 365.6250 ns/op
+WorkloadPilot   17: 64 op, 28500.00 ns, 445.3125 ns/op
+WorkloadPilot   18: 128 op, 57700.00 ns, 450.7813 ns/op
+WorkloadPilot   19: 256 op, 118700.00 ns, 463.6719 ns/op
+WorkloadPilot   20: 512 op, 173100.00 ns, 338.0859 ns/op
+WorkloadPilot   21: 1024 op, 455900.00 ns, 445.2148 ns/op
+WorkloadPilot   22: 2048 op, 681800.00 ns, 332.9102 ns/op
+WorkloadPilot   23: 4096 op, 1276700.00 ns, 311.6943 ns/op
+WorkloadPilot   24: 8192 op, 2479500.00 ns, 302.6733 ns/op
+WorkloadPilot   25: 16384 op, 4888500.00 ns, 298.3704 ns/op
+WorkloadPilot   26: 32768 op, 9741600.00 ns, 297.2900 ns/op
+WorkloadPilot   27: 65536 op, 19282700.00 ns, 294.2307 ns/op
+WorkloadPilot   28: 131072 op, 38624600.00 ns, 294.6823 ns/op
+WorkloadPilot   29: 262144 op, 77126300.00 ns, 294.2135 ns/op
+WorkloadPilot   30: 524288 op, 153978600.00 ns, 293.6909 ns/op
+WorkloadPilot   31: 1048576 op, 316282100.00 ns, 301.6301 ns/op
+WorkloadPilot   32: 2097152 op, 618924100.00 ns, 295.1260 ns/op
+
+WorkloadWarmup   1: 2097152 op, 621178100.00 ns, 296.2008 ns/op
+WorkloadWarmup   2: 2097152 op, 616509600.00 ns, 293.9747 ns/op
+WorkloadWarmup   3: 2097152 op, 613119100.00 ns, 292.3580 ns/op
+WorkloadWarmup   4: 2097152 op, 620758700.00 ns, 296.0008 ns/op
+WorkloadWarmup   5: 2097152 op, 613148000.00 ns, 292.3717 ns/op
+WorkloadWarmup   6: 2097152 op, 616352600.00 ns, 293.8998 ns/op
+WorkloadWarmup   7: 2097152 op, 615290100.00 ns, 293.3932 ns/op
+
+// BeforeActualRun
+WorkloadActual   1: 2097152 op, 612225300.00 ns, 291.9318 ns/op
+WorkloadActual   2: 2097152 op, 614114400.00 ns, 292.8326 ns/op
+WorkloadActual   3: 2097152 op, 610481700.00 ns, 291.1004 ns/op
+WorkloadActual   4: 2097152 op, 625052300.00 ns, 298.0482 ns/op
+WorkloadActual   5: 2097152 op, 623267000.00 ns, 297.1969 ns/op
+WorkloadActual   6: 2097152 op, 621026400.00 ns, 296.1285 ns/op
+WorkloadActual   7: 2097152 op, 636524000.00 ns, 303.5183 ns/op
+WorkloadActual   8: 2097152 op, 622090400.00 ns, 296.6358 ns/op
+WorkloadActual   9: 2097152 op, 622987900.00 ns, 297.0638 ns/op
+WorkloadActual  10: 2097152 op, 627764500.00 ns, 299.3414 ns/op
+WorkloadActual  11: 2097152 op, 625422000.00 ns, 298.2244 ns/op
+WorkloadActual  12: 2097152 op, 624051600.00 ns, 297.5710 ns/op
+WorkloadActual  13: 2097152 op, 627888400.00 ns, 299.4005 ns/op
+WorkloadActual  14: 2097152 op, 628410000.00 ns, 299.6492 ns/op
+WorkloadActual  15: 2097152 op, 631382700.00 ns, 301.0667 ns/op
+
+// AfterActualRun
+WorkloadResult   1: 2097152 op, 612225300.00 ns, 291.9318 ns/op
+WorkloadResult   2: 2097152 op, 614114400.00 ns, 292.8326 ns/op
+WorkloadResult   3: 2097152 op, 610481700.00 ns, 291.1004 ns/op
+WorkloadResult   4: 2097152 op, 625052300.00 ns, 298.0482 ns/op
+WorkloadResult   5: 2097152 op, 623267000.00 ns, 297.1969 ns/op
+WorkloadResult   6: 2097152 op, 621026400.00 ns, 296.1285 ns/op
+WorkloadResult   7: 2097152 op, 636524000.00 ns, 303.5183 ns/op
+WorkloadResult   8: 2097152 op, 622090400.00 ns, 296.6358 ns/op
+WorkloadResult   9: 2097152 op, 622987900.00 ns, 297.0638 ns/op
+WorkloadResult  10: 2097152 op, 627764500.00 ns, 299.3414 ns/op
+WorkloadResult  11: 2097152 op, 625422000.00 ns, 298.2244 ns/op
+WorkloadResult  12: 2097152 op, 624051600.00 ns, 297.5710 ns/op
+WorkloadResult  13: 2097152 op, 627888400.00 ns, 299.4005 ns/op
+WorkloadResult  14: 2097152 op, 628410000.00 ns, 299.6492 ns/op
+WorkloadResult  15: 2097152 op, 631382700.00 ns, 301.0667 ns/op
+
+// AfterAll
+// Benchmark Process 8016 has exited with code 0
+
+Mean = 297.3140 ns, StdErr = 0.8661 ns (0.29%); N = 15, StdDev = 3.3544 ns
+Min = 291.1004 ns, Q1 = 296.1285 ns, Median = 297.5710 ns, Q3 = 299.4005 ns, Max = 303.5183 ns
+IQR = 3.2721 ns, LowerFence = 291.2204 ns, UpperFence = 304.3086 ns
+ConfidenceInterval = [293.7279 ns; 300.9000 ns] (CI 99.9%), Margin = 3.5861 ns (1.21% of Mean)
+Skewness = -0.29, Kurtosis = 2.36, MValue = 2
+
+// **************************
+// Benchmark: ProtoBufTests.ProtoNetNegativeIntegerMessage: DefaultJob
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: E:\src\Das\Serializer\Serializer.Benchmarks\bin\Release\8253b33b-2593-4c9f-98bb-37cc9c0d46a4.exe --benchmarkName "Serializer.Tests.ProtocolBuffers.ProtoBufTests.ProtoNetNegativeIntegerMessage" --job "Default" --benchmarkId 9 in 
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// Runtime=.NET Framework 4.8 (4.8.4075.0), X64 RyuJIT
+// GC=Concurrent Workstation
+// Job: DefaultJob
+
+OverheadJitting  1: 1 op, 323400.00 ns, 323.4000 us/op
+WorkloadJitting  1: 1 op, 77988300.00 ns, 77.9883 ms/op
+
+WorkloadPilot    1: 2 op, 30700.00 ns, 15.3500 us/op
+WorkloadPilot    2: 3 op, 7100.00 ns, 2.3667 us/op
+WorkloadPilot    3: 4 op, 7700.00 ns, 1.9250 us/op
+WorkloadPilot    4: 5 op, 8600.00 ns, 1.7200 us/op
+WorkloadPilot    5: 6 op, 9000.00 ns, 1.5000 us/op
+WorkloadPilot    6: 7 op, 10600.00 ns, 1.5143 us/op
+WorkloadPilot    7: 8 op, 11600.00 ns, 1.4500 us/op
+WorkloadPilot    8: 9 op, 13300.00 ns, 1.4778 us/op
+WorkloadPilot    9: 10 op, 13400.00 ns, 1.3400 us/op
+WorkloadPilot   10: 11 op, 14900.00 ns, 1.3545 us/op
+WorkloadPilot   11: 12 op, 19100.00 ns, 1.5917 us/op
+WorkloadPilot   12: 13 op, 19300.00 ns, 1.4846 us/op
+WorkloadPilot   13: 14 op, 19700.00 ns, 1.4071 us/op
+WorkloadPilot   14: 15 op, 21000.00 ns, 1.4000 us/op
+WorkloadPilot   15: 16 op, 23500.00 ns, 1.4688 us/op
+WorkloadPilot   16: 32 op, 48200.00 ns, 1.5063 us/op
+WorkloadPilot   17: 64 op, 69700.00 ns, 1.0891 us/op
+WorkloadPilot   18: 128 op, 134100.00 ns, 1.0477 us/op
+WorkloadPilot   19: 256 op, 293300.00 ns, 1.1457 us/op
+WorkloadPilot   20: 512 op, 536400.00 ns, 1.0477 us/op
+WorkloadPilot   21: 1024 op, 1094900.00 ns, 1.0692 us/op
+WorkloadPilot   22: 2048 op, 2348800.00 ns, 1.1469 us/op
+WorkloadPilot   23: 4096 op, 4832400.00 ns, 1.1798 us/op
+WorkloadPilot   24: 8192 op, 9935800.00 ns, 1.2129 us/op
+WorkloadPilot   25: 16384 op, 19530600.00 ns, 1.1921 us/op
+WorkloadPilot   26: 32768 op, 38918200.00 ns, 1.1877 us/op
+WorkloadPilot   27: 65536 op, 83477500.00 ns, 1.2738 us/op
+WorkloadPilot   28: 131072 op, 154086100.00 ns, 1.1756 us/op
+WorkloadPilot   29: 262144 op, 309526700.00 ns, 1.1808 us/op
+WorkloadPilot   30: 524288 op, 622633500.00 ns, 1.1876 us/op
+
+WorkloadWarmup   1: 524288 op, 618466100.00 ns, 1.1796 us/op
+WorkloadWarmup   2: 524288 op, 620049400.00 ns, 1.1827 us/op
+WorkloadWarmup   3: 524288 op, 622960200.00 ns, 1.1882 us/op
+WorkloadWarmup   4: 524288 op, 623684000.00 ns, 1.1896 us/op
+WorkloadWarmup   5: 524288 op, 614025300.00 ns, 1.1712 us/op
+WorkloadWarmup   6: 524288 op, 656077300.00 ns, 1.2514 us/op
+WorkloadWarmup   7: 524288 op, 615591800.00 ns, 1.1741 us/op
+
+// BeforeActualRun
+WorkloadActual   1: 524288 op, 618401900.00 ns, 1.1795 us/op
+WorkloadActual   2: 524288 op, 609539100.00 ns, 1.1626 us/op
+WorkloadActual   3: 524288 op, 613369300.00 ns, 1.1699 us/op
+WorkloadActual   4: 524288 op, 612322600.00 ns, 1.1679 us/op
+WorkloadActual   5: 524288 op, 610134200.00 ns, 1.1637 us/op
+WorkloadActual   6: 524288 op, 611296800.00 ns, 1.1660 us/op
+WorkloadActual   7: 524288 op, 610974900.00 ns, 1.1653 us/op
+WorkloadActual   8: 524288 op, 610789600.00 ns, 1.1650 us/op
+WorkloadActual   9: 524288 op, 616370900.00 ns, 1.1756 us/op
+WorkloadActual  10: 524288 op, 614189000.00 ns, 1.1715 us/op
+WorkloadActual  11: 524288 op, 614081600.00 ns, 1.1713 us/op
+WorkloadActual  12: 524288 op, 610225300.00 ns, 1.1639 us/op
+WorkloadActual  13: 524288 op, 611895000.00 ns, 1.1671 us/op
+WorkloadActual  14: 524288 op, 611739200.00 ns, 1.1668 us/op
+WorkloadActual  15: 524288 op, 607868500.00 ns, 1.1594 us/op
+
+// AfterActualRun
+WorkloadResult   1: 524288 op, 618401900.00 ns, 1.1795 us/op
+WorkloadResult   2: 524288 op, 609539100.00 ns, 1.1626 us/op
+WorkloadResult   3: 524288 op, 613369300.00 ns, 1.1699 us/op
+WorkloadResult   4: 524288 op, 612322600.00 ns, 1.1679 us/op
+WorkloadResult   5: 524288 op, 610134200.00 ns, 1.1637 us/op
+WorkloadResult   6: 524288 op, 611296800.00 ns, 1.1660 us/op
+WorkloadResult   7: 524288 op, 610974900.00 ns, 1.1653 us/op
+WorkloadResult   8: 524288 op, 610789600.00 ns, 1.1650 us/op
+WorkloadResult   9: 524288 op, 616370900.00 ns, 1.1756 us/op
+WorkloadResult  10: 524288 op, 614189000.00 ns, 1.1715 us/op
+WorkloadResult  11: 524288 op, 614081600.00 ns, 1.1713 us/op
+WorkloadResult  12: 524288 op, 610225300.00 ns, 1.1639 us/op
+WorkloadResult  13: 524288 op, 611895000.00 ns, 1.1671 us/op
+WorkloadResult  14: 524288 op, 611739200.00 ns, 1.1668 us/op
+WorkloadResult  15: 524288 op, 607868500.00 ns, 1.1594 us/op
+
+// AfterAll
+// Benchmark Process 33824 has exited with code 0
+
+Mean = 1.1677 us, StdErr = 0.0013 us (0.11%); N = 15, StdDev = 0.0052 us
+Min = 1.1594 us, Q1 = 1.1639 us, Median = 1.1668 us, Q3 = 1.1713 us, Max = 1.1795 us
+IQR = 0.0074 us, LowerFence = 1.1529 us, UpperFence = 1.1823 us
+ConfidenceInterval = [1.1622 us; 1.1732 us] (CI 99.9%), Margin = 0.0055 us (0.47% of Mean)
+Skewness = 0.67, Kurtosis = 2.74, MValue = 2
+
+// **************************
+// Benchmark: ProtoBufTests.DasMultiProperties: DefaultJob
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: E:\src\Das\Serializer\Serializer.Benchmarks\bin\Release\8253b33b-2593-4c9f-98bb-37cc9c0d46a4.exe --benchmarkName "Serializer.Tests.ProtocolBuffers.ProtoBufTests.DasMultiProperties" --job "Default" --benchmarkId 10 in 
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// Runtime=.NET Framework 4.8 (4.8.4075.0), X64 RyuJIT
+// GC=Concurrent Workstation
+// Job: DefaultJob
+
+OverheadJitting  1: 1 op, 550000.00 ns, 550.0000 us/op
+WorkloadJitting  1: 1 op, 42464000.00 ns, 42.4640 ms/op
+
+WorkloadPilot    1: 2 op, 17800.00 ns, 8.9000 us/op
+WorkloadPilot    2: 3 op, 4600.00 ns, 1.5333 us/op
+WorkloadPilot    3: 4 op, 4700.00 ns, 1.1750 us/op
+WorkloadPilot    4: 5 op, 4900.00 ns, 980.0000 ns/op
+WorkloadPilot    5: 6 op, 5300.00 ns, 883.3333 ns/op
+WorkloadPilot    6: 7 op, 5800.00 ns, 828.5714 ns/op
+WorkloadPilot    7: 8 op, 6200.00 ns, 775.0000 ns/op
+WorkloadPilot    8: 9 op, 6600.00 ns, 733.3333 ns/op
+WorkloadPilot    9: 10 op, 7700.00 ns, 770.0000 ns/op
+WorkloadPilot   10: 11 op, 8100.00 ns, 736.3636 ns/op
+WorkloadPilot   11: 12 op, 8400.00 ns, 700.0000 ns/op
+WorkloadPilot   12: 13 op, 8800.00 ns, 676.9231 ns/op
+WorkloadPilot   13: 14 op, 9400.00 ns, 671.4286 ns/op
+WorkloadPilot   14: 15 op, 9700.00 ns, 646.6667 ns/op
+WorkloadPilot   15: 16 op, 10600.00 ns, 662.5000 ns/op
+WorkloadPilot   16: 32 op, 22700.00 ns, 709.3750 ns/op
+WorkloadPilot   17: 64 op, 46800.00 ns, 731.2500 ns/op
+WorkloadPilot   18: 128 op, 71800.00 ns, 560.9375 ns/op
+WorkloadPilot   19: 256 op, 152900.00 ns, 597.2656 ns/op
+WorkloadPilot   20: 512 op, 264900.00 ns, 517.3828 ns/op
+WorkloadPilot   21: 1024 op, 668600.00 ns, 652.9297 ns/op
+WorkloadPilot   22: 2048 op, 1010700.00 ns, 493.5059 ns/op
+WorkloadPilot   23: 4096 op, 2002300.00 ns, 488.8428 ns/op
+WorkloadPilot   24: 8192 op, 3932200.00 ns, 480.0049 ns/op
+WorkloadPilot   25: 16384 op, 7711200.00 ns, 470.6543 ns/op
+WorkloadPilot   26: 32768 op, 15412300.00 ns, 470.3461 ns/op
+WorkloadPilot   27: 65536 op, 30621200.00 ns, 467.2424 ns/op
+WorkloadPilot   28: 131072 op, 60618800.00 ns, 462.4847 ns/op
+WorkloadPilot   29: 262144 op, 120287500.00 ns, 458.8604 ns/op
+WorkloadPilot   30: 524288 op, 239866400.00 ns, 457.5089 ns/op
+WorkloadPilot   31: 1048576 op, 482311300.00 ns, 459.9679 ns/op
+WorkloadPilot   32: 2097152 op, 964102400.00 ns, 459.7198 ns/op
+
+WorkloadWarmup   1: 2097152 op, 969649700.00 ns, 462.3650 ns/op
+WorkloadWarmup   2: 2097152 op, 995477200.00 ns, 474.6805 ns/op
+WorkloadWarmup   3: 2097152 op, 1026967400.00 ns, 489.6962 ns/op
+WorkloadWarmup   4: 2097152 op, 997865500.00 ns, 475.8193 ns/op
+WorkloadWarmup   5: 2097152 op, 1051471500.00 ns, 501.3807 ns/op
+WorkloadWarmup   6: 2097152 op, 996153500.00 ns, 475.0030 ns/op
+
+// BeforeActualRun
+WorkloadActual   1: 2097152 op, 984334900.00 ns, 469.3675 ns/op
+WorkloadActual   2: 2097152 op, 968617600.00 ns, 461.8729 ns/op
+WorkloadActual   3: 2097152 op, 964091700.00 ns, 459.7147 ns/op
+WorkloadActual   4: 2097152 op, 963041000.00 ns, 459.2137 ns/op
+WorkloadActual   5: 2097152 op, 967599500.00 ns, 461.3874 ns/op
+WorkloadActual   6: 2097152 op, 971377600.00 ns, 463.1889 ns/op
+WorkloadActual   7: 2097152 op, 976224400.00 ns, 465.5001 ns/op
+WorkloadActual   8: 2097152 op, 973231900.00 ns, 464.0731 ns/op
+WorkloadActual   9: 2097152 op, 977317400.00 ns, 466.0213 ns/op
+WorkloadActual  10: 2097152 op, 971846000.00 ns, 463.4123 ns/op
+WorkloadActual  11: 2097152 op, 1000611100.00 ns, 477.1286 ns/op
+WorkloadActual  12: 2097152 op, 1016344100.00 ns, 484.6306 ns/op
+WorkloadActual  13: 2097152 op, 976810000.00 ns, 465.7793 ns/op
+WorkloadActual  14: 2097152 op, 988991900.00 ns, 471.5881 ns/op
+WorkloadActual  15: 2097152 op, 992677700.00 ns, 473.3456 ns/op
+
+// AfterActualRun
+WorkloadResult   1: 2097152 op, 984334900.00 ns, 469.3675 ns/op
+WorkloadResult   2: 2097152 op, 968617600.00 ns, 461.8729 ns/op
+WorkloadResult   3: 2097152 op, 964091700.00 ns, 459.7147 ns/op
+WorkloadResult   4: 2097152 op, 963041000.00 ns, 459.2137 ns/op
+WorkloadResult   5: 2097152 op, 967599500.00 ns, 461.3874 ns/op
+WorkloadResult   6: 2097152 op, 971377600.00 ns, 463.1889 ns/op
+WorkloadResult   7: 2097152 op, 976224400.00 ns, 465.5001 ns/op
+WorkloadResult   8: 2097152 op, 973231900.00 ns, 464.0731 ns/op
+WorkloadResult   9: 2097152 op, 977317400.00 ns, 466.0213 ns/op
+WorkloadResult  10: 2097152 op, 971846000.00 ns, 463.4123 ns/op
+WorkloadResult  11: 2097152 op, 1000611100.00 ns, 477.1286 ns/op
+WorkloadResult  12: 2097152 op, 1016344100.00 ns, 484.6306 ns/op
+WorkloadResult  13: 2097152 op, 976810000.00 ns, 465.7793 ns/op
+WorkloadResult  14: 2097152 op, 988991900.00 ns, 471.5881 ns/op
+WorkloadResult  15: 2097152 op, 992677700.00 ns, 473.3456 ns/op
+
+// AfterAll
+// Benchmark Process 7924 has exited with code 0
+
+Mean = 467.0816 ns, StdErr = 1.8158 ns (0.39%); N = 15, StdDev = 7.0326 ns
+Min = 459.2137 ns, Q1 = 461.8729 ns, Median = 465.5001 ns, Q3 = 471.5881 ns, Max = 484.6306 ns
+IQR = 9.7152 ns, LowerFence = 447.3000 ns, UpperFence = 486.1609 ns
+ConfidenceInterval = [459.5634 ns; 474.5999 ns] (CI 99.9%), Margin = 7.5182 ns (1.61% of Mean)
+Skewness = 1.04, Kurtosis = 3.16, MValue = 2
+
+// **************************
+// Benchmark: ProtoBufTests.DasMultiProperties_OLD: DefaultJob
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: E:\src\Das\Serializer\Serializer.Benchmarks\bin\Release\8253b33b-2593-4c9f-98bb-37cc9c0d46a4.exe --benchmarkName "Serializer.Tests.ProtocolBuffers.ProtoBufTests.DasMultiProperties_OLD" --job "Default" --benchmarkId 11 in 
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// Runtime=.NET Framework 4.8 (4.8.4075.0), X64 RyuJIT
+// GC=Concurrent Workstation
+// Job: DefaultJob
+
+OverheadJitting  1: 1 op, 487600.00 ns, 487.6000 us/op
+WorkloadJitting  1: 1 op, 50288300.00 ns, 50.2883 ms/op
+
+WorkloadPilot    1: 2 op, 38700.00 ns, 19.3500 us/op
+WorkloadPilot    2: 3 op, 9600.00 ns, 3.2000 us/op
+WorkloadPilot    3: 4 op, 14600.00 ns, 3.6500 us/op
+WorkloadPilot    4: 5 op, 10800.00 ns, 2.1600 us/op
+WorkloadPilot    5: 6 op, 10700.00 ns, 1.7833 us/op
+WorkloadPilot    6: 7 op, 11600.00 ns, 1.6571 us/op
+WorkloadPilot    7: 8 op, 12600.00 ns, 1.5750 us/op
+WorkloadPilot    8: 9 op, 13500.00 ns, 1.5000 us/op
+WorkloadPilot    9: 10 op, 16200.00 ns, 1.6200 us/op
+WorkloadPilot   10: 11 op, 15700.00 ns, 1.4273 us/op
+WorkloadPilot   11: 12 op, 16700.00 ns, 1.3917 us/op
+WorkloadPilot   12: 13 op, 17800.00 ns, 1.3692 us/op
+WorkloadPilot   13: 14 op, 20300.00 ns, 1.4500 us/op
+WorkloadPilot   14: 15 op, 20300.00 ns, 1.3533 us/op
+WorkloadPilot   15: 16 op, 21700.00 ns, 1.3563 us/op
+WorkloadPilot   16: 32 op, 39100.00 ns, 1.2219 us/op
+WorkloadPilot   17: 64 op, 77500.00 ns, 1.2109 us/op
+WorkloadPilot   18: 128 op, 165500.00 ns, 1.2930 us/op
+WorkloadPilot   19: 256 op, 302900.00 ns, 1.1832 us/op
+WorkloadPilot   20: 512 op, 607300.00 ns, 1.1861 us/op
+WorkloadPilot   21: 1024 op, 1153300.00 ns, 1.1263 us/op
+WorkloadPilot   22: 2048 op, 2287200.00 ns, 1.1168 us/op
+WorkloadPilot   23: 4096 op, 4530800.00 ns, 1.1062 us/op
+WorkloadPilot   24: 8192 op, 13735900.00 ns, 1.6767 us/op
+WorkloadPilot   25: 16384 op, 18104200.00 ns, 1.1050 us/op
+WorkloadPilot   26: 32768 op, 35774500.00 ns, 1.0918 us/op
+WorkloadPilot   27: 65536 op, 72003200.00 ns, 1.0987 us/op
+WorkloadPilot   28: 131072 op, 144924700.00 ns, 1.1057 us/op
+WorkloadPilot   29: 262144 op, 286752900.00 ns, 1.0939 us/op
+WorkloadPilot   30: 524288 op, 571493300.00 ns, 1.0900 us/op
+
+WorkloadWarmup   1: 524288 op, 566989800.00 ns, 1.0814 us/op
+WorkloadWarmup   2: 524288 op, 566511300.00 ns, 1.0805 us/op
+WorkloadWarmup   3: 524288 op, 568392800.00 ns, 1.0841 us/op
+WorkloadWarmup   4: 524288 op, 566091300.00 ns, 1.0797 us/op
+WorkloadWarmup   5: 524288 op, 567823300.00 ns, 1.0830 us/op
+WorkloadWarmup   6: 524288 op, 564324400.00 ns, 1.0764 us/op
+
+// BeforeActualRun
+WorkloadActual   1: 524288 op, 563614000.00 ns, 1.0750 us/op
+WorkloadActual   2: 524288 op, 581770200.00 ns, 1.1096 us/op
+WorkloadActual   3: 524288 op, 587560500.00 ns, 1.1207 us/op
+WorkloadActual   4: 524288 op, 582818300.00 ns, 1.1116 us/op
+WorkloadActual   5: 524288 op, 583843600.00 ns, 1.1136 us/op
+WorkloadActual   6: 524288 op, 577364600.00 ns, 1.1012 us/op
+WorkloadActual   7: 524288 op, 570598300.00 ns, 1.0883 us/op
+WorkloadActual   8: 524288 op, 583296900.00 ns, 1.1126 us/op
+WorkloadActual   9: 524288 op, 577459600.00 ns, 1.1014 us/op
+WorkloadActual  10: 524288 op, 571501700.00 ns, 1.0901 us/op
+WorkloadActual  11: 524288 op, 593641900.00 ns, 1.1323 us/op
+WorkloadActual  12: 524288 op, 579198800.00 ns, 1.1047 us/op
+WorkloadActual  13: 524288 op, 612259100.00 ns, 1.1678 us/op
+WorkloadActual  14: 524288 op, 580671700.00 ns, 1.1075 us/op
+WorkloadActual  15: 524288 op, 583441000.00 ns, 1.1128 us/op
+
+// AfterActualRun
+WorkloadResult   1: 524288 op, 563614000.00 ns, 1.0750 us/op
+WorkloadResult   2: 524288 op, 581770200.00 ns, 1.1096 us/op
+WorkloadResult   3: 524288 op, 587560500.00 ns, 1.1207 us/op
+WorkloadResult   4: 524288 op, 582818300.00 ns, 1.1116 us/op
+WorkloadResult   5: 524288 op, 583843600.00 ns, 1.1136 us/op
+WorkloadResult   6: 524288 op, 577364600.00 ns, 1.1012 us/op
+WorkloadResult   7: 524288 op, 570598300.00 ns, 1.0883 us/op
+WorkloadResult   8: 524288 op, 583296900.00 ns, 1.1126 us/op
+WorkloadResult   9: 524288 op, 577459600.00 ns, 1.1014 us/op
+WorkloadResult  10: 524288 op, 571501700.00 ns, 1.0901 us/op
+WorkloadResult  11: 524288 op, 579198800.00 ns, 1.1047 us/op
+WorkloadResult  12: 524288 op, 580671700.00 ns, 1.1075 us/op
+WorkloadResult  13: 524288 op, 583441000.00 ns, 1.1128 us/op
+
+// AfterAll
+// Benchmark Process 15440 has exited with code 0
+
+Mean = 1.1038 us, StdErr = 0.0035 us (0.32%); N = 13, StdDev = 0.0126 us
+Min = 1.0750 us, Q1 = 1.0956 us, Median = 1.1075 us, Q3 = 1.1127 us, Max = 1.1207 us
+IQR = 0.0170 us, LowerFence = 1.0701 us, UpperFence = 1.1383 us
+ConfidenceInterval = [1.0886 us; 1.1189 us] (CI 99.9%), Margin = 0.0151 us (1.37% of Mean)
+Skewness = -0.85, Kurtosis = 2.67, MValue = 2
+
+// **************************
+// Benchmark: ProtoBufTests.ProtoNetMultiProperties: DefaultJob
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: E:\src\Das\Serializer\Serializer.Benchmarks\bin\Release\8253b33b-2593-4c9f-98bb-37cc9c0d46a4.exe --benchmarkName "Serializer.Tests.ProtocolBuffers.ProtoBufTests.ProtoNetMultiProperties" --job "Default" --benchmarkId 12 in 
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// Runtime=.NET Framework 4.8 (4.8.4075.0), X64 RyuJIT
+// GC=Concurrent Workstation
+// Job: DefaultJob
+
+OverheadJitting  1: 1 op, 345500.00 ns, 345.5000 us/op
+WorkloadJitting  1: 1 op, 93873500.00 ns, 93.8735 ms/op
+
+WorkloadPilot    1: 2 op, 52200.00 ns, 26.1000 us/op
+WorkloadPilot    2: 3 op, 9600.00 ns, 3.2000 us/op
+WorkloadPilot    3: 4 op, 12600.00 ns, 3.1500 us/op
+WorkloadPilot    4: 5 op, 12400.00 ns, 2.4800 us/op
+WorkloadPilot    5: 6 op, 13800.00 ns, 2.3000 us/op
+WorkloadPilot    6: 7 op, 14800.00 ns, 2.1143 us/op
+WorkloadPilot    7: 8 op, 17200.00 ns, 2.1500 us/op
+WorkloadPilot    8: 9 op, 21400.00 ns, 2.3778 us/op
+WorkloadPilot    9: 10 op, 21900.00 ns, 2.1900 us/op
+WorkloadPilot   10: 11 op, 23000.00 ns, 2.0909 us/op
+WorkloadPilot   11: 12 op, 23800.00 ns, 1.9833 us/op
+WorkloadPilot   12: 13 op, 25000.00 ns, 1.9231 us/op
+WorkloadPilot   13: 14 op, 23900.00 ns, 1.7071 us/op
+WorkloadPilot   14: 15 op, 25000.00 ns, 1.6667 us/op
+WorkloadPilot   15: 16 op, 28200.00 ns, 1.7625 us/op
+WorkloadPilot   16: 32 op, 74000.00 ns, 2.3125 us/op
+WorkloadPilot   17: 64 op, 138400.00 ns, 2.1625 us/op
+WorkloadPilot   18: 128 op, 230700.00 ns, 1.8023 us/op
+WorkloadPilot   19: 256 op, 496300.00 ns, 1.9387 us/op
+WorkloadPilot   20: 512 op, 986400.00 ns, 1.9266 us/op
+WorkloadPilot   21: 1024 op, 1845000.00 ns, 1.8018 us/op
+WorkloadPilot   22: 2048 op, 3516000.00 ns, 1.7168 us/op
+WorkloadPilot   23: 4096 op, 7421000.00 ns, 1.8118 us/op
+WorkloadPilot   24: 8192 op, 16239600.00 ns, 1.9824 us/op
+WorkloadPilot   25: 16384 op, 29251400.00 ns, 1.7854 us/op
+WorkloadPilot   26: 32768 op, 54161700.00 ns, 1.6529 us/op
+WorkloadPilot   27: 65536 op, 104751400.00 ns, 1.5984 us/op
+WorkloadPilot   28: 131072 op, 206169200.00 ns, 1.5729 us/op
+WorkloadPilot   29: 262144 op, 410067300.00 ns, 1.5643 us/op
+WorkloadPilot   30: 524288 op, 833208300.00 ns, 1.5892 us/op
+
+WorkloadWarmup   1: 524288 op, 857061100.00 ns, 1.6347 us/op
+WorkloadWarmup   2: 524288 op, 831875500.00 ns, 1.5867 us/op
+WorkloadWarmup   3: 524288 op, 863422200.00 ns, 1.6468 us/op
+WorkloadWarmup   4: 524288 op, 830612000.00 ns, 1.5843 us/op
+WorkloadWarmup   5: 524288 op, 837130000.00 ns, 1.5967 us/op
+WorkloadWarmup   6: 524288 op, 817596600.00 ns, 1.5594 us/op
+
+// BeforeActualRun
+WorkloadActual   1: 524288 op, 812959100.00 ns, 1.5506 us/op
+WorkloadActual   2: 524288 op, 814017300.00 ns, 1.5526 us/op
+WorkloadActual   3: 524288 op, 809714800.00 ns, 1.5444 us/op
+WorkloadActual   4: 524288 op, 810118100.00 ns, 1.5452 us/op
+WorkloadActual   5: 524288 op, 806390900.00 ns, 1.5381 us/op
+WorkloadActual   6: 524288 op, 809403400.00 ns, 1.5438 us/op
+WorkloadActual   7: 524288 op, 808916500.00 ns, 1.5429 us/op
+WorkloadActual   8: 524288 op, 812854500.00 ns, 1.5504 us/op
+WorkloadActual   9: 524288 op, 805586500.00 ns, 1.5365 us/op
+WorkloadActual  10: 524288 op, 808140400.00 ns, 1.5414 us/op
+WorkloadActual  11: 524288 op, 810486400.00 ns, 1.5459 us/op
+WorkloadActual  12: 524288 op, 809720600.00 ns, 1.5444 us/op
+WorkloadActual  13: 524288 op, 805956900.00 ns, 1.5372 us/op
+WorkloadActual  14: 524288 op, 812810700.00 ns, 1.5503 us/op
+WorkloadActual  15: 524288 op, 821909300.00 ns, 1.5677 us/op
+
+// AfterActualRun
+WorkloadResult   1: 524288 op, 812959100.00 ns, 1.5506 us/op
+WorkloadResult   2: 524288 op, 814017300.00 ns, 1.5526 us/op
+WorkloadResult   3: 524288 op, 809714800.00 ns, 1.5444 us/op
+WorkloadResult   4: 524288 op, 810118100.00 ns, 1.5452 us/op
+WorkloadResult   5: 524288 op, 806390900.00 ns, 1.5381 us/op
+WorkloadResult   6: 524288 op, 809403400.00 ns, 1.5438 us/op
+WorkloadResult   7: 524288 op, 808916500.00 ns, 1.5429 us/op
+WorkloadResult   8: 524288 op, 812854500.00 ns, 1.5504 us/op
+WorkloadResult   9: 524288 op, 805586500.00 ns, 1.5365 us/op
+WorkloadResult  10: 524288 op, 808140400.00 ns, 1.5414 us/op
+WorkloadResult  11: 524288 op, 810486400.00 ns, 1.5459 us/op
+WorkloadResult  12: 524288 op, 809720600.00 ns, 1.5444 us/op
+WorkloadResult  13: 524288 op, 805956900.00 ns, 1.5372 us/op
+WorkloadResult  14: 524288 op, 812810700.00 ns, 1.5503 us/op
+
+// AfterAll
+// Benchmark Process 14440 has exited with code 0
+
+Mean = 1.5446 us, StdErr = 0.0014 us (0.09%); N = 14, StdDev = 0.0051 us
+Min = 1.5365 us, Q1 = 1.5414 us, Median = 1.5444 us, Q3 = 1.5503 us, Max = 1.5526 us
+IQR = 0.0089 us, LowerFence = 1.5280 us, UpperFence = 1.5637 us
+ConfidenceInterval = [1.5388 us; 1.5504 us] (CI 99.9%), Margin = 0.0058 us (0.38% of Mean)
+Skewness = -0.04, Kurtosis = 1.7, MValue = 2
+
+// **************************
+// Benchmark: ProtoBufTests.DasComposedMessage: DefaultJob
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: E:\src\Das\Serializer\Serializer.Benchmarks\bin\Release\8253b33b-2593-4c9f-98bb-37cc9c0d46a4.exe --benchmarkName "Serializer.Tests.ProtocolBuffers.ProtoBufTests.DasComposedMessage" --job "Default" --benchmarkId 13 in 
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// Runtime=.NET Framework 4.8 (4.8.4075.0), X64 RyuJIT
+// GC=Concurrent Workstation
+// Job: DefaultJob
+
+OverheadJitting  1: 1 op, 332600.00 ns, 332.6000 us/op
+WorkloadJitting  1: 1 op, 68356600.00 ns, 68.3566 ms/op
+
+WorkloadPilot    1: 2 op, 40100.00 ns, 20.0500 us/op
+WorkloadPilot    2: 3 op, 27100.00 ns, 9.0333 us/op
+WorkloadPilot    3: 4 op, 35300.00 ns, 8.8250 us/op
+WorkloadPilot    4: 5 op, 51200.00 ns, 10.2400 us/op
+WorkloadPilot    5: 6 op, 42000.00 ns, 7.0000 us/op
+WorkloadPilot    6: 7 op, 45500.00 ns, 6.5000 us/op
+WorkloadPilot    7: 8 op, 50900.00 ns, 6.3625 us/op
+WorkloadPilot    8: 9 op, 55900.00 ns, 6.2111 us/op
+WorkloadPilot    9: 10 op, 67400.00 ns, 6.7400 us/op
+WorkloadPilot   10: 11 op, 68100.00 ns, 6.1909 us/op
+WorkloadPilot   11: 12 op, 71300.00 ns, 5.9417 us/op
+WorkloadPilot   12: 13 op, 77600.00 ns, 5.9692 us/op
+WorkloadPilot   13: 14 op, 80900.00 ns, 5.7786 us/op
+WorkloadPilot   14: 15 op, 86100.00 ns, 5.7400 us/op
+WorkloadPilot   15: 16 op, 107200.00 ns, 6.7000 us/op
+WorkloadPilot   16: 32 op, 179900.00 ns, 5.6219 us/op
+WorkloadPilot   17: 64 op, 357800.00 ns, 5.5906 us/op
+WorkloadPilot   18: 128 op, 710900.00 ns, 5.5539 us/op
+WorkloadPilot   19: 256 op, 1442200.00 ns, 5.6336 us/op
+WorkloadPilot   20: 512 op, 2763500.00 ns, 5.3975 us/op
+WorkloadPilot   21: 1024 op, 5496600.00 ns, 5.3678 us/op
+WorkloadPilot   22: 2048 op, 10875700.00 ns, 5.3104 us/op
+WorkloadPilot   23: 4096 op, 21728200.00 ns, 5.3047 us/op
+WorkloadPilot   24: 8192 op, 43544600.00 ns, 5.3155 us/op
+WorkloadPilot   25: 16384 op, 85999300.00 ns, 5.2490 us/op
+WorkloadPilot   26: 32768 op, 172943800.00 ns, 5.2778 us/op
+WorkloadPilot   27: 65536 op, 342915200.00 ns, 5.2325 us/op
+WorkloadPilot   28: 131072 op, 685533800.00 ns, 5.2302 us/op
+
+WorkloadWarmup   1: 131072 op, 686479200.00 ns, 5.2374 us/op
+WorkloadWarmup   2: 131072 op, 683839800.00 ns, 5.2173 us/op
+WorkloadWarmup   3: 131072 op, 684323900.00 ns, 5.2210 us/op
+WorkloadWarmup   4: 131072 op, 684560800.00 ns, 5.2228 us/op
+WorkloadWarmup   5: 131072 op, 685845800.00 ns, 5.2326 us/op
+WorkloadWarmup   6: 131072 op, 683549900.00 ns, 5.2151 us/op
+WorkloadWarmup   7: 131072 op, 688898400.00 ns, 5.2559 us/op
+WorkloadWarmup   8: 131072 op, 687228100.00 ns, 5.2431 us/op
+
+// BeforeActualRun
+WorkloadActual   1: 131072 op, 683756400.00 ns, 5.2166 us/op
+WorkloadActual   2: 131072 op, 687177700.00 ns, 5.2427 us/op
+WorkloadActual   3: 131072 op, 723839800.00 ns, 5.5225 us/op
+WorkloadActual   4: 131072 op, 701464400.00 ns, 5.3517 us/op
+WorkloadActual   5: 131072 op, 707809400.00 ns, 5.4002 us/op
+WorkloadActual   6: 131072 op, 704672600.00 ns, 5.3762 us/op
+WorkloadActual   7: 131072 op, 725896300.00 ns, 5.5381 us/op
+WorkloadActual   8: 131072 op, 685295700.00 ns, 5.2284 us/op
+WorkloadActual   9: 131072 op, 687439500.00 ns, 5.2447 us/op
+WorkloadActual  10: 131072 op, 686054800.00 ns, 5.2342 us/op
+WorkloadActual  11: 131072 op, 685709300.00 ns, 5.2315 us/op
+WorkloadActual  12: 131072 op, 686508500.00 ns, 5.2376 us/op
+WorkloadActual  13: 131072 op, 686830600.00 ns, 5.2401 us/op
+WorkloadActual  14: 131072 op, 691545700.00 ns, 5.2761 us/op
+WorkloadActual  15: 131072 op, 736401600.00 ns, 5.6183 us/op
+WorkloadActual  16: 131072 op, 719318400.00 ns, 5.4880 us/op
+WorkloadActual  17: 131072 op, 701172500.00 ns, 5.3495 us/op
+WorkloadActual  18: 131072 op, 683906000.00 ns, 5.2178 us/op
+WorkloadActual  19: 131072 op, 687408300.00 ns, 5.2445 us/op
+WorkloadActual  20: 131072 op, 685002600.00 ns, 5.2262 us/op
+WorkloadActual  21: 131072 op, 685306000.00 ns, 5.2285 us/op
+
+// AfterActualRun
+WorkloadResult   1: 131072 op, 683756400.00 ns, 5.2166 us/op
+WorkloadResult   2: 131072 op, 687177700.00 ns, 5.2427 us/op
+WorkloadResult   3: 131072 op, 723839800.00 ns, 5.5225 us/op
+WorkloadResult   4: 131072 op, 701464400.00 ns, 5.3517 us/op
+WorkloadResult   5: 131072 op, 707809400.00 ns, 5.4002 us/op
+WorkloadResult   6: 131072 op, 704672600.00 ns, 5.3762 us/op
+WorkloadResult   7: 131072 op, 725896300.00 ns, 5.5381 us/op
+WorkloadResult   8: 131072 op, 685295700.00 ns, 5.2284 us/op
+WorkloadResult   9: 131072 op, 687439500.00 ns, 5.2447 us/op
+WorkloadResult  10: 131072 op, 686054800.00 ns, 5.2342 us/op
+WorkloadResult  11: 131072 op, 685709300.00 ns, 5.2315 us/op
+WorkloadResult  12: 131072 op, 686508500.00 ns, 5.2376 us/op
+WorkloadResult  13: 131072 op, 686830600.00 ns, 5.2401 us/op
+WorkloadResult  14: 131072 op, 691545700.00 ns, 5.2761 us/op
+WorkloadResult  15: 131072 op, 736401600.00 ns, 5.6183 us/op
+WorkloadResult  16: 131072 op, 719318400.00 ns, 5.4880 us/op
+WorkloadResult  17: 131072 op, 701172500.00 ns, 5.3495 us/op
+WorkloadResult  18: 131072 op, 683906000.00 ns, 5.2178 us/op
+WorkloadResult  19: 131072 op, 687408300.00 ns, 5.2445 us/op
+WorkloadResult  20: 131072 op, 685002600.00 ns, 5.2262 us/op
+WorkloadResult  21: 131072 op, 685306000.00 ns, 5.2285 us/op
+
+// AfterAll
+// Benchmark Process 34588 has exited with code 0
+
+Mean = 5.3197 us, StdErr = 0.0272 us (0.51%); N = 21, StdDev = 0.1248 us
+Min = 5.2166 us, Q1 = 5.2300 us, Median = 5.2445 us, Q3 = 5.3882 us, Max = 5.6183 us
+IQR = 0.1582 us, LowerFence = 4.9927 us, UpperFence = 5.6255 us
+ConfidenceInterval = [5.2148 us; 5.4245 us] (CI 99.9%), Margin = 0.1048 us (1.97% of Mean)
+Skewness = 1.05, Kurtosis = 2.65, MValue = 2.27
+
+// **************************
+// Benchmark: ProtoBufTests.ProtoNetComposedMessage: DefaultJob
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: E:\src\Das\Serializer\Serializer.Benchmarks\bin\Release\8253b33b-2593-4c9f-98bb-37cc9c0d46a4.exe --benchmarkName "Serializer.Tests.ProtocolBuffers.ProtoBufTests.ProtoNetComposedMessage" --job "Default" --benchmarkId 14 in 
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// Runtime=.NET Framework 4.8 (4.8.4075.0), X64 RyuJIT
+// GC=Concurrent Workstation
+// Job: DefaultJob
+
+OverheadJitting  1: 1 op, 328500.00 ns, 328.5000 us/op
+WorkloadJitting  1: 1 op, 89985600.00 ns, 89.9856 ms/op
+
+WorkloadPilot    1: 2 op, 33900.00 ns, 16.9500 us/op
+WorkloadPilot    2: 3 op, 15700.00 ns, 5.2333 us/op
+WorkloadPilot    3: 4 op, 18400.00 ns, 4.6000 us/op
+WorkloadPilot    4: 5 op, 22700.00 ns, 4.5400 us/op
+WorkloadPilot    5: 6 op, 24500.00 ns, 4.0833 us/op
+WorkloadPilot    6: 7 op, 27400.00 ns, 3.9143 us/op
+WorkloadPilot    7: 8 op, 30400.00 ns, 3.8000 us/op
+WorkloadPilot    8: 9 op, 33500.00 ns, 3.7222 us/op
+WorkloadPilot    9: 10 op, 37200.00 ns, 3.7200 us/op
+WorkloadPilot   10: 11 op, 40600.00 ns, 3.6909 us/op
+WorkloadPilot   11: 12 op, 43300.00 ns, 3.6083 us/op
+WorkloadPilot   12: 13 op, 45500.00 ns, 3.5000 us/op
+WorkloadPilot   13: 14 op, 49100.00 ns, 3.5071 us/op
+WorkloadPilot   14: 15 op, 54200.00 ns, 3.6133 us/op
+WorkloadPilot   15: 16 op, 59600.00 ns, 3.7250 us/op
+WorkloadPilot   16: 32 op, 116800.00 ns, 3.6500 us/op
+WorkloadPilot   17: 64 op, 217400.00 ns, 3.3969 us/op
+WorkloadPilot   18: 128 op, 404400.00 ns, 3.1594 us/op
+WorkloadPilot   19: 256 op, 840700.00 ns, 3.2840 us/op
+WorkloadPilot   20: 512 op, 1818100.00 ns, 3.5510 us/op
+WorkloadPilot   21: 1024 op, 3328000.00 ns, 3.2500 us/op
+WorkloadPilot   22: 2048 op, 6753300.00 ns, 3.2975 us/op
+WorkloadPilot   23: 4096 op, 13171000.00 ns, 3.2156 us/op
+WorkloadPilot   24: 8192 op, 26642700.00 ns, 3.2523 us/op
+WorkloadPilot   25: 16384 op, 52319700.00 ns, 3.1933 us/op
+WorkloadPilot   26: 32768 op, 104483000.00 ns, 3.1886 us/op
+WorkloadPilot   27: 65536 op, 209862700.00 ns, 3.2023 us/op
+WorkloadPilot   28: 131072 op, 421022800.00 ns, 3.2121 us/op
+WorkloadPilot   29: 262144 op, 837085600.00 ns, 3.1932 us/op
+
+WorkloadWarmup   1: 262144 op, 839916100.00 ns, 3.2040 us/op
+WorkloadWarmup   2: 262144 op, 850456000.00 ns, 3.2442 us/op
+WorkloadWarmup   3: 262144 op, 843254900.00 ns, 3.2168 us/op
+WorkloadWarmup   4: 262144 op, 847096800.00 ns, 3.2314 us/op
+WorkloadWarmup   5: 262144 op, 841951600.00 ns, 3.2118 us/op
+WorkloadWarmup   6: 262144 op, 843923400.00 ns, 3.2193 us/op
+
+// BeforeActualRun
+WorkloadActual   1: 262144 op, 845372300.00 ns, 3.2248 us/op
+WorkloadActual   2: 262144 op, 846080700.00 ns, 3.2275 us/op
+WorkloadActual   3: 262144 op, 845203200.00 ns, 3.2242 us/op
+WorkloadActual   4: 262144 op, 846501300.00 ns, 3.2291 us/op
+WorkloadActual   5: 262144 op, 851397900.00 ns, 3.2478 us/op
+WorkloadActual   6: 262144 op, 856231300.00 ns, 3.2663 us/op
+WorkloadActual   7: 262144 op, 848131000.00 ns, 3.2354 us/op
+WorkloadActual   8: 262144 op, 843132100.00 ns, 3.2163 us/op
+WorkloadActual   9: 262144 op, 847478700.00 ns, 3.2329 us/op
+WorkloadActual  10: 262144 op, 844042700.00 ns, 3.2198 us/op
+WorkloadActual  11: 262144 op, 849452200.00 ns, 3.2404 us/op
+WorkloadActual  12: 262144 op, 854243800.00 ns, 3.2587 us/op
+WorkloadActual  13: 262144 op, 841032800.00 ns, 3.2083 us/op
+WorkloadActual  14: 262144 op, 838250700.00 ns, 3.1977 us/op
+WorkloadActual  15: 262144 op, 840901300.00 ns, 3.2078 us/op
+
+// AfterActualRun
+WorkloadResult   1: 262144 op, 845372300.00 ns, 3.2248 us/op
+WorkloadResult   2: 262144 op, 846080700.00 ns, 3.2275 us/op
+WorkloadResult   3: 262144 op, 845203200.00 ns, 3.2242 us/op
+WorkloadResult   4: 262144 op, 846501300.00 ns, 3.2291 us/op
+WorkloadResult   5: 262144 op, 851397900.00 ns, 3.2478 us/op
+WorkloadResult   6: 262144 op, 856231300.00 ns, 3.2663 us/op
+WorkloadResult   7: 262144 op, 848131000.00 ns, 3.2354 us/op
+WorkloadResult   8: 262144 op, 843132100.00 ns, 3.2163 us/op
+WorkloadResult   9: 262144 op, 847478700.00 ns, 3.2329 us/op
+WorkloadResult  10: 262144 op, 844042700.00 ns, 3.2198 us/op
+WorkloadResult  11: 262144 op, 849452200.00 ns, 3.2404 us/op
+WorkloadResult  12: 262144 op, 854243800.00 ns, 3.2587 us/op
+WorkloadResult  13: 262144 op, 841032800.00 ns, 3.2083 us/op
+WorkloadResult  14: 262144 op, 838250700.00 ns, 3.1977 us/op
+WorkloadResult  15: 262144 op, 840901300.00 ns, 3.2078 us/op
+
+// AfterAll
+// Benchmark Process 15876 has exited with code 0
+
+Mean = 3.2291 us, StdErr = 0.0049 us (0.15%); N = 15, StdDev = 0.0188 us
+Min = 3.1977 us, Q1 = 3.2163 us, Median = 3.2275 us, Q3 = 3.2404 us, Max = 3.2663 us
+IQR = 0.0241 us, LowerFence = 3.1801 us, UpperFence = 3.2766 us
+ConfidenceInterval = [3.2090 us; 3.2492 us] (CI 99.9%), Margin = 0.0201 us (0.62% of Mean)
+Skewness = 0.32, Kurtosis = 2.24, MValue = 2
+
+// **************************
+// Benchmark: ProtoBufTests.DasByteArray: DefaultJob
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: E:\src\Das\Serializer\Serializer.Benchmarks\bin\Release\8253b33b-2593-4c9f-98bb-37cc9c0d46a4.exe --benchmarkName "Serializer.Tests.ProtocolBuffers.ProtoBufTests.DasByteArray" --job "Default" --benchmarkId 15 in 
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// Runtime=.NET Framework 4.8 (4.8.4075.0), X64 RyuJIT
+// GC=Concurrent Workstation
+// Job: DefaultJob
+
+OverheadJitting  1: 1 op, 321900.00 ns, 321.9000 us/op
+WorkloadJitting  1: 1 op, 41126400.00 ns, 41.1264 ms/op
+
+WorkloadPilot    1: 2 op, 14600.00 ns, 7.3000 us/op
+WorkloadPilot    2: 3 op, 5700.00 ns, 1.9000 us/op
+WorkloadPilot    3: 4 op, 3700.00 ns, 925.0000 ns/op
+WorkloadPilot    4: 5 op, 3800.00 ns, 760.0000 ns/op
+WorkloadPilot    5: 6 op, 4100.00 ns, 683.3333 ns/op
+WorkloadPilot    6: 7 op, 4200.00 ns, 600.0000 ns/op
+WorkloadPilot    7: 8 op, 4600.00 ns, 575.0000 ns/op
+WorkloadPilot    8: 9 op, 4700.00 ns, 522.2222 ns/op
+WorkloadPilot    9: 10 op, 4900.00 ns, 490.0000 ns/op
+WorkloadPilot   10: 11 op, 6000.00 ns, 545.4545 ns/op
+WorkloadPilot   11: 12 op, 5900.00 ns, 491.6667 ns/op
+WorkloadPilot   12: 13 op, 6100.00 ns, 469.2308 ns/op
+WorkloadPilot   13: 14 op, 6700.00 ns, 478.5714 ns/op
+WorkloadPilot   14: 15 op, 6800.00 ns, 453.3333 ns/op
+WorkloadPilot   15: 16 op, 7100.00 ns, 443.7500 ns/op
+WorkloadPilot   16: 32 op, 11800.00 ns, 368.7500 ns/op
+WorkloadPilot   17: 64 op, 32800.00 ns, 512.5000 ns/op
+WorkloadPilot   18: 128 op, 39100.00 ns, 305.4688 ns/op
+WorkloadPilot   19: 256 op, 96200.00 ns, 375.7813 ns/op
+WorkloadPilot   20: 512 op, 166200.00 ns, 324.6094 ns/op
+WorkloadPilot   21: 1024 op, 493100.00 ns, 481.5430 ns/op
+WorkloadPilot   22: 2048 op, 647000.00 ns, 315.9180 ns/op
+WorkloadPilot   23: 4096 op, 1230000.00 ns, 300.2930 ns/op
+WorkloadPilot   24: 8192 op, 3721500.00 ns, 454.2847 ns/op
+WorkloadPilot   25: 16384 op, 4858300.00 ns, 296.5271 ns/op
+WorkloadPilot   26: 32768 op, 9641200.00 ns, 294.2261 ns/op
+WorkloadPilot   27: 65536 op, 19270600.00 ns, 294.0460 ns/op
+WorkloadPilot   28: 131072 op, 38936500.00 ns, 297.0619 ns/op
+WorkloadPilot   29: 262144 op, 75930200.00 ns, 289.6507 ns/op
+WorkloadPilot   30: 524288 op, 152793900.00 ns, 291.4312 ns/op
+WorkloadPilot   31: 1048576 op, 310114100.00 ns, 295.7479 ns/op
+WorkloadPilot   32: 2097152 op, 607932800.00 ns, 289.8849 ns/op
+
+WorkloadWarmup   1: 2097152 op, 606270000.00 ns, 289.0921 ns/op
+WorkloadWarmup   2: 2097152 op, 607645400.00 ns, 289.7479 ns/op
+WorkloadWarmup   3: 2097152 op, 609225900.00 ns, 290.5015 ns/op
+WorkloadWarmup   4: 2097152 op, 608421300.00 ns, 290.1179 ns/op
+WorkloadWarmup   5: 2097152 op, 610958700.00 ns, 291.3278 ns/op
+WorkloadWarmup   6: 2097152 op, 607856300.00 ns, 289.8485 ns/op
+
+// BeforeActualRun
+WorkloadActual   1: 2097152 op, 612931100.00 ns, 292.2683 ns/op
+WorkloadActual   2: 2097152 op, 611353500.00 ns, 291.5161 ns/op
+WorkloadActual   3: 2097152 op, 607242500.00 ns, 289.5558 ns/op
+WorkloadActual   4: 2097152 op, 611297200.00 ns, 291.4892 ns/op
+WorkloadActual   5: 2097152 op, 608247900.00 ns, 290.0352 ns/op
+WorkloadActual   6: 2097152 op, 610191900.00 ns, 290.9622 ns/op
+WorkloadActual   7: 2097152 op, 610146300.00 ns, 290.9404 ns/op
+WorkloadActual   8: 2097152 op, 610552500.00 ns, 291.1341 ns/op
+WorkloadActual   9: 2097152 op, 611860400.00 ns, 291.7578 ns/op
+WorkloadActual  10: 2097152 op, 607546100.00 ns, 289.7006 ns/op
+WorkloadActual  11: 2097152 op, 606243800.00 ns, 289.0796 ns/op
+WorkloadActual  12: 2097152 op, 615516400.00 ns, 293.5011 ns/op
+WorkloadActual  13: 2097152 op, 611474600.00 ns, 291.5738 ns/op
+WorkloadActual  14: 2097152 op, 607290200.00 ns, 289.5785 ns/op
+WorkloadActual  15: 2097152 op, 608029200.00 ns, 289.9309 ns/op
+
+// AfterActualRun
+WorkloadResult   1: 2097152 op, 612931100.00 ns, 292.2683 ns/op
+WorkloadResult   2: 2097152 op, 611353500.00 ns, 291.5161 ns/op
+WorkloadResult   3: 2097152 op, 607242500.00 ns, 289.5558 ns/op
+WorkloadResult   4: 2097152 op, 611297200.00 ns, 291.4892 ns/op
+WorkloadResult   5: 2097152 op, 608247900.00 ns, 290.0352 ns/op
+WorkloadResult   6: 2097152 op, 610191900.00 ns, 290.9622 ns/op
+WorkloadResult   7: 2097152 op, 610146300.00 ns, 290.9404 ns/op
+WorkloadResult   8: 2097152 op, 610552500.00 ns, 291.1341 ns/op
+WorkloadResult   9: 2097152 op, 611860400.00 ns, 291.7578 ns/op
+WorkloadResult  10: 2097152 op, 607546100.00 ns, 289.7006 ns/op
+WorkloadResult  11: 2097152 op, 606243800.00 ns, 289.0796 ns/op
+WorkloadResult  12: 2097152 op, 615516400.00 ns, 293.5011 ns/op
+WorkloadResult  13: 2097152 op, 611474600.00 ns, 291.5738 ns/op
+WorkloadResult  14: 2097152 op, 607290200.00 ns, 289.5785 ns/op
+WorkloadResult  15: 2097152 op, 608029200.00 ns, 289.9309 ns/op
+
+// AfterAll
+// Benchmark Process 17796 has exited with code 0
+
+Mean = 290.8682 ns, StdErr = 0.3131 ns (0.11%); N = 15, StdDev = 1.2128 ns
+Min = 289.0796 ns, Q1 = 289.7006 ns, Median = 290.9622 ns, Q3 = 291.5738 ns, Max = 293.5011 ns
+IQR = 1.8733 ns, LowerFence = 286.8907 ns, UpperFence = 294.3837 ns
+ConfidenceInterval = [289.5717 ns; 292.1648 ns] (CI 99.9%), Margin = 1.2966 ns (0.45% of Mean)
+Skewness = 0.35, Kurtosis = 2.22, MValue = 2
+
+// **************************
+// Benchmark: ProtoBufTests.ProtoNetByteArray: DefaultJob
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: E:\src\Das\Serializer\Serializer.Benchmarks\bin\Release\8253b33b-2593-4c9f-98bb-37cc9c0d46a4.exe --benchmarkName "Serializer.Tests.ProtocolBuffers.ProtoBufTests.ProtoNetByteArray" --job "Default" --benchmarkId 16 in 
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// Runtime=.NET Framework 4.8 (4.8.4075.0), X64 RyuJIT
+// GC=Concurrent Workstation
+// Job: DefaultJob
+
+OverheadJitting  1: 1 op, 329900.00 ns, 329.9000 us/op
+WorkloadJitting  1: 1 op, 75963800.00 ns, 75.9638 ms/op
+
+WorkloadPilot    1: 2 op, 34500.00 ns, 17.2500 us/op
+WorkloadPilot    2: 3 op, 7000.00 ns, 2.3333 us/op
+WorkloadPilot    3: 4 op, 7900.00 ns, 1.9750 us/op
+WorkloadPilot    4: 5 op, 9200.00 ns, 1.8400 us/op
+WorkloadPilot    5: 6 op, 10000.00 ns, 1.6667 us/op
+WorkloadPilot    6: 7 op, 10500.00 ns, 1.5000 us/op
+WorkloadPilot    7: 8 op, 12000.00 ns, 1.5000 us/op
+WorkloadPilot    8: 9 op, 12400.00 ns, 1.3778 us/op
+WorkloadPilot    9: 10 op, 15600.00 ns, 1.5600 us/op
+WorkloadPilot   10: 11 op, 15600.00 ns, 1.4182 us/op
+WorkloadPilot   11: 12 op, 21100.00 ns, 1.7583 us/op
+WorkloadPilot   12: 13 op, 20000.00 ns, 1.5385 us/op
+WorkloadPilot   13: 14 op, 20300.00 ns, 1.4500 us/op
+WorkloadPilot   14: 15 op, 22400.00 ns, 1.4933 us/op
+WorkloadPilot   15: 16 op, 23100.00 ns, 1.4438 us/op
+WorkloadPilot   16: 32 op, 39200.00 ns, 1.2250 us/op
+WorkloadPilot   17: 64 op, 74600.00 ns, 1.1656 us/op
+WorkloadPilot   18: 128 op, 147800.00 ns, 1.1547 us/op
+WorkloadPilot   19: 256 op, 318700.00 ns, 1.2449 us/op
+WorkloadPilot   20: 512 op, 557000.00 ns, 1.0879 us/op
+WorkloadPilot   21: 1024 op, 1132700.00 ns, 1.1062 us/op
+WorkloadPilot   22: 2048 op, 2410400.00 ns, 1.1770 us/op
+WorkloadPilot   23: 4096 op, 5022900.00 ns, 1.2263 us/op
+WorkloadPilot   24: 8192 op, 10278800.00 ns, 1.2547 us/op
+WorkloadPilot   25: 16384 op, 20417200.00 ns, 1.2462 us/op
+WorkloadPilot   26: 32768 op, 41168200.00 ns, 1.2564 us/op
+WorkloadPilot   27: 65536 op, 81638400.00 ns, 1.2457 us/op
+WorkloadPilot   28: 131072 op, 168849200.00 ns, 1.2882 us/op
+WorkloadPilot   29: 262144 op, 328427500.00 ns, 1.2529 us/op
+WorkloadPilot   30: 524288 op, 644097700.00 ns, 1.2285 us/op
+
+WorkloadWarmup   1: 524288 op, 646472800.00 ns, 1.2330 us/op
+WorkloadWarmup   2: 524288 op, 650979300.00 ns, 1.2416 us/op
+WorkloadWarmup   3: 524288 op, 654608700.00 ns, 1.2486 us/op
+WorkloadWarmup   4: 524288 op, 651466500.00 ns, 1.2426 us/op
+WorkloadWarmup   5: 524288 op, 645794700.00 ns, 1.2318 us/op
+WorkloadWarmup   6: 524288 op, 656158000.00 ns, 1.2515 us/op
+WorkloadWarmup   7: 524288 op, 666585300.00 ns, 1.2714 us/op
+WorkloadWarmup   8: 524288 op, 664533500.00 ns, 1.2675 us/op
+
+// BeforeActualRun
+WorkloadActual   1: 524288 op, 661581900.00 ns, 1.2619 us/op
+WorkloadActual   2: 524288 op, 680297700.00 ns, 1.2976 us/op
+WorkloadActual   3: 524288 op, 655839100.00 ns, 1.2509 us/op
+WorkloadActual   4: 524288 op, 657297600.00 ns, 1.2537 us/op
+WorkloadActual   5: 524288 op, 649120200.00 ns, 1.2381 us/op
+WorkloadActual   6: 524288 op, 648940000.00 ns, 1.2378 us/op
+WorkloadActual   7: 524288 op, 650484900.00 ns, 1.2407 us/op
+WorkloadActual   8: 524288 op, 654917200.00 ns, 1.2492 us/op
+WorkloadActual   9: 524288 op, 652975500.00 ns, 1.2455 us/op
+WorkloadActual  10: 524288 op, 650863800.00 ns, 1.2414 us/op
+WorkloadActual  11: 524288 op, 650394400.00 ns, 1.2405 us/op
+WorkloadActual  12: 524288 op, 648453100.00 ns, 1.2368 us/op
+WorkloadActual  13: 524288 op, 650726400.00 ns, 1.2412 us/op
+WorkloadActual  14: 524288 op, 653726800.00 ns, 1.2469 us/op
+WorkloadActual  15: 524288 op, 646610000.00 ns, 1.2333 us/op
+
+// AfterActualRun
+WorkloadResult   1: 524288 op, 661581900.00 ns, 1.2619 us/op
+WorkloadResult   2: 524288 op, 655839100.00 ns, 1.2509 us/op
+WorkloadResult   3: 524288 op, 657297600.00 ns, 1.2537 us/op
+WorkloadResult   4: 524288 op, 649120200.00 ns, 1.2381 us/op
+WorkloadResult   5: 524288 op, 648940000.00 ns, 1.2378 us/op
+WorkloadResult   6: 524288 op, 650484900.00 ns, 1.2407 us/op
+WorkloadResult   7: 524288 op, 654917200.00 ns, 1.2492 us/op
+WorkloadResult   8: 524288 op, 652975500.00 ns, 1.2455 us/op
+WorkloadResult   9: 524288 op, 650863800.00 ns, 1.2414 us/op
+WorkloadResult  10: 524288 op, 650394400.00 ns, 1.2405 us/op
+WorkloadResult  11: 524288 op, 648453100.00 ns, 1.2368 us/op
+WorkloadResult  12: 524288 op, 650726400.00 ns, 1.2412 us/op
+WorkloadResult  13: 524288 op, 653726800.00 ns, 1.2469 us/op
+WorkloadResult  14: 524288 op, 646610000.00 ns, 1.2333 us/op
+
+// AfterAll
+// Benchmark Process 22976 has exited with code 0
+
+Mean = 1.2441 us, StdErr = 0.0021 us (0.17%); N = 14, StdDev = 0.0077 us
+Min = 1.2333 us, Q1 = 1.2381 us, Median = 1.2413 us, Q3 = 1.2492 us, Max = 1.2619 us
+IQR = 0.0111 us, LowerFence = 1.2215 us, UpperFence = 1.2657 us
+ConfidenceInterval = [1.2354 us; 1.2528 us] (CI 99.9%), Margin = 0.0087 us (0.70% of Mean)
+Skewness = 0.72, Kurtosis = 2.62, MValue = 2
+
+// ***** BenchmarkRunner: Finish  *****
+
+// * Export *
+  BenchmarkDotNet.Artifacts\results\Serializer.Tests.ProtocolBuffers.ProtoBufTests-report.csv
+  BenchmarkDotNet.Artifacts\results\Serializer.Tests.ProtocolBuffers.ProtoBufTests-report-github.md
+  BenchmarkDotNet.Artifacts\results\Serializer.Tests.ProtocolBuffers.ProtoBufTests-report.html
+
+// * Detailed results *
+ProtoBufTests.DasSimpleMessage: DefaultJob
+Runtime = .NET Framework 4.8 (4.8.4075.0), X64 RyuJIT; GC = Concurrent Workstation
+Mean = 229.7213 ns, StdErr = 0.3694 ns (0.16%); N = 15, StdDev = 1.4306 ns
+Min = 227.9714 ns, Q1 = 228.4067 ns, Median = 229.3142 ns, Q3 = 231.0861 ns, Max = 232.5615 ns
+IQR = 2.6794 ns, LowerFence = 224.3875 ns, UpperFence = 235.1053 ns
+ConfidenceInterval = [228.1919 ns; 231.2507 ns] (CI 99.9%), Margin = 1.5294 ns (0.67% of Mean)
+Skewness = 0.44, Kurtosis = 1.71, MValue = 2
+-------------------- Histogram --------------------
+[227.464 ns ; 233.069 ns) | @@@@@@@@@@@@@@@
+---------------------------------------------------
+
+ProtoBufTests.ProtoNetSimpleMessage: DefaultJob
+Runtime = .NET Framework 4.8 (4.8.4075.0), X64 RyuJIT; GC = Concurrent Workstation
+Mean = 1.1850 us, StdErr = 0.0041 us (0.35%); N = 14, StdDev = 0.0155 us
+Min = 1.1636 us, Q1 = 1.1760 us, Median = 1.1819 us, Q3 = 1.1979 us, Max = 1.2193 us
+IQR = 0.0219 us, LowerFence = 1.1431 us, UpperFence = 1.2307 us
+ConfidenceInterval = [1.1676 us; 1.2025 us] (CI 99.9%), Margin = 0.0174 us (1.47% of Mean)
+Skewness = 0.63, Kurtosis = 2.45, MValue = 2
+-------------------- Histogram --------------------
+[1.158 us ; 1.193 us) | @@@@@@@@@@
+[1.193 us ; 1.225 us) | @@@@
+---------------------------------------------------
+
+ProtoBufTests.DasDoubleMessage: DefaultJob
+Runtime = .NET Framework 4.8 (4.8.4075.0), X64 RyuJIT; GC = Concurrent Workstation
+Mean = 276.6465 ns, StdErr = 0.8678 ns (0.31%); N = 13, StdDev = 3.1288 ns
+Min = 272.5131 ns, Q1 = 273.3855 ns, Median = 275.6317 ns, Q3 = 279.3142 ns, Max = 282.1512 ns
+IQR = 5.9286 ns, LowerFence = 264.4926 ns, UpperFence = 288.2071 ns
+ConfidenceInterval = [272.8996 ns; 280.3933 ns] (CI 99.9%), Margin = 3.7469 ns (1.35% of Mean)
+Skewness = 0.13, Kurtosis = 1.48, MValue = 2
+-------------------- Histogram --------------------
+[271.349 ns ; 283.316 ns) | @@@@@@@@@@@@@
+---------------------------------------------------
+
+ProtoBufTests.ProtoNetDoubleMeessage: DefaultJob
+Runtime = .NET Framework 4.8 (4.8.4075.0), X64 RyuJIT; GC = Concurrent Workstation
+Mean = 1.1802 us, StdErr = 0.0026 us (0.22%); N = 14, StdDev = 0.0097 us
+Min = 1.1721 us, Q1 = 1.1745 us, Median = 1.1760 us, Q3 = 1.1811 us, Max = 1.2081 us
+IQR = 0.0065 us, LowerFence = 1.1647 us, UpperFence = 1.1909 us
+ConfidenceInterval = [1.1693 us; 1.1911 us] (CI 99.9%), Margin = 0.0109 us (0.92% of Mean)
+Skewness = 1.72, Kurtosis = 5.15, MValue = 2
+-------------------- Histogram --------------------
+[1.169 us ; 1.212 us) | @@@@@@@@@@@@@@
+---------------------------------------------------
+
+ProtoBufTests.DasStringMessage: DefaultJob
+Runtime = .NET Framework 4.8 (4.8.4075.0), X64 RyuJIT; GC = Concurrent Workstation
+Mean = 429.1050 ns, StdErr = 2.2389 ns (0.52%); N = 26, StdDev = 11.4161 ns
+Min = 415.9397 ns, Q1 = 421.7833 ns, Median = 424.0409 ns, Q3 = 435.6076 ns, Max = 454.7130 ns
+IQR = 13.8243 ns, LowerFence = 401.0469 ns, UpperFence = 456.3440 ns
+ConfidenceInterval = [420.7648 ns; 437.4451 ns] (CI 99.9%), Margin = 8.3401 ns (1.94% of Mean)
+Skewness = 0.81, Kurtosis = 2.22, MValue = 2.25
+-------------------- Histogram --------------------
+[412.568 ns ; 426.395 ns) | @@@@@@@@@@@@@@@@
+[426.395 ns ; 439.071 ns) | @@@@
+[439.071 ns ; 458.085 ns) | @@@@@@
+---------------------------------------------------
+
+ProtoBufTests.ProtoNetStringMessage: DefaultJob
+Runtime = .NET Framework 4.8 (4.8.4075.0), X64 RyuJIT; GC = Concurrent Workstation
+Mean = 1.4648 us, StdErr = 0.0034 us (0.23%); N = 14, StdDev = 0.0127 us
+Min = 1.4526 us, Q1 = 1.4561 us, Median = 1.4594 us, Q3 = 1.4702 us, Max = 1.4938 us
+IQR = 0.0141 us, LowerFence = 1.4350 us, UpperFence = 1.4914 us
+ConfidenceInterval = [1.4505 us; 1.4791 us] (CI 99.9%), Margin = 0.0143 us (0.98% of Mean)
+Skewness = 1.16, Kurtosis = 3.02, MValue = 2
+-------------------- Histogram --------------------
+[1.448 us ; 1.498 us) | @@@@@@@@@@@@@@
+---------------------------------------------------
+
+ProtoBufTests.DasDictionary: DefaultJob
+Runtime = .NET Framework 4.8 (4.8.4075.0), X64 RyuJIT; GC = Concurrent Workstation
+Mean = 5.7790 us, StdErr = 0.0291 us (0.50%); N = 22, StdDev = 0.1366 us
+Min = 5.6404 us, Q1 = 5.6721 us, Median = 5.7077 us, Q3 = 5.8857 us, Max = 6.0617 us
+IQR = 0.2136 us, LowerFence = 5.3517 us, UpperFence = 6.2060 us
+ConfidenceInterval = [5.6678 us; 5.8902 us] (CI 99.9%), Margin = 0.1112 us (1.92% of Mean)
+Skewness = 0.67, Kurtosis = 1.94, MValue = 2
+-------------------- Histogram --------------------
+[5.618 us ; 5.799 us) | @@@@@@@@@@@@@
+[5.799 us ; 6.104 us) | @@@@@@@@@
+---------------------------------------------------
+
+ProtoBufTests.ProtoNetObjectDictionary: DefaultJob
+Runtime = .NET Framework 4.8 (4.8.4075.0), X64 RyuJIT; GC = Concurrent Workstation
+Mean = 2.9110 us, StdErr = 0.0034 us (0.12%); N = 15, StdDev = 0.0130 us
+Min = 2.8910 us, Q1 = 2.9025 us, Median = 2.9051 us, Q3 = 2.9194 us, Max = 2.9376 us
+IQR = 0.0169 us, LowerFence = 2.8772 us, UpperFence = 2.9447 us
+ConfidenceInterval = [2.8970 us; 2.9249 us] (CI 99.9%), Margin = 0.0139 us (0.48% of Mean)
+Skewness = 0.55, Kurtosis = 2.15, MValue = 2
+-------------------- Histogram --------------------
+[2.886 us ; 2.942 us) | @@@@@@@@@@@@@@@
+---------------------------------------------------
+
+ProtoBufTests.DasNegativeIntegerMessage: DefaultJob
+Runtime = .NET Framework 4.8 (4.8.4075.0), X64 RyuJIT; GC = Concurrent Workstation
+Mean = 297.3140 ns, StdErr = 0.8661 ns (0.29%); N = 15, StdDev = 3.3544 ns
+Min = 291.1004 ns, Q1 = 296.1285 ns, Median = 297.5710 ns, Q3 = 299.4005 ns, Max = 303.5183 ns
+IQR = 3.2721 ns, LowerFence = 291.2204 ns, UpperFence = 304.3086 ns
+ConfidenceInterval = [293.7279 ns; 300.9000 ns] (CI 99.9%), Margin = 3.5861 ns (1.21% of Mean)
+Skewness = -0.29, Kurtosis = 2.36, MValue = 2
+-------------------- Histogram --------------------
+[289.910 ns ; 304.709 ns) | @@@@@@@@@@@@@@@
+---------------------------------------------------
+
+ProtoBufTests.ProtoNetNegativeIntegerMessage: DefaultJob
+Runtime = .NET Framework 4.8 (4.8.4075.0), X64 RyuJIT; GC = Concurrent Workstation
+Mean = 1.1677 us, StdErr = 0.0013 us (0.11%); N = 15, StdDev = 0.0052 us
+Min = 1.1594 us, Q1 = 1.1639 us, Median = 1.1668 us, Q3 = 1.1713 us, Max = 1.1795 us
+IQR = 0.0074 us, LowerFence = 1.1529 us, UpperFence = 1.1823 us
+ConfidenceInterval = [1.1622 us; 1.1732 us] (CI 99.9%), Margin = 0.0055 us (0.47% of Mean)
+Skewness = 0.67, Kurtosis = 2.74, MValue = 2
+-------------------- Histogram --------------------
+[1.158 us ; 1.181 us) | @@@@@@@@@@@@@@@
+---------------------------------------------------
+
+ProtoBufTests.DasMultiProperties: DefaultJob
+Runtime = .NET Framework 4.8 (4.8.4075.0), X64 RyuJIT; GC = Concurrent Workstation
+Mean = 467.0816 ns, StdErr = 1.8158 ns (0.39%); N = 15, StdDev = 7.0326 ns
+Min = 459.2137 ns, Q1 = 461.8729 ns, Median = 465.5001 ns, Q3 = 471.5881 ns, Max = 484.6306 ns
+IQR = 9.7152 ns, LowerFence = 447.3000 ns, UpperFence = 486.1609 ns
+ConfidenceInterval = [459.5634 ns; 474.5999 ns] (CI 99.9%), Margin = 7.5182 ns (1.61% of Mean)
+Skewness = 1.04, Kurtosis = 3.16, MValue = 2
+-------------------- Histogram --------------------
+[459.067 ns ; 476.070 ns) | @@@@@@@@@@@@@
+[476.070 ns ; 487.126 ns) | @@
+---------------------------------------------------
+
+ProtoBufTests.DasMultiProperties_OLD: DefaultJob
+Runtime = .NET Framework 4.8 (4.8.4075.0), X64 RyuJIT; GC = Concurrent Workstation
+Mean = 1.1038 us, StdErr = 0.0035 us (0.32%); N = 13, StdDev = 0.0126 us
+Min = 1.0750 us, Q1 = 1.0956 us, Median = 1.1075 us, Q3 = 1.1127 us, Max = 1.1207 us
+IQR = 0.0170 us, LowerFence = 1.0701 us, UpperFence = 1.1383 us
+ConfidenceInterval = [1.0886 us; 1.1189 us] (CI 99.9%), Margin = 0.0151 us (1.37% of Mean)
+Skewness = -0.85, Kurtosis = 2.67, MValue = 2
+-------------------- Histogram --------------------
+[1.070 us ; 1.098 us) | @@@
+[1.098 us ; 1.125 us) | @@@@@@@@@@
+---------------------------------------------------
+
+ProtoBufTests.ProtoNetMultiProperties: DefaultJob
+Runtime = .NET Framework 4.8 (4.8.4075.0), X64 RyuJIT; GC = Concurrent Workstation
+Mean = 1.5446 us, StdErr = 0.0014 us (0.09%); N = 14, StdDev = 0.0051 us
+Min = 1.5365 us, Q1 = 1.5414 us, Median = 1.5444 us, Q3 = 1.5503 us, Max = 1.5526 us
+IQR = 0.0089 us, LowerFence = 1.5280 us, UpperFence = 1.5637 us
+ConfidenceInterval = [1.5388 us; 1.5504 us] (CI 99.9%), Margin = 0.0058 us (0.38% of Mean)
+Skewness = -0.04, Kurtosis = 1.7, MValue = 2
+-------------------- Histogram --------------------
+[1.535 us ; 1.554 us) | @@@@@@@@@@@@@@
+---------------------------------------------------
+
+ProtoBufTests.DasComposedMessage: DefaultJob
+Runtime = .NET Framework 4.8 (4.8.4075.0), X64 RyuJIT; GC = Concurrent Workstation
+Mean = 5.3197 us, StdErr = 0.0272 us (0.51%); N = 21, StdDev = 0.1248 us
+Min = 5.2166 us, Q1 = 5.2300 us, Median = 5.2445 us, Q3 = 5.3882 us, Max = 5.6183 us
+IQR = 0.1582 us, LowerFence = 4.9927 us, UpperFence = 5.6255 us
+ConfidenceInterval = [5.2148 us; 5.4245 us] (CI 99.9%), Margin = 0.1048 us (1.97% of Mean)
+Skewness = 1.05, Kurtosis = 2.65, MValue = 2.27
+-------------------- Histogram --------------------
+[5.194 us ; 5.321 us) | @@@@@@@@@@@@@
+[5.321 us ; 5.458 us) | @@@@
+[5.458 us ; 5.658 us) | @@@@
+---------------------------------------------------
+
+ProtoBufTests.ProtoNetComposedMessage: DefaultJob
+Runtime = .NET Framework 4.8 (4.8.4075.0), X64 RyuJIT; GC = Concurrent Workstation
+Mean = 3.2291 us, StdErr = 0.0049 us (0.15%); N = 15, StdDev = 0.0188 us
+Min = 3.1977 us, Q1 = 3.2163 us, Median = 3.2275 us, Q3 = 3.2404 us, Max = 3.2663 us
+IQR = 0.0241 us, LowerFence = 3.1801 us, UpperFence = 3.2766 us
+ConfidenceInterval = [3.2090 us; 3.2492 us] (CI 99.9%), Margin = 0.0201 us (0.62% of Mean)
+Skewness = 0.32, Kurtosis = 2.24, MValue = 2
+-------------------- Histogram --------------------
+[3.197 us ; 3.273 us) | @@@@@@@@@@@@@@@
+---------------------------------------------------
+
+ProtoBufTests.DasByteArray: DefaultJob
+Runtime = .NET Framework 4.8 (4.8.4075.0), X64 RyuJIT; GC = Concurrent Workstation
+Mean = 290.8682 ns, StdErr = 0.3131 ns (0.11%); N = 15, StdDev = 1.2128 ns
+Min = 289.0796 ns, Q1 = 289.7006 ns, Median = 290.9622 ns, Q3 = 291.5738 ns, Max = 293.5011 ns
+IQR = 1.8733 ns, LowerFence = 286.8907 ns, UpperFence = 294.3837 ns
+ConfidenceInterval = [289.5717 ns; 292.1648 ns] (CI 99.9%), Margin = 1.2966 ns (0.45% of Mean)
+Skewness = 0.35, Kurtosis = 2.22, MValue = 2
+-------------------- Histogram --------------------
+[288.649 ns ; 293.931 ns) | @@@@@@@@@@@@@@@
+---------------------------------------------------
+
+ProtoBufTests.ProtoNetByteArray: DefaultJob
+Runtime = .NET Framework 4.8 (4.8.4075.0), X64 RyuJIT; GC = Concurrent Workstation
+Mean = 1.2441 us, StdErr = 0.0021 us (0.17%); N = 14, StdDev = 0.0077 us
+Min = 1.2333 us, Q1 = 1.2381 us, Median = 1.2413 us, Q3 = 1.2492 us, Max = 1.2619 us
+IQR = 0.0111 us, LowerFence = 1.2215 us, UpperFence = 1.2657 us
+ConfidenceInterval = [1.2354 us; 1.2528 us] (CI 99.9%), Margin = 0.0087 us (0.70% of Mean)
+Skewness = 0.72, Kurtosis = 2.62, MValue = 2
+-------------------- Histogram --------------------
+[1.231 us ; 1.265 us) | @@@@@@@@@@@@@@
+---------------------------------------------------
+
+// * Summary *
+
+BenchmarkDotNet=v0.12.0, OS=Windows 10.0.18362
+AMD Ryzen Threadripper 2950X, 1 CPU, 32 logical and 16 physical cores
+  [Host]     : .NET Framework 4.8 (4.8.4075.0), X64 RyuJIT
+  DefaultJob : .NET Framework 4.8 (4.8.4075.0), X64 RyuJIT
+
+
+|                         Method |       Mean |     Error |    StdDev |
+|------------------------------- |-----------:|----------:|----------:|
+|               DasSimpleMessage |   229.7 ns |   1.53 ns |   1.43 ns |
+|          ProtoNetSimpleMessage | 1,185.0 ns |  17.43 ns |  15.45 ns |
+|               DasDoubleMessage |   276.6 ns |   3.75 ns |   3.13 ns |
+|         ProtoNetDoubleMeessage | 1,180.2 ns |  10.90 ns |   9.66 ns |
+|               DasStringMessage |   429.1 ns |   8.34 ns |  11.42 ns |
+|          ProtoNetStringMessage | 1,464.8 ns |  14.30 ns |  12.68 ns |
+|                  DasDictionary | 5,779.0 ns | 111.21 ns | 136.57 ns |
+|       ProtoNetObjectDictionary | 2,911.0 ns |  13.93 ns |  13.03 ns |
+|      DasNegativeIntegerMessage |   297.3 ns |   3.59 ns |   3.35 ns |
+| ProtoNetNegativeIntegerMessage | 1,167.7 ns |   5.54 ns |   5.18 ns |
+|             DasMultiProperties |   467.1 ns |   7.52 ns |   7.03 ns |
+|         DasMultiProperties_OLD | 1,103.8 ns |  15.14 ns |  12.65 ns |
+|        ProtoNetMultiProperties | 1,544.6 ns |   5.80 ns |   5.14 ns |
+|             DasComposedMessage | 5,319.7 ns | 104.85 ns | 124.81 ns |
+|        ProtoNetComposedMessage | 3,229.1 ns |  20.12 ns |  18.82 ns |
+|                   DasByteArray |   290.9 ns |   1.30 ns |   1.21 ns |
+|              ProtoNetByteArray | 1,244.1 ns |   8.71 ns |   7.72 ns |
+
+// * Hints *
+Outliers
+  ProtoBufTests.ProtoNetSimpleMessage: Default     -> 1 outlier  was  removed (1.27 us)
+  ProtoBufTests.DasDoubleMessage: Default          -> 2 outliers were removed (289.14 ns, 292.23 ns)
+  ProtoBufTests.ProtoNetDoubleMeessage: Default    -> 1 outlier  was  removed (1.21 us)
+  ProtoBufTests.ProtoNetStringMessage: Default     -> 1 outlier  was  removed (1.55 us)
+  ProtoBufTests.DasDictionary: Default             -> 1 outlier  was  removed (6.75 us)
+  ProtoBufTests.DasNegativeIntegerMessage: Default -> 1 outlier  was  detected (291.10 ns)
+  ProtoBufTests.DasMultiProperties_OLD: Default    -> 2 outliers were removed, 3 outliers were detected (1.08 us, 1.13 us, 1.17 us)
+  ProtoBufTests.ProtoNetMultiProperties: Default   -> 1 outlier  was  removed (1.57 us)
+  ProtoBufTests.ProtoNetByteArray: Default         -> 1 outlier  was  removed (1.30 us)
+
+// * Legends *
+  Mean   : Arithmetic mean of all measurements
+  Error  : Half of 99.9% confidence interval
+  StdDev : Standard deviation of all measurements
+  1 ns   : 1 Nanosecond (0.000000001 sec)
+
+// ***** BenchmarkRunner: End *****
+// ** Remained 0 benchmark(s) to run **
+Run time: 00:05:21 (321.98 sec), executed benchmarks: 17
+
+Global total time: 00:05:24 (324.77 sec), executed benchmarks: 17
+// * Artifacts cleanup *

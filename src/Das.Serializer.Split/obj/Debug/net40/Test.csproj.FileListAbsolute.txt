@@ -1,0 +1,7 @@
+E:\src\Das\Serializer\Test\bin\Debug\net40\Test.dll
+E:\src\Das\Serializer\Test\bin\Debug\net40\Test.pdb
+E:\src\Das\Serializer\Test\obj\Debug\net40\Test.csprojAssemblyReference.cache
+E:\src\Das\Serializer\Test\obj\Debug\net40\Test.AssemblyInfoInputs.cache
+E:\src\Das\Serializer\Test\obj\Debug\net40\Test.AssemblyInfo.cs
+E:\src\Das\Serializer\Test\obj\Debug\net40\Test.dll
+E:\src\Das\Serializer\Test\obj\Debug\net40\Test.pdb

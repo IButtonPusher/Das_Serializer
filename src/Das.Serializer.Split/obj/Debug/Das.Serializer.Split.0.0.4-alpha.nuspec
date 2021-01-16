@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>Das.Serializer.Split</id>
+    <version>0.0.4-alpha</version>
+    <authors>Claus Trappberger</authors>
+    <owners>Claus Trappberger</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <licenseUrl>https://licenses.nuget.org/MIT</licenseUrl>
+    <projectUrl>https://github.com/IButtonPusher/Das_Serializer</projectUrl>
+    <description>Xml/Json/Protocol Buffers/Binary&lt;-&gt;Anything
+
+Split into dlls to facilitate loose coupling via coding to abstractions:
+Das.Serializer.dll (fw/core)
+Serializer.Core.dll - no dynamic type generation (standard)
+Serializer.Interfaces (standard)</description>
+    <repository type="git" url="https://github.com/IButtonPusher/Das_Serializer.git" />
+    <dependencies>
+      <group targetFramework=".NETFramework4.7.2">
+        <dependency id="Das.Serializer.Core" version="0.0.4-alpha" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.CSharp" version="4.7.0" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework=".NETCoreApp3.0">
+        <dependency id="Das.Serializer.Core" version="0.0.4-alpha" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.CSharp" version="4.7.0" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="E:\src\Das\Serializer\Das.Serializer.Split\bin\Debug\net472\Das.Serializer.dll" target="lib\net472\Das.Serializer.dll" />
+    <file src="E:\src\Das\Serializer\Das.Serializer\bin\Debug\netcoreapp3.0\Das.Serializer.dll" target="lib\netcoreapp3.0\Das.Serializer.dll" />
+  </files>
+</package>

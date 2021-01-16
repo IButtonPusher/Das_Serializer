@@ -1,0 +1,8 @@
+E:\src\Das\Serializer\Das.Serializer.Split\bin\TEST_NO_CODEGENERATION\netstandard2.1\Das.Serializer.deps.json
+E:\src\Das\Serializer\Das.Serializer.Split\bin\TEST_NO_CODEGENERATION\netstandard2.1\Das.Serializer.dll
+E:\src\Das\Serializer\Das.Serializer.Split\bin\TEST_NO_CODEGENERATION\netstandard2.1\Das.Serializer.pdb
+E:\src\Das\Serializer\Das.Serializer.Split\obj\TEST_NO_CODEGENERATION\netstandard2.1\Das.Serializer.Split.AssemblyInfoInputs.cache
+E:\src\Das\Serializer\Das.Serializer.Split\obj\TEST_NO_CODEGENERATION\netstandard2.1\Das.Serializer.Split.AssemblyInfo.cs
+E:\src\Das\Serializer\Das.Serializer.Split\obj\TEST_NO_CODEGENERATION\netstandard2.1\Das.Serializer.Split.csproj.CoreCompileInputs.cache
+E:\src\Das\Serializer\Das.Serializer.Split\obj\TEST_NO_CODEGENERATION\netstandard2.1\Das.Serializer.dll
+E:\src\Das\Serializer\Das.Serializer.Split\obj\TEST_NO_CODEGENERATION\netstandard2.1\Das.Serializer.pdb

@@ -1,0 +1,4 @@
+E:\src\Das\Serializer\Serializer.Interfaces\obj\Debug\netstandard1.1\Serializer.Interfaces.csprojAssemblyReference.cache
+E:\src\Das\Serializer\Serializer.Interfaces\obj\Debug\netstandard1.1\Serializer.Interfaces.AssemblyInfoInputs.cache
+E:\src\Das\Serializer\Serializer.Interfaces\obj\Debug\netstandard1.1\Serializer.Interfaces.AssemblyInfo.cs
+E:\src\Das\Serializer\Serializer.Interfaces\obj\Debug\netstandard1.1\Serializer.Interfaces.csproj.CoreCompileInputs.cache
