@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    public interface ITextNode : INode<ITextNode>, 
-                                 IEnumerable<ITextNode>, 
+    public interface ITextNode : INode<ITextNode>,
+                                 IEnumerable<ITextNode>,
                                  ISerializationDepth
     {
         IDictionary<String, ITextNode> Children { get; }
@@ -18,7 +18,9 @@ namespace Das.Serializer
 
         void Append(Char c);
 
-        void Set(String name, ISerializationDepth depth, INodeManipulator nodeManipulator);
+        void Set(String name,
+                 ISerializationDepth depth,
+                 INodeManipulator nodeManipulator);
 
         void SetText(Object value);
     }

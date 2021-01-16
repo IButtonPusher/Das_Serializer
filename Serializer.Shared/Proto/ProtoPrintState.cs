@@ -9,23 +9,21 @@ using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Das.Extensions;
-using Das.Serializer.ProtoBuf;
 
-namespace Das.Serializer.Proto
+namespace Das.Serializer.ProtoBuf
 {
     public class ProtoPrintState : ProtoStateBase, IEnumerable<ProtoPrintState>
     {
-        public ProtoPrintState(
-            ILGenerator il,
-            Boolean isArrayMade,
-            IEnumerable<IProtoFieldAccessor> fields,
-            Type parentType,
-            Action<ILGenerator> loadObject,
-            ITypeCore typeCore,
-            MethodInfo writeInt32,
-            IStreamAccessor streamAccessor,
-            IProtoFieldAccessor currentField,
-            IDictionary<Type, FieldBuilder> proxies)
+        public ProtoPrintState(ILGenerator il,
+                               Boolean isArrayMade,
+                               IEnumerable<IProtoFieldAccessor> fields,
+                               Type parentType,
+                               Action<ILGenerator> loadObject,
+                               ITypeCore typeCore,
+                               MethodInfo writeInt32,
+                               IStreamAccessor streamAccessor,
+                               IProtoFieldAccessor currentField,
+                               IDictionary<Type, FieldBuilder> proxies)
             : base(il, currentField,
                 parentType, loadObject, proxies, typeCore)
         {
@@ -65,18 +63,6 @@ namespace Das.Serializer.Proto
         public Boolean IsArrayMade { get; set; }
 
         public LocalBuilder LocalBytes { get; }
-
-
-        private LocalBuilder DeclareAndInstantiateChildStream()
-        {
-            var local = _il.DeclareLocal(typeof(NaiveMemoryStream));
-
-            _typeCore.TryGetEmptyConstructor(local.LocalType, out var ctor);
-            _il.Emit(OpCodes.Newobj, ctor);
-            _il.Emit(OpCodes.Stloc, local);
-
-            return local;
-        }
 
 
         [MethodImpl(MethodImplOptions.NoOptimization)]
@@ -149,6 +135,18 @@ namespace Das.Serializer.Proto
         {
             IL.Emit(OpCodes.Ldarg_2);
             IL.Emit(OpCodes.Call, _writeInt32);
+        }
+
+
+        private LocalBuilder DeclareAndInstantiateChildStream()
+        {
+            var local = _il.DeclareLocal(typeof(NaiveMemoryStream));
+
+            _typeCore.TryGetEmptyConstructor(local.LocalType, out var ctor);
+            _il.Emit(OpCodes.Newobj, ctor);
+            _il.Emit(OpCodes.Stloc, local);
+
+            return local;
         }
 
         private readonly IStreamAccessor _streamAccessor;

@@ -22,14 +22,14 @@ namespace Das.Serializer
 
         Object FromJson(String json);
 
-        Object FromJson(String json, 
+        Object FromJson(String json,
                         Type type);
 
         Task<T> FromJsonAsync<T>(Stream stream);
 
         T FromJsonEx<T>(String json);
 
-        T FromJsonEx<T>(String json, 
+        T FromJsonEx<T>(String json,
                         Object[] ctorValues);
 
         String JsonEscape(String str);
@@ -50,11 +50,13 @@ namespace Das.Serializer
         /// </summary>
         String ToJson<TTarget>(Object o);
 
-        void ToJson(Object o, FileInfo fileName);
+        void ToJson(Object o,
+                    FileInfo fileInfo);
 
         /// <summary>
         ///     Serialize up or down.  Only the properties of TTarget will be serialized
         /// </summary>
-        void ToJson<TTarget>(Object o, FileInfo fileName);
+        void ToJson<TTarget>(Object o,
+                             FileInfo fileInfo);
     }
 }

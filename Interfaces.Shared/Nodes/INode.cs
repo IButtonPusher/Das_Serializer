@@ -11,7 +11,15 @@ namespace Das.Serializer
 
     public interface INode : IValueNode
     {
-        IDictionary<String, String> Attributes { get; }
+        IEnumerable<KeyValuePair<String, AttributeValue>> Attributes { get; }
+
+        Boolean TryGetAttribute(String key,
+                                Boolean isRemoveIfFound,
+                                out AttributeValue value);
+
+        void AddAttribute(String key,
+                          String value,
+                          Boolean wasValueInQuotes);
 
         IDictionary<String, Object?> DynamicProperties { get; }
 

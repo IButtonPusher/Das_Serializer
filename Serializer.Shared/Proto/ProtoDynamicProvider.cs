@@ -10,7 +10,7 @@ using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 using Das.Extensions;
-using Das.Serializer.Proto;
+
 using Das.Serializer.Remunerators;
 
 namespace Das.Serializer.ProtoBuf

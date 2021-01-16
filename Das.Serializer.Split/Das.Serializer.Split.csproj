@@ -53,8 +53,6 @@ o = serializer.FromJson(json);</Description>
    <FileVersion>0.0.17.0</FileVersion>
 </PropertyGroup>
 
-<Import Project="..\Core.Shared\Core.Shared.projitems" Label="Shared" />
-
 <Import Project="..\Serializer.Shared\Serializer.Shared.projitems" Label="Shared" />
 
 <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.1|AnyCPU'">

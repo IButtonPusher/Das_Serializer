@@ -4,7 +4,7 @@ using System;
 using System.Reflection.Emit;
 using System.Threading.Tasks;
 
-namespace Das.Serializer.Proto
+namespace Das.Serializer.ProtoBuf
 {
     public interface IValueExtractor
     {

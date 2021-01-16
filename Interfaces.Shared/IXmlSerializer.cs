@@ -11,25 +11,24 @@ namespace Das.Serializer
 {
     public interface IXmlSerializer
     {
-       
         IStringPrimitiveScanner AttributeParser { get; }
-        
+
 
         T FromXml<T>(String xml);
 
-        T FromXmlEx<T>(String xml);
-
-        IEnumerable<T> FromXmlItems<T>(String xml);
-
         T FromXml<T>(Char[] xml);
-
-        Task<T> FromXml<T>(FileInfo file);
 
         T FromXml<T>(Stream stream);
 
         Object FromXml(String xml);
 
         Object FromXml(Stream stream);
+
+        Task<T> FromXmlAsync<T>(FileInfo file);
+
+        T FromXmlEx<T>(String xml);
+
+        IEnumerable<T> FromXmlItems<T>(String xml);
 
 
         /////////////////////////////////////////////////////////////////
@@ -53,7 +52,8 @@ namespace Das.Serializer
         ///     dumps to file when ready.  Creates the directory for the file if it doesn't
         ///     already exist
         /// </summary>
-        Task ToXml(Object o, FileInfo file);
+        Task ToXmlAsync(Object o,
+                   FileInfo file);
 
         /// <summary>
         ///     Tries to ensure no empty files if the process cuts off during invocation.
@@ -62,8 +62,10 @@ namespace Das.Serializer
         ///     For a lighter, more dangerous way of saving xml to disk use XmlToStream
         ///     with a FileStream
         /// </summary>
-        Task ToXml<TTarget>(Object o, FileInfo fileName);
+        Task ToXmlAsync<TTarget>(Object o,
+                            FileInfo fileName);
 
-        Task ToXml<TObject>(TObject o, FileInfo fileName);
+        Task ToXmlAsync<TObject>(TObject o,
+                            FileInfo fileName);
     }
 }

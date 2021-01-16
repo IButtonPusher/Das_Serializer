@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Das.Serializer.ProtoBuf;
 
-namespace Das.Serializer.Proto
+namespace Das.Serializer.ProtoBuf
 {
     public static class ProxyLookup<T>
     {

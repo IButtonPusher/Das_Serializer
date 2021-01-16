@@ -25,6 +25,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\ITypeStructureBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IValueSetter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IProtoProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Nodes\AttributeValue.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ObjectPools\INodePool.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\ProtoFieldAction.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\IProtoProxy.cs" />

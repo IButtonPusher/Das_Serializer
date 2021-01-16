@@ -9,8 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Das.Serializer", "Das.Seria
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Interfaces.Shared", "Interfaces.Shared\Interfaces.Shared.shproj", "{AEB86A21-7287-4A27-B467-1A0D1C66FA9F}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Core.Shared", "Core.Shared\Core.Shared.shproj", "{C6D160C0-8E1F-4387-8194-3F722E633A6B}"
-EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Serializer.Shared", "Serializer.Shared\Serializer.Shared.shproj", "{228FD1E5-7105-4531-804E-D0B97A2B58CB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serializer.Benchmarks", "Serializer.Benchmarks\Serializer.Benchmarks.csproj", "{3DCBE685-4644-4F16-9F39-B7A2A320B487}"
@@ -22,15 +20,11 @@ EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Serializer.Shared\Serializer.Shared.projitems*{228fd1e5-7105-4531-804e-d0b97a2b58cb}*SharedItemsImports = 13
-		Core.Shared\Core.Shared.projitems*{a9d2ef65-4059-4c0a-b513-d49ac3d66cf2}*SharedItemsImports = 5
 		Interfaces.Shared\Interfaces.Shared.projitems*{a9d2ef65-4059-4c0a-b513-d49ac3d66cf2}*SharedItemsImports = 5
 		Serializer.Shared\Serializer.Shared.projitems*{a9d2ef65-4059-4c0a-b513-d49ac3d66cf2}*SharedItemsImports = 5
 		Interfaces.Shared\Interfaces.Shared.projitems*{aeb86a21-7287-4a27-b467-1a0d1c66fa9f}*SharedItemsImports = 13
-		Core.Shared\Core.Shared.projitems*{b631f449-68dd-4f5f-bd04-c2f2e5bf124d}*SharedItemsImports = 5
 		Serializer.Shared\Serializer.Shared.projitems*{b631f449-68dd-4f5f-bd04-c2f2e5bf124d}*SharedItemsImports = 5
-		Core.Shared\Core.Shared.projitems*{c6d160c0-8e1f-4387-8194-3f722e633a6b}*SharedItemsImports = 13
 		Interfaces.Shared\Interfaces.Shared.projitems*{c6e56268-9045-4dbb-b83a-f14c009a5944}*SharedItemsImports = 5
-		Core.Shared\Core.Shared.projitems*{ecb2b428-c066-4d2b-b891-711b83951c65}*SharedItemsImports = 4
 		Interfaces.Shared\Interfaces.Shared.projitems*{ecb2b428-c066-4d2b-b891-711b83951c65}*SharedItemsImports = 4
 		Serializer.Shared\Serializer.Shared.projitems*{ecb2b428-c066-4d2b-b891-711b83951c65}*SharedItemsImports = 4
 	EndGlobalSection

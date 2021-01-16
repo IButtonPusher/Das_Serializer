@@ -6,6 +6,7 @@ namespace Das.Serializer
     public interface IPrimitiveScanner<in T> where T : class
     {
         Object? GetValue(T input, 
-                         Type type);
+                         Type type,
+                         Boolean wasInputInQuotes);
     }
 }
