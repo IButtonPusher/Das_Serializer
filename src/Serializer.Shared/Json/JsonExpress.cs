@@ -58,7 +58,6 @@ namespace Das.Serializer.Json
                     return root!;
                 }
 
-
                 AdvanceUntil('{', ref currentIndex, json);
                 currentIndex++;
 

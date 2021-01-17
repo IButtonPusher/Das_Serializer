@@ -45,8 +45,6 @@ namespace Das.Serializer.Xml
             {
                 yield return item;
             }
-
-            //currentIndex = _iteratingIndex;
         }
 
         private void BuildCollection(ref IList instance,
@@ -124,7 +122,6 @@ namespace Das.Serializer.Xml
             stringBuilder.Clear();
 
             DeserializeTag(ref oCurrent, ref currentIndex, xml,
-                //typeof(T), 
                 current.GetType(),
                 stringBuilder);
 
@@ -213,6 +210,11 @@ namespace Das.Serializer.Xml
                                         type = _typeInference.GetTypeFromClearName(typeName) ??
                                                throw new TypeLoadException(typeName);
                                         stringBuilder.Clear();
+                                        break;
+
+                                    case Const.RefTag:
+                                        //circular dependency
+
                                         break;
                                 }
                             else

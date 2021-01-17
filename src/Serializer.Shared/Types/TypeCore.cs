@@ -240,7 +240,15 @@ namespace Das.Serializer
         public PropertyInfo? FindPublicProperty(Type type,
                                                 String propertyName)
         {
-            return GetPublicProperties(type, false).FirstOrDefault(p => p.Name == propertyName);
+            foreach (var prop in GetPublicProperties(type, false))
+            {
+                if (prop.Name == propertyName)
+                    return prop;
+            }
+
+            return default;
+
+            //return GetPublicProperties(type, false).FirstOrDefault(p => p.Name == propertyName);
         }
 
         public Boolean TryGetPropertiesConstructor(Type type,
