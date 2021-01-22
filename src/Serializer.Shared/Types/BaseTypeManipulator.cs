@@ -3,25 +3,26 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading.Tasks;
 using Das.Serializer.Types;
 
 namespace Das.Serializer
 {
-    public abstract class BaseTypeManipulator : TypeCore, 
+    public abstract class BaseTypeManipulator : TypeCore,
                                                 ITypeManipulator
     {
-        protected BaseTypeManipulator(ISerializerSettings settings, 
-                                      INodePool nodePool) : base(settings)
-        {
-            _nodePool = nodePool;
-        }
-
         static BaseTypeManipulator()
         {
             _lockNewType = new Object();
             _knownSensitive = new ConcurrentDictionary<Type, ITypeStructure>();
             _knownInsensitive = new ConcurrentDictionary<Type, ITypeStructure>();
             _cachedPropertyAccessors = new DoubleDictionary<Type, string, IPropertyAccessor>();
+        }
+
+        protected BaseTypeManipulator(ISerializerSettings settings,
+                                      INodePool nodePool) : base(settings)
+        {
+            _nodePool = nodePool;
         }
 
         public override Boolean HasSettableProperties(Type type)
@@ -39,21 +40,21 @@ namespace Das.Serializer
 
         public abstract Func<object, object[], object> CreateFuncCaller(MethodInfo method);
 
-        public abstract Func<object, object> CreatePropertyGetter(Type targetType, 
+        public abstract Func<object, object> CreatePropertyGetter(Type targetType,
                                                                   PropertyInfo propertyInfo);
 
-        public abstract Func<object, object> CreatePropertyGetter(Type targetType, 
+        public abstract Func<object, object> CreatePropertyGetter(Type targetType,
                                                                   String propertyName);
 
         public abstract PropertySetter CreateSetMethod(MemberInfo memberInfo);
 
-        public abstract PropertySetter? CreateSetMethod(Type declaringType, 
+        public abstract PropertySetter? CreateSetMethod(Type declaringType,
                                                         String memberName);
 
-        public abstract VoidMethod? GetAdder(Type collectionType, 
+        public abstract VoidMethod? GetAdder(Type collectionType,
                                              Object exampleValue);
 
-        public abstract VoidMethod GetAdder(IEnumerable collection, 
+        public abstract VoidMethod GetAdder(IEnumerable collection,
                                             Type? collectionType = null);
 
         public abstract MethodInfo? GetAddMethod<T>(IEnumerable<T> collection);
@@ -64,7 +65,9 @@ namespace Das.Serializer
         {
             foreach (var parentInterface in type.GetInterfaces())
             foreach (var pp in GetInterfaceMethods(parentInterface))
+            {
                 yield return pp;
+            }
 
             foreach (var mi in type.GetMethods(InterfaceMethodBindings))
             {
@@ -78,11 +81,13 @@ namespace Das.Serializer
                                                                  ISerializationDepth depth)
         {
             var str = GetTypeStructure(type, depth);
-            foreach (var pi in str.GetMembersToSerialize(depth))   
+            foreach (var pi in str.GetMembersToSerialize(depth))
+            {
                 yield return pi;
+            }
         }
 
-        public Type? GetPropertyType(Type classType, 
+        public Type? GetPropertyType(Type classType,
                                      String propName)
         {
             var ts = GetTypeStructure(classType, DepthConstants.AllProperties);
@@ -99,26 +104,13 @@ namespace Das.Serializer
             return GetTypeStructure(typeof(T), depth);
         }
 
-        public ITypeStructure GetTypeStructure(Type type, ISerializationDepth depth)
+        public ITypeStructure GetTypeStructure(Type type,
+                                               ISerializationDepth depth)
         {
             if (Settings.IsPropertyNamesCaseSensitive)
                 return ValidateCollection(type, depth, true);
 
             return ValidateCollection(type, depth, false);
-        }
-
-        public static IEnumerable<FieldInfo> GetRecursivePrivateFields(Type type)
-        {
-            while (true)
-            {
-                foreach (var field in type.GetFields(Const.NonPublic))
-                    yield return field;
-
-                var parent = type.BaseType;
-                if (parent == null) yield break;
-
-                type = parent;
-            }
         }
 
         public Type InstanceMemberType(MemberInfo info)
@@ -134,13 +126,99 @@ namespace Das.Serializer
             }
         }
 
-        public abstract bool TryCreateReadOnlyPropertySetter(PropertyInfo propertyInfo, out Action<object, object?> setter);
+        public abstract bool TryCreateReadOnlyPropertySetter(PropertyInfo propertyInfo,
+                                                             out Action<object, object?> setter);
 
-        public abstract bool TryGetAddMethod(Type collectionType, out MethodInfo addMethod);
+        public abstract bool TryGetAddMethod(Type collectionType,
+                                             out MethodInfo addMethod);
 
         public abstract VoidMethod CreateMethodCaller(MethodInfo method);
 
-        private ITypeStructure ValidateCollection(Type type, 
+
+        public IPropertyAccessor GetPropertyAccessor(Type declaringType,
+                                                     String propertyName)
+        {
+            lock (_lockNewType)
+            {
+                if (_cachedPropertyAccessors.TryGetValue(declaringType, propertyName, out var accessor))
+                    return accessor;
+
+                var getter = CreatePropertyGetter(declaringType, propertyName);
+                var setter = CreateSetMethod(declaringType, propertyName);
+                accessor = new SimplePropertyAccessor(declaringType, propertyName, getter, setter);
+
+                _cachedPropertyAccessors.Add(declaringType, propertyName, accessor);
+
+                return accessor;
+            }
+        }
+
+        public static IEnumerable<FieldInfo> GetRecursivePrivateFields(Type type)
+        {
+            while (true)
+            {
+                foreach (var field in type.GetFields(Const.NonPublic))
+                {
+                    yield return field;
+                }
+
+                var parent = type.BaseType;
+                if (parent == null) yield break;
+
+                type = parent;
+            }
+        }
+
+        protected static MemberInfo GetMemberOrDie(Type declaringType,
+                                                   String propName)
+        {
+            var membersOnly = GetMembersOrDie(declaringType, propName);
+            if (membersOnly.Length != 1)
+                throw new AmbiguousMatchException(nameof(propName));
+
+            return membersOnly[0];
+        }
+
+        protected static MemberInfo[] GetMembersOrDie(Type declaringType,
+                                                      String propertyName)
+        {
+            var membersOnly = declaringType.GetMember(propertyName);
+            if (membersOnly.Length == 0)
+                throw new MissingMemberException(declaringType.FullName, propertyName);
+
+            return membersOnly;
+        }
+
+        protected static PropertyInfo GetPropertyOrDie(Type declaringType,
+                                                       String propertyName)
+        {
+            return declaringType.GetProperty(propertyName) ??
+                   throw new MissingMemberException(declaringType.FullName, propertyName);
+        }
+
+        private static Boolean IsAlreadyExists(Type type,
+                                               Boolean doCache,
+                                               ISerializationDepth depth,
+                                               ConcurrentDictionary<Type, ITypeStructure> collection,
+                                               out ITypeStructure res)
+        {
+            res = default!;
+
+            if (!doCache || !collection.TryGetValue(type, out res))
+                return false;
+
+            if (res.Depth < depth.SerializationDepth) return false;
+
+
+            if (doCache && collection.TryGetValue(type, out res) &&
+                res.Depth >= depth.SerializationDepth)
+                return true;
+
+            res = default!;
+            return false;
+        }
+
+        private ITypeStructure ValidateCollection(Type type,
                                                   ISerializationDepth depth,
                                                   Boolean caseSensitive)
         {
@@ -163,86 +241,18 @@ namespace Das.Serializer
                 if (!doCache)
                     return result;
 
-                return collection.AddOrUpdate(type, result, (k, v) => v.Depth > result.Depth ? v : result);
+                return collection.AddOrUpdate(type, result, (k,
+                                                             v) => v.Depth > result.Depth ? v : result);
             }
         }
-
-        private static Boolean IsAlreadyExists(Type type, 
-                                               Boolean doCache, 
-                                               ISerializationDepth depth,
-                                               ConcurrentDictionary<Type, ITypeStructure> collection,
-                                               out ITypeStructure res)
-        {
-            res = default!;
-
-            if (!doCache || !collection.TryGetValue(type, out res)) 
-                return false;
-
-            if (res.Depth < depth.SerializationDepth) return false;
-
-
-            if (doCache && collection.TryGetValue(type, out res) &&
-                res.Depth >= depth.SerializationDepth)
-                return true;
-
-            res = default!;
-            return false;
-        }
-
-        private static readonly Object _lockNewType; 
-        private static readonly ConcurrentDictionary<Type, ITypeStructure> _knownSensitive;
-        private static readonly ConcurrentDictionary<Type, ITypeStructure> _knownInsensitive;
-        private static readonly DoubleDictionary<Type, String, IPropertyAccessor> _cachedPropertyAccessors;
-        private readonly INodePool _nodePool;
 
         private const BindingFlags InterfaceMethodBindings = BindingFlags.Instance |
                                                              BindingFlags.Public | BindingFlags.NonPublic;
 
-
-        public IPropertyAccessor GetPropertyAccessor(Type declaringType, 
-                                                     String propertyName)
-        {
-            lock (_lockNewType)
-            {
-                if (_cachedPropertyAccessors.TryGetValue(declaringType, propertyName, out var accessor))
-                    return accessor;
-                
-                var getter = CreatePropertyGetter(declaringType, propertyName);
-                var setter = CreateSetMethod(declaringType, propertyName);
-                accessor = new SimplePropertyAccessor(declaringType, propertyName, getter, setter);
-
-                _cachedPropertyAccessors.Add(declaringType, propertyName, accessor);
-                
-                return accessor;
-            }
-        }
-
-        protected static MemberInfo GetMemberOrDie(Type declaringType,
-                                                   String propName)
-        {
-            var membersOnly = GetMembersOrDie(declaringType, propName);
-            if (membersOnly.Length != 1)
-                throw new AmbiguousMatchException(nameof(propName));
-
-            return membersOnly[0];
-        }
-        
-        protected static MemberInfo[] GetMembersOrDie(Type declaringType,
-                                                     String propertyName)
-        {
-            var membersOnly = declaringType.GetMember(propertyName);
-            if (membersOnly.Length == 0)
-                throw new MissingMemberException(declaringType.FullName, propertyName);
-
-            return membersOnly;
-
-        }
-        
-        protected static PropertyInfo GetPropertyOrDie(Type declaringType,
-                                                       String propertyName)
-        {
-            return declaringType.GetProperty(propertyName) ?? 
-                   throw new MissingMemberException(declaringType.FullName, propertyName);
-        }
+        private static readonly Object _lockNewType;
+        private static readonly ConcurrentDictionary<Type, ITypeStructure> _knownSensitive;
+        private static readonly ConcurrentDictionary<Type, ITypeStructure> _knownInsensitive;
+        private static readonly DoubleDictionary<Type, String, IPropertyAccessor> _cachedPropertyAccessors;
+        private readonly INodePool _nodePool;
     }
 }

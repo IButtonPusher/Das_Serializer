@@ -9,8 +9,9 @@ namespace Das.Serializer
     public class TextNodeSealer : BaseNodeSealer<ITextNode>
     {
         public TextNodeSealer(INodeManipulator nodeValues,
-                              IStringPrimitiveScanner scanner, ISerializationCore facade,
-                              ISerializerSettings settings) 
+                              IStringPrimitiveScanner scanner,
+                              ISerializationCore facade,
+                              ISerializerSettings settings)
             : base(facade, nodeValues, settings)
         {
             _values = nodeValues;
@@ -20,33 +21,6 @@ namespace Das.Serializer
             _typeManipulator = facade.TypeManipulator;
             _scanner = scanner;
             _objects = facade.ObjectManipulator;
-        }
-
-        private void BuildFromReference(ITextNode node, String refValue)
-        {
-            var refLength = refValue.Length;
-            var chain = new Stack<ITextNode>();
-            var current = node.Parent;
-            while (NullNode != current)
-            {
-                chain.Push(current);
-                current = current.Parent;
-            }
-
-            current = chain.Pop();
-            var sb = new StringBuilder(current.Name);
-            while (sb.Length < refLength)
-            {
-                current = chain.Pop();
-                sb.Append($"/{current.Name}");
-            }
-
-            if (current.Value == null)
-                _values.TryBuildValue(current);
-
-            node.Value = current.Value;
-            if (NullNode != node.Parent && node.Value != null)
-                Imbue(node.Parent, node.Name, node.Value);
         }
 
         public override void CloseNode(ITextNode node)
@@ -61,7 +35,7 @@ namespace Das.Serializer
             {
                 case NodeTypes.Object:
 
-                    //object = sum of attributes (primitives) and children (should already be imbued)
+                    // object = sum of attributes (primitives) and children (should already be imbued)
 
                     _values.TryBuildValue(node);
 
@@ -81,7 +55,7 @@ namespace Das.Serializer
                             ? _typeManipulator.GetPropertyType(node.Type, key)
                             : null;
 
-                        if (type == null && node.Type != null && 
+                        if (type == null && node.Type != null &&
                             key.Length > 0 && char.IsLower(key[0]))
                         {
                             key = _facade.TypeInferrer.ToPropertyStyle(key);
@@ -91,19 +65,18 @@ namespace Das.Serializer
                         if (type == null || node.Type == null)
                             continue;
 
-                        
 
                         //trying to force it into a string leads to setting object's values to strings
                         //which goes poorly...
                         //var val = _scanner.GetValue(str, type) ?? str;
-                        
+
                         var val = _scanner.GetValue(str, type, !attr.Value.WasValueInQuotes);
 
                         if (val == null)
                         {
                             if (Settings.PropertySearchDepth == TextPropertySearchDepths.AsTypeInLoadedModules)
                                 val = str;
-                            else if (Settings.AttributeValueSurrogates.TryGetValue(node, 
+                            else if (Settings.AttributeValueSurrogates.TryGetValue(node,
                                 key, str, out var found))
                                 val = found;
                             else continue;
@@ -130,7 +103,6 @@ namespace Das.Serializer
                     break;
                 case NodeTypes.Dynamic:
 
-                    
 
                     if (node.Type != null &&
                         _facade.TypeInferrer.IsCollection(node.Type))
@@ -149,7 +121,7 @@ namespace Das.Serializer
 
                     foreach (var attr in node.Attributes)
                     {
-                        var atVal = _scanner.GetValue(attr.Value.Value, Const.ObjectType, 
+                        var atVal = _scanner.GetValue(attr.Value.Value, Const.ObjectType,
                             attr.Value.WasValueInQuotes);
                         node.DynamicProperties.Add(attr.Key, atVal);
                     }
@@ -215,8 +187,6 @@ namespace Das.Serializer
                         Imbue(node.Parent, node.Name, node.Value);
 
                     break;
-
-                
             }
 
             var parent = node.Parent;
@@ -226,9 +196,9 @@ namespace Das.Serializer
         }
 
 
-        public override Boolean TryGetPropertyValue(ITextNode node, 
+        public override Boolean TryGetPropertyValue(ITextNode node,
                                                     String key,
-                                                    Type propertyType, 
+                                                    Type propertyType,
                                                     out Object? val)
         {
             var propKey = _facade.TypeInferrer.ToPropertyStyle(key);
@@ -251,10 +221,40 @@ namespace Das.Serializer
             return false;
         }
 
+        private void BuildFromReference(ITextNode node,
+                                        String refValue)
+        {
+            var refLength = refValue.Length;
+            var chain = new Stack<ITextNode>();
+            var current = node.Parent;
+            while (NullNode != current)
+            {
+                chain.Push(current);
+                current = current.Parent;
+            }
+
+            current = chain.Pop();
+            var sb = new StringBuilder(current.Name);
+            while (sb.Length < refLength)
+            {
+                current = chain.Pop();
+                sb.Append($"/{current.Name}");
+            }
+
+            if (current.Value == null)
+                _values.TryBuildValue(current);
+
+            node.Value = current.Value;
+            if (NullNode != node.Parent && node.Value != null)
+                Imbue(node.Parent, node.Name, node.Value);
+        }
+
         private static readonly NullNode NullNode = NullNode.Instance;
         private readonly ISerializationCore _facade;
         private readonly IObjectManipulator _objects;
+
         private readonly IStringPrimitiveScanner _scanner;
+
         //private readonly IAttributeValueSurrogates _attributeValueSurrogates;
         private readonly ITypeManipulator _typeManipulator;
         private readonly INodeTypeProvider _typeProvider;

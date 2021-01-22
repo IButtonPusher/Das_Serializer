@@ -1,5 +1,4 @@
-﻿
-#if GENERATECODE
+﻿#if GENERATECODE
 
 using System;
 using System.Collections.Concurrent;
@@ -15,21 +14,19 @@ using Das.Serializer.Objects;
 
 namespace Das.Types
 {
-    public class DasTypeBuilder : TypeCore, 
+    public class DasTypeBuilder : TypeCore,
                                   IDynamicTypes
     {
         static DasTypeBuilder()
         {
-
             // ReSharper disable once PossibleNullReferenceException
 
-           #if !NET40
+            #if !NET40
 
             _getCompletedTask = typeof(Task).GetProperty("CompletedTask",
                 BindingFlags.Static | BindingFlags.Public).GetGetMethod();
 
             #else
-
             _getCompletedTask = typeof(TaskEx).GetProperty(nameof(TaskEx.CompletedTask),
                 BindingFlags.Static | BindingFlags.Public).GetGetMethod();
             #endif
@@ -37,20 +34,18 @@ namespace Das.Types
             _codeGenerator = new DasCodeGenerator("DasSerializerTypes", "DAS_MODULE",
                 AssemblyBuilderAccess.Run);
             _lockDynamic = new Object();
-            
+
 
             _createdTypes = new ConcurrentDictionary<String, Type>();
             _createdDTypes = new ConcurrentDictionary<String, DasType>();
-            
         }
 
-        public DasTypeBuilder(ISerializerSettings settings, ITypeManipulator typeManipulator,
-                                IObjectManipulator objectManipulator) : base(settings)
+        public DasTypeBuilder(ISerializerSettings settings,
+                              ITypeManipulator typeManipulator,
+                              IObjectManipulator objectManipulator) : base(settings)
         {
-
             _typeManipulator = typeManipulator;
             _objectManipulator = objectManipulator;
-
         }
 
         public Type GetDynamicImplementation(Type interfaceType)
@@ -76,12 +71,39 @@ namespace Das.Types
             return buildType.ManagedType;
         }
 
-        public Boolean TryGetDynamicType(String clearName, out Type? type)
+        public object BuildDynamicObject(RuntimeObject robj)
+        {
+            var props = new List<DasProperty>();
+            foreach (var kvp in robj.Properties)
+            {
+                var prop = new DasProperty(kvp.Key, kvp.Value.GetObjectType(), _emptyAttributes);
+                props.Add(prop);
+            }
+
+            var dType = GetDynamicType(Guid.NewGuid().ToString(), props, true,
+                Enumerable.Empty<EventInfo>(), _emptyMethodReplacements);
+
+            var dObj = Activator.CreateInstance(dType.ManagedType);
+
+            foreach (var kvp in robj.Properties)
+            {
+                if (kvp.Value.PrimitiveValue == null)
+                    throw new NotImplementedException();
+
+                dType.SetPropertyValue(ref dObj, kvp.Key, kvp.Value.PrimitiveValue);
+            }
+
+            return dObj;
+        }
+
+        public Boolean TryGetDynamicType(String clearName,
+                                         out Type? type)
         {
             return _createdTypes.TryGetValue(clearName, out type);
         }
 
-        public Boolean TryGetFromAssemblyQualifiedName(String assemblyQualified, out Type type)
+        public Boolean TryGetFromAssemblyQualifiedName(String assemblyQualified,
+                                                       out Type type)
         {
             type = _createdTypes.Values.FirstOrDefault(t =>
                 t.AssemblyQualifiedName == assemblyQualified)!;
@@ -111,10 +133,12 @@ namespace Das.Types
         ///     are created but they return default primitives or null references
         /// </param>
         /// <param name="parentTypes">Can be a single unsealed class and/or 1-N interfaces</param>
-        public IPropertyType GetDynamicType(String typeName, IEnumerable<DasProperty> properties,
-                                           Boolean isCreatePropertyDelegates, IEnumerable<EventInfo> events,
-                                           IDictionary<MethodInfo, MethodInfo>? methodReplacements,
-                                           params Type[] parentTypes)
+        public IPropertyType GetDynamicType(String typeName,
+                                            IEnumerable<DasProperty> properties,
+                                            Boolean isCreatePropertyDelegates,
+                                            IEnumerable<EventInfo> events,
+                                            IDictionary<MethodInfo, MethodInfo>? methodReplacements,
+                                            params Type[] parentTypes)
         {
             return GetDynamicTypeImpl(typeName, properties, isCreatePropertyDelegates,
                 methodReplacements, events, parentTypes);
@@ -141,7 +165,8 @@ namespace Das.Types
         /// <returns></returns>
         public Type GetDynamicType(String typeName,
                                    IDictionary<MethodInfo, MethodInfo>? methodReplacements,
-                                   IEnumerable<DasProperty> properties, IEnumerable<EventInfo> events,
+                                   IEnumerable<DasProperty> properties,
+                                   IEnumerable<EventInfo> events,
                                    params Type[] parentTypes)
         {
             if (_createdTypes.TryGetValue(typeName, out var val))
@@ -162,8 +187,10 @@ namespace Das.Types
                 //abstract before interfaces in case an abstract already implements 
                 //items from the interface
                 foreach (var type in parentTypes.OrderBy(t => t.IsAbstract).ThenByDescending(t => t.IsClass))
+                {
                     ImplementParent(typeBuilder, type, addedProperties, methodReplacements,
                         addedMethods, addedEvents);
+                }
 
                 if (properties != null)
                     foreach (var kvp in properties)
@@ -184,7 +211,8 @@ namespace Das.Types
                 }
 
                 var created = typeBuilder.CreateType() ?? throw new TypeLoadException(typeName);
-                _createdTypes.AddOrUpdate(typeName, created, (k, v) => created);
+                _createdTypes.AddOrUpdate(typeName, created, (k,
+                                                              v) => created);
                 return created;
             }
         }
@@ -197,10 +225,226 @@ namespace Das.Types
                 var attr = new DasAttribute(o.GetType());
 
                 foreach (var propVal in _objectManipulator.GetPropertyResults(valu, Settings))
+                {
                     attr.PropertyValues.Add(propVal.Name, propVal.Value!);
+                }
             }
 
             return new DasAttribute[0];
+        }
+
+        public static PropertyBuilder CreateProperty(TypeBuilder tb,
+                                                     String propertyName,
+                                                     Type propertyType,
+                                                     Boolean addSetter,
+                                                     out FieldInfo backingfield)
+        {
+            backingfield = tb.DefineField("_" + propertyName, propertyType, FieldAttributes.Private);
+
+            var propBuilder = tb.DefineProperty(propertyName, PropertyAttributes.HasDefault,
+                propertyType, null);
+            var getPropMthdBldr = tb.DefineMethod("get_" + propertyName,
+                AccessorAttributes,
+                propertyType, Type.EmptyTypes);
+            var getIl = getPropMthdBldr.GetILGenerator();
+
+            getIl.Emit(OpCodes.Ldarg_0);
+            getIl.Emit(OpCodes.Ldfld, backingfield);
+            getIl.Emit(OpCodes.Ret);
+
+            propBuilder.SetGetMethod(getPropMthdBldr);
+
+            if (addSetter)
+            {
+                var setPropMthdBldr =
+                    tb.DefineMethod("set_" + propertyName,
+                        AccessorAttributes,
+                        null, new[] {propertyType});
+
+                var setIl = setPropMthdBldr.GetILGenerator();
+                var modifyProperty = setIl.DefineLabel();
+                var exitSet = setIl.DefineLabel();
+
+                setIl.MarkLabel(modifyProperty);
+                setIl.Emit(OpCodes.Ldarg_0);
+                setIl.Emit(OpCodes.Ldarg_1);
+                setIl.Emit(OpCodes.Stfld, backingfield);
+
+                setIl.Emit(OpCodes.Nop);
+                setIl.MarkLabel(exitSet);
+                setIl.Emit(OpCodes.Ret);
+
+                propBuilder.SetSetMethod(setPropMthdBldr);
+            }
+
+
+            return propBuilder;
+        }
+
+        private static void AddAttributes(PropertyBuilder propBuilder,
+                                          IEnumerable<DasAttribute> attributes)
+        {
+            foreach (var att in attributes)
+            {
+                CustomAttributeBuilder builder;
+
+                var types = new List<Type>();
+
+                if (att.ConstructionValues is { })
+                    foreach (var cVal in att.ConstructionValues)
+                    {
+                        types.Add(cVal.GetType());
+                    }
+
+                var prms = types.ToArray();
+                var ctor = att.Type.GetConstructor(prms);
+
+                if (ctor == null)
+                    return;
+
+                if (att.PropertyValues.Count == 0)
+                    builder = new CustomAttributeBuilder(ctor, att.ConstructionValues!);
+
+                else
+                {
+                    var props = new List<PropertyInfo>();
+
+                    foreach (var kvp in att.PropertyValues)
+                    {
+                        var pi = att.Type.GetProperty(kvp.Key) ?? throw new TypeLoadException(kvp.Key);
+                        props.Add(pi);
+                    }
+
+                    builder = new CustomAttributeBuilder(ctor, att.ConstructionValues,
+                        props.ToArray(), att.PropertyValues.Values.ToArray());
+                }
+
+                propBuilder.SetCustomAttribute(builder);
+            }
+        }
+
+        private static void CreateEvent(TypeBuilder tb,
+                                        EventInfo eve)
+        {
+            var eventName = eve.Name;
+            var eventType = eve.EventHandlerType ?? throw new NullReferenceException(eve.Name);
+
+            var fieldBuilder = tb.DefineField("_" + eventName, eventType!, FieldAttributes.Private);
+            var theEvent = tb.DefineEvent(eve.Name, EventAttributes.None, eventType);
+
+            var addMethod = tb.DefineMethod($"add_{eventName}",
+                MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.SpecialName |
+                MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot,
+                CallingConventions.Standard | CallingConventions.HasThis,
+                typeof(void),
+                new[] {eventType});
+            var generator = addMethod.GetILGenerator();
+            var combine = typeof(Delegate).GetMethod("Combine",
+                new[] {typeof(Delegate), typeof(Delegate)}) ?? throw new MissingMethodException();
+            generator.Emit(OpCodes.Ldarg_0);
+            generator.Emit(OpCodes.Ldarg_0);
+            generator.Emit(OpCodes.Ldfld, fieldBuilder);
+            generator.Emit(OpCodes.Ldarg_1);
+            generator.Emit(OpCodes.Call, combine);
+            generator.Emit(OpCodes.Castclass, eventType);
+            generator.Emit(OpCodes.Stfld, fieldBuilder);
+            generator.Emit(OpCodes.Ret);
+            theEvent.SetAddOnMethod(addMethod);
+
+
+            var removeMethod = tb.DefineMethod($"remove_{eventName}",
+                MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.SpecialName |
+                MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot,
+                CallingConventions.Standard | CallingConventions.HasThis,
+                typeof(void),
+                new[] {eventType});
+            var remove = typeof(Delegate).GetMethod("Remove", new[]
+                             {typeof(Delegate), typeof(Delegate)})
+                         ?? throw new MissingMethodException();
+            generator = removeMethod.GetILGenerator();
+            generator.Emit(OpCodes.Ldarg_0);
+            generator.Emit(OpCodes.Ldarg_0);
+            generator.Emit(OpCodes.Ldfld, fieldBuilder);
+            generator.Emit(OpCodes.Ldarg_1);
+            generator.Emit(OpCodes.Call, remove);
+            generator.Emit(OpCodes.Castclass, typeof(PropertyChangedEventHandler));
+            generator.Emit(OpCodes.Stfld, fieldBuilder);
+            generator.Emit(OpCodes.Ret);
+            theEvent.SetRemoveOnMethod(removeMethod);
+        }
+
+
+        private static void CreateMethod(TypeBuilder tb,
+                                         MethodInfo meth,
+                                         MethodInfo? replacing = null)
+        {
+            var returnType = meth.ReturnType;
+            var methName = replacing?.Name ?? meth.Name;
+            if (replacing == null)
+                replacing = meth;
+
+            var argumentTypes = new List<Type>();
+            foreach (var parameterInfo in meth.GetParameters())
+            {
+                argumentTypes.Add(parameterInfo.ParameterType);
+            }
+
+            // Define the method
+            var methodBuilder = tb.DefineMethod
+            (methName, MethodAttributes.Public |
+                       MethodAttributes.Virtual, returnType, argumentTypes.ToArray());
+
+            if (replacing.IsGenericMethod)
+            {
+                var gArgs = replacing.GetGenericArguments();
+                var gArgNames = gArgs.Select(a => a.Name).ToArray();
+                methodBuilder.DefineGenericParameters(gArgNames);
+
+                var arr = argumentTypes.ToArray();
+                methodBuilder.SetParameters(arr);
+            }
+
+            var il = methodBuilder.GetILGenerator();
+
+            // If there's a return type, create a default (preferably not null) value to return
+            if (returnType != typeof(void))
+            {
+                var isRetted = false;
+
+                if (!IsLeaf(returnType, true))
+                {
+                    var ctor = returnType.GetConstructor(new Type[0]);
+                    if (ctor != null)
+                    {
+                        il.Emit(OpCodes.Newobj, ctor);
+                        isRetted = true;
+                    }
+                    else if (returnType == typeof(Task))
+                    {
+                        il.Emit(OpCodes.Call, _getCompletedTask);
+                        isRetted = true;
+                    }
+                }
+
+                if (!isRetted)
+                {
+                    //should return null or default (0/false) for primis
+                    var localBuilder = il.DeclareLocal(returnType);
+                    il.Emit(OpCodes.Ldloc, localBuilder);
+                }
+            }
+
+            il.Emit(OpCodes.Ret);
+            tb.DefineMethodOverride(methodBuilder, replacing);
+        }
+
+        private static void CreateProperty(TypeBuilder tb,
+                                           DasProperty prop)
+        {
+            var propBuilder = CreateProperty(tb, prop.Name, prop.Type, true, out _);
+
+            if (prop.Attributes?.Length > 0)
+                AddAttributes(propBuilder, prop.Attributes);
         }
 
         private static String DescribeMethod(MethodBase meth)
@@ -253,9 +497,11 @@ namespace Das.Types
         }
 
         private void ImplementParent(TypeBuilder typeBuilder,
-                                     Type interfaceType, ISet<String> addedProperties,
+                                     Type interfaceType,
+                                     ISet<String> addedProperties,
                                      IDictionary<MethodInfo, MethodInfo>? methodReplacements,
-                                     ISet<String> addedMethods, ISet<String> addedEvents)
+                                     ISet<String> addedMethods,
+                                     ISet<String> addedEvents)
         {
             foreach (var prop in GetPublicProperties(interfaceType))
             {
@@ -314,7 +560,6 @@ namespace Das.Types
         private static readonly ConcurrentDictionary<String, DasType> _createdDTypes;
 
         private static readonly ConcurrentDictionary<String, Type> _createdTypes;
-        
 
 
         private static readonly DasCodeGenerator _codeGenerator;
@@ -325,222 +570,10 @@ namespace Das.Types
 
         private readonly ITypeManipulator _typeManipulator;
 
+        private static readonly Dictionary<MethodInfo, MethodInfo> _emptyMethodReplacements =
+            new Dictionary<MethodInfo, MethodInfo>();
 
-        
-
-        private static void CreateMethod(TypeBuilder tb, MethodInfo meth,
-                                         MethodInfo? replacing = null)
-        {
-            var returnType = meth.ReturnType;
-            var methName = replacing?.Name ?? meth.Name;
-            if (replacing == null)
-                replacing = meth;
-
-            var argumentTypes = new List<Type>();
-            foreach (var parameterInfo in meth.GetParameters())
-                argumentTypes.Add(parameterInfo.ParameterType);
-
-            // Define the method
-            var methodBuilder = tb.DefineMethod
-            (methName, MethodAttributes.Public |
-                       MethodAttributes.Virtual, returnType, argumentTypes.ToArray());
-
-            if (replacing.IsGenericMethod)
-            {
-                var gArgs = replacing.GetGenericArguments();
-                var gArgNames = gArgs.Select(a => a.Name).ToArray();
-                methodBuilder.DefineGenericParameters(gArgNames);
-
-                var arr = argumentTypes.ToArray();
-                methodBuilder.SetParameters(arr);
-            }
-
-            var il = methodBuilder.GetILGenerator();
-
-            // If there's a return type, create a default (preferably not null) value to return
-            if (returnType != typeof(void))
-            {
-                var isRetted = false;
-
-                if (!IsLeaf(returnType, true))
-                {
-                    var ctor = returnType.GetConstructor(new Type[0]);
-                    if (ctor != null)
-                    {
-                        il.Emit(OpCodes.Newobj, ctor);
-                        isRetted = true;
-                    }
-                    else if (returnType == typeof(Task))
-                    {
-                        il.Emit(OpCodes.Call, _getCompletedTask);
-                        isRetted = true;
-                    }
-                }
-
-                if (!isRetted)
-                {
-                    //should return null or default (0/false) for primis
-                    var localBuilder = il.DeclareLocal(returnType);
-                    il.Emit(OpCodes.Ldloc, localBuilder);
-                }
-            }
-
-            il.Emit(OpCodes.Ret);
-            tb.DefineMethodOverride(methodBuilder, replacing);
-        }
-
-        private static void CreateEvent(TypeBuilder tb, EventInfo eve)
-        {
-            var eventName = eve.Name;
-            var eventType = eve.EventHandlerType ?? throw new NullReferenceException(eve.Name);
-
-            var fieldBuilder = tb.DefineField("_" + eventName, eventType!, FieldAttributes.Private);
-            var theEvent = tb.DefineEvent(eve.Name, EventAttributes.None, eventType);
-
-            var addMethod = tb.DefineMethod($"add_{eventName}",
-                MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.SpecialName |
-                MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot,
-                CallingConventions.Standard | CallingConventions.HasThis,
-                typeof(void),
-                new[] {eventType});
-            var generator = addMethod.GetILGenerator();
-            var combine = typeof(Delegate).GetMethod("Combine",
-                new[] {typeof(Delegate), typeof(Delegate)}) ?? throw new MissingMethodException();
-            generator.Emit(OpCodes.Ldarg_0);
-            generator.Emit(OpCodes.Ldarg_0);
-            generator.Emit(OpCodes.Ldfld, fieldBuilder);
-            generator.Emit(OpCodes.Ldarg_1);
-            generator.Emit(OpCodes.Call, combine);
-            generator.Emit(OpCodes.Castclass, eventType);
-            generator.Emit(OpCodes.Stfld, fieldBuilder);
-            generator.Emit(OpCodes.Ret);
-            theEvent.SetAddOnMethod(addMethod);
-
-
-            var removeMethod = tb.DefineMethod($"remove_{eventName}",
-                MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.SpecialName |
-                MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot,
-                CallingConventions.Standard | CallingConventions.HasThis,
-                typeof(void),
-                new[] {eventType});
-            var remove = typeof(Delegate).GetMethod("Remove", new[]
-                             {typeof(Delegate), typeof(Delegate)})
-                         ?? throw new MissingMethodException();
-            generator = removeMethod.GetILGenerator();
-            generator.Emit(OpCodes.Ldarg_0);
-            generator.Emit(OpCodes.Ldarg_0);
-            generator.Emit(OpCodes.Ldfld, fieldBuilder);
-            generator.Emit(OpCodes.Ldarg_1);
-            generator.Emit(OpCodes.Call, remove);
-            generator.Emit(OpCodes.Castclass, typeof(PropertyChangedEventHandler));
-            generator.Emit(OpCodes.Stfld, fieldBuilder);
-            generator.Emit(OpCodes.Ret);
-            theEvent.SetRemoveOnMethod(removeMethod);
-        }
-
-        private static void CreateProperty(TypeBuilder tb, DasProperty prop)
-        {
-            var propBuilder = CreateProperty(tb, prop.Name, prop.Type, true, out _);
-
-            if (prop.Attributes?.Length > 0)
-                AddAttributes(propBuilder, prop.Attributes);
-        }
-
-        public static PropertyBuilder CreateProperty(TypeBuilder tb,
-                                                     String propertyName, 
-                                                     Type propertyType, 
-                                                     Boolean addSetter,
-                                                     out FieldInfo backingfield)
-        {
-            backingfield = tb.DefineField("_" + propertyName, propertyType, FieldAttributes.Private);
-
-            var propBuilder = tb.DefineProperty(propertyName, PropertyAttributes.HasDefault,
-                propertyType, null);
-            var getPropMthdBldr = tb.DefineMethod("get_" + propertyName,
-                AccessorAttributes,
-                propertyType, Type.EmptyTypes);
-            var getIl = getPropMthdBldr.GetILGenerator();
-
-            getIl.Emit(OpCodes.Ldarg_0);
-            getIl.Emit(OpCodes.Ldfld, backingfield);
-            getIl.Emit(OpCodes.Ret);
-
-            propBuilder.SetGetMethod(getPropMthdBldr);
-
-            if (addSetter)
-            {
-                var setPropMthdBldr =
-                    tb.DefineMethod("set_" + propertyName,
-                        AccessorAttributes,
-                        null, new[] {propertyType});
-
-                var setIl = setPropMthdBldr.GetILGenerator();
-                var modifyProperty = setIl.DefineLabel();
-                var exitSet = setIl.DefineLabel();
-
-                setIl.MarkLabel(modifyProperty);
-                setIl.Emit(OpCodes.Ldarg_0);
-                setIl.Emit(OpCodes.Ldarg_1);
-                setIl.Emit(OpCodes.Stfld, backingfield);
-
-                setIl.Emit(OpCodes.Nop);
-                setIl.MarkLabel(exitSet);
-                setIl.Emit(OpCodes.Ret);
-
-                propBuilder.SetSetMethod(setPropMthdBldr);
-            }
-
-
-            return propBuilder;
-        }
-
-        private static void AddAttributes(PropertyBuilder propBuilder,
-                                          IEnumerable<DasAttribute> attributes)
-        {
-            foreach (var att in attributes)
-            {
-                CustomAttributeBuilder builder;
-
-                var types = new List<Type>();
-
-                if (att.ConstructionValues is { })
-                {
-                    foreach (var cVal in att.ConstructionValues)
-                        types.Add(cVal.GetType());
-                }
-
-                var prms = types.ToArray();
-                var ctor = att.Type.GetConstructor(prms);
-
-                if (ctor == null)
-                    return;
-
-                if (att.PropertyValues.Count == 0)
-                {
-                    builder = new CustomAttributeBuilder(ctor, att.ConstructionValues!);
-                }
-
-                else
-                {
-                    var props = new List<PropertyInfo>();
-
-                    foreach (var kvp in att.PropertyValues)
-                    {
-                        var pi = att.Type.GetProperty(kvp.Key) ?? throw new TypeLoadException(kvp.Key);
-                        props.Add(pi);
-                    }
-
-                    builder = new CustomAttributeBuilder(ctor, att.ConstructionValues,
-                        props.ToArray(), att.PropertyValues.Values.ToArray());
-                }
-
-                propBuilder.SetCustomAttribute(builder);
-            }
-        }
-
-        
-
-
+        private static readonly DasAttribute[] _emptyAttributes = new DasAttribute[0];
     }
 }
 

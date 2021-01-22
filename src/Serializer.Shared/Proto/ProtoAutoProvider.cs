@@ -97,7 +97,7 @@ namespace Das.Serializer.ProtoBuf
 
                 var next = c + 1;
 
-                if (TryGetProtoFieldImpl(current, true, p => next, out var protoField))
+                if (TryGetProtoFieldImpl(current, true, _ => next, out var protoField))
                     protoFields.Add(protoField);
             }
 

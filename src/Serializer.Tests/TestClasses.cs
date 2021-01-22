@@ -561,4 +561,14 @@ namespace Serializer.Tests
             return Headline + " id: " + Id;
         }
     }
+
+    public class VersionContainer
+    {
+		public Version Version {get;set;}
+
+        public static readonly VersionContainer TestInstance = new VersionContainer
+        {
+            Version = new Version(3, 1, 4)
+        };
+    }
 }

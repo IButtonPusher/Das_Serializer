@@ -452,7 +452,7 @@ namespace Das.Serializer.ProtoBuf
 
                 il.Emit(OpCodes.Ldloc, kvp.Value);
 
-                var converter = kvp.Value.LocalType.GetMethod(nameof(List<Object>.ToArray));
+                var converter = kvp.Value.LocalType!.GetMethod(nameof(List<Object>.ToArray));
                 if (converter != null)
                     il.Emit(OpCodes.Callvirt, converter);
 

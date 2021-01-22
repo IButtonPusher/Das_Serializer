@@ -8,7 +8,6 @@ using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Das.Extensions;
-using Das.Serializer.ProtoBuf;
 
 namespace Das.Serializer.ProtoBuf
 {
@@ -106,12 +105,12 @@ namespace Das.Serializer.ProtoBuf
                     asPrimitive:
 
                     if (canSetValueInline)
-                        res = (f,
+                        res = (_,
                                s) => s.IL.Emit(OpCodes.Callvirt, field.SetMethod!);
                     else
                     {
                         var local = GetLocalForField(field);
-                        res = (f,
+                        res = (_,
                                s) => s.IL.Emit(OpCodes.Stloc, local);
                         return res;
                     }
@@ -121,7 +120,7 @@ namespace Das.Serializer.ProtoBuf
                 case ProtoFieldAction.ChildObjectCollection:
                 case ProtoFieldAction.ChildPrimitiveCollection:
                     if (canSetValueInline)
-                        res = (f,
+                        res = (_,
                                s) =>
                         {
                             if (!s.TryGetAdderForField(field, out var adder))
@@ -130,7 +129,7 @@ namespace Das.Serializer.ProtoBuf
                             s.IL.Emit(OpCodes.Callvirt, adder);
                         };
                     else
-                        res = (f,
+                        res = (_,
                                s) =>
                         {
                             var local = GetLocalForField(field);
@@ -148,7 +147,7 @@ namespace Das.Serializer.ProtoBuf
                 case ProtoFieldAction.ChildObjectArray:
                 case ProtoFieldAction.ChildPrimitiveArray:
 
-                    res = (f,
+                    res = (_,
                            s) =>
                     {
                         var local = GetLocalForField(field);
@@ -186,11 +185,11 @@ namespace Das.Serializer.ProtoBuf
                 case ProtoFieldAction.PackedArray:
 
                     if (canSetValueInline)
-                        res = (f,
+                        res = (_,
                                s) => _loadReturnValueOntoStack!(s.IL);
                     else
-                        res = (f,
-                               s) =>
+                        res = (_,
+                               _) =>
                         {
                         };
 
@@ -202,12 +201,12 @@ namespace Das.Serializer.ProtoBuf
                 case ProtoFieldAction.Dictionary:
 
                     if (canSetValueInline)
-                        res = (f,
-                               s) => LoadCurrentFieldValueToStack();
+                        res = (_,
+                               _) => LoadCurrentFieldValueToStack();
                     else
                     {
                         var local = GetLocalForField(field);
-                        res = (f,
+                        res = (_,
                                s) => s.IL.Emit(OpCodes.Ldloc, local);
                     }
 
@@ -217,7 +216,7 @@ namespace Das.Serializer.ProtoBuf
                 case ProtoFieldAction.ChildObjectArray:
                 case ProtoFieldAction.ChildPrimitiveArray:
 
-                    res = (f,
+                    res = (_,
                            s) =>
                     {
                         var loko = GetLocalForField(field);
@@ -401,7 +400,7 @@ namespace Das.Serializer.ProtoBuf
 
             var adder = baseAdd.MakeGenericMethod(field.Type);
 
-            res = (f,
+            res = (_,
                    s) =>
             {
                 s.IL.Emit(OpCodes.Callvirt, field.GetMethod);

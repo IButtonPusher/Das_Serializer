@@ -29,9 +29,17 @@ namespace Das.Serializer
             _readAsync = readAsync;
 
             JsonExpress = new JsonExpress(ObjectInstantiator, TypeManipulator,
-                TypeInferrer, stateProvider.ObjectManipulator);
-            XmlExpress = new XmlExpress(ObjectInstantiator, TypeManipulator,
-                _settings, StateProvider.XmlContext.PrimitiveScanner, TypeInferrer);
+                TypeInferrer, stateProvider.ObjectManipulator, 
+                stateProvider.JsonContext.PrimitiveScanner,
+                DynamicTypes);
+
+            //XmlExpress = new XmlExpress(ObjectInstantiator, TypeManipulator,
+            //    _settings, stateProvider.XmlContext.PrimitiveScanner, TypeInferrer);
+
+
+            XmlExpress = new XmlExpress2(ObjectInstantiator, TypeManipulator,
+                stateProvider.ObjectManipulator, stateProvider.XmlContext.PrimitiveScanner,
+                TypeInferrer, _settings, DynamicTypes);
 
             AttributeParser = new XmlPrimitiveScanner(this);
         }
@@ -91,7 +99,8 @@ namespace Das.Serializer
         private readonly Func<TextWriter, String, Task> _writeAsync;
 
         protected readonly JsonExpress JsonExpress;
-        protected readonly XmlExpress XmlExpress;
+        protected readonly BaseExpress XmlExpress;
+        //protected readonly XmlExpress2 XmlExpress2;
 
         private ISerializerSettings _settings;
         #if !NET40
@@ -131,7 +140,8 @@ namespace Das.Serializer
             using (var _ = new SafeFile(fi))
             using (TextReader tr = new StreamReader(fi.FullName))
             {
-                return await _readToEndAsync(tr);
+                var res = await _readToEndAsync(tr).ConfigureAwait(true);
+                return res;
             }
         }
 

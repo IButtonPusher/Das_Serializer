@@ -7,7 +7,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using Das.Extensions;
-using Das.Serializer.Scanners;
 
 namespace Das.Serializer.Xml
 {
@@ -18,6 +17,7 @@ namespace Das.Serializer.Xml
                           ISerializerSettings settings,
                           IStringPrimitiveScanner primitiveScanner,
                           ITypeInferrer typeInference)
+            : base(ImpossibleChar, '>')
         {
             _instantiator = instantiator;
             _types = types;
@@ -26,14 +26,17 @@ namespace Das.Serializer.Xml
             _typeInference = typeInference;
         }
 
-        public T Deserialize<T>(String xml)
+        //public sealed override T Deserialize<T>(String xml)
+        public sealed override T Deserialize<T>(String xml,
+                                                ISerializerSettings settings,
+                                                Object[] ctorValues)
         {
             var currentIndex = 0;
             var stringBuilder = new StringBuilder();
             return DeserializeImpl<T>(xml, ref currentIndex, stringBuilder);
         }
 
-        public IEnumerable<T> DeserializeMany<T>(String xml)
+        public sealed override IEnumerable<T> DeserializeMany<T>(String xml)
         {
             var currentIndex = 0;
             //skip the top level tag
@@ -428,7 +431,7 @@ namespace Das.Serializer.Xml
             return sbString.ToString();
         }
 
-        private static String GetNextString(ref Int32 currentIndex,
+        private String GetNextString(ref Int32 currentIndex,
                                             String xml,
                                             StringBuilder sbString)
         {
@@ -459,7 +462,7 @@ namespace Das.Serializer.Xml
         }
 
         [MethodImpl(256)]
-        private static void LoadNextString(ref Int32 currentIndex,
+        private void LoadNextString(ref Int32 currentIndex,
                                            String xml,
                                            StringBuilder sbString)
         {
@@ -496,7 +499,7 @@ namespace Das.Serializer.Xml
             throw new XmlException();
         }
 
-        private static Boolean TryGetNextString(ref Int32 currentIndex,
+        private Boolean TryGetNextString(ref Int32 currentIndex,
                                                 String xml,
                                                 StringBuilder sbString)
         {

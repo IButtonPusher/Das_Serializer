@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Text;
 using Das.Types;
 using Xunit;
+#pragma warning disable 8602
 
 // ReSharper disable All
 
@@ -125,7 +126,7 @@ namespace Serializer.Tests
                 nameof(TestCompositeClass.SimpleLeft) + "." +
                 nameof(SimpleClassObjectProperty.Name));
 
-            func2(ref instance2, "wiley wamboozle");
+            func2(ref instance2!, "wiley wamboozle");
             
             Assert.Equal("wiley wamboozle", inst2.SimpleLeft.Name);
         }

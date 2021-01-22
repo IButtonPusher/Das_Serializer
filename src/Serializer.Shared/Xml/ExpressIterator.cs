@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
@@ -43,7 +42,7 @@ namespace Das.Serializer.Xml
                         stringBuilder.GetConsumingString(), typeof(T), true);
                     if (current is T good)
                         yield return good;
-                    else throw new InvalidOleVariantTypeException();
+                    else throw new InvalidOperationException();
                 }
                 else if (_typeInference.HasEmptyConstructor(typeof(T)))
                 {

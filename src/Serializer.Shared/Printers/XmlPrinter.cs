@@ -136,15 +136,21 @@ namespace Das.Printers
 
                 if (isWrapping)
                 {
-                    //embed type info
-                    var typeName = _stateProvider.TypeInferrer.ToClearName(valType, false);
-                    typeName = SecurityElement.Escape(typeName);
+                    var amAnonymous = IsAnonymousType(valType);
 
-                    Writer.Append(" ", Const.XmlType);
+                    if (!amAnonymous)
+                    {
+                        //embed type info
+                        var typeName = _stateProvider.TypeInferrer.ToClearName(valType, false);
 
-                    Writer.Append(Const.Equal, Const.StrQuote);
-                    // ReSharper disable once AssignNullToNotNullAttribute
-                    Writer.Append(typeName, Const.StrQuote);
+                        typeName = SecurityElement.Escape(typeName);
+
+                        Writer.Append(" ", Const.XmlType);
+
+                        Writer.Append(Const.Equal, Const.StrQuote);
+                        // ReSharper disable once AssignNullToNotNullAttribute
+                        Writer.Append(typeName, Const.StrQuote);
+                    }
 
                     if (nodeType == NodeTypes.Primitive || nodeType == NodeTypes.Fallback)
                     {

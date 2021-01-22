@@ -54,42 +54,42 @@ namespace Das.Serializer.ProtoBuf
             return default;
         }
 
-        private MethodInfo? GetScanAndAddPackedMethod(Type fieldType)
-        {
-            if (!fieldType.IsGenericType || !_types.IsCollection(fieldType))
-                return null;
+        //private MethodInfo? GetScanAndAddPackedMethod(Type fieldType)
+        //{
+        //    if (!fieldType.IsGenericType || !_types.IsCollection(fieldType))
+        //        return null;
 
-            var germane = _types.GetGermaneType(fieldType);
-            var iColl = typeof(ICollection<>).MakeGenericType(germane);
-            if (!iColl.IsAssignableFrom(fieldType))
-                return null;
+        //    var germane = _types.GetGermaneType(fieldType);
+        //    var iColl = typeof(ICollection<>).MakeGenericType(germane);
+        //    if (!iColl.IsAssignableFrom(fieldType))
+        //        return null;
 
-            MethodInfo? baseAdd;
+        //    MethodInfo? baseAdd;
 
 
-            switch (Type.GetTypeCode(germane))
-            {
-                case TypeCode.Int16:
-                    baseAdd = typeof(ProtoDynamicBase).GetMethodOrDie(
-                        nameof(ProtoDynamicBase.AddPacked16));
-                    break;
+        //    switch (Type.GetTypeCode(germane))
+        //    {
+        //        case TypeCode.Int16:
+        //            baseAdd = typeof(ProtoDynamicBase).GetMethodOrDie(
+        //                nameof(ProtoDynamicBase.AddPacked16));
+        //            break;
 
-                case TypeCode.Int32:
-                    baseAdd = typeof(ProtoDynamicBase).GetMethodOrDie(
-                        nameof(ProtoDynamicBase.AddPacked32));
-                    break;
+        //        case TypeCode.Int32:
+        //            baseAdd = typeof(ProtoDynamicBase).GetMethodOrDie(
+        //                nameof(ProtoDynamicBase.AddPacked32));
+        //            break;
 
-                case TypeCode.Int64:
-                    baseAdd = typeof(ProtoDynamicBase).GetMethodOrDie(
-                        nameof(ProtoDynamicBase.AddPacked64));
-                    break;
+        //        case TypeCode.Int64:
+        //            baseAdd = typeof(ProtoDynamicBase).GetMethodOrDie(
+        //                nameof(ProtoDynamicBase.AddPacked64));
+        //            break;
 
-                default:
-                    return null;
-            }
+        //        default:
+        //            return null;
+        //    }
 
-            return baseAdd.MakeGenericMethod(fieldType);
-        }
+        //    return baseAdd.MakeGenericMethod(fieldType);
+        //}
 
         private void PrintAsPackedArray(ProtoPrintState s)
         {

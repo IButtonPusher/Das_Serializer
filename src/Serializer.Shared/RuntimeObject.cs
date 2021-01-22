@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Das.Serializer
 {
@@ -25,6 +24,16 @@ namespace Das.Serializer
             Properties = new Dictionary<String, RuntimeObject>();
         }
 
+        public RuntimeObject(Object primitiveValue)
+            : this()
+        {
+            PrimitiveValue = primitiveValue;
+        }
+
+        public Type GetObjectType() => PrimitiveValue != null
+            ? PrimitiveValue.GetType()
+            : Const.ObjectType;
+
         public RuntimeObject? this[String key]
         {
             get
@@ -34,6 +43,14 @@ namespace Das.Serializer
 
                 return default;
             }
+        }
+
+        public override string ToString()
+        {
+            if (PrimitiveValue is { } p)
+                return p.ToString();
+
+            return GetType().Name + " - " + Properties.Count + " properties";
         }
 
         public Dictionary<String, RuntimeObject> Properties { get; }

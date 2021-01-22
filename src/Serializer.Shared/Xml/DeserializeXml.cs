@@ -15,7 +15,7 @@ namespace Das.Serializer
         public Object FromXml(String xml)
         {
             #if ALWAYS_EXPRESS
-            return XmlExpress.Deserialize<Object>(xml);
+            return XmlExpress.Deserialize<Object>(xml, Settings, _empty);
             #else
             return _FromXml<Object>(xml);
             #endif
@@ -24,7 +24,7 @@ namespace Das.Serializer
         public T FromXml<T>(String xml)
         {
             #if ALWAYS_EXPRESS
-            return XmlExpress.Deserialize<T>(xml);
+            return XmlExpress.Deserialize<T>(xml, Settings, _empty);
             #else
             return _FromXml<T>(xml);
             #endif
@@ -32,7 +32,7 @@ namespace Das.Serializer
 
         public T FromXmlEx<T>(String xml)
         {
-            return XmlExpress.Deserialize<T>(xml);
+            return XmlExpress.Deserialize<T>(xml, Settings, _empty);
         }
 
         public IEnumerable<T> FromXmlItems<T>(String xml)
@@ -45,7 +45,7 @@ namespace Das.Serializer
             var txt = await GetTextFromFileInfoAsync(file);
 
             #if ALWAYS_EXPRESS
-            return XmlExpress.Deserialize<T>(txt);
+            return XmlExpress.Deserialize<T>(txt, Settings, _empty);
             #else
                 var arr = txt.ToCharArray();
                 return _FromXml<T>(arr);

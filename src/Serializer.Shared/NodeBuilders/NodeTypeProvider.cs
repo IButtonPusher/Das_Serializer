@@ -7,7 +7,8 @@ namespace Das.Serializer
 {
     public class NodeTypeProvider : TypeCore, INodeTypeProvider
     {
-        public NodeTypeProvider(ITypeCore typeCore, ISerializerSettings settings)
+        public NodeTypeProvider(ITypeCore typeCore,
+                                ISerializerSettings settings)
             : base(settings)
         {
             _cachedNodeTypes = new ConcurrentDictionary<Type, NodeTypes>();
@@ -15,12 +16,13 @@ namespace Das.Serializer
         }
 
 
-        public NodeTypes GetNodeType(INode node, SerializationDepth depth)
+        public NodeTypes GetNodeType(INode node,
+                                     SerializationDepth depth)
         {
             return GetNodeType(node.Type, depth);
         }
 
-        public NodeTypes GetNodeType(Type? type, 
+        public NodeTypes GetNodeType(Type? type,
                                      SerializationDepth depth)
         {
             if (type == null)
@@ -30,32 +32,22 @@ namespace Das.Serializer
                 return output;
 
             if (_types.IsLeaf(type, true))
-            {
                 output = NodeTypes.Primitive;
-            }
 
             else if (!_types.IsInstantiable(type))
-            {
                 output = type == typeof(Type)
                     ? NodeTypes.Fallback
                     : NodeTypes.Dynamic;
-            }
 
             else if (_types.IsCollection(type))
-            {
                 output = NodeTypes.Collection;
-            }
 
             else if (_types.HasSettableProperties(type))
-            {
                 output = NodeTypes.Object;
-            }
 
             else if (type.IsSerializable && !type.IsGenericType &&
                      !typeof(IStructuralEquatable).IsAssignableFrom(type))
-            {
                 output = NodeTypes.Fallback;
-            }
             else
             {
                 if (_types.TryGetNullableType(type, out _))

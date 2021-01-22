@@ -12,22 +12,25 @@ namespace Das.Serializer
         /// <summary>
         ///     Gets a dynamic type in a wrapper that allows for properties to be accessed quickly
         /// </summary>
-        IPropertyType GetDynamicType(String typeName, 
+        IPropertyType GetDynamicType(String typeName,
                                      IEnumerable<DasProperty> properties,
-                                    Boolean isCreatePropertyDelegates, 
+                                     Boolean isCreatePropertyDelegates,
                                      IEnumerable<EventInfo> events,
-                                    IDictionary<MethodInfo, MethodInfo> methodReplacements, 
+                                     IDictionary<MethodInfo, MethodInfo> methodReplacements,
                                      params Type[] parentTypes);
 
-        Type GetDynamicType(String typeName, 
+        Type GetDynamicType(String typeName,
                             IDictionary<MethodInfo, MethodInfo> methodReplacements,
-                            IEnumerable<DasProperty> properties, 
+                            IEnumerable<DasProperty> properties,
                             IEnumerable<EventInfo> events,
                             params Type[] parentTypes);
 
-        Boolean TryGetDynamicType(String clearName, out Type? type);
+        Object BuildDynamicObject(RuntimeObject robj);
 
-        Boolean TryGetFromAssemblyQualifiedName(String assemblyQualified, 
+        Boolean TryGetDynamicType(String clearName,
+                                  out Type? type);
+
+        Boolean TryGetFromAssemblyQualifiedName(String assemblyQualified,
                                                 out Type type);
     }
 }

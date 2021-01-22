@@ -2,14 +2,20 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Das.Serializer.Concurrency;
 
 namespace Das.Serializer
 {
     /// <summary>
     /// Creates a system wide mutex on a string based on the file's name
     /// </summary>
-    public class SafeFile : IDisposable
+    public class SafeFile :  IDisposable
     {
+        static SafeFile()
+        {
+            _staScheduler = new StaScheduler("SafeFile synchronization");
+        }
+
         public SafeFile(FileInfo fi)
         {
             if (fi.DirectoryName == null)
@@ -21,14 +27,18 @@ namespace Das.Serializer
             _protector = new Mutex(false, fi.FullName.Replace(
                 Path.DirectorySeparatorChar, '_'));
 
-            _protector.WaitOne();
+            _staScheduler.Invoke(() => _protector.WaitOne());
+
+            //var doth = _protector.WaitOne();
         }
 
         public void Dispose()
         {
-            _protector.ReleaseMutex();
+            _staScheduler.Invoke(() => _protector.ReleaseMutex());
+            //_protector.ReleaseMutex();
         }
 
         private readonly Mutex _protector;
+        private static readonly StaScheduler _staScheduler;
     }
 }

@@ -12,6 +12,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Attributes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Binary\DeserializeBinary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Binary\SerializeBinary.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Concurrency\ExclusiveSynchronizationContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Concurrency\InvocationBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Concurrency\StaScheduler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Const.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CoreNumeric.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DasCoreSerializer.cs" />
@@ -21,6 +24,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Files\SafeFile.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Json\DeserializeJson.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Json\JsonExpress.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Json\JsonExpress2.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Json\SerializeJson.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NaiveMemoryStream.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DasSerializer.cs" />
@@ -73,6 +77,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\StringSaver.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RuntimeObject.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\BaseExpress.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Scanners\BaseExpress2.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\BaseNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\BinaryNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\BinaryPrimitiveScanner.cs" />
@@ -81,6 +86,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\JsonScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\NullAttributeValueSurrogates.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\NullNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Scanners\NodeScanState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\StringPrimitiveScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\TextNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\TextScanner.cs" />
@@ -131,5 +137,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Xml\ExpressIterator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xml\SerializeXml.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xml\XmlExpress.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xml\XmlExpress2.cs" />
   </ItemGroup>
 </Project>

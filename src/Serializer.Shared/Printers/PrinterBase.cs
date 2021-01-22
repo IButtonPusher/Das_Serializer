@@ -8,12 +8,13 @@ using Das.Serializer;
 
 namespace Das.Printers
 {
-    public abstract class PrinterBase : ISerializationDepth
+    public abstract class PrinterBase : TypeCore, ISerializationDepth
     {
         protected PrinterBase(ISerializationState stateProvider,
                               ISerializerSettings settings)
+        : base(settings)
         {
-            Settings = settings;
+            //Settings = settings;
             _stateProvider = stateProvider;
             _typeInferrer = stateProvider.TypeInferrer;
             _nodeTypes = stateProvider.ScanNodeProvider.TypeProvider;
@@ -46,7 +47,7 @@ namespace Das.Printers
 
         public abstract Boolean IsRespectXmlIgnore { get; }
 
-        public ISerializerSettings Settings { get; }
+        //public ISerializerSettings Settings { get; }
 
 
         /// <summary>

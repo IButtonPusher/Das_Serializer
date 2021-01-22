@@ -164,6 +164,20 @@ namespace Serializer.Tests.Json
         }
 
         [Fact]
+        public void VersionJson()
+        {
+            var v = VersionContainer.TestInstance;
+            var std = new DasSerializer();
+            var json = std.ToJson(v);
+			
+            var v2 = std.FromJson<VersionContainer>(json);
+
+            var areEqual = SlowEquality.AreEqual(v, v2);
+
+            Assert.True(areEqual);
+        }
+
+        [Fact]
         public void ExplicitlyNullResult()
         {
             var json = "{\"id\":25,\"result\":null}";
@@ -319,6 +333,20 @@ namespace Serializer.Tests.Json
             var json = srl.ToJson(obj);
             var yeti = Serializer.FromJson(json, obj.GetType());
             Assert.Equal(obj, yeti);
+        }
+
+        [Fact]
+        public void GdiColorInferredJson()
+        {
+            Serializer.Settings.NotFoundBehavior = TypeNotFound.ThrowException;
+
+            var clr = Color.Purple;
+            Serializer.Settings.TypeSpecificity = TypeSpecificity.All;
+            var json = Serializer.ToJson(clr);
+            var diesel = Serializer.FromJson(json);
+            var yeti = (Color)diesel;
+            Serializer.Settings.TypeSpecificity = TypeSpecificity.Discrepancy;
+            Assert.True(clr.R == yeti.R && clr.G == yeti.G && clr.B == yeti.B);
         }
 
         ////[TestCategory("json"), TestMethod]

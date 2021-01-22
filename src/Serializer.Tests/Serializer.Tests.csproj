@@ -83,6 +83,8 @@
     <Compile Include="TestClasses.cs" />
     <Compile Include="TypeTests.cs" />
     <Compile Include="XmlTests.cs" />
+    <Compile Include="Xml\SvgDocument.cs" />
+    <Compile Include="Xml\SvgPath.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet">
@@ -108,13 +110,16 @@
   <ItemGroup>
     <None Include="Serializer.Tests.ruleset" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="Xml\cog.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
   <ItemGroup>
     <None Include="Xml\Headlines.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  
   <Import Project="..\Interfaces.Shared\Interfaces.Shared.projitems" Label="Shared" />
   <Import Project="..\Serializer.Shared\Serializer.Shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

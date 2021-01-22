@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Das.Serializer.ProtoBuf;
 
 namespace Das.Serializer.ProtoBuf
 {

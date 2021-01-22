@@ -142,7 +142,7 @@ namespace Das.Serializer.ProtoBuf
         {
             var local = _il.DeclareLocal(typeof(NaiveMemoryStream));
 
-            _typeCore.TryGetEmptyConstructor(local.LocalType, out var ctor);
+            _typeCore.TryGetEmptyConstructor(local.LocalType!, out var ctor);
             _il.Emit(OpCodes.Newobj, ctor);
             _il.Emit(OpCodes.Stloc, local);
 

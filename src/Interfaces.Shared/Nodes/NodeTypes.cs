@@ -19,6 +19,7 @@ namespace Das.Serializer
         ///     have to use default serialization for binary and string methods for text
         /// </summary>
         PropertiesToConstructor,
-        Dynamic
+        Dynamic,
+        StringConvertible
     }
 }

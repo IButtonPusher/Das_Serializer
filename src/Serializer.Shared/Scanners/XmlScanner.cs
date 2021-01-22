@@ -23,8 +23,14 @@ namespace Das.Serializer
                 CurrentTagName == Const.WutXml)
                 ClearCurrents();
 
+            if (CurrentNode.Name.StartsWith("!"))
+                CurrentNode = CurrentNode.Parent;
+
 
             OpenNode();
+
+            //if (CurrentNode.Name.StartsWith("!"))
+            //    CurrentNode = CurrentNode.Parent;
         }
 
         private void ClearCurrents()

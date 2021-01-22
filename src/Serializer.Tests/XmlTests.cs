@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Xml;
 using Xunit;
 #pragma warning disable 8602
@@ -17,8 +18,7 @@ namespace Serializer.Tests.Xml
 {	
 	public class XmlTests : TestBase
 	{
-		////[TestCategory("primitive"), TestCategory("xml"), TestMethod]
-		[Fact]
+        [Fact]
 		public void IntExplicitXml()
         {
 			var someInt = 55;
@@ -29,8 +29,7 @@ namespace Serializer.Tests.Xml
 			Assert.True(someInt == int2);
 		}
 
-		////[TestCategory("primitive"), TestCategory("xml"), TestMethod]
-		[Fact]
+        [Fact]
 		public void Int32asInt16Xml()
 		{
 			var someInt = 55;
@@ -131,6 +130,22 @@ namespace Serializer.Tests.Xml
         }
 
         [Fact]
+        public async Task SvgTestAsync()
+        {
+            var settings = DasSettings.Default;
+            settings.IsPropertyNamesCaseSensitive = false;
+            var srl = new DasSerializer(settings);
+            var fi = new FileInfo(Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory,
+                "Xml",
+                "cog.svg"));
+            var doc = await srl.FromXmlAsync<SvgDocument>(fi);
+
+			Assert.NotNull(doc.Path);
+
+        }
+
+        [Fact]
 		public void ObjectReferenceTypeXml()
 		{
 			var sc = SimpleClassObjectProperty.GetNullPayload();
@@ -224,9 +239,7 @@ namespace Serializer.Tests.Xml
             }
 		}
 
-
-		//[TestCategory("array"), TestCategory("xml"), TestCategory("collections"), TestMethod]
-		[Fact]
+        [Fact]
 		public void ClassWithPrimitiveArrayXml()
 		{
 			var mc1 = PrimitiveArray.Get();
@@ -236,8 +249,7 @@ namespace Serializer.Tests.Xml
 			Assert.True(mc1.StringArray.SequenceEqual(res.StringArray));
 		}
 
-		//[TestCategory("array"), TestCategory("xml"), TestCategory("collections"), TestMethod]
-		[Fact]
+        [Fact]
 		public void ClassWithObjectArrayXml()
 		{
 			var arr1 = ObjectArray.Get();
@@ -250,8 +262,7 @@ namespace Serializer.Tests.Xml
 			
 		}
 
-		//[TestCategory("fallback"), TestCategory("xml"), TestMethod]
-		[Fact]
+        [Fact]
 		public void TimespanXml()
 		{
 			var dyn = new
@@ -267,8 +278,7 @@ namespace Serializer.Tests.Xml
 			//Assert.True(dyn.StartedAt == int2);
 		}
 
-		//[TestCategory("list"), TestCategory("xml"), TestCategory("collections"), TestMethod]
-		[Fact]
+        [Fact]
 		public void ListsXml()
 		{
 			var list1 = ObjectList.Get();
@@ -353,10 +363,10 @@ namespace Serializer.Tests.Xml
             var xml = Serializer.ToXml(user);
 
             var user2 = Serializer.FromXml<User>(xml);
-            var user3 = Serializer.FromXmlEx<User>(xml);
+            //var user3 = Serializer.FromXmlEx<User>(xml);
 
-			var res = SlowEquality.AreEqual(user, user2) && 
-                      SlowEquality.AreEqual(user3, user2);
+            var res = SlowEquality.AreEqual(user, user2);
+                      //&& SlowEquality.AreEqual(user3, user2);
 			Assert.True(res);
         }
 
@@ -371,8 +381,7 @@ namespace Serializer.Tests.Xml
                 });
         }
 
-		//[TestCategory("dictionary"), TestCategory("xml"), TestMethod]
-		[Fact]
+        [Fact]
 		public void ClassWithDictionaryXml()
 		{
 
@@ -382,17 +391,15 @@ namespace Serializer.Tests.Xml
 			var xml = Serializer.ToXml(mc1);
 
 			var mc2 = Serializer.FromXml<ObjectDictionary>(xml);
-			
 
-			if (mc1 == null || mc2 == null)
+            if (mc1 == null || mc2 == null)
 				Assert.False(true);
 			if (mc1.Dic.Count != mc2.Dic.Count)
 				Assert.False(true);
 			Assert.True(Serializer.ToXml(mc2) == xml);
 		}
 
-		//[TestCategory("dictionary"), TestCategory("xml"), TestMethod]
-		[Fact]
+        [Fact]
 		public void ConcurrentDictionaryXml()
 		{
 
@@ -409,8 +416,7 @@ namespace Serializer.Tests.Xml
 			Assert.True(Serializer.ToXml(mc2) == xml);
 		}
 
-		//[TestCategory("dictionary"), TestCategory("xml"), TestMethod]
-		[Fact]
+        [Fact]
 		public void EmptyDictionaryXml()
 		{
 
@@ -447,14 +453,15 @@ namespace Serializer.Tests.Xml
         [Fact]
 		public void VersionXml()
 		{
-			var v = new Version(3, 1, 4);
+            var v = VersionContainer.TestInstance;
 			var std = new DasSerializer();
 			var xml = std.ToXml(v);
 			
-			var v2 = std.FromXml<Version>(xml);
-			
+			var v2 = std.FromXml<VersionContainer>(xml);
 
-			Assert.True(v == v2);
+            var areEqual = SlowEquality.AreEqual(v, v2);
+
+            Assert.True(areEqual);
 		}
 
         [Fact]
