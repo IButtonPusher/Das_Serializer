@@ -76,7 +76,7 @@ namespace Das.Printers
                 return; 
 
             if (!_isIgnoreCircularDependencies)
-                PushStack(node.Name);
+                PushStack("/" + node.Name);
 
             try
             {

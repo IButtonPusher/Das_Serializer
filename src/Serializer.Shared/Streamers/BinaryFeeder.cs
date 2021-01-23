@@ -164,7 +164,7 @@ namespace Das.Streamers
             if (str == null)
                 throw new InvalidOperationException();
 
-            var typeName = _typeInferrer.GetTypeFromClearName(str);
+            var typeName = _typeInferrer.GetTypeFromClearName(str, true);
 
             return typeName;
         }

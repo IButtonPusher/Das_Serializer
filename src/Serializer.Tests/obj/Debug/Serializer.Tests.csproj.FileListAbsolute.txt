@@ -158,3 +158,4 @@ E:\src\Das\Serializer\src\Serializer.Tests\obj\Debug\Serializer.Tests.csproj.Cop
 E:\src\Das\Serializer\src\Serializer.Tests\obj\Debug\Serializer.Tests.dll
 E:\src\Das\Serializer\src\Serializer.Tests\obj\Debug\Serializer.Tests.pdb
 E:\src\Das\Serializer\src\Serializer.Tests\bin\Debug\Xml\cog.svg
+E:\src\Das\Serializer\src\Serializer.Tests\obj\Debug\Serializer.Tests.csprojAssemblyReference.cache

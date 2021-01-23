@@ -17,7 +17,7 @@ namespace Das.Serializer.Xml
                           ISerializerSettings settings,
                           IStringPrimitiveScanner primitiveScanner,
                           ITypeInferrer typeInference)
-            : base(ImpossibleChar, '>')
+            : base(ImpossibleChar, '>', types)
         {
             _instantiator = instantiator;
             _types = types;

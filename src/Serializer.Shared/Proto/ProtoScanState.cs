@@ -133,7 +133,7 @@ namespace Das.Serializer.ProtoBuf
                                s) =>
                         {
                             var local = GetLocalForField(field);
-                            if (!_types.TryGetAddMethod(local.LocalType, out var adder))
+                            if (!_types.TryGetAddMethod(local.LocalType!, out var adder))
                                 throw new NotSupportedException();
 
                             s.IL.Emit(OpCodes.Callvirt, adder);
@@ -151,7 +151,7 @@ namespace Das.Serializer.ProtoBuf
                            s) =>
                     {
                         var local = GetLocalForField(field);
-                        if (!_types.TryGetAddMethod(local.LocalType, out var adder))
+                        if (!_types.TryGetAddMethod(local.LocalType!, out var adder))
                             throw new NotSupportedException();
 
                         s.IL.Emit(OpCodes.Callvirt, adder);
@@ -302,7 +302,7 @@ namespace Das.Serializer.ProtoBuf
                 fieldType = useLocal.LocalType;
             }
 
-            return _types.TryGetAddMethod(fieldType, out adder);
+            return _types.TryGetAddMethod(fieldType!, out adder);
         }
 
         private void AddKeyValuePair(IProtoFieldAccessor pv,

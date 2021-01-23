@@ -24,7 +24,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Files\SafeFile.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Json\DeserializeJson.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Json\JsonExpress.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Json\JsonExpress2.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Json\SerializeJson.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NaiveMemoryStream.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DasSerializer.cs" />
@@ -134,9 +133,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Types\TypeManipulator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Util.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xml\DeserializeXml.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Xml\ExpressIterator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xml\SerializeXml.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Xml\XmlExpress.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xml\XmlExpress2.cs" />
   </ItemGroup>
 </Project>

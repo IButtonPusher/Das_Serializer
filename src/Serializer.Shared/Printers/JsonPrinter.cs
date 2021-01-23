@@ -33,7 +33,15 @@ namespace Das.Printers
                 return;
 
             if (!_isIgnoreCircularDependencies)
-                PushStack(String.IsNullOrWhiteSpace(name) ? Const.Root : name);
+            {
+                if (!String.IsNullOrWhiteSpace(name))
+                    PushStack(name);
+                else if (node.Type?.FullName != null)
+                    PushStack(node.Type.FullName);
+                else
+                    PushStack(Const.Root);
+                //PushStack(String.IsNullOrWhiteSpace(name) ? Const.Root : name);
+            }
 
             try
             {

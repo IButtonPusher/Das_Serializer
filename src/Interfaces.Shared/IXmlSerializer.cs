@@ -53,7 +53,7 @@ namespace Das.Serializer
         ///     already exist
         /// </summary>
         Task ToXmlAsync(Object o,
-                   FileInfo file);
+                        FileInfo file);
 
         /// <summary>
         ///     Tries to ensure no empty files if the process cuts off during invocation.
@@ -63,9 +63,9 @@ namespace Das.Serializer
         ///     with a FileStream
         /// </summary>
         Task ToXmlAsync<TTarget>(Object o,
-                            FileInfo fileName);
+                                 FileInfo fileName);
 
         Task ToXmlAsync<TObject>(TObject o,
-                            FileInfo fileName);
+                                 FileInfo fileName);
     }
 }

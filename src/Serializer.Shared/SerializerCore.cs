@@ -25,7 +25,7 @@ namespace Das.Serializer
 
             Surrogates = dynamicFacade.Surrogates is ConcurrentDictionary<Type, Type> conc
                 ? conc
-                : new ConcurrentDictionary<Type, Type>(Surrogates);
+                : new ConcurrentDictionary<Type, Type>(dynamicFacade.Surrogates);
         }
 
         public ITextParser TextParser { get; }

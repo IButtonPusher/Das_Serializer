@@ -223,8 +223,6 @@ namespace Das.Printers
             PrintNode(prop);
 
             prop.Dispose();
-
-            //return printed;
         }
 
         /// <summary>

@@ -211,8 +211,8 @@ namespace Das.Types
                 }
 
                 var created = typeBuilder.CreateType() ?? throw new TypeLoadException(typeName);
-                _createdTypes.AddOrUpdate(typeName, created, (k,
-                                                              v) => created);
+                _createdTypes.AddOrUpdate(typeName, created, (_,
+                                                              _) => created);
                 return created;
             }
         }
@@ -315,7 +315,7 @@ namespace Das.Types
                         props.Add(pi);
                     }
 
-                    builder = new CustomAttributeBuilder(ctor, att.ConstructionValues,
+                    builder = new CustomAttributeBuilder(ctor, att.ConstructionValues!,
                         props.ToArray(), att.PropertyValues.Values.ToArray());
                 }
 

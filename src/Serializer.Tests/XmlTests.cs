@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -124,6 +125,7 @@ namespace Serializer.Tests.Xml
             foreach (var a in srl.FromXmlItems<ValueArticleDto>(xml))
             {
                 count++;
+				Debug.WriteLine(a.Headline);
             }
 
 			Assert.True(count == 100);
@@ -160,16 +162,18 @@ namespace Serializer.Tests.Xml
             //    Assert.True(SlowEquality.AreEqual(sc, sc2, ref badProp));
             //}
 
-            {
+            
                 var srl = new DasSerializer();
                 var xml = srl.ToXml(sc);
 
                 var sc2 = srl.FromXml<SimpleClassObjectProperty>(xml);
                 var badProp = "";
                 Assert.True(SlowEquality.AreEqual(sc, sc2, ref badProp));
-            }
-
-           
+            
+            sc = SimpleClassObjectProperty.GetStringPayload();
+            xml = srl.ToXml(sc);
+            sc2 = srl.FromXml<SimpleClassObjectProperty>(xml);
+            Assert.True(SlowEquality.AreEqual(sc, sc2, ref badProp));
         }
 
         [Fact]

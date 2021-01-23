@@ -24,9 +24,10 @@ namespace Serializer.Benchmarks
 #endif
 #if !DEBUG
             if (args == null || args.Length == 0)
+            //if (false)
             {
-                BenchmarkRunner.Run<JsonBenchmarks>();
-                //BenchmarkRunner.Run<ProtoBufTests>();
+                //BenchmarkRunner.Run<JsonBenchmarks>();
+                BenchmarkRunner.Run<ProtoBufTests>();
             }
             else
                RunManyTimes();

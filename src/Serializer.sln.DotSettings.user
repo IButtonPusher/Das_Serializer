@@ -16,6 +16,11 @@
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=4ddb6ac1_002Df87a_002D4d68_002D8203_002De53414b1f150/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="All tests from &amp;lt;Serializer.Tests&amp;gt;" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;Project Location="E:\src\Das\Serializer\Serializer.Tests" Presentation="&amp;lt;Serializer.Tests&amp;gt;" /&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=ca8a0cab_002D2f7a_002D4e9b_002D9f02_002D9d93150bfdba/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="ObjectReferenceTypeXml" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;xUnit::ECB2B428-C066-4D2B-B891-711B83951C65::.NETFramework,Version=v4.8::Serializer.Tests.Xml.XmlTests.ObjectReferenceTypeXml&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=ed4dc2c9_002D139f_002D4a09_002Db770_002Dce1c3eb3ca69/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="ClassWithPrimitiveArrayJson" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;xUnit::ECB2B428-C066-4D2B-B891-711B83951C65::.NETFramework,Version=v4.8::Serializer.Tests.JsonTests&lt;/TestId&gt;&#xD;

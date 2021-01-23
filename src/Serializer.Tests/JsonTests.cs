@@ -107,7 +107,7 @@ namespace Serializer.Tests.Json
         }
 
         [Fact]
-        public void CircularReferencesjson()
+        public void CircularReferencesJson()
         {
             var test = Teacher.Get();
             var srl = new DasSerializer();

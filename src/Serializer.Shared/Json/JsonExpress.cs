@@ -19,7 +19,7 @@ namespace Das.Serializer.Json
                            IObjectManipulator objectManipulator,
                            IStringPrimitiveScanner stringPrimitiveScanner,
                            IDynamicTypes dynamicTypes)
-        : base(']', '}')
+        : base(']', '}', types)
         {
             _instantiator = instantiator;
             _types = types;
@@ -330,7 +330,7 @@ namespace Das.Serializer.Json
                         case Const.TypeWrap:
                             stringBuilder.Clear();
                             var typeName = GetNextString(ref currentIndex, json, stringBuilder);
-                            type = _typeInference.GetTypeFromClearName(typeName) ??
+                            type = _typeInference.GetTypeFromClearName(typeName, true) ??
                                    throw new TypeLoadException(typeName);
                             stringBuilder.Clear();
                             continue;

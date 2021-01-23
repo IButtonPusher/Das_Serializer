@@ -241,7 +241,7 @@ namespace Das.Serializer
                 if (!doCache)
                     return result;
 
-                return collection.AddOrUpdate(type, result, (k,
+                return collection.AddOrUpdate(type, result, (_,
                                                              v) => v.Depth > result.Depth ? v : result);
             }
         }

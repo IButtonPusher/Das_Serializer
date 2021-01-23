@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
-using Das.Extensions;
 using Das.Serializer.Scanners;
 
 namespace Das.Serializer.Xml
 {
     public class XmlExpress2 : BaseExpress2
     {
+        private readonly ISerializerSettings _settings;
+
         public XmlExpress2(IInstantiator instantiator,
                            ITypeManipulator types,
                            IObjectManipulator objectManipulator,
@@ -20,46 +19,55 @@ namespace Das.Serializer.Xml
                            ISerializerSettings settings,
                            IDynamicTypes dynamicTypes)
             : base(instantiator, objectManipulator, typeInference, types, primitiveScanner, 
-                dynamicTypes,
-                '<', '>', ImpossibleChar, Const.XmlType, Const.RefTag,
-                new[] {'"', '<', 'n'}, 
-                new[] {'<', 'n'},
+                dynamicTypes, '>', ImpossibleChar, Const.XmlType, Const.RefTag,
                 new[] {'"', '>'})
         {
-            _lolCopter = new XmlExpress(instantiator, types, settings, primitiveScanner, typeInference);
+            _settings = settings;
+          //  _lolCopter = new XmlExpress(instantiator, types, settings, primitiveScanner, typeInference);
         }
 
-        private readonly XmlExpress _lolCopter;
+        //private readonly XmlExpress _lolCopter;
 
         public sealed override IEnumerable<T> DeserializeMany<T>(String xml)
         {
-            //todo: yeah...
-            return _lolCopter.DeserializeMany<T>(xml);
-        }
+            var currentIndex = 0;
+            var nodeScanState = NodeScanState.None;
 
-        protected override void AdvanceUntilFieldStart(ref Int32 currentIndex,
-                                                       String txt)
-        {
-            if (AdvanceUntilAny(_fieldStartChars, ref currentIndex, txt) == '>')
+            var stringBuilder = new StringBuilder();
+            AdvanceScanStateToNodeOpened(xml, ref currentIndex, stringBuilder, ref nodeScanState);
+
+            while (true)
             {
-                currentIndex++;
-                SkipWhiteSpace(ref currentIndex, txt);
+                SkipWhiteSpace(ref currentIndex, xml);
+
+                if (!IsCollectionHasMoreItems(ref currentIndex, xml))
+                    break;
+
+                var noneState = NodeScanState.None;
+
+                var current = DeserializeNode(xml, ref currentIndex, stringBuilder, typeof(T), _settings,
+                    _emptyCtorValues, ref noneState, null, null, null);
+
+                if (current is T good)
+                    yield return good;
+                else
+                {}
             }
 
-            //if (!AdvanceUntil('"', ref currentIndex, txt))
-            //    throw new InvalidOperationException();
+            //todo: yeah...
+            //return _lolCopter.DeserializeMany<T>(xml);
         }
 
         protected sealed override void AdvanceUntilEndOfNode(ref Int32 currentIndex,
-                                                      String txt)
+                                                             String txt)
         {
             AdvanceUntil('>', ref currentIndex, txt);
             currentIndex++;
         }
 
-        protected override void LoadNextStringValue(ref Int32 currentIndex,
-                                                    String txt,
-                                                    StringBuilder stringBuilder)
+        protected virtual void LoadNextStringValue(ref Int32 currentIndex,
+                                                   String txt,
+                                                   StringBuilder stringBuilder)
         {
             switch (txt[currentIndex])
             {
@@ -96,9 +104,6 @@ namespace Das.Serializer.Xml
                         break;
                 }
             }
-
-            //_primitiveScanner.GetValue(stringBuilder.ToString(),
-            //    prop.PropertyType, true)
         }
 
         protected override void LoadNextPrimitive(ref Int32 currentIndex,
@@ -153,38 +158,18 @@ namespace Das.Serializer.Xml
             //    prop.PropertyType, true)
         }
 
-        protected override bool InitializeCollection(ref Int32 currentIndex,
-                                                     String xml,
-                                                     StringBuilder stringBuilder)
-        {
-            AdvanceUntil('<', ref currentIndex, xml);
-            //currentIndex++;
-            //GetUntil(ref currentIndex, xml, stringBuilder, '>'); //opening tag
-
-            return true;
-
-        }
-
         protected sealed override NodeTypes GetNodeInstanceType(ref Int32 currentIndex,
-                                                         String txt,
-                                                         StringBuilder stringBuilder,
-                                                         ref Type? specifiedType,
-                                                         ref NodeScanState nodeScanState)
+                                                                String txt,
+                                                                StringBuilder stringBuilder,
+                                                                ref Type? specifiedType,
+                                                                ref NodeScanState nodeScanState)
         {
             if (nodeScanState == NodeScanState.JustOpened)
             {
                 AdvanceScanState(txt, ref currentIndex, stringBuilder, ref nodeScanState);
                 stringBuilder.Clear();
             }
-            //if (nodeScanState == NodeScanState.EndOfNodeOpen)
-            //{
-            //    specifiedType = _typeInference.GetTypeFromClearName(stringBuilder.GetConsumingString());
-            //    if (specifiedType != null)
-            //        goto noXsiType;
-
-            //}
-
-            //AdvanceUntil('<', ref currentIndex, txt);
+           
 
             for (; currentIndex < txt.Length; currentIndex++)
             {
@@ -256,127 +241,6 @@ namespace Das.Serializer.Xml
             AdvanceScanState(txt, ref currentIndex, stringBuilder, ref nodeScanState);
         }
 
-        //[SuppressMessage("ReSharper", "UnusedParameter.Local")]
-        //protected override object GetTypeWrappedValue(ref Int32 currentIndex,
-        //                                              String txt,
-        //                                              Type type,
-        //                                              StringBuilder sb,
-        //                                              Object? parent,
-        //                                              PropertyInfo? prop,
-        //                                              ref Object? root,
-        //                                              Object[] ctorValues,
-        //                                              ISerializerSettings settings)
-        //{
-        //    if (!AdvanceUntil('>', ref currentIndex, txt))
-        //        goto bad;
-
-        //    currentIndex++;
-
-        //    if (!TryGetUntil(ref currentIndex, txt, sb, '<'))
-        //        goto bad;
-
-        //    var txtIs = sb.ToString();
-
-        //    return GetValue(ref currentIndex,
-        //        txt,
-        //        type,
-        //        sb,
-        //        parent,
-        //        prop,
-        //        ref root,
-        //        ctorValues,
-        //        (ref Int32 _, // getVal
-        //         String _,
-        //         StringBuilder _) =>
-        //        {
-        //            return txtIs;
-        //        },
-        //        (ref Int32 _, // loadPrimitive
-        //         String _,
-        //         StringBuilder builder) =>
-        //        {
-        //        },
-        //        (ref Int32 index, // tryGetString
-        //         String s,
-        //         StringBuilder sbString) =>
-        //        {
-        //            return true;
-        //        },
-        //        (ref Int32 index,
-        //         String s,
-        //         Type type1,
-        //         StringBuilder builder,
-        //         Object? o,
-        //         PropertyInfo? info,
-        //         ref Object? root1,
-        //         Object[] values,
-        //         GetStringValue val,
-        //         LoadStringValue value,
-        //         ISerializerSettings _) =>
-        //        {
-        //            var conv = _types.GetTypeConverter(type);
-        //            return conv.ConvertFrom(txtIs);
-        //        },
-        //        (ref Int32 index,
-        //         String s,
-        //         StringBuilder builder) =>
-        //        {
-        //        }, settings)!;
-
-        //        //(ref Int32 index, // getObjectValue
-        //        // String s,
-        //        // Type type1,
-        //        // StringBuilder builder,
-        //        // Object? o,
-        //        // PropertyInfo? info,
-        //        // ref Object? root1,
-        //        // Object[] values,
-        //        // GetStringValue val,
-        //        // LoadPrimitiveValue gpv) =>
-        //        //{
-        //        //    var conv = _types.GetTypeConverter(type);
-        //        //    return conv.ConvertFrom(txtIs);
-        //        //},
-        //        //(ref Int32 index,
-        //        // String s,
-        //        // StringBuilder builder) => {})!;
-
-            
-        //    //GetValue(ref currentIndex, txt, sb,)
-
-
-        //    bad:
-        //    throw new InvalidOperationException();
-        //}
-
-        //protected override NodeScanState TryLoadNextAttributePropertyName(String txt,
-        //                                                                    ref Int32 currentValue,
-        //                                                                    StringBuilder stringBuilder)
-        //{
-        //    for (; currentValue < txt.Length; currentValue++)
-        //    {
-        //        var currentChar = txt[currentValue];
-
-        //        switch (currentChar)
-        //        {
-        //            case ' ':
-        //                break;
-
-        //            case '/':
-        //                return NodeScanState.NodeSelfClosed;
-                        
-        //            case '>':
-        //                currentValue++;
-        //                return NodeScanState.EndOfNode;
-
-        //            default:
-        //                stringBuilder.Append(currentChar);
-        //                break;
-        //        }
-        //    }
-
-        //    return NodeScanState.EndOfMarkup;
-        //}
 
         protected override void AdvanceScanState(String txt,
                                                  ref Int32 currentIndex,
@@ -427,42 +291,12 @@ namespace Das.Serializer.Xml
                                         return;
                                 }
                             }
-                            return;
 
                         default:
                             currentIndex++;
                             scanState = NodeScanState.JustOpened;
                             break;
-
                     }
-
-                    //if (txt[currentIndex + 1] == '/')
-                    //{
-                    //    currentIndex++;
-                    //    while (true)
-                    //    {
-                    //        var currentChar = txt[++currentIndex];
-                    //        switch (currentChar)
-                    //        {
-                    //            //case ' ':
-                    //            //case '/':
-                    //            case '>':
-                    //                scanState = NodeScanState.EndOfNodeClose;
-                    //                currentIndex++;
-                    //                return;
-
-                    //            //default:
-                    //            //    stringBuilder.Append(currentChar);
-                    //            //    break;
-                    //        }
-                    //    }
-                    //}
-                    //else
-                    //{
-                    //    currentIndex++;
-                    //    scanState = NodeScanState.JustOpened;
-                    //}
-
 
                     break;
 
@@ -484,24 +318,13 @@ namespace Das.Serializer.Xml
                     }
 
                     throw new NotImplementedException();
-                    break;
+                    
 
                 case '?':
                     scanState = NodeScanState.EncodingNodeClose;
                     currentIndex += 2;
                     return;
             }
-
-
-            //if (scanState == NodeScanState.None)
-            //{
-            //    if (txt[currentIndex] == '<')
-            //    {
-            //        currentIndex++;
-            //        scanState = NodeScanState.JustOpened;
-            //        return;
-            //    }
-            //}
 
             for (; currentIndex < txt.Length; currentIndex++)
             {
@@ -577,10 +400,8 @@ namespace Das.Serializer.Xml
                                         scanState = NodeScanState.AttributeNameRead;
                                         return;
                                     }
-                                    break;
 
-
-                              case '<':
+                                case '<':
                                   if (txt[currentIndex + 1] == '/')
                                   {
                                       while (txt[++currentIndex] != '>')
@@ -597,6 +418,9 @@ namespace Das.Serializer.Xml
                                 case '/':
                                     if (scanState == NodeScanState.JustOpened)
                                         scanState = NodeScanState.NodeSelfClosed;
+
+                                    if (scanState == NodeScanState.EndOfNodeOpen)
+                                        continue;
 
                                     return;
 
@@ -751,58 +575,6 @@ namespace Das.Serializer.Xml
             }
         }
 
-        protected override bool TryGetNextProperty(ref Int32 currentIndex,
-                                                   String txt,
-                                                   StringBuilder sbString,
-                                                   out PropertyInfo prop,
-                                                   out Type propValType)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override bool TryLoadNextPropertyName(ref Int32 currentIndex,
-                                                        String txt,
-                                                        StringBuilder sbString)
-                                                        //out Type? propertyValueType)
-        {
-            //propertyValueType = default;
-            var res = TryGetNextString(ref currentIndex, txt, sbString);
-
-            if (!res)
-            {
-                SkipWhiteSpace(ref currentIndex, txt);
-                if (currentIndex + 1 >= txt.Length)
-                {
-                    //propertyValueType = default;
-                    return false;
-                }
-                if (txt[currentIndex] == '<')
-                {
-                    // maybe there's a child node
-                    if (txt[++currentIndex] != '/')
-                    {
-                        // not closing a tag...
-                        GetUntilAny(ref currentIndex, txt, sbString, _endOfTagname, out _);
-
-                        if (txt[currentIndex] == '>')
-                        {
-                            currentIndex++;
-                            goto returnTrueNoPropertyValueType;
-                        }
-
-                        return true;
-                    }
-                }
-            }
-
-            //propertyValueType = default;
-            return res;
-
-            returnTrueNoPropertyValueType:
-            //propertyValueType = default;
-            return true;
-
-        }
 
         private static void GetUntil(ref Int32 currentIndex,
                                      String xml,
@@ -852,11 +624,5 @@ namespace Das.Serializer.Xml
 
         private static readonly Char[] _stringEndChars = {'<', '"'};
 
-
-        //private static readonly Char[] _fieldStartChars = {'"', '>'};
-
-        private static readonly Char[] _endOfTagname = {' ', '/', '>'};
-
-        //private static readonly Char[] _beforeStringChars = {' ', '"'};//, '>'};
     }
 }

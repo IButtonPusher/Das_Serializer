@@ -103,6 +103,45 @@ namespace Das.Serializer
         //protected readonly XmlExpress2 XmlExpress2;
 
         private ISerializerSettings _settings;
+
+        protected static String GetTextFromFileInfo(FileInfo fi)
+        {
+            using (var _ = new SafeFile(fi))
+            {
+                return File.ReadAllText(fi.FullName);
+            }
+        }
+
+        protected static void WriteTextToFileInfo(FileInfo fi,
+                                                  String txt)
+        {
+            using (var _ = new SafeFile(fi))
+            {
+                File.WriteAllText(fi.FullName, txt);
+            }
+        }
+
+        protected async Task<String> GetTextFromFileInfoAsync(FileInfo fi)
+        {
+            using (var _ = new SafeFile(fi))
+            using (TextReader tr = new StreamReader(fi.FullName))
+            {
+                var res = await _readToEndAsync(tr).ConfigureAwait(true);
+                return res;
+            }
+        }
+
+        
+        private async Task WriteTextToFileInfoAsync(String text,
+                                                    FileInfo fi)
+        {
+            using (var _ = new SafeFile(fi))
+            using (TextWriter tr = new StreamWriter(fi.FullName))
+            {
+                await _writeAsync(tr, text);
+            }
+        }
+
         #if !NET40
 
         [MethodImpl(256)]
@@ -127,42 +166,12 @@ namespace Das.Serializer
             return stream.ReadAsync(buffer, offset, count);
         }
 
-        protected static String GetTextFromFileInfo(FileInfo fi)
-        {
-            using (var _ = new SafeFile(fi))
-            {
-                return File.ReadAllText(fi.FullName);
-            }
-        }
 
-        protected async Task<String> GetTextFromFileInfoAsync(FileInfo fi)
-        {
-            using (var _ = new SafeFile(fi))
-            using (TextReader tr = new StreamReader(fi.FullName))
-            {
-                var res = await _readToEndAsync(tr).ConfigureAwait(true);
-                return res;
-            }
-        }
 
-        protected static void WriteTextToFileInfo(FileInfo fi,
-                                                  String txt)
-        {
-            using (var _ = new SafeFile(fi))
-            {
-                File.WriteAllText(fi.FullName, txt);
-            }
-        }
+     
 
-        private async Task WriteTextToFileInfoAsync(String text,
-                                           FileInfo fi)
-        {
-            using (var _ = new SafeFile(fi))
-            using (TextWriter tr = new StreamWriter(fi.FullName))
-            {
-                await _writeAsync(tr, text);
-            }
-        }
+       
+
 
         #endif
     }

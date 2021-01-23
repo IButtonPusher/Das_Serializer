@@ -23,9 +23,8 @@ namespace Das.Serializer.Json
                  Char[] arrayOrObjectOrNull,
                  Char[] fieldStartChars) : 
             base(instantiator, objectManipulator, typeInference, types, primitiveScanner,
-                dynamicTypes,
-                startBlockChar, endBlockChar, endArrayChar, typeWrapAttribute, 
-                circularReferenceAttribute, objectOrStringOrNull, arrayOrObjectOrNull, fieldStartChars)
+                dynamicTypes, endBlockChar, endArrayChar, typeWrapAttribute, 
+                circularReferenceAttribute, fieldStartChars)
         {
         }
 
@@ -113,8 +112,8 @@ namespace Das.Serializer.Json
             throw new NotImplementedException();
         }
 
-        protected override void AdvanceUntilFieldStart(ref Int32 currentIndex,
-                                                       String txt)
+        protected virtual void AdvanceUntilFieldStart(ref Int32 currentIndex,
+                                                      String txt)
         {
             throw new NotImplementedException();
         }
@@ -132,32 +131,32 @@ namespace Das.Serializer.Json
             throw new NotImplementedException();
         }
 
-        protected override void LoadNextStringValue(ref Int32 currentIndex,
+        protected virtual void LoadNextStringValue(ref Int32 currentIndex,
+                                                   String txt,
+                                                   StringBuilder stringBuilder)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected virtual bool InitializeCollection(ref Int32 currentIndex,
                                                     String txt,
                                                     StringBuilder stringBuilder)
         {
             throw new NotImplementedException();
         }
 
-        protected override bool InitializeCollection(ref Int32 currentIndex,
-                                                     String txt,
-                                                     StringBuilder stringBuilder)
+        protected virtual bool TryGetNextProperty(ref Int32 currentIndex,
+                                                  String txt,
+                                                  StringBuilder sbString,
+                                                  out PropertyInfo prop,
+                                                  out Type propValType)
         {
             throw new NotImplementedException();
         }
 
-        protected override bool TryGetNextProperty(ref Int32 currentIndex,
-                                                   String txt,
-                                                   StringBuilder sbString,
-                                                   out PropertyInfo prop,
-                                                   out Type propValType)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override bool TryLoadNextPropertyName(ref Int32 currentIndex,
-                                                        String txt,
-                                                        StringBuilder sbString)
+        protected virtual bool TryLoadNextPropertyName(ref Int32 currentIndex,
+                                                       String txt,
+                                                       StringBuilder sbString)
         {
             throw new NotImplementedException();
         }

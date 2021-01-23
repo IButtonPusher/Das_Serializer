@@ -162,6 +162,22 @@ namespace Serializer.Tests
 			return sc;
 		}
 
+
+        public static SimpleClassObjectProperty GetStringPayload()
+        {
+            var sc = new SimpleClassObjectProperty
+            {
+                GPA = 2.67M,
+                ID = 4300,
+                Name = null,
+                Payload = "I am a happy string /sarc",
+                DateOfBirth = new DateTime(1969, 11, 24)
+            };
+
+            return sc;
+        }
+
+
 		public override bool Equals(object obj)
 		{
 			var sc = obj as SimpleClassObjectProperty;
