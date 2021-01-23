@@ -30,6 +30,11 @@ namespace Das.Serializer
         /// </summary>
         Boolean IsPropertyNamesCaseSensitive { get; set; }
 
+        /// <summary>
+        /// Using attributes can make the markup smaller but can limit compatibility with other serializers
+        /// </summary>
+        Boolean IsUseAttributesInXml { get; set; }
+
         String NewLine { get; set; }
 
         /// <summary>

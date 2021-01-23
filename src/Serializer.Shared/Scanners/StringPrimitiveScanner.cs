@@ -17,6 +17,9 @@ namespace Das.Serializer
                                Type type,
                                Boolean wasInputInQuotes)
         {
+            if (string.IsNullOrEmpty(input))
+                return default!;
+
             if (type == Const.ObjectType)
             {
                 //could be a number or boolean if it's not in quotes

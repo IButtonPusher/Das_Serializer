@@ -102,7 +102,7 @@ namespace Das.Serializer
         protected readonly BaseExpress XmlExpress;
         //protected readonly XmlExpress2 XmlExpress2;
 
-        private ISerializerSettings _settings;
+        //private ISerializerSettings _settings;
 
         protected static String GetTextFromFileInfo(FileInfo fi)
         {

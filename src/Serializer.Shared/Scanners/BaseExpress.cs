@@ -84,11 +84,14 @@ namespace Das.Serializer
             return false;
         }
 
+        /// <summary>
+        /// Advances currentIndex to the found index + 1
+        /// </summary>
         protected static void GetUntilAny(ref Int32 currentIndex,
-                                        String txt,
-                                        StringBuilder sbString,
-                                        Char[] targets,
-                                        out Char foundChar)
+                                          String txt,
+                                          StringBuilder sbString,
+                                          Char[] targets,
+                                          out Char foundChar)
         {
             for (; currentIndex < txt.Length; currentIndex++)
             {
@@ -98,10 +101,9 @@ namespace Das.Serializer
                     if (current == targets[k])
                     {
                         foundChar = current;
+                        currentIndex++;
                         return;
                     }
-
-
 
                 sbString.Append(current);
             }
@@ -109,9 +111,86 @@ namespace Das.Serializer
             throw new InvalidOperationException();
         }
 
+        /// <summary>
+        /// Advances currentIndex to the found index + 1
+        /// </summary>
+        protected static void GetUntilAny(ref Int32 currentIndex,
+                                          String txt,
+                                          StringBuilder sbString,
+                                          Char[] targets)
+        {
+            for (; currentIndex < txt.Length; currentIndex++)
+            {
+                var current = txt[currentIndex];
+
+                for (var k = 0; k < targets.Length; k++)
+                    if (current == targets[k])
+                    {
+                        currentIndex++;
+                        return;
+                    }
+
+                sbString.Append(current);
+            }
+
+            throw new InvalidOperationException();
+        }
+
+        [MethodImpl(256)]
+        protected static void GetUntil(ref Int32 currentIndex,
+                                          String txt,
+                                          StringBuilder sbString,
+                                          Char target)
+        {
+            for (; currentIndex < txt.Length; currentIndex++)
+            {
+                var current = txt[currentIndex];
+                if (current == target)
+                    return;
+
+                sbString.Append(current);
+            }
+
+            throw new InvalidOperationException();
+        }
+
+        /// <summary>
+        /// advances currentIndex until the stopAt is found + 1
+        /// </summary>
+        [MethodImpl(256)]
+        protected static void SkipUntil(ref Int32 currentIndex,
+                                        String txt,
+                                        Char stopAt)
+        {
+            if (TrySkipUntil(ref currentIndex, txt, stopAt))
+                return;
+
+            throw new InvalidOperationException();
+        }
+
+        /// <summary>
+        /// advances currentIndex until the stopAt is found + 1
+        /// </summary>
+        [MethodImpl(256)]
+        protected static Boolean TrySkipUntil(ref Int32 currentIndex,
+                                        String txt,
+                                        Char stopAt)
+        {
+            for (; currentIndex < txt.Length; currentIndex++)
+            {
+                if (txt[currentIndex] == stopAt)
+                {
+                    currentIndex++;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         protected Object? GetFromXPath(Object root,
-                                              String xPath,
-                                              StringBuilder stringBuilder)
+                                       String xPath,
+                                       StringBuilder stringBuilder)
         {
             stringBuilder.Clear();
             Object? current = null;

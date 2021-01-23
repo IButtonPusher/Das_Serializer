@@ -32,6 +32,8 @@ namespace Serializer.Tests
 
         public Animals Animal { get; set; }
 
+        public Boolean HasCompletedOrientation { get; set; }
+
         public static T GetExample<T>() where T : SimpleClass, new()
         {
             return new T
@@ -42,7 +44,8 @@ namespace Serializer.Tests
                 DateOfBirth = new DateTime(1980, 9, 4),
                 HireDate = new DateTime(2000, 12, 21),
                 ShiftPreference = TimeSpan.FromHours(9),
-                Animal = Animals.Sheep
+                Animal = Animals.Sheep,
+                HasCompletedOrientation = true
             };
         }
 
@@ -143,7 +146,8 @@ namespace Serializer.Tests
 				GPA = 4.01M,
 				ID = 43,
 				Name = "bo<bby \"} tables]",
-				Animal = Animals.Cow
+				Animal = Animals.Cow,
+				HasCompletedOrientation = true
 			};
 			return sc;
 		}
@@ -156,7 +160,8 @@ namespace Serializer.Tests
 				ID = 4300,
 				Name = null,
 				Payload = 3.4M,
-				DateOfBirth = new DateTime(1969, 11, 24)
+				DateOfBirth = new DateTime(1969, 11, 24),
+                HasCompletedOrientation = true
 			};
 
 			return sc;
@@ -171,7 +176,8 @@ namespace Serializer.Tests
                 ID = 4300,
                 Name = null,
                 Payload = "I am a happy string /sarc",
-                DateOfBirth = new DateTime(1969, 11, 24)
+                DateOfBirth = new DateTime(1969, 11, 24),
+                HasCompletedOrientation = true
             };
 
             return sc;

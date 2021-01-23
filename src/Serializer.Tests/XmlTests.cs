@@ -3,7 +3,6 @@
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -59,15 +58,22 @@ namespace Serializer.Tests.Xml
 			var sc2 = srl.FromXml<SimpleClassObjectProperty>(xml);
 			var badProp = "";
 			Assert.True(SlowEquality.AreEqual(sc, sc2, ref badProp));
+        }
 
+        [Fact]
+        public void PrimitivePropertiesNoAttributes()
+        {
+            var sc = SimpleClassObjectProperty.GetNullPayload();
 
-            //var srl2 = new DasCoreSerializer();
-            //var xml2 = srl2.ToXml(sc);
+            var settings = DasSettings.Default;
+            settings.IsUseAttributesInXml = false;
+            var srl = new DasSerializer(settings);
+            var xml = srl.ToXml(sc);
 
-            //var sc3 = srl2.FromXml<SimpleClassObjectProperty>(xml);
-            
-            //Assert.True(SlowEquality.AreEqual(sc, sc2, ref badProp));
-		}
+            var sc2 = srl.FromXml<SimpleClassObjectProperty>(xml);
+            var badProp = "";
+            Assert.True(SlowEquality.AreEqual(sc, sc2, ref badProp));
+        }
 
         [Fact]
 		public void XmlAsString()
@@ -327,19 +333,19 @@ namespace Serializer.Tests.Xml
         [Fact]
 		public void QueuesXml()
 		{
-			var qs = new Queue<SimpleClassObjectProperty>();
-			qs.Enqueue(SimpleClassObjectProperty.GetPrimitivePayload());
+			//var qs = new Queue<SimpleClassObjectProperty>();
+			//qs.Enqueue(SimpleClassObjectProperty.GetPrimitivePayload());
 
-			var x = Serializer.ToXml(qs);
-			var qs2 = Serializer.FromXml<Queue<SimpleClassObjectProperty>>(x);
+			//var x = Serializer.ToXml(qs);
+			//var qs2 = Serializer.FromXml<Queue<SimpleClassObjectProperty>>(x);
 
-			var qc = new ConcurrentQueue<SimpleClassObjectProperty>();
-			qc.Enqueue(SimpleClassObjectProperty.GetNullPayload());
+            var qc = new ConcurrentQueue<SimpleClassObjectProperty>();
+            qc.Enqueue(SimpleClassObjectProperty.GetNullPayload());
 
-			x = Serializer.ToXml(qc);
-			var qc2 = Serializer.FromXml<ConcurrentQueue<SimpleClassObjectProperty>>(x);
+            var xx = Serializer.ToXml(qc);
+            var qc2 = Serializer.FromXml<ConcurrentQueue<SimpleClassObjectProperty>>(xx);
 
-		}
+        }
 
         [Fact]
 		public void GdiColorInferredXml()
@@ -467,6 +473,22 @@ namespace Serializer.Tests.Xml
 
             Assert.True(areEqual);
 		}
+
+        [Fact]
+        public void EncodingNode()
+        {
+            var v = VersionContainer.TestInstance;
+            var std = new DasSerializer();
+            var xml = "<?xml version=\"1.0\" encoding=\"utf-16\"?>" + std.ToXml(v);
+            
+			
+            var v2 = std.FromXml<VersionContainer>(xml);
+
+            var areEqual = SlowEquality.AreEqual(v, v2);
+
+            Assert.True(areEqual);
+        }
+
 
         [Fact]
 		public void AnonymousTypeXml()

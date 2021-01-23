@@ -39,6 +39,8 @@ namespace Das.Serializer
         /// </summary>
         EndOfNodeOpen,
         
+        StartOfNodeClose,
+
         EndOfNodeClose,
 
         EncodingNodeClose,

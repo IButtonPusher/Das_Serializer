@@ -49,6 +49,6 @@ namespace Das.Serializer
 
         private readonly TextScanner _scanner;
 
-        private ISerializerSettings _settings;
+        //private ISerializerSettings _settings;
     }
 }

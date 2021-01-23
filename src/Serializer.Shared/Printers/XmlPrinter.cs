@@ -93,7 +93,8 @@ namespace Das.Printers
 
                 if (parent.IsTagOpen) //try to print like inline attributes zb <tag val="5" ...
                 {
-                    if (nodeType == NodeTypes.Primitive && !isWrapping)
+                    if (nodeType == NodeTypes.Primitive && !isWrapping && 
+                        _settings.IsUseAttributesInXml)
                     {
                         //does a leaf need to go in the stack?
                         _formatStack.Push(parent);

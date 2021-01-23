@@ -484,8 +484,22 @@ namespace Das.Types
             if (typeof(IList).IsAssignableFrom(cType))
                 return typeof(IList).GetMethod(nameof(IList.Add), new[] {typeof(T)})!;
 
-            var prmType = cType.GetGenericArguments().FirstOrDefault()
+            var gargs = cType.GetGenericArguments();
+
+            var prmType = gargs.FirstOrDefault()
                           ?? Const.ObjectType;
+
+            if (gargs.Length == 1)
+            {
+                var addOne = cType.GetMethod(nameof(IList.Add), new[] {prmType});
+                if (addOne != null)
+                    return addOne;
+
+
+                var pcc = typeof(IProducerConsumerCollection<>).MakeGenericType(prmType);
+                if (pcc.IsAssignableFrom(cType))
+                    return pcc.GetMethod(nameof(IProducerConsumerCollection<Object>.TryAdd));
+            }
 
             foreach (var meth in cType.GetMethods(BindingFlags.Instance | BindingFlags.Public))
             {

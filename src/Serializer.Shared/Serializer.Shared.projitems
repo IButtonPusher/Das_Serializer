@@ -135,5 +135,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Xml\DeserializeXml.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xml\SerializeXml.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xml\XmlExpress2.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xml\XmlScanState.cs" />
   </ItemGroup>
 </Project>

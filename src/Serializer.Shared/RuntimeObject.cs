@@ -24,7 +24,7 @@ namespace Das.Serializer
             Properties = new Dictionary<String, RuntimeObject>();
         }
 
-        public RuntimeObject(Object primitiveValue)
+        public RuntimeObject(Object? primitiveValue)
             : this()
         {
             PrimitiveValue = primitiveValue;

@@ -22,6 +22,7 @@ namespace Das.Serializer
             TypeSearchNameSpaces = new[] {Const.Tsystem};
             CacheTypeConstructors = true;
             AttributeValueSurrogates = new NullAttributeValueSurrogates();
+            IsUseAttributesInXml = true;
         }
 
         /// <summary>
@@ -35,6 +36,8 @@ namespace Das.Serializer
         ///     and having multiple properties with the "same" name will be problematic
         /// </summary>
         public Boolean IsPropertyNamesCaseSensitive { get; set; }
+
+        public Boolean IsUseAttributesInXml { get; set; }
 
         /// <summary>
         ///     Specifies under which circumstances the serializer will embed type information for
@@ -90,7 +93,7 @@ namespace Das.Serializer
         /// </summary>
         public static DasSettings Default => (DasSettings) _default.MemberwiseClone();
 
-        //            private set => _default = value;
+        
         private static readonly DasSettings _default;
     }
 }

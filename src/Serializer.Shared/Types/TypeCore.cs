@@ -403,6 +403,6 @@ namespace Das.Serializer
 
         private static readonly ConcurrentDictionary<Type, TypeConverter> _typeConverters;
 
-        private ISerializerSettings _settings;
+        protected ISerializerSettings _settings;
     }
 }
