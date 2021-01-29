@@ -14,7 +14,8 @@ namespace Das.Extensions
             _ctx = new DefaultStateProvider();
         }
 
-        public static void CopyTo<T>(this T obj, ref T res) where T : class
+        public static void CopyTo<T>(this T obj,
+                                     ref T res) where T : class
         {
             _ctx.ObjectConverter.Copy(obj, ref res, _ctx.Settings);
         }
@@ -26,7 +27,8 @@ namespace Das.Extensions
         //}
 
 
-        public static void Update<T>(this T updating, T withValuesOf) where T : class
+        public static void Update<T>(this T updating,
+                                     T withValuesOf) where T : class
         {
             _ctx.ObjectConverter.Copy(withValuesOf, ref updating,
                 _ctx.Settings);

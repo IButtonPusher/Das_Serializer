@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Das.Serializer;
-
 
 namespace Serializer.Tests
 {
@@ -17,7 +17,6 @@ namespace Serializer.Tests
 
         private static void DoIt<T>(T something)
         {
-            
         }
     }
 }

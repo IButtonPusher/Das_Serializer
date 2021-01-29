@@ -43,13 +43,15 @@ namespace Das.Serializer.Remunerators
         }
 
 
-        public void Append(Byte[] data, Int32 limit)
+        public void Append(Byte[] data,
+                           Int32 limit)
         {
             for (var c = 0; c < limit; c++)
                 _backingList.Add(data[c]);
         }
 
-        public void Append(IEnumerable<Byte> data, Int32 limit)
+        public void Append(IEnumerable<Byte> data,
+                           Int32 limit)
         {
             foreach (var b in data)
             {
@@ -59,7 +61,8 @@ namespace Das.Serializer.Remunerators
             }
         }
 
-        public unsafe void Append(Byte* bytes, Int32 count)
+        public unsafe void Append(Byte* bytes,
+                                  Int32 count)
         {
             for (var c = 0; c < count; c++)
                 _backingList.Add(bytes[c]);

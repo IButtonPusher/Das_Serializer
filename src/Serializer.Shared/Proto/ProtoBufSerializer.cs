@@ -39,7 +39,8 @@ namespace Das.Serializer.ProtoBuf
             TypeProvider = typeProvider;
         }
 
-        public void ToProtoStream<TObject>(Stream stream, TObject o)
+        public void ToProtoStream<TObject>(Stream stream,
+                                           TObject o)
             where TObject : class
         {
             var printer = TypeProvider.GetProtoProxy<TObject>(true);
@@ -66,7 +67,8 @@ namespace Das.Serializer.ProtoBuf
             return TypeProvider.GetAutoProtoProxy<T>(allowReadOnly);
         }
 
-        public bool TryGetProtoField(PropertyInfo prop, Boolean isRequireAttribute,
+        public bool TryGetProtoField(PropertyInfo prop,
+                                     Boolean isRequireAttribute,
                                      out IProtoFieldAccessor field)
         {
             return TypeProvider.TryGetProtoField(prop, isRequireAttribute, out field);

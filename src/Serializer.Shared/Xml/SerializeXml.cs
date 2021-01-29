@@ -28,21 +28,21 @@ namespace Das.Serializer
         }
 
         public async Task ToXmlAsync(Object o,
-                                FileInfo fi)
+                                     FileInfo fi)
         {
             var xml = ToXml(o);
             await WriteTextToFileInfoAsync(xml, fi);
         }
 
         public async Task ToXmlAsync<TTarget>(Object o,
-                                         FileInfo fi)
+                                              FileInfo fi)
         {
             var xml = ToXml<TTarget>(o);
             await WriteTextToFileInfoAsync(xml, fi);
         }
 
         public async Task ToXmlAsync<TObject>(TObject o,
-                                         FileInfo fileName)
+                                              FileInfo fileName)
         {
             var xml = ObjectToTypedXml(o!, typeof(TObject));
             await WriteTextToFileInfoAsync(xml, fileName);
@@ -92,7 +92,5 @@ namespace Das.Serializer
                 }
             }
         }
-
-       
     }
 }

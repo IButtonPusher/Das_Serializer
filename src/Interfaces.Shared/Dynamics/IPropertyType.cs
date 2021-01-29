@@ -14,13 +14,11 @@ namespace Das.Serializer
 
         Type? GetPropertyType(String propertyName);
 
-        Boolean IsLegalValue(String forProperty, 
+        Boolean IsLegalValue(String forProperty,
                              Object? value);
-        
+
         Boolean SetPropertyValue(ref Object targetObj,
                                  String propName,
                                  Object? propVal);
-        
-        
     }
 }

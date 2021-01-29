@@ -57,10 +57,11 @@ namespace Das.Serializer.Concurrency
             throw new NotSupportedException("We cannot send to our same thread");
         }
 
+        private readonly AutoResetEvent _workItemsWaiting = new(false);
+
         private readonly Queue<Tuple<SendOrPostCallback, Object>> items =
             new();
 
-        private readonly AutoResetEvent _workItemsWaiting = new(false);
         private Boolean _done;
     }
 }

@@ -11,6 +11,8 @@ namespace Das.Serializer
         Type Type { get; }
 
         /// <exception cref="KeyNotFoundException"></exception>
-        void SetPropertyValueUnsafe(String propName, ref Object targetObj, Object propVal);
+        void SetPropertyValueUnsafe(String propName,
+                                    ref Object targetObj,
+                                    Object propVal);
     }
 }

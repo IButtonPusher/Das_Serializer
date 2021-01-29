@@ -20,7 +20,7 @@ namespace Das.Serializer.Printers
         }
 
         public PrintNode(Action<PrintNode> returnToSender,
-                         INamedValue valu, 
+                         INamedValue valu,
                          NodeTypes nodeType)
             : this(returnToSender, valu.Name, valu.Value, valu.Type, nodeType)
         {
@@ -35,7 +35,8 @@ namespace Das.Serializer.Printers
             _returnToSender(this);
         }
 
-        public void Set(INamedValue valu, NodeTypes nodeType)
+        public void Set(INamedValue valu,
+                        NodeTypes nodeType)
         {
             NodeType = nodeType;
             IsWrapping = false;

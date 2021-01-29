@@ -5,7 +5,8 @@ namespace Das.Serializer
 {
     public class DasMember : INamedField
     {
-        public DasMember(String name, Type type)
+        public DasMember(String name,
+                         Type type)
         {
             name = String.Intern(name);
             Name = name;

@@ -10,7 +10,8 @@ namespace Das.Serializer
         TObject FromProtoStream<TObject>(Stream stream)
             where TObject : class;
 
-        void ToProtoStream<TObject>(Stream stream, TObject o)
+        void ToProtoStream<TObject>(Stream stream,
+                                    TObject o)
             where TObject : class;
     }
 }

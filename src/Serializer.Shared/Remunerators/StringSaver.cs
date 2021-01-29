@@ -9,8 +9,8 @@ using Das.Extensions;
 
 namespace Das.Serializer
 {
-    public class StringSaver : StringBase, 
-                               ITextRemunerable, 
+    public class StringSaver : StringBase,
+                               ITextRemunerable,
                                ITextAccessor
     {
         static StringSaver()

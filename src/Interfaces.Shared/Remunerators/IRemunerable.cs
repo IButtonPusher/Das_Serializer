@@ -14,7 +14,8 @@ namespace Das.Serializer
     {
         void Append(T data);
 
-        void Append(T data, Int32 limit);
+        void Append(T data,
+                    Int32 limit);
     }
 
     public interface IRemunerable

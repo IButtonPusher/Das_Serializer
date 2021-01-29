@@ -9,7 +9,6 @@ using System.Reflection.Emit;
 using System.Threading.Tasks;
 using Das.Extensions;
 
-
 namespace Das.Serializer.ProtoBuf
 {
     // ReSharper disable once UnusedType.Global
@@ -117,7 +116,9 @@ namespace Das.Serializer.ProtoBuf
 
             foreach (var protoField in state)
                 /////////////////////////////////////////
+            {
                 AddFieldToPrintMethod(protoField);
+            }
             /////////////////////////////////////////
 
             endOfMethod:
@@ -184,7 +185,8 @@ namespace Das.Serializer.ProtoBuf
             il.Emit(OpCodes.Callvirt, SetStreamLength);
         }
 
-        private void PrintConstByte(Byte constVal, ILGenerator il) //, Boolean? isPushed)
+        private void PrintConstByte(Byte constVal,
+                                    ILGenerator il) //, Boolean? isPushed)
         {
             var noStackDepth = il.DefineLabel();
             var endOfPrintConst = il.DefineLabel();
@@ -236,9 +238,7 @@ namespace Das.Serializer.ProtoBuf
                 il.Emit(OpCodes.Call, _writeSomeBytes);
             }
             else
-            {
                 PrintConstByte(headerBytes[0], il); //, s.HasPushed);
-            }
         }
 
 
@@ -260,9 +260,7 @@ namespace Das.Serializer.ProtoBuf
                     il.Emit(OpCodes.Brtrue, gotoIfFalse);
                 }
                 else
-                {
                     il.Emit(OpCodes.Brfalse, gotoIfFalse);
-                }
 
                 goto done;
             }

@@ -29,12 +29,9 @@ namespace Das.Serializer
             _readAsync = readAsync;
 
             JsonExpress = new JsonExpress(ObjectInstantiator, TypeManipulator,
-                TypeInferrer, stateProvider.ObjectManipulator, 
+                TypeInferrer, stateProvider.ObjectManipulator,
                 stateProvider.JsonContext.PrimitiveScanner,
                 DynamicTypes);
-
-            //XmlExpress = new XmlExpress(ObjectInstantiator, TypeManipulator,
-            //    _settings, stateProvider.XmlContext.PrimitiveScanner, TypeInferrer);
 
 
             XmlExpress = new XmlExpress2(ObjectInstantiator, TypeManipulator,
@@ -90,34 +87,11 @@ namespace Das.Serializer
 
         public IStringPrimitiveScanner AttributeParser { get; }
 
-
-        internal const String StrNull = "null";
-
-        internal const String Root = "Root";
-        private readonly Func<Stream, Byte[], Int32, Int32, Task<Int32>> _readAsync;
-        private readonly Func<TextReader, Task<String>> _readToEndAsync;
-        private readonly Func<TextWriter, String, Task> _writeAsync;
-
-        protected readonly JsonExpress JsonExpress;
-        protected readonly BaseExpress XmlExpress;
-        //protected readonly XmlExpress2 XmlExpress2;
-
-        //private ISerializerSettings _settings;
-
         protected static String GetTextFromFileInfo(FileInfo fi)
         {
             using (var _ = new SafeFile(fi))
             {
                 return File.ReadAllText(fi.FullName);
-            }
-        }
-
-        protected static void WriteTextToFileInfo(FileInfo fi,
-                                                  String txt)
-        {
-            using (var _ = new SafeFile(fi))
-            {
-                File.WriteAllText(fi.FullName, txt);
             }
         }
 
@@ -131,7 +105,16 @@ namespace Das.Serializer
             }
         }
 
-        
+        protected static void WriteTextToFileInfo(FileInfo fi,
+                                                  String txt)
+        {
+            using (var _ = new SafeFile(fi))
+            {
+                File.WriteAllText(fi.FullName, txt);
+            }
+        }
+
+
         private async Task WriteTextToFileInfoAsync(String text,
                                                     FileInfo fi)
         {
@@ -141,6 +124,17 @@ namespace Das.Serializer
                 await _writeAsync(tr, text);
             }
         }
+
+
+        internal const String StrNull = "null";
+
+        internal const String Root = "Root";
+        private readonly Func<Stream, Byte[], Int32, Int32, Task<Int32>> _readAsync;
+        private readonly Func<TextReader, Task<String>> _readToEndAsync;
+        private readonly Func<TextWriter, String, Task> _writeAsync;
+
+        protected readonly JsonExpress JsonExpress;
+        protected readonly BaseExpress XmlExpress;
 
         #if !NET40
 
@@ -165,13 +159,6 @@ namespace Das.Serializer
         {
             return stream.ReadAsync(buffer, offset, count);
         }
-
-
-
-     
-
-       
-
 
         #endif
     }

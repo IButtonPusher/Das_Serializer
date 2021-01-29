@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 
-
 namespace Das.Serializer.ProtoBuf
 {
     // ReSharper disable once UnusedType.Global
@@ -14,7 +13,6 @@ namespace Das.Serializer.ProtoBuf
                                                                     // ReSharper disable once RedundantExtendsListEntry
                                                                     IProtoProvider where TPropertyAttribute : Attribute
     {
-
         public IProtoProxy<T> GetAutoProtoProxy<T>(Boolean allowReadOnly = false)
         {
             return ProxyLookup<T>.Instance ??= allowReadOnly
@@ -51,8 +49,8 @@ namespace Das.Serializer.ProtoBuf
             return InstantiateProxyInstance<T>(ptype);
         }
 
-        private List<ProtoField> GetProtoScanFields(Type type, 
-                                                out ConstructorInfo useCtor)
+        private List<ProtoField> GetProtoScanFields(Type type,
+                                                    out ConstructorInfo useCtor)
         {
             _instantiator.TryGetDefaultConstructor(type, out var emptyCtor);
             var hasPropCtor = _instantiator.TryGetPropertiesConstructor(type, out var propCtor);
@@ -60,7 +58,6 @@ namespace Das.Serializer.ProtoBuf
 
             var ctorParamNames = new Dictionary<String, Type>(StringComparer.OrdinalIgnoreCase);
             if (hasPropCtor)
-            {
                 foreach (var prm in propCtor.GetParameters())
                 {
                     if (String.IsNullOrEmpty(prm.Name))
@@ -68,13 +65,12 @@ namespace Das.Serializer.ProtoBuf
 
                     ctorParamNames.Add(prm.Name, prm.ParameterType);
                 }
-            }
 
 
             var useProperties = new List<PropertyInfo>();
 
             foreach (var prop in _types.GetPublicProperties(type, false))
-            //foreach (var prop in type.GetProperties())
+                //foreach (var prop in type.GetProperties())
             {
                 var hasSetter = prop.GetSetMethod(true) != null;
                 if (hasSetter)
@@ -83,9 +79,7 @@ namespace Das.Serializer.ProtoBuf
                 {
                     if (ctorParamNames.TryGetValue(prop.Name, out var ctorArgType)
                         && ctorArgType == prop.PropertyType)
-                    {
                         useProperties.Add(prop);
-                    }
                 }
             }
 

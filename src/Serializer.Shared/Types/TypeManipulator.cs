@@ -17,8 +17,8 @@ using Das.Serializer;
 
 namespace Das.Types
 {
-    public partial class TypeManipulator : BaseTypeManipulator, 
-                                   ITypeManipulator
+    public partial class TypeManipulator : BaseTypeManipulator,
+                                           ITypeManipulator
     {
         //static TypeManipulator()
         //{
@@ -27,11 +27,11 @@ namespace Das.Types
         //    _knownInsensitive = new ConcurrentDictionary<Type, ITypeStructure>();
         //}
 
-        public TypeManipulator(ISerializerSettings settings, 
+        public TypeManipulator(ISerializerSettings settings,
                                INodePool nodePool)
             : base(settings, nodePool)
         {
-           // _nodePool = nodePool;
+            // _nodePool = nodePool;
             _cachedAdders = new ConcurrentDictionary<Type, VoidMethod>();
         }
 
@@ -54,9 +54,9 @@ namespace Das.Types
 
         //[ThreadStatic]
         //private static PropertyInfo[]? _singlePropFairy;
-        
+
         public static Func<Object, Object> CreateDynamicPropertyGetter(Type targetType,
-                                                                    PropertyInfo[] propChainArr)
+                                                                       PropertyInfo[] propChainArr)
         {
             var setParamType = Const.ObjectType;
             Type[] setParamTypes = {setParamType};
@@ -76,37 +76,37 @@ namespace Das.Types
             il.Emit(targetType.IsValueType
                 ? OpCodes.Unbox
                 : OpCodes.Castclass, targetType);
-            
+
             //////////////////
 
             MethodInfo? targetGetMethod = null;
 
-            
+
             for (var c = 0; c < propChainArr.Length; c++)
             {
                 var propInfo = propChainArr[c];
-                
+
                 //put the chain of prop get results onto the stack
                 targetGetMethod = propInfo.GetGetMethod();
                 var opCode = propInfo.DeclaringType!.IsValueType ? OpCodes.Call : OpCodes.Callvirt;
                 il.Emit(opCode, targetGetMethod!);
 
 
-                if (c >= propChainArr.Length - 1) 
+                if (c >= propChainArr.Length - 1)
                     continue;
-                
+
                 // avoid calling property getters of null objects.  If we hit a null, return it
                 var propLocal = il.DeclareLocal(propInfo.PropertyType);
                 var nextLabel = il.DefineLabel();
-                    
+
                 il.Emit(OpCodes.Stloc, propLocal);
-                    
-                    
+
+
                 il.Emit(OpCodes.Ldloc, propLocal);
                 il.Emit(OpCodes.Ldnull);
                 il.Emit(OpCodes.Ceq);
                 il.Emit(OpCodes.Brfalse, nextLabel);
-                    
+
                 il.Emit(OpCodes.Ldloc, propLocal);
                 il.Emit(OpCodes.Br, ggLabel);
 
@@ -121,8 +121,8 @@ namespace Das.Types
             var returnType = targetGetMethod.ReturnType;
 
             il.MarkLabel(ggLabel);
-            
-            if (returnType.IsValueType) 
+
+            if (returnType.IsValueType)
                 il.Emit(OpCodes.Box, returnType);
 
             il.Emit(OpCodes.Ret);
@@ -130,8 +130,8 @@ namespace Das.Types
             var del = getMethod.CreateDelegate(Expression.GetFuncType(setParamType, setReturnType));
             return (Func<Object, Object>) del;
         }
-        
-        
+
+
         /// <summary>
         ///     Returns a delegate that can be invoked to quickly get the value for an object
         ///     of targetType
@@ -171,14 +171,14 @@ namespace Das.Types
             //return (Func<Object, Object>) del;
         }
 
-        public override Func<object, object> CreatePropertyGetter(Type targetType, 
+        public override Func<object, object> CreatePropertyGetter(Type targetType,
                                                                   String propertyName)
         {
             return CreateDynamicPropertyGetter(targetType, propertyName);
-            
+
             //var propChainArr = GetPropertyChain(targetType, propertyName).ToArray();
-            
-            
+
+
             //var setParamType = Const.ObjectType;
             //Type[] setParamTypes = {setParamType};
             //var setReturnType = Const.ObjectType;
@@ -197,40 +197,40 @@ namespace Das.Types
             //il.Emit(targetType.IsValueType
             //    ? OpCodes.Unbox
             //    : OpCodes.Castclass, targetType);
-            
+
             ////////////////////
 
             ////var isNull = il.DeclareLocal(typeof(Boolean));
-            
+
             //MethodInfo? targetGetMethod = null;
 
             //var propChainArr = GetPropertyChain(targetType, propertyName).ToArray();
-            
+
             ////foreach (var propInfo in GetPropertyChain(targetType, propertyName))
             //for (var c = 0; c <propChainArr.Length - 1; c++)
             //{
             //    var propInfo = propChainArr[c];
-                
+
             //    //put the chain of prop get results onto the stack
             //    targetGetMethod = propInfo.GetGetMethod();
             //    var opCode = propInfo.DeclaringType!.IsValueType ? OpCodes.Call : OpCodes.Callvirt;
             //    il.Emit(opCode, targetGetMethod!);
-                
+
 
             //    //if (propInfo.Name != propertyName)
             //    if ( c < propChainArr.Length - 1)
             //    {
             //        var propLocal = il.DeclareLocal(propInfo.PropertyType);
             //        var nextLabel = il.DefineLabel();
-                    
+
             //        il.Emit(OpCodes.Stloc, propLocal);
-                    
-                    
+
+
             //        il.Emit(OpCodes.Ldloc, propLocal);
             //        il.Emit(OpCodes.Ldnull);
             //        il.Emit(OpCodes.Ceq);
             //        il.Emit(OpCodes.Brfalse, nextLabel);
-                    
+
             //        il.Emit(OpCodes.Ldloc, propLocal);
             //        il.Emit(OpCodes.Br, ggLabel);
 
@@ -239,7 +239,7 @@ namespace Das.Types
             //        il.Emit(OpCodes.Ldloc, propLocal);
             //    }
 
-                
+
             //}
 
             //if (targetGetMethod == null)
@@ -248,7 +248,7 @@ namespace Das.Types
             //var returnType = targetGetMethod.ReturnType;
 
             //il.MarkLabel(ggLabel);
-            
+
             //if (returnType.IsValueType) 
             //    il.Emit(OpCodes.Box, returnType);
 
@@ -258,8 +258,7 @@ namespace Das.Types
             //return (Func<Object, Object>) del;
         }
 
-      
-        
+
         //private static IEnumerable<MemberInfo> GetMemberChain(Type declaringType,
         //                                                          String propName)
         //{
@@ -273,7 +272,7 @@ namespace Das.Types
         //        var subPropTokens = propName.Split('.');
         //        var propInfo = GetMemberOrDie(declaringType, subPropTokens[0]);
         //        yield return propInfo;
-                
+
         //        for (var c = 1; c < subPropTokens.Length; c++)
         //        {
         //            propInfo =  GetMemberOrDie(propInfo.ReflectedType, subPropTokens[c]);
@@ -281,35 +280,27 @@ namespace Das.Types
         //        }
         //    }
 
-           
+
         //}
 
         #else
-
-        
         #endif
 
-       #if GENERATECODE
+        #if GENERATECODE
 
         public sealed override PropertySetter CreateSetMethod(MemberInfo memberInfo)
         {
             return CreateSetMethodImpl(memberInfo);
         }
 
-        public override PropertySetter? CreateSetMethod(Type declaringType, 
+        public override PropertySetter? CreateSetMethod(Type declaringType,
                                                         String memberName)
         {
             return CreateDynamicSetter(declaringType, memberName);
         }
 
         #else
-
-        
-
-       
-
-
-#endif
+        #endif
 
         IEnumerable<FieldInfo> ITypeManipulator.GetRecursivePrivateFields(Type type)
         {
@@ -331,9 +322,6 @@ namespace Das.Types
         }
 
         #if !GENERATECODE
-
-      
-
         #else
 
         public sealed override Func<Object, Object> CreateFieldGetter(FieldInfo fieldInfo)
@@ -349,9 +337,7 @@ namespace Das.Types
                 il.Emit(OpCodes.Ldfld, fieldInfo);
             }
             else
-            {
                 il.Emit(OpCodes.Ldsfld, fieldInfo);
-            }
 
             if (fieldInfo.FieldType.IsValueType) il.Emit(OpCodes.Box, fieldInfo.FieldType);
 
@@ -359,7 +345,7 @@ namespace Das.Types
             return (Func<Object, Object>) dynam.CreateDelegate(typeof(Func<Object, Object>));
         }
 
-         public sealed override Action<Object, Object?> CreateFieldSetter(FieldInfo fieldInfo)
+        public sealed override Action<Object, Object?> CreateFieldSetter(FieldInfo fieldInfo)
         {
             var dynam = new DynamicMethod(
                 String.Empty
@@ -388,26 +374,27 @@ namespace Das.Types
             return (Action<Object, Object?>) dynam.CreateDelegate(typeof(Action<Object, Object?>));
         }
 
-#endif
+        #endif
 
-       
 
         public sealed override Func<Object, Object[], Object> CreateFuncCaller(MethodInfo method)
         {
-            List<Type> args = new List<Type>(
+            List<Type> args = new(
                 method.GetParameters().Select(p => p.ParameterType));
             Type delegateType;
-            if (method.ReturnType == typeof(void)) {
+            if (method.ReturnType == typeof(void))
                 delegateType = Expression.GetActionType(args.ToArray());
-            } else {
+            else
+            {
                 args.Add(method.ReturnType);
                 delegateType = Expression.GetFuncType(args.ToArray());
             }
-            return (Func<Object, Object[], Object>)Delegate.CreateDelegate(delegateType, null, method);
+
+            return (Func<Object, Object[], Object>) Delegate.CreateDelegate(delegateType, null, method);
         }
 
 
-        public sealed override VoidMethod? GetAdder(Type collectionType, 
+        public sealed override VoidMethod? GetAdder(Type collectionType,
                                                     Object exampleValue)
         {
             if (_cachedAdders.TryGetValue(collectionType, out var res))
@@ -439,7 +426,8 @@ namespace Das.Types
         /// <summary>
         ///     Gets a delegate to add an object to a non-generic collection
         /// </summary>
-        public sealed override VoidMethod GetAdder(IEnumerable collection, Type? type = null)
+        public sealed override VoidMethod GetAdder(IEnumerable collection,
+                                                   Type? type = null)
         {
             if (type == null)
                 type = collection.GetType();
@@ -521,15 +509,13 @@ namespace Das.Types
             return adder ?? throw new MissingMethodException(cType.FullName, "Add");
         }
 
-        public sealed override Boolean TryGetAddMethod(Type collectionType, out MethodInfo addMethod)
+        public sealed override Boolean TryGetAddMethod(Type collectionType,
+                                                       out MethodInfo addMethod)
         {
             addMethod = GetAddMethodImpl(collectionType)!;
             return addMethod != null;
         }
 
-
-
-       
 
         /// <summary>
         ///     Gets a delegate to add an object to a generic collection
@@ -551,7 +537,6 @@ namespace Das.Types
                 res = (VoidMethod) dynam.CreateDelegate(typeof(VoidMethod));
 
                 #else
-
                 res = CreateMethodCaller(method);
 
                 #endif
@@ -562,7 +547,7 @@ namespace Das.Types
             return res!;
         }
 
-        private VoidMethod CreateAddDelegate(ICollection collection, 
+        private VoidMethod CreateAddDelegate(ICollection collection,
                                              Type type)
         {
             var colType = collection.GetType();
@@ -580,7 +565,6 @@ namespace Das.Types
                 res = (VoidMethod) dynam.CreateDelegate(typeof(VoidMethod));
 
                 #else
-
                 res = CreateMethodCaller(method);
 
                 #endif
@@ -590,12 +574,9 @@ namespace Das.Types
 
             return res!;
         }
-       
 
 
         #if GENERATECODE
-
-        
 
 
         public sealed override VoidMethod CreateMethodCaller(MethodInfo method)
@@ -604,7 +585,7 @@ namespace Das.Types
             return (VoidMethod) dyn.CreateDelegate(typeof(VoidMethod));
         }
 
-        public static DynamicMethod CreateMethodCaller(MethodInfo method, 
+        public static DynamicMethod CreateMethodCaller(MethodInfo method,
                                                        Boolean isSuppressReturnValue)
         {
             Type[] argTypes = {Const.ObjectType, typeof(Object[])};
@@ -638,9 +619,7 @@ namespace Das.Types
                     if (method.ReturnType.IsValueType) il.Emit(OpCodes.Box, method.ReturnType);
                 }
                 else
-                {
                     il.Emit(OpCodes.Pop);
-                }
             }
 
             il.Emit(OpCodes.Ret);
@@ -656,7 +635,7 @@ namespace Das.Types
         private static PropertySetter CreateSetMethodImpl(MemberInfo memberInfo)
         {
             Type paramType;
-            
+
             switch (memberInfo)
             {
                 case PropertyInfo info:
@@ -684,7 +663,7 @@ namespace Das.Types
             generator.Emit(OpCodes.Ldarg_0);
             generator.Emit(OpCodes.Ldind_Ref);
 
-            if (decType.IsValueType) 
+            if (decType.IsValueType)
                 generator.Emit(OpCodes.Unbox, decType);
 
             generator.Emit(OpCodes.Ldarg_1);
@@ -707,7 +686,7 @@ namespace Das.Types
         }
 
         public static PropertySetter? CreateDynamicSetter(Type declaringType,
-                                                           String memberName)
+                                                          String memberName)
         {
             var decType = declaringType;
             if (decType == null)
@@ -729,8 +708,8 @@ namespace Das.Types
             {
                 var info = propChainArr[c];
                 var accessCode = info.DeclaringType!.IsValueType ? OpCodes.Call : OpCodes.Callvirt;
-                
-                if (c == propChainArr.Length-1)
+
+                if (c == propChainArr.Length - 1)
                 {
                     // last stop => time to set
 
@@ -740,27 +719,26 @@ namespace Das.Types
                     var propSetter = info.GetSetMethod(true);
                     if (propSetter == null)
                         return null;
-                    
+
                     Type paramType = info.PropertyType;
 
-                    if (decType!.IsValueType) 
+                    if (decType!.IsValueType)
                         generator.Emit(OpCodes.Unbox, decType);
 
                     generator.Emit(OpCodes.Ldarg_1);
                     if (paramType.IsValueType)
                         generator.Emit(OpCodes.Unbox_Any, paramType);
-                    
-                    generator.Emit(accessCode, propSetter);
 
+                    generator.Emit(accessCode, propSetter);
                 }
                 else
                 {
                     //time to get
                     var targetGetMethod = info.GetGetMethod();
-                    
+
                     generator.Emit(accessCode, targetGetMethod!);
                 }
-                
+
                 decType = info.DeclaringType;
             }
 
@@ -771,39 +749,33 @@ namespace Das.Types
 
 
         #else
-
-      
-
-
-
-
         #endif
 
-private MethodInfo? GetAddMethodImpl(Type cType)
-{
-    var germane = GetGermaneType(cType);
+        private MethodInfo? GetAddMethodImpl(Type cType)
+        {
+            var germane = GetGermaneType(cType);
 
-    if (cType.TryGetMethod(nameof(ICollection<Object>.Add), out var adder, germane))
-        return adder;
+            if (cType.TryGetMethod(nameof(ICollection<Object>.Add), out var adder, germane))
+                return adder;
 
-    if (typeof(List<>).IsAssignableFrom(cType) ||
-        typeof(Dictionary<,>).IsAssignableFrom(cType))
-        return cType.GetMethodOrDie(nameof(List<Object>.Add));
+            if (typeof(List<>).IsAssignableFrom(cType) ||
+                typeof(Dictionary<,>).IsAssignableFrom(cType))
+                return cType.GetMethodOrDie(nameof(List<Object>.Add));
 
-    if (typeof(Stack<>).IsAssignableFrom(cType))
-        return cType.GetMethodOrDie(nameof(Stack<Object>.Push));
+            if (typeof(Stack<>).IsAssignableFrom(cType))
+                return cType.GetMethodOrDie(nameof(Stack<Object>.Push));
 
-    if (typeof(Queue<>).IsAssignableFrom(cType))
-        return cType.GetMethodOrDie(nameof(Queue<Object>.Enqueue));
+            if (typeof(Queue<>).IsAssignableFrom(cType))
+                return cType.GetMethodOrDie(nameof(Queue<Object>.Enqueue));
 
-    if (typeof(IDictionary).IsAssignableFrom(cType))
-    {
-        var gDic = typeof(IDictionary<,>).MakeGenericType(cType.GetGenericArguments());
-        return gDic.GetMethodOrDie(nameof(IDictionary<Object, Object>.Add));
-    }
+            if (typeof(IDictionary).IsAssignableFrom(cType))
+            {
+                var gDic = typeof(IDictionary<,>).MakeGenericType(cType.GetGenericArguments());
+                return gDic.GetMethodOrDie(nameof(IDictionary<Object, Object>.Add));
+            }
 
-    return default;
-}
+            return default;
+        }
 
         private static FieldInfo? GetBackingField(PropertyInfo pi)
         {
@@ -839,7 +811,7 @@ private MethodInfo? GetAddMethodImpl(Type cType)
 
             return backingField;
         }
-        
+
         private static IEnumerable<PropertyInfo> GetPropertyChain(Type declaringType,
                                                                   String propName)
         {
@@ -855,7 +827,7 @@ private MethodInfo? GetAddMethodImpl(Type cType)
 
             for (var c = 1; c < subPropTokens.Length; c++)
             {
-                propInfo =  GetPropertyOrDie(propInfo.PropertyType, subPropTokens[c]);
+                propInfo = GetPropertyOrDie(propInfo.PropertyType, subPropTokens[c]);
                 yield return propInfo;
             }
         }
@@ -939,8 +911,10 @@ private MethodInfo? GetAddMethodImpl(Type cType)
         //private static readonly Object _lockNewType;
 
         private readonly ConcurrentDictionary<Type, VoidMethod> _cachedAdders;
+
         [ThreadStatic]
         private static PropertyInfo[]? _singlePropFairy;
+
         //private readonly INodePool _nodePool;
     }
 }

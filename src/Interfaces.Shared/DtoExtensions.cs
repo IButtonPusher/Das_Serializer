@@ -7,19 +7,22 @@ namespace Das.Extensions
     public static class DtoExtensions
     {
         [MethodImpl(256)]
-        public static Boolean AreDifferent(this Double d1, Double d2)
+        public static Boolean AreDifferent(this Double d1,
+                                           Double d2)
         {
             return Math.Abs(d1 - d2) > MyEpsilon;
         }
 
         [MethodImpl(256)]
-        public static Boolean AreEqualEnough(this Double d1, Double d2)
+        public static Boolean AreEqualEnough(this Double d1,
+                                             Double d2)
         {
             return Math.Abs(d1 - d2) < MyEpsilon;
         }
 
         [MethodImpl(256)]
-        public static Boolean AreEqualEnough(this Double? d1, Double? d2)
+        public static Boolean AreEqualEnough(this Double? d1,
+                                             Double? d2)
         {
             return d1.HasValue && d2.HasValue && Math.Abs(d1.Value - d2.Value) < MyEpsilon;
         }

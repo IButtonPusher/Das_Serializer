@@ -11,7 +11,8 @@ namespace Das.Serializer
 {
     public class NodeManipulator : TypeCore, INodeManipulator
     {
-        public NodeManipulator(ISerializationCore serializationCore, ISerializerSettings settings)
+        public NodeManipulator(ISerializationCore serializationCore,
+                               ISerializerSettings settings)
             : base(settings)
         {
             _serializationCore = serializationCore;
@@ -29,7 +30,7 @@ namespace Das.Serializer
                 if (prop.Value == null)
                     continue;
 
-                propTypes.Add(new DasProperty(prop.Key, 
+                propTypes.Add(new DasProperty(prop.Key,
                     prop.Value.GetType(), new DasAttribute[0]));
             }
 
@@ -83,7 +84,8 @@ namespace Das.Serializer
             return node.Value != null;
         }
 
-        public Type? GetChildType(INode parent, INode child)
+        public Type? GetChildType(INode parent,
+                                  INode child)
         {
             if (parent.Type == null)
             {
@@ -106,9 +108,7 @@ namespace Das.Serializer
                     return parent.Type.GetGenericArguments()[1];
             }
             else if (_types.IsLeaf(parent.Type, true))
-            {
                 return parent.Type;
-            }
 
             return _serializationCore.TypeManipulator.GetPropertyType(parent.Type,
                 child.Name) ?? _serializationCore.TypeManipulator.GetPropertyType(parent.Type,
@@ -142,7 +142,8 @@ namespace Das.Serializer
             if (foundType != null)
             {
                 if (node.Type != null && node.Type != foundType)
-                {}
+                {
+                }
 
                 if (node.Type == foundType)
                     Debug.WriteLine("same same");
@@ -151,7 +152,8 @@ namespace Das.Serializer
             }
         }
 
-        public void EnsureNodeType(INode node, NodeTypes specified)
+        public void EnsureNodeType(INode node,
+                                   NodeTypes specified)
         {
             if (specified == NodeTypes.None)
                 node.NodeType = _nodeTypeProvider.GetNodeType(node.Type,
@@ -165,7 +167,8 @@ namespace Das.Serializer
             node.NodeType = _nodeTypeProvider.GetNodeType(node.Type, Settings.SerializationDepth);
         }
 
-        protected virtual Boolean TryGetExplicitType(INode node, out Type? type)
+        protected virtual Boolean TryGetExplicitType(INode node,
+                                                     out Type? type)
         {
             type = default!;
             return false;
@@ -173,9 +176,9 @@ namespace Das.Serializer
 
         protected static readonly NullNode NullNode = NullNode.Instance;
         protected readonly IInstantiator _instantiator;
+        private readonly INodeTypeProvider _nodeTypeProvider;
         private readonly ISerializationCore _serializationCore;
         private readonly ITypeInferrer _typeInferrer;
         private readonly ITypeCore _types;
-        private readonly INodeTypeProvider _nodeTypeProvider;
     }
 }

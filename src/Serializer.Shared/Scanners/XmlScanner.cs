@@ -7,7 +7,7 @@ namespace Das.Serializer
 {
     public class XmlScanner : TextScanner
     {
-        public XmlScanner(IConverterProvider converterProvider, 
+        public XmlScanner(IConverterProvider converterProvider,
                           ITextContext state)
             : base(converterProvider, state)
         {
@@ -16,44 +16,6 @@ namespace Das.Serializer
         }
 
         public sealed override Boolean IsRespectXmlIgnore => true;
-
-        private void BuildNode()
-        {
-            if (NullNode == CurrentNode &&
-                CurrentTagName == Const.WutXml)
-                ClearCurrents();
-
-            if (CurrentNode.Name.StartsWith("!"))
-                CurrentNode = CurrentNode.Parent;
-
-
-            OpenNode();
-
-            //if (CurrentNode.Name.StartsWith("!"))
-            //    CurrentNode = CurrentNode.Parent;
-        }
-
-        private void ClearCurrents()
-        {
-            CurrentAttributes.Clear();
-            CurrentTagName = Const.Empty;
-            CurrentValue.Clear();
-            _currentAttributeName = null;
-        }
-
-        private void CloseTag()
-        {
-            if (_isInsideTag && HasCurrentTag)
-                BuildNode();
-
-
-            _nodes.Sealer.CloseNode(CurrentNode);
-
-            ClearCurrents();
-
-            if (NullNode != CurrentNode.Parent)
-                CurrentNode = CurrentNode.Parent;
-        }
 
         public void CollateCurrentValue()
         {
@@ -73,23 +35,6 @@ namespace Das.Serializer
         protected sealed override Boolean IsQuote(ref Char c)
         {
             return _isOpeningOrClosingTag && (c == Const.Quote || c == Const.SingleQuote);
-        }
-
-
-        private void OpenTag()
-        {
-            //get any open attribute
-            CollateCurrentValue();
-
-            //<SomeTag> could be a pointless tag like
-            //<Properties></Properties>
-            //or could be good like <ID>5</ID>
-            if (HasCurrentTag)
-                BuildNode();
-
-            _isOpeningTag = false;
-            CurrentTagName = Const.Empty;
-            _currentAttributeName = null;
         }
 
         protected sealed override void ProcessCharacter(Char c)
@@ -132,7 +77,7 @@ namespace Das.Serializer
 
                     _isOpeningTag = false;
                     _isClosingTag = true;
-                    _isOpeningOrClosingTag = true; 
+                    _isOpeningOrClosingTag = true;
                     break;
 
                 case '=':
@@ -179,6 +124,61 @@ namespace Das.Serializer
 
                     break;
             }
+        }
+
+        private void BuildNode()
+        {
+            if (NullNode == CurrentNode &&
+                CurrentTagName == Const.WutXml)
+                ClearCurrents();
+
+            if (CurrentNode.Name.StartsWith("!"))
+                CurrentNode = CurrentNode.Parent;
+
+
+            OpenNode();
+
+            //if (CurrentNode.Name.StartsWith("!"))
+            //    CurrentNode = CurrentNode.Parent;
+        }
+
+        private void ClearCurrents()
+        {
+            CurrentAttributes.Clear();
+            CurrentTagName = Const.Empty;
+            CurrentValue.Clear();
+            _currentAttributeName = null;
+        }
+
+        private void CloseTag()
+        {
+            if (_isInsideTag && HasCurrentTag)
+                BuildNode();
+
+
+            _nodes.Sealer.CloseNode(CurrentNode);
+
+            ClearCurrents();
+
+            if (NullNode != CurrentNode.Parent)
+                CurrentNode = CurrentNode.Parent;
+        }
+
+
+        private void OpenTag()
+        {
+            //get any open attribute
+            CollateCurrentValue();
+
+            //<SomeTag> could be a pointless tag like
+            //<Properties></Properties>
+            //or could be good like <ID>5</ID>
+            if (HasCurrentTag)
+                BuildNode();
+
+            _isOpeningTag = false;
+            CurrentTagName = Const.Empty;
+            _currentAttributeName = null;
         }
 
         private static readonly NullNode NullNode = NullNode.Instance;

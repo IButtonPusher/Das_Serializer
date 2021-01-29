@@ -3,12 +3,12 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using Xunit;
 
 namespace Serializer.Tests.ProtocolBuffers
 {
-    
     public class ProtoBufTests : TestBase
     {
         [Benchmark]
@@ -25,8 +25,8 @@ namespace Serializer.Tests.ProtocolBuffers
                 o.Print(msg, ms);
 
                 ms.Position = 0;
-                
-                outMsg2 = o.Scan(ms);                
+
+                outMsg2 = o.Scan(ms);
             }
 
             return outMsg2;
@@ -47,25 +47,6 @@ namespace Serializer.Tests.ProtocolBuffers
             }
         }
 
-        
-        [Fact]
-        public void SimpleIntegerTest()
-        {
-            //prop A: index = 2, wire type = varint = 0, value = 150
-            //output: 16 150 1
-            //16: indexA(2) << 3 = 10 ### + wire type(0) => ### = 000 so 10000 = 16
-            //150: 10010110 = M0010110 where M = MOAR BYTES and 0010110 = 22
-            //1: 00000001 = T0000001 where T = TERMINATOR and 1 << 7 = 128
-            //128 + 22 = 150 a PropAVal
-
-            var fromNet = ProtoNetSimpleMessage();
-            var fromDas = DasSimpleMessage();
-            
-
-            var equal = SlowEquality.AreEqual(fromDas, fromNet);
-            Assert.True(equal);
-        }
-
         [Benchmark]
         public DoubleMessage DasDoubleMessage()
         {
@@ -74,9 +55,9 @@ namespace Serializer.Tests.ProtocolBuffers
             using (var ms = new MemoryStream())
             {
                 o.Print(msg, ms);
-               
+
                 ms.Position = 0;
-                return o.Scan(ms);                
+                return o.Scan(ms);
             }
         }
 
@@ -94,30 +75,6 @@ namespace Serializer.Tests.ProtocolBuffers
         }
 
 
-        
-        [Fact]
-            public void SimpleDoubleTest()
-        {
-            var fromDas = DasDoubleMessage();
-            var fromDas2 = DasDoubleMessage();
-            var fromDas3 = DasDoubleMessage();
-            var fromDas4 = DasDoubleMessage();
-            var fromDas5 = DasDoubleMessage();
-            var fromDas6 = DasDoubleMessage();
-
-            var fromNet = ProtoNetDoubleMeessage();
-
-            var equal = SlowEquality.AreEqual(fromDas, fromNet);
-            equal &= SlowEquality.AreEqual(fromDas2, fromNet);
-            equal &= SlowEquality.AreEqual(fromDas3, fromNet);
-            equal &= SlowEquality.AreEqual(fromDas4, fromNet);
-            equal &= SlowEquality.AreEqual(fromDas5, fromNet);
-            equal &= SlowEquality.AreEqual(fromDas6, fromNet);
-            Assert.True(equal);
-        }
-
-
-
         [Benchmark]
         public StringMessage DasStringMessage()
         {
@@ -129,10 +86,9 @@ namespace Serializer.Tests.ProtocolBuffers
             using (var ms = new MemoryStream())
             {
                 o.Print(msg, ms);
-                
+
                 ms.Position = 0;
                 return o.Scan(ms);
-                
             }
         }
 
@@ -146,28 +102,6 @@ namespace Serializer.Tests.ProtocolBuffers
                 ms.Position = 0;
                 return ProtoBuf.Serializer.Deserialize<StringMessage>(ms);
             }
-        }
-
-
-        
-        [Fact]public void SimpleStringTest()
-        {
-            var fromDas = DasStringMessage();
-            var fromDas2 = DasStringMessage();
-            var fromDas3 = DasStringMessage();
-            var fromDas4 = DasStringMessage();
-            var fromDas5 = DasStringMessage();
-            var fromDas6 = DasStringMessage();
-
-            var fromNet = ProtoNetStringMessage();
-
-            var equal = SlowEquality.AreEqual(fromDas, fromNet);
-            equal &= SlowEquality.AreEqual(fromDas2, fromNet);
-            equal &= SlowEquality.AreEqual(fromDas3, fromNet);
-            equal &= SlowEquality.AreEqual(fromDas4, fromNet);
-            equal &= SlowEquality.AreEqual(fromDas5, fromNet);
-            equal &= SlowEquality.AreEqual(fromDas6, fromNet);
-            Assert.True(equal);
         }
 
 
@@ -216,7 +150,7 @@ namespace Serializer.Tests.ProtocolBuffers
             var o = TypeProvider.GetProtoProxy<CollectionsPropertyMessage>();
 
             //TypeProvider.DumpProxies();
-            
+
             using (var ms = new MemoryStream())
             {
                 o.Print(mc1, ms);
@@ -235,7 +169,7 @@ namespace Serializer.Tests.ProtocolBuffers
             using (var ms = new MemoryStream())
             {
                 ProtoBuf.Serializer.Serialize(ms, mc1);
-                
+
                 //Debug.WriteLine("PNET\r\n-----------------------------------");
                 //PrintMemoryStream(ms);
                 ms.Position = 0;
@@ -270,7 +204,7 @@ namespace Serializer.Tests.ProtocolBuffers
             using (var ms = new MemoryStream())
             {
                 ProtoBuf.Serializer.Serialize(ms, mc1);
-                
+
                 //Debug.WriteLine("PNET\r\n-----------------------------------");
                 //PrintMemoryStream(ms);
                 ms.Position = 0;
@@ -287,76 +221,24 @@ namespace Serializer.Tests.ProtocolBuffers
                 Debug.WriteLine(arr[c]);
         }
 
-        [Fact]
-        public void PackedRepeatedTest()
-        {
-            var fromNet = ProtoPackedArray();
-            
-            var fromDas = DasPackedArray();
-
-            Assert.True(SlowEquality.AreEqual(fromNet, fromDas));
-        }
-        
-        [Fact]public void CollectionsTest()
-        {
-            var fromNet = ProtoCollections();
-            
-            var fromDas = DasCollections();
-            var fromDas2 = DasCollections();
-            var fromDas3 = DasCollections();
-            var fromDas4 = DasCollections();
-            var fromDas5 = DasCollections();
-            var fromDas6 = DasCollections();
-
-            var equal = SlowEquality.AreEqual(fromDas, fromNet);
-            equal &= SlowEquality.AreEqual(fromDas2, fromNet);
-            equal &= SlowEquality.AreEqual(fromDas3, fromNet);
-            equal &= SlowEquality.AreEqual(fromDas4, fromNet);
-            equal &= SlowEquality.AreEqual(fromDas5, fromNet);
-            equal &= SlowEquality.AreEqual(fromDas6, fromNet);
-            Assert.True(equal);
-        }
-
-        
-        [Fact]public void DictionaryTest()
-        {
-
-            var fromNet = ProtoNetObjectDictionary();
-            
-            var fromDas = DasDictionary();
-            var fromDas2 = DasDictionary();
-            var fromDas3 = DasDictionary();
-            var fromDas4 = DasDictionary();
-            var fromDas5 = DasDictionary();
-            var fromDas6 = DasDictionary();
-
-            var equal = SlowEquality.AreEqual(fromDas, fromNet);
-            equal &= SlowEquality.AreEqual(fromDas2, fromNet);
-            equal &= SlowEquality.AreEqual(fromDas3, fromNet);
-            equal &= SlowEquality.AreEqual(fromDas4, fromNet);
-            equal &= SlowEquality.AreEqual(fromDas5, fromNet);
-            equal &= SlowEquality.AreEqual(fromDas6, fromNet);
-            Assert.True(equal);
-        }
-
         [Benchmark]
         public IntPropMessage DasNegativeIntegerMessage()
         {
-            var msg = new IntPropMessage { A = -150 };
+            var msg = new IntPropMessage {A = -150};
             var o = TypeProvider.GetProtoProxy<IntPropMessage>();
             using (var ms = new MemoryStream())
             {
                 o.Print(msg, ms);
-                
+
                 ms.Position = 0;
-                return o.Scan(ms);                
+                return o.Scan(ms);
             }
         }
 
         [Benchmark]
         public IntPropMessage ProtoNetNegativeIntegerMessage()
         {
-            var msg = new IntPropMessage { A = -150 };
+            var msg = new IntPropMessage {A = -150};
             using (var ms = new MemoryStream())
             {
                 ProtoBuf.Serializer.Serialize(ms, msg);
@@ -364,40 +246,6 @@ namespace Serializer.Tests.ProtocolBuffers
                 return ProtoBuf.Serializer.Deserialize<IntPropMessage>(ms);
             }
         }
-
-        
-        [Fact]public void DynamicTypeTest()
-        {
-            var simpleTest = TypeProvider.GetProtoProxy<SimpleMessage>();
-            Assert.NotNull(simpleTest);
-        }
-
-
-        
-        [Fact]public void NegativeIntegerTest()
-        {
-            //prop A: index = 2, wire type = varint = 0, val = -150
-            //output: 16 234 254 255 255 255 255 255 255 255 1
-            //16: indexA(2) << 3 = 10 ### + wire type(0) => ### = 000 so 10000 = 16
-
-            var fromDas = DasNegativeIntegerMessage();
-            var fromDas2 = DasNegativeIntegerMessage();
-            var fromDas3 = DasNegativeIntegerMessage();
-            var fromDas4 = DasNegativeIntegerMessage();
-            var fromDas5 = DasNegativeIntegerMessage();
-
-            var fromNet = ProtoNetNegativeIntegerMessage();
-
-            var equal = SlowEquality.AreEqual(fromDas, fromNet);
-            equal &= SlowEquality.AreEqual(fromDas2, fromNet);
-            equal &= SlowEquality.AreEqual(fromDas3, fromNet);
-            equal &= SlowEquality.AreEqual(fromDas4, fromNet);
-            equal &= SlowEquality.AreEqual(fromDas5, fromNet);
-            
-            Assert.True(equal);
-        }
-
-
 
 
         [Benchmark]
@@ -413,7 +261,7 @@ namespace Serializer.Tests.ProtocolBuffers
             using (var ms = new MemoryStream())
             {
                 o.Print(msg, ms);
-                
+
                 ms.Position = 0;
                 return o.Scan(ms);
             }
@@ -433,29 +281,6 @@ namespace Serializer.Tests.ProtocolBuffers
                 ms.Position = 0;
                 return ProtoBuf.Serializer.Deserialize<MultiPropMessage>(ms);
             }
-        }
-
-
-        
-        [Fact]public void MultiPropTest()
-        {
-            var fromDas = DasMultiProperties();
-            var fromDas2 = DasMultiProperties();
-            var fromDas3 = DasMultiProperties();
-            var fromDas4 = DasMultiProperties();
-            var fromDas5 = DasMultiProperties();
-
-            var fromNet = ProtoNetMultiProperties();
-
-            //TypeProvider.DumpProxies();
-
-            var equal = SlowEquality.AreEqual(fromDas, fromNet);
-            equal &= SlowEquality.AreEqual(fromDas2, fromNet);
-            equal &= SlowEquality.AreEqual(fromDas3, fromNet);
-            equal &= SlowEquality.AreEqual(fromDas4, fromNet);
-            equal &= SlowEquality.AreEqual(fromDas5, fromNet);
-            
-            Assert.True(equal);
         }
 
         [Benchmark]
@@ -497,7 +322,7 @@ namespace Serializer.Tests.ProtocolBuffers
             var msg = ComposedCollectionMessage.Default;
             var o = TypeProvider.GetProtoProxy<ComposedCollectionMessage>();
 
-        //    TypeProvider.DumpProxies();
+            //    TypeProvider.DumpProxies();
 
             using (var ms = new MemoryStream())
             {
@@ -523,41 +348,6 @@ namespace Serializer.Tests.ProtocolBuffers
             }
         }
 
-        
-        [Fact]public void ComposedTest()
-        {
-            var fromNet = ProtoNetComposedMessage();
-            var fromDas = DasComposedMessage();
-            var fromDas2 = DasComposedMessage();
-            var fromDas3 = DasComposedMessage();
-            var fromDas4 = DasComposedMessage();
-            
-
-            var equal = SlowEquality.AreEqual(fromDas, fromNet);
-            equal &= SlowEquality.AreEqual(fromDas2, fromNet);
-            equal &= SlowEquality.AreEqual(fromDas3, fromNet);
-            equal &= SlowEquality.AreEqual(fromDas4, fromNet);
-            Assert.True(equal);
-        }
-
-
-
-        [Fact]public void ComposedCollectionTest()
-        {
-            var fromNet = ProtoNetComposedCollectionMessage();
-            var fromDas = DasComposedCollectionMessage();
-            var fromDas2 = DasComposedCollectionMessage();
-            var fromDas3 = DasComposedCollectionMessage();
-            var fromDas4 = DasComposedCollectionMessage();
-            
-
-            var equal = SlowEquality.AreEqual(fromDas, fromNet);
-            equal &= SlowEquality.AreEqual(fromDas2, fromNet);
-            equal &= SlowEquality.AreEqual(fromDas3, fromNet);
-            equal &= SlowEquality.AreEqual(fromDas4, fromNet);
-            Assert.True(equal);
-        }
-
         [Benchmark]
         public ByteArrayMessage DasByteArray()
         {
@@ -572,11 +362,11 @@ namespace Serializer.Tests.ProtocolBuffers
                 o.Print(msg, ms);
 
                 ms.Position = 0;
-                return o.Scan(ms);                
+                return o.Scan(ms);
             }
         }
 
-        private static readonly ByteArrayMessage ByteArrayMessage = new ByteArrayMessage
+        private static readonly ByteArrayMessage ByteArrayMessage = new()
         {
             ByteArray = new Byte[] {127, 0, 0, 1, 255, 123}
         };
@@ -589,19 +379,18 @@ namespace Serializer.Tests.ProtocolBuffers
             using (var ms = new MemoryStream())
             {
                 ProtoBuf.Serializer.Serialize(ms, msg);
-                
+
                 ms.Position = 0;
                 return ProtoBuf.Serializer.Deserialize<ByteArrayMessage>(ms);
             }
         }
 
-      
 
-        
-        [Fact]public void ByteArrayTest()
+        [Fact]
+        public void ByteArrayTest()
         {
             var fromNet = ProtoNetByteArray();
-            
+
             var fromDas1 = DasByteArray();
             var fromDas2 = DasByteArray();
             var fromDas3 = DasByteArray();
@@ -612,11 +401,214 @@ namespace Serializer.Tests.ProtocolBuffers
             Assert.True(equal);
         }
 
+        [Fact]
+        public void CollectionsTest()
+        {
+            var fromNet = ProtoCollections();
+
+            var fromDas = DasCollections();
+            var fromDas2 = DasCollections();
+            var fromDas3 = DasCollections();
+            var fromDas4 = DasCollections();
+            var fromDas5 = DasCollections();
+            var fromDas6 = DasCollections();
+
+            var equal = SlowEquality.AreEqual(fromDas, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas2, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas3, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas4, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas5, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas6, fromNet);
+            Assert.True(equal);
+        }
+
+
+        [Fact]
+        public void ComposedCollectionTest()
+        {
+            var fromNet = ProtoNetComposedCollectionMessage();
+            var fromDas = DasComposedCollectionMessage();
+            var fromDas2 = DasComposedCollectionMessage();
+            var fromDas3 = DasComposedCollectionMessage();
+            var fromDas4 = DasComposedCollectionMessage();
+
+
+            var equal = SlowEquality.AreEqual(fromDas, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas2, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas3, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas4, fromNet);
+            Assert.True(equal);
+        }
+
+
+        [Fact]
+        public void ComposedTest()
+        {
+            var fromNet = ProtoNetComposedMessage();
+            var fromDas = DasComposedMessage();
+            var fromDas2 = DasComposedMessage();
+            var fromDas3 = DasComposedMessage();
+            var fromDas4 = DasComposedMessage();
+
+
+            var equal = SlowEquality.AreEqual(fromDas, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas2, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas3, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas4, fromNet);
+            Assert.True(equal);
+        }
+
+
+        [Fact]
+        public void DictionaryTest()
+        {
+            var fromNet = ProtoNetObjectDictionary();
+
+            var fromDas = DasDictionary();
+            var fromDas2 = DasDictionary();
+            var fromDas3 = DasDictionary();
+            var fromDas4 = DasDictionary();
+            var fromDas5 = DasDictionary();
+            var fromDas6 = DasDictionary();
+
+            var equal = SlowEquality.AreEqual(fromDas, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas2, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas3, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas4, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas5, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas6, fromNet);
+            Assert.True(equal);
+        }
+
+
+        [Fact]
+        public void DynamicTypeTest()
+        {
+            var simpleTest = TypeProvider.GetProtoProxy<SimpleMessage>();
+            Assert.NotNull(simpleTest);
+        }
+
+
+        [Fact]
+        public void MultiPropTest()
+        {
+            var fromDas = DasMultiProperties();
+            var fromDas2 = DasMultiProperties();
+            var fromDas3 = DasMultiProperties();
+            var fromDas4 = DasMultiProperties();
+            var fromDas5 = DasMultiProperties();
+
+            var fromNet = ProtoNetMultiProperties();
+
+            //TypeProvider.DumpProxies();
+
+            var equal = SlowEquality.AreEqual(fromDas, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas2, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas3, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas4, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas5, fromNet);
+
+            Assert.True(equal);
+        }
+
+
+        [Fact]
+        public void NegativeIntegerTest()
+        {
+            //prop A: index = 2, wire type = varint = 0, val = -150
+            //output: 16 234 254 255 255 255 255 255 255 255 1
+            //16: indexA(2) << 3 = 10 ### + wire type(0) => ### = 000 so 10000 = 16
+
+            var fromDas = DasNegativeIntegerMessage();
+            var fromDas2 = DasNegativeIntegerMessage();
+            var fromDas3 = DasNegativeIntegerMessage();
+            var fromDas4 = DasNegativeIntegerMessage();
+            var fromDas5 = DasNegativeIntegerMessage();
+
+            var fromNet = ProtoNetNegativeIntegerMessage();
+
+            var equal = SlowEquality.AreEqual(fromDas, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas2, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas3, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas4, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas5, fromNet);
+
+            Assert.True(equal);
+        }
+
+        [Fact]
+        public void PackedRepeatedTest()
+        {
+            var fromNet = ProtoPackedArray();
+
+            var fromDas = DasPackedArray();
+
+            Assert.True(SlowEquality.AreEqual(fromNet, fromDas));
+        }
+
+
+        [Fact]
+        public void SimpleDoubleTest()
+        {
+            var fromDas = DasDoubleMessage();
+            var fromDas2 = DasDoubleMessage();
+            var fromDas3 = DasDoubleMessage();
+            var fromDas4 = DasDoubleMessage();
+            var fromDas5 = DasDoubleMessage();
+            var fromDas6 = DasDoubleMessage();
+
+            var fromNet = ProtoNetDoubleMeessage();
+
+            var equal = SlowEquality.AreEqual(fromDas, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas2, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas3, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas4, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas5, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas6, fromNet);
+            Assert.True(equal);
+        }
+
+
+        [Fact]
+        public void SimpleIntegerTest()
+        {
+            //prop A: index = 2, wire type = varint = 0, value = 150
+            //output: 16 150 1
+            //16: indexA(2) << 3 = 10 ### + wire type(0) => ### = 000 so 10000 = 16
+            //150: 10010110 = M0010110 where M = MOAR BYTES and 0010110 = 22
+            //1: 00000001 = T0000001 where T = TERMINATOR and 1 << 7 = 128
+            //128 + 22 = 150 a PropAVal
+
+            var fromNet = ProtoNetSimpleMessage();
+            var fromDas = DasSimpleMessage();
+
+
+            var equal = SlowEquality.AreEqual(fromDas, fromNet);
+            Assert.True(equal);
+        }
+
+
+        [Fact]
+        public void SimpleStringTest()
+        {
+            var fromDas = DasStringMessage();
+            var fromDas2 = DasStringMessage();
+            var fromDas3 = DasStringMessage();
+            var fromDas4 = DasStringMessage();
+            var fromDas5 = DasStringMessage();
+            var fromDas6 = DasStringMessage();
+
+            var fromNet = ProtoNetStringMessage();
+
+            var equal = SlowEquality.AreEqual(fromDas, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas2, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas3, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas4, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas5, fromNet);
+            equal &= SlowEquality.AreEqual(fromDas6, fromNet);
+            Assert.True(equal);
+        }
     }
-
-
-
-
 }
 
 

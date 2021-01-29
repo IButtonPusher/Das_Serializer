@@ -6,7 +6,8 @@ namespace Das.Serializer
     public class BinaryNodeSealer : BaseNodeSealer<IBinaryNode>
     {
         public BinaryNodeSealer(INodeManipulator nodeManipulator,
-                                ISerializationCore dynamicFacade, ISerializerSettings settings)
+                                ISerializationCore dynamicFacade,
+                                ISerializerSettings settings)
             : base(dynamicFacade, nodeManipulator, settings)
         {
             _nodeManipulator = nodeManipulator;
@@ -45,12 +46,14 @@ namespace Das.Serializer
             }
 
             foreach (var item in node.PendingReferences)
+            {
                 item.Value = node.Value;
+            }
         }
 
-        public override Boolean TryGetPropertyValue(IBinaryNode node, 
+        public override Boolean TryGetPropertyValue(IBinaryNode node,
                                                     String key,
-                                                    Type propertyType, 
+                                                    Type propertyType,
                                                     out Object val)
         {
             var propKey = _dynamicFacade.TypeInferrer.ToPropertyStyle(key);

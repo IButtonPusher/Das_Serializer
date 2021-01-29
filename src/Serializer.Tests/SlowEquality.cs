@@ -2,8 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading.Tasks;
 using Das.Extensions;
 using Das.Serializer;
+
 #pragma warning disable 8600
 #pragma warning disable 8605
 #pragma warning disable 8604
@@ -13,16 +15,19 @@ using Das.Serializer;
 
 namespace Serializer.Tests
 {
-	public static class SlowEquality
-	{
-		public static Boolean AreEqual<T>(T left, T right)
-		{
-			var fk = "";
-			return AreEqual(left, right, ref fk);
-		}
+    public static class SlowEquality
+    {
+        public static Boolean AreEqual<T>(T left,
+                                          T right)
+        {
+            var fk = "";
+            return AreEqual(left, right, ref fk);
+        }
 
-		public static Boolean AreEqual<T>(T left, T right, ref String badProp)
-		{
+        public static Boolean AreEqual<T>(T left,
+                                          T right,
+                                          ref String badProp)
+        {
             if (ReferenceEquals(left, null) != ReferenceEquals(right, null))
                 return false;
 
@@ -32,35 +37,36 @@ namespace Serializer.Tests
             if (left.Equals(right))
                 return true;
 
-			if (badProp == null)
-				badProp = "";
-			if (left == null && right != null)
-				return false;
+            if (badProp == null)
+                badProp = "";
+            if (left == null && right != null)
+                return false;
 
-			var refl = typeof(T);
-			if (refl == typeof(Object))
-			{
-				if (left == null && right == null)
-					return true;
-				if (left != null && right == null)
-					return false;
-				if (left == null && right != null)
-					return false;
+            var refl = typeof(T);
+            if (refl == typeof(Object))
+            {
+                if (left == null && right == null)
+                    return true;
+                if (left != null && right == null)
+                    return false;
+                if (left == null && right != null)
+                    return false;
 
-				refl = left.GetType();
-			}
-			
-			if (TypeCore.IsLeaf(refl, true))
-			{
-				if (!EqualityComparer<T>.Default.Equals(left, right))
-				{
-					return false;
-				}
-				return true;
-			}
+                refl = left.GetType();
+            }
 
-			if (refl.IsCollection())
-			{
+            if (TypeCore.IsLeaf(refl, true))
+            {
+                if (!EqualityComparer<T>.Default.Equals(left, right))
+                {
+                    return false;
+                }
+
+                return true;
+            }
+
+            if (refl.IsCollection())
+            {
                 if (left is IList listLeft && right is IList listRight)
                 {
                     if (listLeft.Count != listRight.Count)
@@ -85,53 +91,52 @@ namespace Serializer.Tests
                         if (!AreEqual(leftDict[k], rightDict[k]))
                             return false;
                     }
-
                 }
                 else throw new NotSupportedException();
 
-				return true;
-			}
+                return true;
+            }
 
-			var propsFound = 0;
-			foreach (var prop in refl.GetProperties(BindingFlags.Public |
-				BindingFlags.Instance))
-			{
-				var l = prop.GetValue(left);
+            var propsFound = 0;
+            foreach (var prop in refl.GetProperties(BindingFlags.Public |
+                                                    BindingFlags.Instance))
+            {
+                var l = prop.GetValue(left);
                 var rProp = right.GetType().GetProperty(prop.Name);
 
-				var r = rProp.GetValue(right);
-				if (!AreEqual(l, r, ref badProp))
-				{
-					badProp = prop.Name;
-					return false;
-				}
-				propsFound++;
-			}
-			if (propsFound == 0)
-			{
-				if (refl.IsCollection())
-				{
-					var i = 0;
-					var iRight = right as IList;
-					foreach (var something in ((IList)left))
-					{
-						if (SlowEquality.AreEqual(something, iRight[i++]))
-							return false;
-					}
-					
-				}
+                var r = rProp.GetValue(right);
+                if (!AreEqual(l, r, ref badProp))
+                {
+                    badProp = prop.Name;
+                    return false;
+                }
 
-				if (!EqualityComparer<T>.Default.Equals(left, right))
-				{
-					return false;
-				}
-			}
+                propsFound++;
+            }
 
-			return true;
-		}
-     
+            if (propsFound == 0)
+            {
+                if (refl.IsCollection())
+                {
+                    var i = 0;
+                    var iRight = right as IList;
+                    foreach (var something in ((IList) left))
+                    {
+                        if (AreEqual(something, iRight[i++]))
+                            return false;
+                    }
+                }
+
+                if (!EqualityComparer<T>.Default.Equals(left, right))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         public static Boolean IsCollection(this Type type) =>
-        typeof(IEnumerable).IsAssignableFrom(type) && !type.IsString();
-
+            typeof(IEnumerable).IsAssignableFrom(type) && !type.IsString();
     }
 }

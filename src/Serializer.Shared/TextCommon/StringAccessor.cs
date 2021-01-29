@@ -8,14 +8,14 @@ namespace Das.Serializer
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public class StringAccessor : StringBase, ITextAccessor
     {
-        public StringAccessor(String accessing)
-        {
-            _accessing = accessing;
-        }
-
         static StringAccessor()
         {
             Empty = new StringAccessor(String.Empty);
+        }
+
+        public StringAccessor(String accessing)
+        {
+            _accessing = accessing;
         }
 
         public Char this[Int32 index] => _accessing[index];
@@ -25,7 +25,8 @@ namespace Das.Serializer
             return _accessing.Split();
         }
 
-        public String[] Split(Char[] separators, StringSplitOptions options = StringSplitOptions.RemoveEmptyEntries)
+        public String[] Split(Char[] separators,
+                              StringSplitOptions options = StringSplitOptions.RemoveEmptyEntries)
         {
             return _accessing.Split(separators, options);
         }
@@ -65,7 +66,8 @@ namespace Das.Serializer
             return cnt;
         }
 
-        public String Substring(Int32 start, Int32 length)
+        public String Substring(Int32 start,
+                                Int32 length)
         {
             return _accessing.Substring(start, length);
         }
@@ -75,7 +77,8 @@ namespace Das.Serializer
             return _accessing.Substring(start);
         }
 
-        public Boolean Contains(String str, StringComparison comparison)
+        public Boolean Contains(String str,
+                                StringComparison comparison)
         {
             return _accessing.IndexOf(str, comparison) >= 0;
         }
@@ -88,7 +91,10 @@ namespace Das.Serializer
             return String.IsNullOrWhiteSpace(_accessing);
         }
 
-        public void CopyTo(Int32 sourceIndex, Char[] destination, Int32 destinationIndex, Int32 count)
+        public void CopyTo(Int32 sourceIndex,
+                           Char[] destination,
+                           Int32 destinationIndex,
+                           Int32 count)
         {
             _accessing.CopyTo(sourceIndex, destination, destinationIndex, count);
         }
@@ -104,7 +110,8 @@ namespace Das.Serializer
             return accessMe?._accessing;
         }
 
-        public String Remove(Int32 start, Int32 length)
+        public String Remove(Int32 start,
+                             Int32 length)
         {
             return _accessing.Remove(start, length);
         }
@@ -130,8 +137,8 @@ namespace Das.Serializer
             return _accessing.Trim();
         }
 
-        private readonly String _accessing;
-
         public static StringAccessor Empty;
+
+        private readonly String _accessing;
     }
 }

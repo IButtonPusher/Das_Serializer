@@ -13,11 +13,6 @@ namespace Das.Serializer
 
         private static StringBuilder Builder => _buffer.Value;
 
-        protected sealed override bool CanValueBeNumber(Boolean wasInputInQuotes)
-        {
-            return !wasInputInQuotes;
-        }
-
         public override String Descape(String? input)
         {
             if (input == null)
@@ -104,7 +99,12 @@ namespace Das.Serializer
             return sbString.ToString();
         }
 
+        protected sealed override bool CanValueBeNumber(Boolean wasInputInQuotes)
+        {
+            return !wasInputInQuotes;
+        }
+
         private static readonly ThreadLocal<StringBuilder> _buffer
-            = new ThreadLocal<StringBuilder>(() => new StringBuilder());
+            = new(() => new StringBuilder());
     }
 }

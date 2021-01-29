@@ -1,17 +1,17 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Das.Serializer.Scanners
 {
     public class NullAttributeValueSurrogates : IAttributeValueSurrogates
     {
-        public bool TryGetValue(ITextNode node, 
+        public bool TryGetValue(ITextNode node,
                                 String attributeName,
-                                String attributeText, 
+                                String attributeText,
                                 out Object value)
         {
             value = null!;
             return false;
         }
-
     }
 }

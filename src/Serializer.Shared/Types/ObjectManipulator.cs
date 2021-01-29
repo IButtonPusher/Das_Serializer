@@ -290,14 +290,14 @@ namespace Das.Types
                 let mparams = m.GetParameters()
                 where string.Equals(m.Name, "op_Implicit") &&
                       m.ReturnType == tt &&
-                      mparams.Length == 1 && 
+                      mparams.Length == 1 &&
                       mparams[0].ParameterType == o.GetType()
                 select m;
 
             var useImplicit = implicitOperators.FirstOrDefault();
             if (useImplicit != null)
             {
-                result = (T) useImplicit.Invoke(null, new[] { o} );
+                result = (T) useImplicit.Invoke(null, new[] {o});
                 return true;
             }
 

@@ -31,15 +31,17 @@ namespace Das.Serializer.ProtoBuf
                 typeof(Boolean), false, out var fieldInfo);
 
             foreach (var ctor in baseCtors)
+            {
                 BuildOverrideConstructor(ctor, bldr,
                     dtoCtor, fieldInfo, childProxies, isDtoReadOnly);
+            }
 
             return dtoCtor;
         }
 
-        private static void AddDtoInstantiator(Type parentType, 
+        private static void AddDtoInstantiator(Type parentType,
                                                TypeBuilder bldr,
-                                               Type genericParent, 
+                                               Type genericParent,
                                                ConstructorInfo ctor)
         {
             var abstractMethod = genericParent.GetMethodOrDie(
@@ -51,9 +53,7 @@ namespace Das.Serializer.ProtoBuf
             var il = method.GetILGenerator();
 
             if (ctor.IsPublic)
-            {
                 il.Emit(OpCodes.Newobj, ctor);
-            }
             else
             {
                 // instantiate via private constructor = emit reflection =\
@@ -120,7 +120,7 @@ namespace Das.Serializer.ProtoBuf
 
         private void BuildOverrideConstructor(ConstructorInfo baseCtor,
                                               TypeBuilder builder,
-                                              ConstructorInfo dtoCtor, 
+                                              ConstructorInfo dtoCtor,
                                               FieldInfo readOnlyBackingField,
                                               IEnumerable<FieldBuilder> childProxies,
                                               Boolean isDtoReadOnly)
@@ -211,7 +211,7 @@ namespace Das.Serializer.ProtoBuf
             il.Emit(OpCodes.Ret);
         }
 
-        private static FieldBuilder CreateLocalProxy(IProtoFieldAccessor field, 
+        private static FieldBuilder CreateLocalProxy(IProtoFieldAccessor field,
                                                      TypeBuilder builder,
                                                      Type germane)
         {
@@ -226,6 +226,7 @@ namespace Das.Serializer.ProtoBuf
             var typeProxies = new Dictionary<Type, FieldBuilder>();
 
             foreach (var field in fields)
+            {
                 switch (field.FieldAction)
                 {
                     case ProtoFieldAction.ChildObject:
@@ -250,6 +251,7 @@ namespace Das.Serializer.ProtoBuf
 
                         break;
                 }
+            }
 
             return typeProxies;
         }

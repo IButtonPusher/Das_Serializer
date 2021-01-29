@@ -1,16 +1,19 @@
 ﻿using System;
+using System.Threading.Tasks;
+
+
+#if !GENERATECODE
+using Das.Serializer;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Das.Serializer;
+#endif
 
 namespace Das.Types
 {
     public partial class TypeManipulator
     {
-        
         #if !GENERATECODE
-        
         public sealed override Func<Object, Object> CreatePropertyGetter(Type targetType,
                                                                 PropertyInfo propertyInfo)
         {
@@ -75,27 +78,24 @@ namespace Das.Types
             return bobbith;
         }
 
-        
+
         #endif
-        
+
         #if !GENERATECODE || TEST_NO_CODEGENERATION
 
-        
-        
+
         public static Func<object, object> CreateExpressionPropertyGetter(Type targetType,
                                                                           PropertyInfo propertyInfo)
         {
             _singlePropFairy ??= new PropertyInfo[1];
             _singlePropFairy[0] = propertyInfo;
             return CreateExpressionPropertyGetterImpl(targetType, _singlePropFairy);
-          
         }
 
         private static Func<Object, Object> CreateExpressionPropertyGetterImpl(
             Type targetType,
             PropertyInfo[] propChainArr)
         {
-
             var targetObj = Expression.Parameter(typeof(object), "t");
             //convert arg0 from obj to the declaring type so the getter can be called
             var arg0 = Expression.Convert(targetObj, targetType);
@@ -108,11 +108,11 @@ namespace Das.Types
             for (var c = 0; c < propChainArr.Length; c++)
             {
                 var propInfo = propChainArr[c];
-                
+
                 var getter = propInfo.GetGetMethod();
-                
+
                 currentPropVal = Expression.Call(currentPropVal, getter);
-                
+
                 //have to convert it so it can be the return value of our delegate
                 propValObj = Expression.Convert(currentPropVal, typeof(object));
 
@@ -121,46 +121,46 @@ namespace Das.Types
                     var isNull = Expression.ReferenceEqual(
                         Expression.Constant(null), propValObj);
 
-                    Expression.IfThen(isNull, 
+                    Expression.IfThen(isNull,
                         Expression.Return(doneOrNullValue));
                 }
             }
-            
+
             Expression.Label(doneOrNullValue);
-                
+
             var lambda = Expression.Lambda<Func<object, object>>(propValObj, targetObj);
 
             var action = lambda.Compile();
             return action;
         }
-        
-        public static PropertySetter CreateExpressionPropertySetter(Type targetType, 
-                                                       String memberName)
+
+        public static PropertySetter CreateExpressionPropertySetter(Type targetType,
+                                                                    String memberName)
         {
             var propChainArr = GetPropertyChain(targetType, memberName).ToArray();
-            
+
             var objArg0 = Expression.Parameter(typeof(object).MakeByRefType(), "arg0");
             var objVal = Expression.Parameter(typeof(object), "val");
-            var val = Expression.Convert(objVal, propChainArr[propChainArr.Length-1].PropertyType);
+            var val = Expression.Convert(objVal, propChainArr[propChainArr.Length - 1].PropertyType);
             //convert arg0 from obj to the declaring type so the getter can be called
             var arg0 = Expression.Convert(objArg0, targetType);
 
             Expression currentPropVal = arg0;
 
             var doneOrNullValue = Expression.Label();
-            Expression propValObj;// = Expression.Constant(null);
+            Expression propValObj; // = Expression.Constant(null);
 
             PropertyInfo propInfo;
             var c = 0;
-            
-            for (;c < propChainArr.Length - 1; c++)
+
+            for (; c < propChainArr.Length - 1; c++)
             {
                 propInfo = propChainArr[c];
 
                 var getter = propInfo.GetGetMethod();
-                
+
                 currentPropVal = Expression.Call(currentPropVal, getter);
-                
+
                 //have to convert it so it can be the return value of our delegate
                 propValObj = Expression.Convert(currentPropVal, typeof(object));
 
@@ -169,7 +169,7 @@ namespace Das.Types
                     var isNull = Expression.ReferenceEqual(
                         Expression.Constant(null), propValObj);
 
-                    Expression.IfThen(isNull, 
+                    Expression.IfThen(isNull,
                         Expression.Return(doneOrNullValue));
                 }
             }
@@ -177,15 +177,14 @@ namespace Das.Types
             propInfo = propChainArr[c];
 
             var setter = propInfo.GetSetMethod();
-                var setterCall = Expression.Call(currentPropVal, setter, val);
-                Expression.Label(doneOrNullValue);
-                return Expression.Lambda<PropertySetter>(setterCall, objArg0, objVal)
-                                 .Compile();
+            var setterCall = Expression.Call(currentPropVal, setter, val);
+            Expression.Label(doneOrNullValue);
+            return Expression.Lambda<PropertySetter>(setterCall, objArg0, objVal)
+                             .Compile();
         }
-        
-        
 
-        public static Func<object, object> CreateExpressionPropertyGetter(Type targetType, 
+
+        public static Func<object, object> CreateExpressionPropertyGetter(Type targetType,
                                                                           String propertyName)
         {
             var propChainArr = GetPropertyChain(targetType, propertyName).ToArray();
@@ -196,7 +195,7 @@ namespace Das.Types
         {
             var objArg0 = Expression.Parameter(typeof(object).MakeByRefType(), "arg0");
             var arg0 = Expression.Convert(objArg0, propInfo.DeclaringType!);
-            
+
             var objVal = Expression.Parameter(typeof(object), "val");
             var val = Expression.Convert(objVal, propInfo.PropertyType);
 
@@ -207,7 +206,7 @@ namespace Das.Types
             return Expression.Lambda<PropertySetter>(setterCall, objArg0, objVal)
                              .Compile();
         }
-        
+
         #endif
     }
 }

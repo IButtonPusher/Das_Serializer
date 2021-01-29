@@ -26,13 +26,18 @@ namespace Das.Streamers
             do
             {
                 foreach (var c in encoding.GetChars(buffer, offset, found))
+                {
                     yield return c;
+                }
 
                 found = _stream.Read(buffer, offset, bufferSize);
             } while (found > 0);
         }
 
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
 
         public void Dispose()
         {

@@ -12,7 +12,7 @@ namespace Das.Serializer
         ///     Searches base classes/interfaces more easily than using Type.GetProperty with
         ///     a labyrinth of BindingFlags
         /// </summary>
-        PropertyInfo? FindPublicProperty(Type type, 
+        PropertyInfo? FindPublicProperty(Type type,
                                          String propertyName);
 
         /// <summary>
@@ -23,6 +23,8 @@ namespace Das.Serializer
 
         IEnumerable<PropertyInfo> GetPublicProperties(Type type,
                                                       Boolean numericFirst = true);
+
+        TypeConverter GetTypeConverter(Type type);
 
         Boolean HasEmptyConstructor(Type t);
 
@@ -37,26 +39,24 @@ namespace Das.Serializer
 
         Boolean IsInstantiable(Type? t);
 
-        Boolean IsLeaf(Type t, 
+        Boolean IsLeaf(Type t,
                        Boolean isStringCounts);
 
         Boolean IsNumeric(Type myType);
 
         Boolean IsUseless(Type? t);
 
-        Boolean TryGetEmptyConstructor(Type t, 
+        Boolean TryGetEmptyConstructor(Type t,
                                        out ConstructorInfo ctor);
 
-        Boolean TryGetNullableType(Type type, 
+        Boolean TryGetNullableType(Type type,
                                    out Type? primitive);
 
         /// <summary>
         ///     Attempts to find a constructor that has parameters that match the name and type of
         ///     all properties with public get methods
         /// </summary>
-        Boolean TryGetPropertiesConstructor(Type type, 
+        Boolean TryGetPropertiesConstructor(Type type,
                                             out ConstructorInfo constr);
-        
-        TypeConverter GetTypeConverter(Type type);
     }
 }

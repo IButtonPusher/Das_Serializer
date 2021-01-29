@@ -9,7 +9,7 @@ namespace Das.Serializer
     public abstract class BaseNodeSealer<TNode> : INodeSealer<TNode>
         where TNode : INode<TNode>, INode
     {
-        protected BaseNodeSealer(ISerializationCore facade, 
+        protected BaseNodeSealer(ISerializationCore facade,
                                  INodeManipulator values,
                                  ISerializerSettings settings)
         {
@@ -22,8 +22,8 @@ namespace Das.Serializer
 
         public ISerializerSettings Settings { get; }
 
-        public void Imbue(TNode node, 
-                          String name, 
+        public void Imbue(TNode node,
+                          String name,
                           Object value)
         {
             if (NullNode.Instance == node)
@@ -74,7 +74,9 @@ namespace Das.Serializer
                 (propValue as IEnumerable)!);
 
             foreach (var child in enumerable)
+            {
                 addDelegate(propValue, child);
+            }
         }
 
         public void Imbue(TNode childNode)
@@ -84,6 +86,11 @@ namespace Das.Serializer
         }
 
         public abstract void CloseNode(TNode node);
+
+        public abstract Boolean TryGetPropertyValue(TNode node,
+                                                    String key,
+                                                    Type propertyType,
+                                                    out Object? val);
 
         protected void ConstructCollection(ref TNode node)
         {
@@ -98,7 +105,9 @@ namespace Das.Serializer
                 var i = 0;
 
                 foreach (var child in node.DynamicProperties)
+                {
                     arr2.SetValue(child.Value, i++);
+                }
 
                 node.Value = arr2;
 
@@ -116,7 +125,9 @@ namespace Das.Serializer
                 var i = 0;
 
                 foreach (var child in node.DynamicProperties)
+                {
                     arr2.SetValue(child.Value, i++);
+                }
 
                 node.Value = Activator.CreateInstance(node.Type, arr2);
             }
@@ -129,9 +140,10 @@ namespace Das.Serializer
                 if (node.DynamicProperties.Count == 0)
                     return;
 
-                var addDelegate = node.DynamicProperties.Values.First() is {} valid
+                var addDelegate = node.DynamicProperties.Values.First() is { } valid
                     ? _facade.TypeManipulator.GetAdder(node.Type,
-                        valid) : default;
+                        valid)
+                    : default;
                 if (addDelegate == null && node.Value is IEnumerable ienum)
                     addDelegate = _facade.TypeManipulator.GetAdder(ienum);
 
@@ -140,13 +152,15 @@ namespace Das.Serializer
                     return;
 
                 foreach (var child in node.DynamicProperties)
+                {
                     addDelegate(node.Value!, child.Value);
+                }
             }
         }
 
         protected void ConstructFromProperties(ref TNode node)
         {
-            if (node.Type == null || 
+            if (node.Type == null ||
                 !_facade.ObjectInstantiator.TryGetPropertiesConstructor(node.Type, out var cInfo))
                 return;
 
@@ -159,18 +173,12 @@ namespace Das.Serializer
                 {
                     if (!conParam.ParameterType.IsValueType ||
                         _types.TryGetNullableType(conParam.ParameterType, out _))
-                    {
                         values.Add(null);
-                    }
                 }
             }
 
             node.Value = cInfo.Invoke(values.ToArray());
         }
-
-        public abstract Boolean TryGetPropertyValue(TNode node, String key,
-                                                    Type propertyType, 
-                                                    out Object? val);
 
         private readonly ISerializationCore _facade;
         private readonly IObjectManipulator _objects;

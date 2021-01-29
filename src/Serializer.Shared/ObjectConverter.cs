@@ -10,10 +10,10 @@ using Das.Serializer;
 namespace Das
 {
     [SuppressMessage("ReSharper", "UseMethodIsInstanceOfType")]
-    public class ObjectConverter : SerializerCore, 
+    public class ObjectConverter : SerializerCore,
                                    IObjectConverter
     {
-        public ObjectConverter(IStateProvider dynamicFacade, 
+        public ObjectConverter(IStateProvider dynamicFacade,
                                ISerializerSettings settings)
             : base(dynamicFacade, settings)
         {
@@ -25,7 +25,7 @@ namespace Das
         }
 
 
-        public T ConvertEx<T>(Object obj, 
+        public T ConvertEx<T>(Object obj,
                               ISerializerSettings settings)
         {
             if (obj is T already)
@@ -49,7 +49,9 @@ namespace Das
             return ConvertEx<T>(obj, Settings);
         }
 
-        public Object ConvertEx(Object obj, Type newObjectType, ISerializerSettings settings)
+        public Object ConvertEx(Object obj,
+                                Type newObjectType,
+                                ISerializerSettings settings)
         {
             //_currentSettings = settings;
             var newObject = _dynamicFacade.ObjectInstantiator.BuildDefault(newObjectType,
@@ -63,7 +65,8 @@ namespace Das
             return Copy(from, Settings);
         }
 
-        public T Copy<T>(T from, ISerializerSettings settings)
+        public T Copy<T>(T from,
+                         ISerializerSettings settings)
             where T : class
         {
             //_currentSettings = settings;
@@ -74,7 +77,9 @@ namespace Das
             return to!;
         }
 
-        public void Copy<T>(T from, ref T to, ISerializerSettings settings) where T : class
+        public void Copy<T>(T from,
+                            ref T to,
+                            ISerializerSettings settings) where T : class
         {
             //_currentSettings = settings;
             to ??= FromType(from, settings);
@@ -94,13 +99,16 @@ namespace Das
             //to = (T) o;
         }
 
-        public void Copy<T>(T from, ref T to) where T : class
+        public void Copy<T>(T from,
+                            ref T to) where T : class
         {
             Copy(from, ref to, _dynamicFacade.Settings);
         }
 
-        public Object SpawnCollection(Object[] objects, Type collectionType,
-                                      ISerializerSettings settings, Type? collectionGenericArgs = null)
+        public Object SpawnCollection(Object[] objects,
+                                      Type collectionType,
+                                      ISerializerSettings settings,
+                                      Type? collectionGenericArgs = null)
         {
             //_currentSettings = settings;
             var itemType = collectionGenericArgs ?? TypeInferrer.GetGermaneType(collectionType);
@@ -112,7 +120,9 @@ namespace Das
                 var i = 0;
 
                 foreach (var child in objects)
+                {
                     arr2.SetValue(child, i++);
+                }
 
                 return arr2;
             }
@@ -160,7 +170,9 @@ namespace Das
             {
                 case IList ilist:
                     foreach (var o in objects)
+                    {
                         ilist.Add(o);
+                    }
 
                     return val;
 
@@ -168,7 +180,9 @@ namespace Das
                     var addDelegate = _dynamicFacade.TypeManipulator.GetAdder(ienum);
 
                     foreach (var child in objects)
+                    {
                         addDelegate(val, child);
+                    }
 
                     return val;
 
@@ -179,12 +193,15 @@ namespace Das
 
 
         // ReSharper disable once UnusedParameter.Local
-        private T ConvertEx<T>(Object obj, T newObject, ISerializerSettings settings)
+        private T ConvertEx<T>(Object obj,
+                               T newObject,
+                               ISerializerSettings settings)
         {
             return ConvertEx<T>(obj, settings);
         }
 
-        private Object Copy(Object from, ref Object? to,
+        private Object Copy(Object from,
+                            ref Object? to,
                             Dictionary<object, object> references,
                             ISerializerSettings settings)
         {
@@ -244,7 +261,7 @@ namespace Das
                     to = cInfo.Invoke(values.ToArray());
                     break;
                 default:
-                    if (toType.IsAssignableFrom(fromType)) to = @from;
+                    if (toType.IsAssignableFrom(fromType)) to = from;
 
                     break;
             }
@@ -335,7 +352,8 @@ namespace Das
             return to;
         }
 
-        private T FromType<T>(T example, ISerializerSettings settings) where T : class
+        private T FromType<T>(T example,
+                              ISerializerSettings settings) where T : class
         {
             if (!IsInstantiable(typeof(T)))
                 return (ObjectInstantiator.BuildDefault(example.GetType(), settings.CacheTypeConstructors) as T)!;
@@ -344,13 +362,14 @@ namespace Das
         }
 
         private static readonly ThreadLocal<Dictionary<Object, Object>> References
-            = new ThreadLocal<Dictionary<Object, Object>>(()
+            = new(()
                 => new Dictionary<Object, Object>());
 
         //[ThreadStatic]
         //private static ISerializerSettings? _currentSettings;
 
-        [ThreadStatic] private static NodeTypes _currentNodeType;
+        [ThreadStatic]
+        private static NodeTypes _currentNodeType;
 
         private readonly IStateProvider _dynamicFacade;
         private readonly IInstantiator _instantiate;

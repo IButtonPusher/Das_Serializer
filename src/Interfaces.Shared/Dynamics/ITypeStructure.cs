@@ -21,9 +21,9 @@ namespace Das.Serializer
         /// </summary>
         IEnumerable<INamedField> GetMembersToSerialize(ISerializationDepth depth);
 
-        IProperty? GetPropertyValue(Object o, String propertyName);
+        IProperty? GetPropertyValue(Object o,
+                                    String propertyName);
 
-        
 
         /// <summary>
         ///     For a collection, returns the values.  Otherwise returns the property values
@@ -31,16 +31,20 @@ namespace Das.Serializer
         IPropertyValueIterator<IProperty> GetPropertyValues(Object o,
                                                             ISerializationDepth depth);
 
-        Boolean OnDeserialized(Object obj, IObjectManipulator objectManipulator);
+        Boolean OnDeserialized(Object obj,
+                               IObjectManipulator objectManipulator);
 
-        Boolean SetFieldValue(String fieldName, Object targetObj, Object fieldVal);
+        Boolean SetFieldValue(String fieldName,
+                              Object targetObj,
+                              Object fieldVal);
 
-        Boolean SetFieldValue<T>(String fieldName, 
-                                 Object targetObj, 
+        Boolean SetFieldValue<T>(String fieldName,
+                                 Object targetObj,
                                  Object fieldVal);
 
 
-        Boolean TryGetAttribute<TAttribute>(String propertyName, out TAttribute value)
+        Boolean TryGetAttribute<TAttribute>(String propertyName,
+                                            out TAttribute value)
             where TAttribute : Attribute;
     }
 }

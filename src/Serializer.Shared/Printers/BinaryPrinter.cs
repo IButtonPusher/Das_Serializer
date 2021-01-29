@@ -14,7 +14,7 @@ namespace Das.Printers
 {
     public class BinaryPrinter : PrinterBase, IDisposable, ISerializationDepth
     {
-        public BinaryPrinter(IBinaryWriter writer, 
+        public BinaryPrinter(IBinaryWriter writer,
                              IBinaryState stateProvider)
             : base(stateProvider)
         {
@@ -83,7 +83,8 @@ namespace Das.Printers
             }
         }
 
-        protected Boolean PrintBinaryNode(IPrintNode print, Boolean isPush)
+        protected Boolean PrintBinaryNode(IPrintNode print,
+                                          Boolean isPush)
         {
             if (isPush)
             {
@@ -93,14 +94,14 @@ namespace Das.Printers
                 _bWriter = _bWriter.Pop();
             }
             else
-            {
                 return PrintObject(print);
-            }
 
             return print.Value != null;
         }
 
-        private Boolean TryWrap(Type propType, ref Object? val, ref Type valType)
+        private Boolean TryWrap(Type propType,
+                                ref Object? val,
+                                ref Type valType)
         {
             var isWrapping = val != null && IsWrapNeeded(propType, valType);
 
@@ -143,7 +144,8 @@ namespace Das.Printers
         }
 
         [MethodImpl(256)]
-        protected Boolean Print(Object? o, TypeCode code)
+        protected Boolean Print(Object? o,
+                                TypeCode code)
         {
             Byte[] bytes;
 
@@ -218,10 +220,8 @@ namespace Das.Printers
                     throw new NotSupportedException($"Type {type} cannot be printed as a primitive");
 
                 if (o == null)
-                {
                     //null
                     _bWriter.WriteInt8(0);
-                }
                 else
                 {
                     //flag that there is a value
@@ -278,7 +278,9 @@ namespace Das.Printers
             var bytes = new List<Byte>();
 
             foreach (var i in bits)
+            {
                 bytes.AddRange(BitConverter.GetBytes(i));
+            }
 
 
             return bytes.ToArray();
@@ -293,17 +295,14 @@ namespace Das.Printers
                 useType = o.GetType();
 
             if (o == null)
-            {
                 //specify that the actual object is 0 bytes
                 _bWriter.WriteInt32(0);
-            }
             else if (_typeInferrer.IsLeaf(useType!, true))
             {
                 node.Type = useType;
                 PrintPrimitive(node);
             }
             else
-            {
                 using (var stream = new MemoryStream())
                 {
                     //_fallbackFormatter = new BinaryFormatter();
@@ -313,7 +312,6 @@ namespace Das.Printers
                     var buff = stream.GetBuffer();
                     _bWriter.Append(buff, length);
                 }
-            }
         }
 
         #endregion

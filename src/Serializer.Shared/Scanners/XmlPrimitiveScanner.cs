@@ -21,17 +21,12 @@ namespace Das.Serializer
             };
         }
 
-        public XmlPrimitiveScanner(ITypeCore typeInferrer) 
+        public XmlPrimitiveScanner(ITypeCore typeInferrer)
             : base(typeInferrer)
         {
         }
 
         private static Dictionary<String, String> Entities { get; }
-
-        protected sealed override bool CanValueBeNumber(Boolean wasInputInQuotes)
-        {
-            return true;
-        }
 
         public override String Descape(String? input)
         {
@@ -79,9 +74,7 @@ namespace Das.Serializer
                         state = 1;
                     }
                     else
-                    {
                         output.Append(c);
-                    }
 
                     continue;
                 }
@@ -141,9 +134,7 @@ namespace Das.Serializer
                     if (c == ';')
                     {
                         if (number == 0)
-                        {
                             output.Append(rawEntity + ";");
-                        }
                         else if (number > 65535)
                         {
                             output.Append("&#");
@@ -151,9 +142,7 @@ namespace Das.Serializer
                             output.Append(";");
                         }
                         else
-                        {
                             output.Append((Char) number);
-                        }
 
                         state = 0;
                         entity.Length = 0;
@@ -198,13 +187,18 @@ namespace Das.Serializer
             return output.ToString();
         }
 
+        protected sealed override bool CanValueBeNumber(Boolean wasInputInQuotes)
+        {
+            return true;
+        }
+
         private static readonly ThreadLocal<StringBuilder> RawEntity
-            = new ThreadLocal<StringBuilder>(() => new StringBuilder());
+            = new(() => new StringBuilder());
 
         private static readonly ThreadLocal<StringBuilder> Entity
-            = new ThreadLocal<StringBuilder>(() => new StringBuilder());
+            = new(() => new StringBuilder());
 
         private static readonly ThreadLocal<StringBuilder> Output
-            = new ThreadLocal<StringBuilder>(() => new StringBuilder());
+            = new(() => new StringBuilder());
     }
 }

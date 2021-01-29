@@ -8,6 +8,7 @@ namespace Das.Serializer
                                     IScannerBase<Char[]>,
                                     ISerializationDepth
     {
-        [NotNull] ITextNode RootNode { get; }
+        [NotNull]
+        ITextNode RootNode { get; }
     }
 }

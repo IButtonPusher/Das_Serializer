@@ -24,16 +24,16 @@ namespace Das.Serializer.Objects
         {
         }
 
-        protected NamedValueNode(String name, 
-                                 Object? value, 
-                                 Type? type) 
+        protected NamedValueNode(String name,
+                                 Object? value,
+                                 Type? type)
             : base(value, type)
         {
             _name = name;
             _isEmptyInitialized = -1;
             _type = type;
             _value = value;
-           // Set(name, value, type);
+            // Set(name, value, type);
         }
 
         public Boolean IsEmptyInitialized
@@ -60,8 +60,8 @@ namespace Das.Serializer.Objects
 
         public String Name => _name;
 
-        public virtual void Set(String name, 
-                                Object? value, 
+        public virtual void Set(String name,
+                                Object? value,
                                 Type? type)
         {
             _name = name;

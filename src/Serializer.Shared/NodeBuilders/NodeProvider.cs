@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 namespace Das.Serializer
 {
     public abstract class NodeProvider<T> : TypeCore,
-                                            IScanNodeProvider<T> 
+                                            IScanNodeProvider<T>
         where T : INode, IEnumerable<T>
     {
-        protected NodeProvider(INodeTypeProvider typeProvider, ISerializerSettings settings)
+        protected NodeProvider(INodeTypeProvider typeProvider,
+                               ISerializerSettings settings)
             : base(settings)
         {
             TypeProvider = typeProvider;
@@ -43,9 +44,9 @@ namespace Das.Serializer
         protected static Queue<T> Buffer => _buffer.Value!;
 
         private static readonly ThreadLocal<List<T>> LetsAdd
-            = new ThreadLocal<List<T>>(() => new List<T>());
+            = new(() => new List<T>());
 
         private static readonly ThreadLocal<Queue<T>> _buffer
-            = new ThreadLocal<Queue<T>>(() => new Queue<T>());
+            = new(() => new Queue<T>());
     }
 }

@@ -7,21 +7,6 @@ namespace Das
 {
     public static class DasUtil
     {
-        private static Int32 CountMatchingTypes(ParameterInfo[] methParams, Object[] myValues)
-        {
-            var total = 0;
-            for (var i = 0; i < methParams.Length; i++)
-            {
-                if (myValues[i] == null)
-                    continue;
-
-                if (methParams[i].ParameterType == myValues[i].GetType())
-                    total++;
-            }
-
-            return total;
-        }
-
         public static MethodInfo? FindMethod(this Type type,
                                              String name,
                                              Object[] parameters,
@@ -45,6 +30,22 @@ namespace Das
 
 
             return meth;
+        }
+
+        private static Int32 CountMatchingTypes(ParameterInfo[] methParams,
+                                                Object[] myValues)
+        {
+            var total = 0;
+            for (var i = 0; i < methParams.Length; i++)
+            {
+                if (myValues[i] == null)
+                    continue;
+
+                if (methParams[i].ParameterType == myValues[i].GetType())
+                    total++;
+            }
+
+            return total;
         }
     }
 }

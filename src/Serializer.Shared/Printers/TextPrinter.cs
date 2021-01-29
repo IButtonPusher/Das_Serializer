@@ -8,7 +8,7 @@ namespace Das.Printers
 {
     public abstract class TextPrinter : PrinterBase
     {
-        protected TextPrinter(ITextRemunerable writer, 
+        protected TextPrinter(ITextRemunerable writer,
                               ISerializationState stateProvider,
                               ISerializerSettings settings)
             : base(stateProvider, settings)
@@ -22,7 +22,7 @@ namespace Das.Printers
             _indentLength = _indenter.Length;
         }
 
-        protected TextPrinter(ITextRemunerable writer, 
+        protected TextPrinter(ITextRemunerable writer,
                               ISerializationState stateProvider)
             : this(writer, stateProvider, stateProvider.Settings)
         {
@@ -73,7 +73,8 @@ namespace Das.Printers
             }
         }
 
-        protected abstract void PrintString(String str, Boolean isInQuotes);
+        protected abstract void PrintString(String str,
+                                            Boolean isInQuotes);
 
         protected void TabIn()
         {

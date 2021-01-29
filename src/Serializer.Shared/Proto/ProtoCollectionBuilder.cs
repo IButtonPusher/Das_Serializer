@@ -6,7 +6,6 @@ using System.Reflection.Emit;
 using System.Threading.Tasks;
 using Das.Extensions;
 
-
 namespace Das.Serializer.ProtoBuf
 {
     [SuppressMessage("ReSharper", "UnusedType.Global")]

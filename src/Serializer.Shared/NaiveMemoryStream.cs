@@ -29,7 +29,8 @@ namespace Das.Serializer
         {
         }
 
-        public NaiveMemoryStream(byte[] buffer, bool writable)
+        public NaiveMemoryStream(byte[] buffer,
+                                 bool writable)
         {
             _buffer = buffer;
             _length = _capacity = buffer.Length;
@@ -38,12 +39,17 @@ namespace Das.Serializer
             _isOpen = true;
         }
 
-        public NaiveMemoryStream(byte[] buffer, int index, int count)
+        public NaiveMemoryStream(byte[] buffer,
+                                 int index,
+                                 int count)
             : this(buffer, index, count, true)
         {
         }
 
-        public NaiveMemoryStream(byte[] buffer, int index, int count, bool writable)
+        public NaiveMemoryStream(byte[] buffer,
+                                 int index,
+                                 int count,
+                                 bool writable)
         {
             _buffer = buffer;
             _origin = _position = index;
@@ -78,9 +84,7 @@ namespace Das.Serializer
                         _buffer = newBuffer;
                     }
                     else
-                    {
                         _buffer = new byte[0];
-                    }
 
                     _capacity = value;
                 }
@@ -97,52 +101,13 @@ namespace Das.Serializer
             set => _position = _origin + (int) value;
         }
 
-
-        protected override void Dispose(bool disposing)
-        {
-            try
-            {
-                if (disposing)
-                {
-                    _isOpen = false;
-                    _writable = false;
-                    _expandable = false;
-                }
-            }
-            finally
-            {
-                // Call base.Close() to cleanup async IO resources
-                base.Dispose(disposing);
-            }
-        }
-
-        // returns a bool saying whether we allocated a new array.
-        private bool EnsureCapacity(int value)
-        {
-            if (value > _capacity)
-            {
-                var newCapacity = Math.Max(value, 256);
-
-                // We are ok with this overflowing since the next statement will deal
-                // with the cases where _capacity*2 overflows.
-                if (newCapacity < _capacity * 2) newCapacity = _capacity * 2;
-
-                // We want to expand the array up to 0x7FFFFFC7
-                // And we want to give the user the value that they asked for
-                if ((uint) (_capacity * 2) > 0x7FFFFFC7) newCapacity = Math.Max(value, 0x7FFFFFC7);
-
-                Capacity = newCapacity;
-                return true;
-            }
-
-            return false;
-        }
-
         public sealed override void Flush()
         {
         }
 
-        public sealed override int Read(byte[] buffer, int offset, int count)
+        public sealed override int Read(byte[] buffer,
+                                        int offset,
+                                        int count)
         {
             var n = _length - _position;
             if (n > count)
@@ -157,9 +122,7 @@ namespace Das.Serializer
                     buffer[offset + byteCount] = _buffer[_position + byteCount];
             }
             else
-            {
                 Buffer.BlockCopy(_buffer, _position, buffer, offset, n);
-            }
 
             _position += n;
 
@@ -176,7 +139,8 @@ namespace Das.Serializer
         }
 
 
-        public sealed override long Seek(long offset, SeekOrigin loc)
+        public sealed override long Seek(long offset,
+                                         SeekOrigin loc)
         {
             switch (loc)
             {
@@ -229,7 +193,9 @@ namespace Das.Serializer
                 _position = newLength;
         }
 
-        public sealed override void Write(byte[] buffer, int offset, int count)
+        public sealed override void Write(byte[] buffer,
+                                          int offset,
+                                          int count)
         {
             var i = _position + count;
 
@@ -253,9 +219,7 @@ namespace Das.Serializer
                 while (--byteCount >= 0) _buffer[_position + byteCount] = buffer[offset + byteCount];
             }
             else
-            {
                 Buffer.BlockCopy(buffer, offset, _buffer, _position, count);
-            }
 
             _position = i;
         }
@@ -279,6 +243,49 @@ namespace Das.Serializer
             _buffer[_position++] = value;
         }
 
+
+        protected override void Dispose(bool disposing)
+        {
+            try
+            {
+                if (disposing)
+                {
+                    _isOpen = false;
+                    _writable = false;
+                    _expandable = false;
+                }
+            }
+            finally
+            {
+                // Call base.Close() to cleanup async IO resources
+                base.Dispose(disposing);
+            }
+        }
+
+        // returns a bool saying whether we allocated a new array.
+        private bool EnsureCapacity(int value)
+        {
+            if (value > _capacity)
+            {
+                var newCapacity = Math.Max(value, 256);
+
+                // We are ok with this overflowing since the next statement will deal
+                // with the cases where _capacity*2 overflows.
+                if (newCapacity < _capacity * 2) newCapacity = _capacity * 2;
+
+                // We want to expand the array up to 0x7FFFFFC7
+                // And we want to give the user the value that they asked for
+                if ((uint) (_capacity * 2) > 0x7FFFFFC7) newCapacity = Math.Max(value, 0x7FFFFFC7);
+
+                Capacity = newCapacity;
+                return true;
+            }
+
+            return false;
+        }
+
+        private readonly int _origin; // For user-provided arrays, start at this origin
+
         public byte[] _buffer; // Either allocated internally or externally.
 
         private int _capacity; // length of usable portion of buffer for stream
@@ -287,7 +294,6 @@ namespace Das.Serializer
         private bool _expandable; // User-provided buffers aren't expandable.
         private bool _isOpen; // Is this stream open or closed?
         private int _length; // Number of bytes within the memory stream
-        private readonly int _origin; // For user-provided arrays, start at this origin
         private int _position; // read/write head.
         private bool _writable; // Can user write to this stream?
     }

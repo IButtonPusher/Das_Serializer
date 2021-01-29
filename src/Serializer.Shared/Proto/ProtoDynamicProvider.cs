@@ -3,14 +3,15 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Das.Extensions;
-
 using Das.Serializer.Remunerators;
 
 namespace Das.Serializer.ProtoBuf
@@ -144,24 +145,146 @@ namespace Das.Serializer.ProtoBuf
                 : CreateProxyTypeNoReadOnly<T>();
         }
 
-        private IProtoProxy<T> CreateProxyTypeYesReadOnly<T>()
+        Boolean IProtoProvider.TryGetProtoField(PropertyInfo prop,
+                                                Boolean isRequireAttribute,
+                                                out IProtoFieldAccessor field)
         {
-            var type = typeof(T);
+            if (TryGetProtoField(prop, isRequireAttribute, out var f))
+            {
+                field = f;
+                return true;
+            }
 
-            var ptype = CreateProxyType(type, true) ?? throw new TypeLoadException(type.Name);
-
-            return InstantiateProxyInstance<T>(ptype);
+            field = default!;
+            return false;
         }
 
-        private IProtoProxy<T> CreateProxyTypeNoReadOnly<T>()
+        public ProtoFieldAction GetProtoFieldAction(Type pType)
         {
-            var type = typeof(T);
-            var ptype = CreateProxyType(type, false) ?? throw new TypeLoadException(type.Name);
+            if (pType.IsPrimitive)
+                return pType == typeof(Int32) ||
+                       pType == typeof(Int16) ||
+                       pType == typeof(Int64) ||
+                       pType == typeof(Byte) ||
+                       pType == typeof(Boolean)
+                    ? ProtoFieldAction.VarInt
+                    : ProtoFieldAction.Primitive;
 
-            return InstantiateProxyInstance<T>(ptype);
+            if (pType == Const.StrType)
+                return ProtoFieldAction.String;
+
+            if (pType == Const.ByteArrayType)
+                return ProtoFieldAction.ByteArray;
+
+            if (GetPackedArrayType(pType) != null)
+                return ProtoFieldAction.PackedArray;
+
+            if (typeof(IDictionary).IsAssignableFrom(pType))
+                return ProtoFieldAction.Dictionary;
+
+            if (_types.IsCollection(pType))
+            {
+                var germane = _types.GetGermaneType(pType);
+
+                var subAction = GetProtoFieldAction(germane);
+
+                switch (subAction)
+                {
+                    case ProtoFieldAction.ChildObject:
+                        return pType.IsArray
+                            ? ProtoFieldAction.ChildObjectArray
+                            : ProtoFieldAction.ChildObjectCollection;
+
+                    default:
+                        return pType.IsArray
+                            ? ProtoFieldAction.ChildPrimitiveArray
+                            : ProtoFieldAction.ChildPrimitiveCollection;
+                }
+            }
+
+            return ProtoFieldAction.ChildObject;
         }
 
-        private Type? CreateProxyType(Type type, 
+        public MethodInfo GetStreamLength { get; }
+
+        public MethodInfo SetStreamPosition { get; }
+
+        public MethodInfo WriteInt64 { get; }
+
+        public MethodInfo CopyMemoryStream { get; }
+
+        public MethodInfo SetStreamLength { get; }
+
+        /// <summary>
+        ///     Stream.Read(...)
+        /// </summary>
+        public MethodInfo ReadStreamBytes { get; }
+
+        /// <summary>
+        ///     static Int32 ProtoScanBase.GetPositiveInt32(Stream stream)
+        /// </summary>
+        public MethodInfo GetPositiveInt32 { get; }
+
+        /// <summary>
+        ///     protected static Encoding Utf8;
+        /// </summary>
+        public FieldInfo Utf8 { get; }
+
+        /// <summary>
+        ///     Encoding-> public virtual string GetString(byte[] bytes, int index, int count)
+        /// </summary>
+        public MethodInfo GetStringFromBytes { get; }
+
+        public Boolean TryGetProtoField(PropertyInfo prop,
+                                        Boolean isRequireAttribute,
+                                        out ProtoField field)
+        {
+            return TryGetProtoFieldImpl(prop, isRequireAttribute, GetIndexFromAttribute, out field);
+        }
+
+        public Boolean TryGetProtoFieldImpl(PropertyInfo prop,
+                                            Boolean isRequireAttribute,
+                                            Func<PropertyInfo, Int32> getFieldIndex,
+                                            out ProtoField field)
+        {
+            var index = 0;
+
+            if (isRequireAttribute)
+            {
+                index = getFieldIndex(prop);
+                if (index <= 0)
+                {
+                    field = default!;
+                    return false;
+                }
+            }
+
+            var pType = prop.PropertyType;
+
+            var isCollection = _types.IsCollection(pType);
+
+
+            var wire = ProtoBufSerializer.GetWireType(pType);
+
+            var header = (Int32) wire + (index << 3);
+            var tc = Type.GetTypeCode(pType);
+
+            var getter = prop.GetGetMethod() ?? throw new InvalidOperationException(prop.Name);
+            var setter = prop.CanWrite ? prop.GetSetMethod(true) : default!;
+
+            var headerBytes = GetBytes(header).ToArray();
+
+            var fieldAction = GetProtoFieldAction(prop.PropertyType);
+
+            field = new ProtoField(prop.Name, pType, wire,
+                index, header, getter, tc,
+                _types.IsLeaf(pType, true), isCollection, fieldAction,
+                headerBytes, setter);
+
+            return true;
+        }
+
+        private Type? CreateProxyType(Type type,
                                       Boolean allowReadOnly)
         {
             if (!_instantiator.TryGetDefaultConstructor(type, out var dtoctor) &&
@@ -227,94 +350,27 @@ namespace Das.Serializer.ProtoBuf
             return dType;
         }
 
-
-        #if DEBUG
-#if NET45 || NET40
-        private static Int32 _dumpCount;
-#endif
-
-
-        public void DumpProxies()
+        private IProtoProxy<T> CreateProxyTypeNoReadOnly<T>()
         {
-            
+            var type = typeof(T);
+            var ptype = CreateProxyType(type, false) ?? throw new TypeLoadException(type.Name);
 
-#if NET45 || NET40
-            if (System.Threading.Interlocked.Increment(ref _dumpCount) > 1)
-            {
-                System.Diagnostics.Debug.WriteLine("WARNING:  Proxies already dumped");
-                return;
-            }
-            
-            _asmBuilder.Save("protoTest.dll");
-#endif
+            return InstantiateProxyInstance<T>(ptype);
         }
 
-        #endif
-
-        Boolean IProtoProvider.TryGetProtoField(PropertyInfo prop, Boolean isRequireAttribute,
-                                                out IProtoFieldAccessor field)
+        private IProtoProxy<T> CreateProxyTypeYesReadOnly<T>()
         {
-            if (TryGetProtoField(prop, isRequireAttribute, out var f))
-            {
-                field = f;
-                return true;
-            }
+            var type = typeof(T);
 
-            field = default!;
-            return false;
-        }
+            var ptype = CreateProxyType(type, true) ?? throw new TypeLoadException(type.Name);
 
-        public ProtoFieldAction GetProtoFieldAction(Type pType)
-        {
-            if (pType.IsPrimitive)
-                return pType == typeof(Int32) ||
-                       pType == typeof(Int16) ||
-                       pType == typeof(Int64) ||
-                       pType == typeof(Byte) ||
-                       pType == typeof(Boolean)
-                    ? ProtoFieldAction.VarInt
-                    : ProtoFieldAction.Primitive;
-
-            if (pType == Const.StrType)
-                return ProtoFieldAction.String;
-
-            if (pType == Const.ByteArrayType)
-                return ProtoFieldAction.ByteArray;
-
-            if (GetPackedArrayType(pType) != null)
-                return ProtoFieldAction.PackedArray;
-
-            if (typeof(IDictionary).IsAssignableFrom(pType))
-                return ProtoFieldAction.Dictionary;
-
-            if (_types.IsCollection(pType))
-            {
-                var germane = _types.GetGermaneType(pType);
-
-                var subAction = GetProtoFieldAction(germane);
-
-                switch (subAction)
-                {
-                    case ProtoFieldAction.ChildObject:
-                        return pType.IsArray
-                            ? ProtoFieldAction.ChildObjectArray
-                            : ProtoFieldAction.ChildObjectCollection;
-
-                    default:
-                        return pType.IsArray
-                            ? ProtoFieldAction.ChildPrimitiveArray
-                            : ProtoFieldAction.ChildPrimitiveCollection;
-                }
-            }
-
-            return ProtoFieldAction.ChildObject;
+            return InstantiateProxyInstance<T>(ptype);
         }
 
 
         private static IEnumerable<Byte> GetBytes(Int32 value)
         {
             if (value >= 0)
-            {
                 do
                 {
                     var current = (Byte) (value & 127);
@@ -323,7 +379,6 @@ namespace Das.Serializer.ProtoBuf
                         current += 128; //8th bit to specify more bytes remain
                     yield return current;
                 } while (value > 0);
-            }
             else
             {
                 for (var c = 0; c <= 4; c++)
@@ -334,8 +389,19 @@ namespace Das.Serializer.ProtoBuf
                 }
 
                 foreach (var b in _negative32Fill)
+                {
                     yield return b;
+                }
             }
+        }
+
+        private Int32 GetIndexFromAttribute(PropertyInfo prop)
+        {
+            var attribs = prop.GetCustomAttributes(typeof(TPropertyAttribute), true)
+                              .OfType<TPropertyAttribute>().ToArray();
+            if (attribs.Length == 0) return -1;
+
+            return _protoSettings.GetIndex(attribs[0]);
         }
 
 
@@ -343,8 +409,10 @@ namespace Das.Serializer.ProtoBuf
         {
             var res = new List<IProtoFieldAccessor>();
             foreach (var prop in _types.GetPublicProperties(type))
+            {
                 if (TryGetProtoField(prop, true, out var protoField))
                     res.Add(protoField);
+            }
 
             return res;
         }
@@ -357,62 +425,6 @@ namespace Das.Serializer.ProtoBuf
             return (IProtoProxy<T>) res;
         }
 
-        private Int32 GetIndexFromAttribute(PropertyInfo prop)
-        {
-            var attribs = prop.GetCustomAttributes(typeof(TPropertyAttribute), true)
-                              .OfType<TPropertyAttribute>().ToArray();
-            if (attribs.Length == 0) return -1;
-
-            return _protoSettings.GetIndex(attribs[0]);
-        }
-
-        public Boolean TryGetProtoField(PropertyInfo prop, Boolean isRequireAttribute,
-                                        out ProtoField field)
-        {
-            return TryGetProtoFieldImpl(prop, isRequireAttribute, GetIndexFromAttribute, out field);
-        }
-
-        public Boolean TryGetProtoFieldImpl(PropertyInfo prop, Boolean isRequireAttribute,
-                                            Func<PropertyInfo, Int32> getFieldIndex,
-                                            out ProtoField field)
-        {
-            var index = 0;
-
-            if (isRequireAttribute)
-            {
-                index = getFieldIndex(prop);
-                if (index <= 0)
-                {
-                    field = default!;
-                    return false;
-                }
-            }
-
-            var pType = prop.PropertyType;
-
-            var isCollection = _types.IsCollection(pType);
-
-
-            var wire = ProtoBufSerializer.GetWireType(pType);
-
-            var header = (Int32) wire + (index << 3);
-            var tc = Type.GetTypeCode(pType);
-
-            var getter = prop.GetGetMethod() ?? throw new InvalidOperationException(prop.Name);
-            var setter = prop.CanWrite ? prop.GetSetMethod(true) : default!;
-
-            var headerBytes = GetBytes(header).ToArray();
-
-            var fieldAction = GetProtoFieldAction(prop.PropertyType);
-
-            field = new ProtoField(prop.Name, pType, wire,
-                index, header, getter, tc,
-                _types.IsLeaf(pType, true), isCollection, fieldAction,
-                headerBytes, setter);
-
-            return true;
-        }
-
         private const string AssemblyName = "BOB.Stuff";
 
         private const MethodAttributes MethodOverride = MethodAttributes.Public |
@@ -422,6 +434,7 @@ namespace Das.Serializer.ProtoBuf
                                                         MethodAttributes.Final;
         #if NET45 || NET40
         // ReSharper disable once StaticMemberInGenericType
+        private static Int32 _dumpCount;
         private static readonly String SaveFile = $"{AssemblyName}.dll";
         #endif
 
@@ -446,6 +459,7 @@ namespace Das.Serializer.ProtoBuf
         private readonly MethodInfo _extractPackedInt64Itar;
 
         private readonly MethodInfo _getArrayLength;
+        private readonly MethodInfo _getAutoProtoProxy;
         private readonly MethodInfo _getColumnIndex;
         private readonly MethodInfo _getDoubleBytes;
 
@@ -459,7 +473,6 @@ namespace Das.Serializer.ProtoBuf
         private readonly MethodInfo _getPositiveInt64;
 
         private readonly MethodInfo _getProtoProxy;
-        private readonly MethodInfo _getAutoProtoProxy;
 
         private readonly MethodInfo _getSingleBytes;
 
@@ -470,8 +483,8 @@ namespace Das.Serializer.ProtoBuf
         private readonly MethodInfo _getStreamPosition;
         private readonly MethodInfo _getStringBytes;
         private readonly IInstantiator _instantiator;
-        private readonly IObjectManipulator _objects;
         private readonly ModuleBuilder _moduleBuilder;
+        private readonly IObjectManipulator _objects;
 
         private readonly ProtoBufOptions<TPropertyAttribute> _protoSettings;
 
@@ -502,35 +515,27 @@ namespace Das.Serializer.ProtoBuf
         private readonly MethodInfo _writeSomeBytes;
         private readonly MethodInfo _writeStreamByte;
 
-        public MethodInfo GetStreamLength { get; }
 
-        public MethodInfo SetStreamPosition { get; }
+        #if DEBUG
+        #if NET45 || NET40
 
-        public MethodInfo WriteInt64 { get; }
+        #endif
 
-        public MethodInfo CopyMemoryStream { get; }
 
-        public MethodInfo SetStreamLength { get; }
+        public void DumpProxies()
+        {
+            #if NET45 || NET40
+            if (Interlocked.Increment(ref _dumpCount) > 1)
+            {
+                Debug.WriteLine("WARNING:  Proxies already dumped");
+                return;
+            }
 
-        /// <summary>
-        ///     Stream.Read(...)
-        /// </summary>
-        public MethodInfo ReadStreamBytes { get; }
+            _asmBuilder.Save("protoTest.dll");
+            #endif
+        }
 
-        /// <summary>
-        ///     static Int32 ProtoScanBase.GetPositiveInt32(Stream stream)
-        /// </summary>
-        public MethodInfo GetPositiveInt32 { get; }
-
-        /// <summary>
-        ///     protected static Encoding Utf8;
-        /// </summary>
-        public FieldInfo Utf8 { get; }
-
-        /// <summary>
-        ///     Encoding-> public virtual string GetString(byte[] bytes, int index, int count)
-        /// </summary>
-        public MethodInfo GetStringFromBytes { get; }
+        #endif
     }
 }
 

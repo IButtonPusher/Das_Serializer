@@ -11,7 +11,8 @@ namespace Das.Serializer.Types
             _backing = new Dictionary<TKeyOne, Dictionary<TKeyTwo, TValue>>();
         }
 
-        public TValue this[TKeyOne k1, TKeyTwo k2]
+        public TValue this[TKeyOne k1,
+                           TKeyTwo k2]
         {
             get => _backing[k1][k2];
             set
@@ -26,7 +27,23 @@ namespace Das.Serializer.Types
             }
         }
 
-        public void Add(TKeyOne k1, TKeyTwo k2, TValue value)
+        public IEnumerable<TValue> Values
+        {
+            get
+            {
+                foreach (var kvp in _backing)
+                {
+                    foreach (var kvp2 in kvp.Value)
+                    {
+                        yield return kvp2.Value;
+                    }
+                }
+            }
+        }
+
+        public void Add(TKeyOne k1,
+                        TKeyTwo k2,
+                        TValue value)
         {
             if (!_backing.TryGetValue(k1, out var d))
             {
@@ -42,8 +59,8 @@ namespace Das.Serializer.Types
             _backing.Clear();
         }
 
-        public Boolean TryGetValue(TKeyOne k1, 
-                                   TKeyTwo k2, 
+        public Boolean TryGetValue(TKeyOne k1,
+                                   TKeyTwo k2,
                                    out TValue value)
         {
             if (_backing.TryGetValue(k1, out var d) && d.TryGetValue(k2, out value))
@@ -51,18 +68,6 @@ namespace Das.Serializer.Types
 
             value = default!;
             return false;
-        }
-
-        public IEnumerable<TValue> Values
-        {
-            get
-            {
-                foreach (var kvp in _backing)
-                {
-                    foreach (var kvp2 in kvp.Value)
-                        yield return kvp2.Value;
-                }
-            }
         }
 
         private readonly Dictionary<TKeyOne, Dictionary<TKeyTwo, TValue>> _backing;

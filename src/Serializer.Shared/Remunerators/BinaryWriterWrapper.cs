@@ -72,7 +72,7 @@ namespace Das.Serializer.Remunerators
             Write(pi, 8);
         }
 
-        protected override DeferredBinaryWriter GetChildWriter(IPrintNode node, 
+        protected override DeferredBinaryWriter GetChildWriter(IPrintNode node,
                                                                IBinaryWriter parent,
                                                                Int32 index)
         {

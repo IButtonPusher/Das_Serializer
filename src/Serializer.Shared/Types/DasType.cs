@@ -7,7 +7,8 @@ namespace Das.Serializer
 {
     public class DasType : IPropertyType
     {
-        public DasType(Type managedType, IEnumerable<DasProperty> properties)
+        public DasType(Type managedType,
+                       IEnumerable<DasProperty> properties)
         {
             _properties = properties.ToDictionary(p => p.Name, p => p);
             ManagedType = managedType;
@@ -21,7 +22,7 @@ namespace Das.Serializer
 
         public Type ManagedType { get; }
 
-        public Boolean IsLegalValue(String forProperty, 
+        public Boolean IsLegalValue(String forProperty,
                                     Object? value)
         {
             return _properties.TryGetValue(forProperty, out var prop) &&
@@ -33,31 +34,18 @@ namespace Das.Serializer
             return _properties.TryGetValue(propertyName, out var prop) ? prop.Type : default;
         }
 
-        public Boolean SetPropertyValue(ref Object targetObj, String propName,
+        public Boolean SetPropertyValue(ref Object targetObj,
+                                        String propName,
                                         Object? propVal)
         {
             if (!PublicSetters.TryGetValue(propName, out var setter))
                 return false;
-            
+
             setter(ref targetObj!, propVal);
             return true;
         }
 
-        public Boolean TryGetPropertyValue(Object obj, 
-                                           String propertyName,
-                                           out Object result)
-        {
-            if (!PublicGetters.TryGetValue(propertyName, out var getter))
-            {
-                result = default!;
-                return false;
-            }
-
-            result = getter(obj);
-            return true;
-        }
-
-        public object? GetPropertyValue(Object obj, 
+        public object? GetPropertyValue(Object obj,
                                         String propertyName)
         {
             if (TryGetPropertyValue(obj, propertyName, out var res))
@@ -69,6 +57,20 @@ namespace Das.Serializer
         public static implicit operator Type(DasType das)
         {
             return das.ManagedType;
+        }
+
+        public Boolean TryGetPropertyValue(Object obj,
+                                           String propertyName,
+                                           out Object result)
+        {
+            if (!PublicGetters.TryGetValue(propertyName, out var getter))
+            {
+                result = default!;
+                return false;
+            }
+
+            result = getter(obj);
+            return true;
         }
 
         private readonly Dictionary<String, DasProperty> _properties;

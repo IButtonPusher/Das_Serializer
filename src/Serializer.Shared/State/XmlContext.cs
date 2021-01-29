@@ -5,7 +5,7 @@ namespace Das.Serializer
 {
     public class XmlContext : CoreContext, ITextContext
     {
-        public XmlContext(ISerializationCore dynamicFacade, 
+        public XmlContext(ISerializationCore dynamicFacade,
                           ISerializerSettings settings)
             : base(dynamicFacade, settings)
         {

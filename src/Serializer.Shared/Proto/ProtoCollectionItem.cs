@@ -5,7 +5,9 @@ namespace Das.Serializer.ProtoBuf
 {
     public class ProtoCollectionItem : IProtoField
     {
-        public ProtoCollectionItem(Type collectionType, ITypeManipulator types, Int32 fieldIndex)
+        public ProtoCollectionItem(Type collectionType,
+                                   ITypeManipulator types,
+                                   Int32 fieldIndex)
         {
             var germane = types.GetGermaneType(collectionType);
             var wire = ProtoBufSerializer.GetWireType(germane);

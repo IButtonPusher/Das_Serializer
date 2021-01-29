@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Das.Printers;
 
-
 namespace Das.Serializer
 {
     public partial class DasCoreSerializer
@@ -62,7 +61,7 @@ namespace Das.Serializer
 
         private static StringSaver NewStringSaver()
         {
-            return new StringSaver();
+            return new();
         }
 
         [MethodImpl(256)]
@@ -87,6 +86,6 @@ namespace Das.Serializer
         }
 
         private static readonly ThreadLocal<StringSaver> _escapeSaver =
-            new ThreadLocal<StringSaver>(NewStringSaver);
+            new(NewStringSaver);
     }
 }

@@ -12,7 +12,8 @@ namespace Das.Serializer
 {
     public class ProtoEnumerator<TState> where TState : ProtoStateBase
     {
-        public ProtoEnumerator(TState s, Type ienumerableType,
+        public ProtoEnumerator(TState s,
+                               Type ienumerableType,
                                MethodInfo getMethod) : this(s, ienumerableType)
         {
             _il = s.IL;
@@ -25,7 +26,8 @@ namespace Das.Serializer
             _il.Emit(OpCodes.Stloc, _enumeratorLocal);
         }
 
-        protected ProtoEnumerator(TState s, Type ienumerableType)
+        protected ProtoEnumerator(TState s,
+                                  Type ienumerableType)
         {
             _il = s.IL;
             _protoBuildState = s;
@@ -53,7 +55,8 @@ namespace Das.Serializer
         }
 
 
-        public void ForEach(Action<LocalBuilder, TState, ILGenerator, Byte[]> action, Byte[] headerBytes)
+        public void ForEach(Action<LocalBuilder, TState, ILGenerator, Byte[]> action,
+                            Byte[] headerBytes)
         {
             var allDone = _il.DefineLabel();
 

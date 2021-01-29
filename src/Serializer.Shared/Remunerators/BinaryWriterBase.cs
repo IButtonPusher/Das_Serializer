@@ -22,15 +22,13 @@ namespace Das.Serializer.Remunerators
         {
         }
 
-        protected abstract TChildWriter GetChildWriter(IPrintNode node, 
-                                                       IBinaryWriter parent,
-                                                       Int32 index);
-
         public override IEnumerator<Byte> GetEnumerator()
         {
             foreach (var node in Children)
             foreach (var b in node)
+            {
                 yield return b;
+            }
         }
 
         public override IBinaryWriter Push(IPrintNode node)
@@ -40,9 +38,13 @@ namespace Das.Serializer.Remunerators
             return list;
         }
 
+        protected abstract TChildWriter GetChildWriter(IPrintNode node,
+                                                       IBinaryWriter parent,
+                                                       Int32 index);
+
         // ReSharper disable once CollectionNeverQueried.Local
         protected readonly List<TChildWriter> Children =
-            new List<TChildWriter>();
+            new();
     }
 
     public abstract class BinaryWriterBase : BinaryWriter, IBinaryWriter
@@ -113,7 +115,9 @@ namespace Das.Serializer.Remunerators
         public virtual void Imbue(IBinaryWriter writer)
         {
             foreach (var b in writer)
+            {
                 OutStream.WriteByte(b);
+            }
         }
 
         public abstract IEnumerator<Byte> GetEnumerator();
@@ -142,12 +146,14 @@ namespace Das.Serializer.Remunerators
         }
 
 
-        public void Append(Byte[] data, Int32 limit)
+        public void Append(Byte[] data,
+                           Int32 limit)
         {
             Write(data, 0, limit);
         }
 
-        protected virtual unsafe void Write(Byte* bytes, Int32 count)
+        protected virtual unsafe void Write(Byte* bytes,
+                                            Int32 count)
         {
             for (var c = 0; c < count; c++)
                 OutStream.WriteByte(bytes[c]);

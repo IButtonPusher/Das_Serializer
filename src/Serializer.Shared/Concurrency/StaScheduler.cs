@@ -28,9 +28,17 @@ namespace Das.Serializer.Concurrency
                 TaskCreationOptions.PreferFairness, this));
         }
 
-        public void Invoke(Action action, Int32 priority)
+        public void Invoke(Action action,
+                           Int32 priority)
         {
             throw new NotImplementedException();
+        }
+
+        public T Invoke<T>(Func<T> action)
+        {
+            return InvocationBase.RunSync(() => Task.Factory.StartNew(action, CancellationToken.None,
+                TaskCreationOptions.PreferFairness, this));
+            //return action();
         }
 
         public async Task InvokeAsync(Action action)
@@ -52,7 +60,8 @@ namespace Das.Serializer.Concurrency
                 TaskCreationOptions.PreferFairness, this);
         }
 
-        public async Task InvokeAsync<TInput>(TInput input, Func<TInput, Task> action)
+        public async Task InvokeAsync<TInput>(TInput input,
+                                              Func<TInput, Task> action)
         {
             await action(input);
         }
@@ -63,13 +72,6 @@ namespace Das.Serializer.Concurrency
                 CancellationToken.None,
                 TaskCreationOptions.PreferFairness, this);
             return await ran;
-        }
-
-        public T Invoke<T>(Func<T> action)
-        {
-            return InvocationBase.RunSync(() => Task.Factory.StartNew(action, CancellationToken.None,
-                TaskCreationOptions.PreferFairness, this));
-            //return action();
         }
 
         protected override IEnumerable<Task> GetScheduledTasks()
@@ -88,7 +90,8 @@ namespace Das.Serializer.Concurrency
             }
         }
 
-        protected override Boolean TryExecuteTaskInline(Task task, Boolean taskWasPreviouslyQueued)
+        protected override Boolean TryExecuteTaskInline(Task task,
+                                                        Boolean taskWasPreviouslyQueued)
         {
             if (taskWasPreviouslyQueued)
                 return false;
@@ -108,7 +111,10 @@ namespace Das.Serializer.Concurrency
 
             try
             {
-                foreach (var task in _taskQueue.GetConsumingEnumerable()) TryExecuteTask(task);
+                foreach (var task in _taskQueue.GetConsumingEnumerable())
+                {
+                    TryExecuteTask(task);
+                }
             }
             catch (OperationCanceledException)
             {

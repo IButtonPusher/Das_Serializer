@@ -6,13 +6,15 @@ namespace Das.Serializer
     public interface IPropertyAccessor
     {
         Boolean CanRead { get; }
-        
+
         Boolean CanWrite { get; }
-        
+
         Type DeclaringType { get; }
-        
-        String PropertyPath {get;}
-        
+
+        String PropertyPath { get; }
+
+        Object? GetPropertyValue(Object obj);
+
         Boolean SetPropertyValue(ref Object targetObj,
                                  Object? propVal);
 
@@ -21,7 +23,5 @@ namespace Das.Serializer
 
         Boolean TryGetPropertyValue(Object obj,
                                     out Object result);
-        
-        Object? GetPropertyValue(Object obj);
     }
 }

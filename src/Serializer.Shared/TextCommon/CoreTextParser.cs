@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    public class CoreTextParser : CoreNumeric, 
+    public class CoreTextParser : CoreNumeric,
                                   ITextParser
     {
         static CoreTextParser()
@@ -27,13 +27,15 @@ namespace Das.Serializer
         }
 
 
-        public String? FindJsonValue(String input, String toFind)
+        public String? FindJsonValue(String input,
+                                     String toFind)
         {
             var hold = 0;
             return FindJsonValue(input, toFind, ref hold);
         }
 
-        public IEnumerable<String> EnumerateJsonValues(String input, String key)
+        public IEnumerable<String> EnumerateJsonValues(String input,
+                                                       String key)
         {
             var hold = 0;
 
@@ -47,23 +49,29 @@ namespace Das.Serializer
         }
 
 
-        public Boolean ContainsAll(String str, String[] list)
+        public Boolean ContainsAll(String str,
+                                   String[] list)
         {
             foreach (var s in list)
+            {
                 if (!str.Contains(s))
                     return false;
+            }
 
             return true;
         }
 
-        public Double FindJsonDouble(String input, String toFind)
+        public Double FindJsonDouble(String input,
+                                     String toFind)
         {
             var hold = 0;
             var val = FindJsonValue(input, toFind, ref hold);
             return null == val ? Double.NaN : GetDouble(val);
         }
 
-        public String? FindTextWithin(String input, String leftBounds, String rightBounds)
+        public String? FindTextWithin(String input,
+                                      String leftBounds,
+                                      String rightBounds)
         {
             var rightIndex = input.IndexOf(rightBounds, StringComparison.OrdinalIgnoreCase);
             var leftIndex = input.IndexOf(leftBounds, StringComparison.OrdinalIgnoreCase);
@@ -75,7 +83,8 @@ namespace Das.Serializer
             return input.Substring(leftIndex, rightIndex - leftIndex);
         }
 
-        public String LeftOf(String input, String rightBounds)
+        public String LeftOf(String input,
+                             String rightBounds)
         {
             var index = input.IndexOf(rightBounds, StringComparison.OrdinalIgnoreCase);
             if (index == -1)
@@ -83,7 +92,9 @@ namespace Das.Serializer
             return input.Substring(0, index);
         }
 
-        public Boolean TryFindTextWithin(String input, String[] delimiters, out String[] found)
+        public Boolean TryFindTextWithin(String input,
+                                         String[] delimiters,
+                                         out String[] found)
         {
             if (delimiters.Length == 1)
             {
@@ -110,7 +121,8 @@ namespace Das.Serializer
         }
 
 
-        public IEnumerable<String> FindTextWithin(String input, String[] delimiters)
+        public IEnumerable<String> FindTextWithin(String input,
+                                                  String[] delimiters)
         {
             foreach (var item in FindTextWithinImpl(input, delimiters))
             {
@@ -120,7 +132,9 @@ namespace Das.Serializer
             }
         }
 
-        public Boolean TryFindTextSurrounding(String input, String[] delimiters, out String[] found,
+        public Boolean TryFindTextSurrounding(String input,
+                                              String[] delimiters,
+                                              out String[] found,
                                               Int32 findRequired = -1)
         {
             findRequired = findRequired == -1 ? delimiters.Length + 1 : findRequired;
@@ -166,7 +180,8 @@ namespace Das.Serializer
             return true;
         }
 
-        public IEnumerable<String> FindTextsWithin(String input, String leftOf,
+        public IEnumerable<String> FindTextsWithin(String input,
+                                                   String leftOf,
                                                    String rightOf)
         {
             var endFirst = input.IndexOf(leftOf, StringComparison.OrdinalIgnoreCase);
@@ -180,8 +195,11 @@ namespace Das.Serializer
             yield return input.Substring(startSecond);
         }
 
-        public IEnumerable<String> FindTextWithin(String input, String
-                                                      leftBounds, String middleBounds, String rightBounds)
+        public IEnumerable<String> FindTextWithin(String input,
+                                                  String
+                                                      leftBounds,
+                                                  String middleBounds,
+                                                  String rightBounds)
         {
             var leftIndex = input.IndexOf(leftBounds, StringComparison.OrdinalIgnoreCase);
             if (leftIndex == -1)
@@ -211,8 +229,10 @@ namespace Das.Serializer
             }
         }
 
-        public String? FindTextWithin(String input, String leftBounds,
-                                      String rightBounds, Int32 startIndex)
+        public String? FindTextWithin(String input,
+                                      String leftBounds,
+                                      String rightBounds,
+                                      Int32 startIndex)
         {
             var rightIndex = input.IndexOf(rightBounds, startIndex,
                 StringComparison.OrdinalIgnoreCase);
@@ -225,28 +245,34 @@ namespace Das.Serializer
             return input.Substring(leftIndex, rightIndex - leftIndex);
         }
 
-        String ITextParser.After(String inText, String afterFound)
+        String ITextParser.After(String inText,
+                                 String afterFound)
         {
             return After(inText, afterFound);
         }
 
-        public String RemoveAll(String input, String[] toRemove)
+        public String RemoveAll(String input,
+                                String[] toRemove)
         {
             var sb = new StringBuilder(input);
             foreach (var rip in toRemove)
+            {
                 sb.Replace(rip, String.Empty);
+            }
 
             return sb.ToString();
         }
 
-        public Boolean EndsWithOrdinal(String checkingString, String value)
+        public Boolean EndsWithOrdinal(String checkingString,
+                                       String value)
         {
             return value != null && checkingString != null &&
                    checkingString.EndsWith(value,
                        StringComparison.OrdinalIgnoreCase);
         }
 
-        public Boolean ContainsOrdinal(String checkingString, String value)
+        public Boolean ContainsOrdinal(String checkingString,
+                                       String value)
         {
             return value != null && checkingString != null &&
                    checkingString.IndexOf(value,
@@ -256,7 +282,9 @@ namespace Das.Serializer
         /// <summary>
         ///     Returns the rest of the text if the text started with whenStartsWith
         /// </summary>
-        public Boolean TrySkip(String inText, String whenStartsWith, out String remaining)
+        public Boolean TrySkip(String inText,
+                               String whenStartsWith,
+                               out String remaining)
         {
             if (inText.StartsWith(whenStartsWith, StringComparison.Ordinal))
             {
@@ -268,14 +296,18 @@ namespace Das.Serializer
             return false;
         }
 
-        public IEnumerator<String?> FindJsonValues(String input, String toFind1, String toFind2)
+        public IEnumerator<String?> FindJsonValues(String input,
+                                                   String toFind1,
+                                                   String toFind2)
         {
             var index = 0;
             yield return NextOrNull(input, toFind1, ref index);
             yield return NextOrNull(input, toFind2, ref index);
         }
 
-        public IEnumerator<String?> FindJsonValues(String input, String toFind1, String toFind2,
+        public IEnumerator<String?> FindJsonValues(String input,
+                                                   String toFind1,
+                                                   String toFind2,
                                                    String toFind3)
         {
             var index = 0;
@@ -285,8 +317,11 @@ namespace Das.Serializer
             yield return NextOrNull(input, toFind3, ref index);
         }
 
-        public IEnumerator<String?> FindJsonValues(String input, String toFind1, String toFind2,
-                                                   String toFind3, String toFind4)
+        public IEnumerator<String?> FindJsonValues(String input,
+                                                   String toFind1,
+                                                   String toFind2,
+                                                   String toFind3,
+                                                   String toFind4)
         {
             var index = 0;
 
@@ -296,8 +331,12 @@ namespace Das.Serializer
             yield return NextOrNull(input, toFind4, ref index);
         }
 
-        public IEnumerator<String?> FindJsonValues(String input, String toFind1, String toFind2,
-                                                   String toFind3, String toFind4, String toFind5)
+        public IEnumerator<String?> FindJsonValues(String input,
+                                                   String toFind1,
+                                                   String toFind2,
+                                                   String toFind3,
+                                                   String toFind4,
+                                                   String toFind5)
         {
             var index = 0;
 
@@ -308,8 +347,12 @@ namespace Das.Serializer
             yield return NextOrNull(input, toFind5, ref index);
         }
 
-        public IEnumerator<String?> FindJsonValues(String input, String toFind1, String toFind2, String toFind3,
-                                                   String toFind4, String toFind5,
+        public IEnumerator<String?> FindJsonValues(String input,
+                                                   String toFind1,
+                                                   String toFind2,
+                                                   String toFind3,
+                                                   String toFind4,
+                                                   String toFind5,
                                                    String toFind6)
         {
             var index = 0;
@@ -322,10 +365,14 @@ namespace Das.Serializer
             yield return NextOrNull(input, toFind6, ref index);
         }
 
-        public IEnumerator<String?> FindJsonValues(String input, String toFind1,
-                                                   String toFind2, String toFind3,
-                                                   String toFind4, String toFind5,
-                                                   String toFind6, String toFind7)
+        public IEnumerator<String?> FindJsonValues(String input,
+                                                   String toFind1,
+                                                   String toFind2,
+                                                   String toFind3,
+                                                   String toFind4,
+                                                   String toFind5,
+                                                   String toFind6,
+                                                   String toFind7)
         {
             var index = 0;
 
@@ -338,7 +385,9 @@ namespace Das.Serializer
             yield return NextOrNull(input, toFind7, ref index);
         }
 
-        public String? FindJsonValue(String json, String item, ref Int32 startIndex)
+        public String? FindJsonValue(String json,
+                                     String item,
+                                     ref Int32 startIndex)
         {
             var pos = json.IndexOf("\"" + item + "\":", startIndex, StringComparison.Ordinal);
             if (pos == -1)
@@ -388,9 +437,7 @@ namespace Das.Serializer
                         return String.Empty;
                 }
                 else
-                {
                     return String.Empty;
-                }
             }
 
             if (beg >= end)
@@ -400,12 +447,13 @@ namespace Das.Serializer
             return value;
         }
 
-        public String AsUSString(Double amount, 
+        public String AsUSString(Double amount,
                                  Int32 decimalPlaces)
         {
             if (double.IsInfinity(amount))
-            {}
-            
+            {
+            }
+
             switch (decimalPlaces)
             {
                 case 2:
@@ -417,10 +465,9 @@ namespace Das.Serializer
                 default:
                     return amount.ToString("0." + String.Empty.PadLeft(decimalPlaces), _enUs);
             }
-
         }
 
-        public String AsUSString(Decimal amount, 
+        public String AsUSString(Decimal amount,
                                  Int32 decimalPlaces)
         {
             switch (decimalPlaces)
@@ -446,8 +493,10 @@ namespace Das.Serializer
             return amount.ToString("0.00", _enUs);
         }
 
-        public Boolean AppendAsUsCommaString(StringBuilder sb, IEnumerable<Double> amountList,
-                                             Int32 multiple, Int32 decimalPlaces)
+        public Boolean AppendAsUsCommaString(StringBuilder sb,
+                                             IEnumerable<Double> amountList,
+                                             Int32 multiple,
+                                             Int32 decimalPlaces)
         {
             using (var iter = amountList.GetEnumerator())
             {
@@ -463,36 +512,45 @@ namespace Das.Serializer
             }
         }
 
-        public Int32 IndexOfEnd(String searchIn, String searchFor)
+        public Int32 IndexOfEnd(String searchIn,
+                                String searchFor)
         {
             var start = searchIn.IndexOf(searchFor, StringComparison.Ordinal);
             return start == -1 ? -1 : start + searchFor.Length;
         }
 
 
-        public Int32 IndexOf(String searchIn, String searchFor)
+        public Int32 IndexOf(String searchIn,
+                             String searchFor)
         {
             return searchIn.IndexOf(searchFor, StringComparison.OrdinalIgnoreCase);
         }
 
-        public Boolean TryIndexOf(String searchIn, String searchFor, out Int32 index)
+        public Boolean TryIndexOf(String searchIn,
+                                  String searchFor,
+                                  out Int32 index)
         {
             index = searchIn.IndexOf(searchFor, StringComparison.OrdinalIgnoreCase);
             return index >= 0;
         }
 
-        public Int32 LastIndexOf(String searchIn, String searchFor)
+        public Int32 LastIndexOf(String searchIn,
+                                 String searchFor)
         {
             return searchIn.LastIndexOf(searchFor, StringComparison.OrdinalIgnoreCase);
         }
 
-        public Int32 LastIndexOf(String searchIn, String searchFor, Int32 startIndex)
+        public Int32 LastIndexOf(String searchIn,
+                                 String searchFor,
+                                 Int32 startIndex)
         {
             return searchIn.LastIndexOf(searchFor, startIndex,
                 StringComparison.OrdinalIgnoreCase);
         }
 
-        public Int32 IndexOf(String searchIn, String searchFor, Int32 startIndex)
+        public Int32 IndexOf(String searchIn,
+                             String searchFor,
+                             Int32 startIndex)
         {
             return searchIn.IndexOf(searchFor, startIndex,
                 StringComparison.OrdinalIgnoreCase);
@@ -504,7 +562,10 @@ namespace Das.Serializer
             return str.Split(_splitTokens, StringSplitOptions.RemoveEmptyEntries);
         }
 
-        public String BuildString<T1, T2, T3, T4>(T1 item1, T2 item2, T3 item3, T4 item4)
+        public String BuildString<T1, T2, T3, T4>(T1 item1,
+                                                  T2 item2,
+                                                  T3 item3,
+                                                  T4 item4)
         {
             using (var sb = _myStringBuilder.Value)
             {
@@ -519,7 +580,10 @@ namespace Das.Serializer
         }
 
         public String BuildString<T1, T2, T3, T4, T5>(T1 item1,
-                                                      T2 item2, T3 item3, T4 item4, T5 item5)
+                                                      T2 item2,
+                                                      T3 item3,
+                                                      T4 item4,
+                                                      T5 item5)
         {
             using (var sb = _myStringBuilder.Value)
             {
@@ -534,8 +598,12 @@ namespace Das.Serializer
             }
         }
 
-        public String BuildString<T1, T2, T3, T4, T5, T6>(T1 item1, T2 item2,
-                                                          T3 item3, T4 item4, T5 item5, T6 item6)
+        public String BuildString<T1, T2, T3, T4, T5, T6>(T1 item1,
+                                                          T2 item2,
+                                                          T3 item3,
+                                                          T4 item4,
+                                                          T5 item5,
+                                                          T6 item6)
         {
             using (var sb = _myStringBuilder.Value)
             {
@@ -572,9 +640,7 @@ namespace Das.Serializer
         public ITextRemunerable BorrowStringBuilder(String initial)
         {
             if (!_stringBuilderQueue.TryDequeue(out var sb))
-            {
                 sb = new StringSaver(initial, OnStringSaverDisposed);
-            }
             else
             {
                 sb.Undispose();
@@ -594,7 +660,8 @@ namespace Das.Serializer
         private static StringBuilder GetBuilder => _findBuilder
                                                    ?? (_findBuilder = new StringBuilder());
 
-        public static String After(String inText, String afterFound)
+        public static String After(String inText,
+                                   String afterFound)
         {
             var index = inText.IndexOf(afterFound, StringComparison.Ordinal);
             if (index == -1)
@@ -603,7 +670,8 @@ namespace Das.Serializer
             return inText.Substring(index + afterFound.Length);
         }
 
-        public IEnumerable<Tuple<String, Int32>> FindJsonValues(String json, String item)
+        public IEnumerable<Tuple<String, Int32>> FindJsonValues(String json,
+                                                                String item)
         {
             var index = 0;
             do
@@ -616,7 +684,8 @@ namespace Das.Serializer
             } while (index >= 0);
         }
 
-        private static IEnumerable<String?> FindTextWithinImpl(String input, String[] delimiters)
+        private static IEnumerable<String?> FindTextWithinImpl(String input,
+                                                               String[] delimiters)
         {
             var current = 0;
 
@@ -644,7 +713,8 @@ namespace Das.Serializer
             }
         }
 
-        private static String GetJsonStringValue(String json, ref Int32 beg)
+        private static String GetJsonStringValue(String json,
+                                                 ref Int32 beg)
         {
             var sb = GetBuilder;
             var isCurrentEscaped = false;
@@ -681,11 +751,13 @@ namespace Das.Serializer
 
         private static StringSaver GetNewSaver()
         {
-            return new StringSaver();
+            return new();
         }
 
 
-        private String? NextOrNull(String input, String toFind, ref Int32 index)
+        private String? NextOrNull(String input,
+                                   String toFind,
+                                   ref Int32 index)
         {
             if (index == -1 || !TryFindValueWithRetry(input, toFind, ref index, out var result))
                 return null;
@@ -697,8 +769,10 @@ namespace Das.Serializer
             _stringBuilderQueue.Enqueue(sb);
         }
 
-        private Boolean TryFindValueWithRetry(String json, String item,
-                                              ref Int32 startIndex, out String? result)
+        private Boolean TryFindValueWithRetry(String json,
+                                              String item,
+                                              ref Int32 startIndex,
+                                              out String? result)
         {
             result = FindJsonValue(json, item, ref startIndex);
             if (startIndex != -1)
@@ -716,7 +790,9 @@ namespace Das.Serializer
         private static readonly ThreadLocal<StringSaver> _myStringBuilder;
         private static readonly ConcurrentQueue<StringSaver> _stringBuilderQueue;
 
-        [ThreadStatic] private static StringBuilder? _findBuilder;
+        [ThreadStatic]
+        private static StringBuilder? _findBuilder;
+
         private readonly CultureInfo _enUs;
         private readonly String[] _splitTokens = {"\r\n", "\r", "\n"};
     }

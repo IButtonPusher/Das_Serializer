@@ -9,7 +9,7 @@ namespace Das.Serializer
         where TNode : INode<TNode>
     {
 #pragma warning disable 8618
-        protected BaseNode(ISerializerSettings settings) : 
+        protected BaseNode(ISerializerSettings settings) :
 #pragma warning restore 8618
             base(settings)
         {
@@ -37,8 +37,6 @@ namespace Das.Serializer
 
         public Object? Value { get; set; }
 
-        private readonly Dictionary<String, AttributeValue> _attributes;
-
         public IEnumerable<KeyValuePair<string, AttributeValue>> Attributes => _attributes;
 
         public Boolean TryGetAttribute(String key,
@@ -59,7 +57,8 @@ namespace Das.Serializer
                                  Boolean wasValueInQuotes)
         {
             if (wasValueInQuotes)
-            {}
+            {
+            }
 
             _attributes.Add(key, new AttributeValue(value, wasValueInQuotes));
         }
@@ -90,6 +89,8 @@ namespace Das.Serializer
         {
             return $"Name: {Name} Type: {Type}: Val: {Value} ";
         }
+
+        private readonly Dictionary<String, AttributeValue> _attributes;
 
         private String _name;
 

@@ -566,14 +566,14 @@ namespace Das.Types
 
         private static readonly Object _lockDynamic;
         private static readonly MethodInfo _getCompletedTask;
+
+        private static readonly Dictionary<MethodInfo, MethodInfo> _emptyMethodReplacements =
+            new();
+
+        private static readonly DasAttribute[] _emptyAttributes = new DasAttribute[0];
         private readonly IObjectManipulator _objectManipulator;
 
         private readonly ITypeManipulator _typeManipulator;
-
-        private static readonly Dictionary<MethodInfo, MethodInfo> _emptyMethodReplacements =
-            new Dictionary<MethodInfo, MethodInfo>();
-
-        private static readonly DasAttribute[] _emptyAttributes = new DasAttribute[0];
     }
 }
 

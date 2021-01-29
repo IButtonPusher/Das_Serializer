@@ -7,7 +7,8 @@ namespace Das.Serializer
 {
     public abstract class TextScanner : SerializerCore, ITextScanner
     {
-        protected TextScanner(IConverterProvider converterProvider, ITextContext state)
+        protected TextScanner(IConverterProvider converterProvider,
+                              ITextContext state)
             : base(state, state.Settings)
         {
             CurrentTagName = Const.Empty;
@@ -87,13 +88,6 @@ namespace Das.Serializer
 
         protected Boolean HasCurrentTag => !String.IsNullOrWhiteSpace(CurrentTagName);
 
-        private T GetResult<T>()
-        {
-            return RootNode.Value != null
-                ? TextState.ObjectManipulator.CastDynamic<T>(RootNode.Value, _converter, Settings)
-                : default!;
-        }
-
         protected abstract Boolean IsQuote(ref Char c);
 
 
@@ -104,9 +98,7 @@ namespace Das.Serializer
             CurrentNode = _nodes.Get(CurrentTagName, CurrentAttributes, hold, this);
 
             if (NullNode != hold)
-            {
                 hold.AddChild(CurrentNode);
-            }
             else if (!CurrentNode.IsEmpty)
             {
                 RootNode = CurrentNode;
@@ -117,9 +109,16 @@ namespace Das.Serializer
                     CurrentNode.Type = _resultType!;
             }
             else
-            {
                 CurrentNode = NullNode; //discard
-            }
+        }
+
+        protected abstract void ProcessCharacter(Char c);
+
+        private T GetResult<T>()
+        {
+            return RootNode.Value != null
+                ? TextState.ObjectManipulator.CastDynamic<T>(RootNode.Value, _converter, Settings)
+                : default!;
         }
 
         private void PreProcessCharacter(ref Char c)
@@ -159,8 +158,6 @@ namespace Das.Serializer
                 }
         }
 
-        protected abstract void ProcessCharacter(Char c);
-
         private static readonly NullNode NullNode = NullNode.Instance;
         private readonly IObjectConverter _converter;
 
@@ -176,12 +173,14 @@ namespace Das.Serializer
         private Boolean _isEscapeNext;
 
         protected Boolean _isQuoteOpen;
-        protected Boolean _wasCurrentValueInQuotes;
         private Type? _resultType;
+        protected Boolean _wasCurrentValueInQuotes;
 
-        [NotNull] protected ITextNode CurrentNode;
+        [NotNull]
+        protected ITextNode CurrentNode;
 
-        [NotNull] protected String CurrentTagName;
+        [NotNull]
+        protected String CurrentTagName;
 
         protected List<Char> EscapeChars;
     }

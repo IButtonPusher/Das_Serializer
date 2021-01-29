@@ -9,7 +9,6 @@ using System.Reflection.Emit;
 using System.Threading.Tasks;
 using Das.Extensions;
 
-
 namespace Das.Serializer.ProtoBuf
 {
     // ReSharper disable once UnusedTypeParameter
@@ -19,7 +18,7 @@ namespace Das.Serializer.ProtoBuf
         /// <summary>
         ///     Puts the next field index on the stack.  Jumps to
         /// </summary>
-        private Label AddLoadCurrentFieldIndex(ILGenerator il, 
+        private Label AddLoadCurrentFieldIndex(ILGenerator il,
                                                Label goNextLabel)
         {
             /////////////////////////////
@@ -175,9 +174,7 @@ namespace Das.Serializer.ProtoBuf
             il.MarkLabel(endLabel);
 
             if (!canSetValuesInline)
-            {
                 InstantiateFromLocals(state, buildReturnValue);
-            }
             else
             {
                 SetPropertiesFromLocals(state, returnValue);
@@ -229,7 +226,8 @@ namespace Das.Serializer.ProtoBuf
             return caseEntryForThisProperty;
         }
 
-        private void EnsureThreadLocalByteArray(ILGenerator il, IProtoFieldAccessor[] fields)
+        private void EnsureThreadLocalByteArray(ILGenerator il,
+                                                IProtoFieldAccessor[] fields)
         {
             var dothProceed = false;
 
@@ -282,7 +280,7 @@ namespace Das.Serializer.ProtoBuf
         }
 
 
-        private LocalBuilder InstantiateObjectToDefault(ILGenerator il, 
+        private LocalBuilder InstantiateObjectToDefault(ILGenerator il,
                                                         Type type,
                                                         MethodBase? buildDefault,
                                                         IEnumerable<IProtoFieldAccessor> fields,
@@ -365,7 +363,8 @@ namespace Das.Serializer.ProtoBuf
             return method;
         }
 
-        private void ScanChildObject(Type type, IValueExtractor s)
+        private void ScanChildObject(Type type,
+                                     IValueExtractor s)
         {
             var il = s.IL;
 
@@ -441,7 +440,7 @@ namespace Das.Serializer.ProtoBuf
             }
         }
 
-        private static void SetPropertiesFromLocals(ProtoScanState state, 
+        private static void SetPropertiesFromLocals(ProtoScanState state,
                                                     LocalBuilder returnValue)
         {
             var il = state.IL;

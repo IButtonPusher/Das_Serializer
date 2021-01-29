@@ -174,7 +174,6 @@ namespace Das.Serializer
             return !IsUseless(t) && !t!.IsAbstract && !t.IsInterface;
         }
 
-        
 
         public IEnumerable<PropertyInfo> GetPublicProperties(Type type,
                                                              Boolean numericFirst = true)
@@ -390,7 +389,7 @@ namespace Das.Serializer
         private static readonly ConcurrentDictionary<Type, Boolean> LeavesNotString;
         private static readonly ConcurrentDictionary<Type, Boolean> LeavesYesString;
 
-        private static readonly HashSet<Type> NumericTypes = new HashSet<Type>
+        private static readonly HashSet<Type> NumericTypes = new()
         {
             typeof(Int32), typeof(Double), typeof(Decimal),
             typeof(Int64), typeof(Int16), typeof(SByte),

@@ -5,7 +5,8 @@ namespace Das.Printers
 {
     public class StackFormat
     {
-        public StackFormat(Int32 tabs, Boolean isTagOpen)
+        public StackFormat(Int32 tabs,
+                           Boolean isTagOpen)
         {
             Tabs = tabs;
             IsTagOpen = isTagOpen;

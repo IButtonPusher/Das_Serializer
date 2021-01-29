@@ -9,14 +9,13 @@ namespace Das.Printers
 {
     public class JsonPrinter : TextPrinter
     {
-        public JsonPrinter(ITextRemunerable writer, 
+        public JsonPrinter(ITextRemunerable writer,
                            ISerializationState stateProvider)
             : base(writer, stateProvider)
         {
             _stateProvider = stateProvider;
         }
 
-        
 
         private const Char SequenceSeparator = ',';
         private readonly ISerializationState _stateProvider;
@@ -198,9 +197,7 @@ namespace Das.Printers
                 NewLine();
             }
             else
-            {
                 Writer.Append(Const.OpenBrace);
-            }
 
             base.PrintReferenceType(node);
 
@@ -213,9 +210,7 @@ namespace Das.Printers
                 NewLine();
             }
             else
-            {
                 Writer.Append(Const.CloseBrace);
-            }
         }
 
         private void PrintSpecialDictionary(IDictionary dic)
@@ -274,7 +269,9 @@ namespace Das.Printers
         protected void PrintCollectionObject(ObjectNode val)
         {
             using (var print = _printNodePool.GetPrintNode(val))
+            {
                 PrintObject(print);
+            }
         }
 
         protected override void PrintFallback(IPrintNode node)
@@ -292,7 +289,8 @@ namespace Das.Printers
 
         #region private implementation helpers
 
-        protected override void PrintString(String str, Boolean isInQuotes)
+        protected override void PrintString(String str,
+                                            Boolean isInQuotes)
         {
             if (isInQuotes)
                 Writer.Append(Const.Quote);
@@ -303,7 +301,8 @@ namespace Das.Printers
                 Writer.Append(Const.Quote);
         }
 
-        public static void AppendEscaped(String value, ITextRemunerable writer)
+        public static void AppendEscaped(String value,
+                                         ITextRemunerable writer)
         {
             if (String.IsNullOrEmpty(value))
                 return;

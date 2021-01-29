@@ -1,6 +1,7 @@
 ﻿// Serializer_Tests_ProtocolBuffers_PackedArrayTest
 
 using System;
+using System.Threading.Tasks;
 
 //public class Serializer_Tests_ProtocolBuffers_CollectionsPropertyMessage : ProtoDynamicBase<CollectionsPropertyMessage>
 //{

@@ -26,53 +26,6 @@ namespace Das.Extensions
             set => _settings = value;
         }
 
-        public static T BuildDefault<T>(this Type type)
-        {
-            return (T) type.BuildDefault()!;
-        }
-
-        public static Object? BuildDefault(this Type type)
-        {
-            return SerializationCore.ObjectInstantiator.BuildDefault(type, false);
-        }
-
-
-        /// <summary>
-        ///     Creates an easier to read string depiction of a type name, particularly
-        ///     with generics. Can be parsed back into a type using DasType.FromClearName(..)
-        ///     into
-        /// </summary>
-        /// <param name="type"></param>
-        /// <param name="isOmitAssemblyName">
-        ///     Guarantees that the output string will be
-        ///     valid xml or json markup but may lead to slower deserialization
-        /// </param>
-        public static String GetClearName(this Type type, Boolean isOmitAssemblyName)
-        {
-            return SerializationCore.TypeInferrer.ToClearName(type, isOmitAssemblyName);
-        }
-
-        public static T GetPropertyValue<T>(this Object obj, String propertyName)
-        {
-            return SerializationCore.ObjectManipulator.GetPropertyValue<T>(obj, propertyName);
-        }
-
-        public static Boolean TryGetPropertyValue<T>(this Object obj, String propertyName,
-                                                     out T result)
-        {
-            return SerializationCore.ObjectManipulator.TryGetPropertyValue(obj,
-                propertyName, out result);
-        }
-
-        public static Boolean TryGetPropertyValue(
-            this Object obj,
-            String propertyName,
-            out Object result)
-        {
-            return SerializationCore.ObjectManipulator.TryGetPropertyValue(obj,
-                propertyName, out result);
-        }
-
         public static Boolean AreCongruent<T>(this IReadOnlyList<T> left,
                                               IReadOnlyList<T> right)
         {
@@ -103,6 +56,16 @@ namespace Das.Extensions
                                              Double d1)
         {
             return Convert.ToInt32(d1) == i1;
+        }
+
+        public static T BuildDefault<T>(this Type type)
+        {
+            return (T) type.BuildDefault()!;
+        }
+
+        public static Object? BuildDefault(this Type type)
+        {
+            return SerializationCore.ObjectInstantiator.BuildDefault(type, false);
         }
 
         public static Boolean Congruent<T>(this IList<T>? left,
@@ -150,6 +113,23 @@ namespace Das.Extensions
                 if (isIncludeNulls || item != null)
                     action(item);
             }
+        }
+
+
+        /// <summary>
+        ///     Creates an easier to read string depiction of a type name, particularly
+        ///     with generics. Can be parsed back into a type using DasType.FromClearName(..)
+        ///     into
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="isOmitAssemblyName">
+        ///     Guarantees that the output string will be
+        ///     valid xml or json markup but may lead to slower deserialization
+        /// </param>
+        public static String GetClearName(this Type type,
+                                          Boolean isOmitAssemblyName)
+        {
+            return SerializationCore.TypeInferrer.ToClearName(type, isOmitAssemblyName);
         }
 
         [MethodImpl(256)]
@@ -295,6 +275,12 @@ namespace Das.Extensions
             return GetMethodOrDie(classType, methodName,
                 BindingFlags.Instance | BindingFlags.Public,
                 new[] {p1, p2, p3});
+        }
+
+        public static T GetPropertyValue<T>(this Object obj,
+                                            String propertyName)
+        {
+            return SerializationCore.ObjectManipulator.GetPropertyValue<T>(obj, propertyName);
         }
 
         public static MethodInfo GetPublicStaticMethodOrDie(
@@ -518,16 +504,21 @@ namespace Das.Extensions
             return method != null;
         }
 
-        private static MethodInfo Die(Type classType,
-                                      String methodName)
+        public static Boolean TryGetPropertyValue<T>(this Object obj,
+                                                     String propertyName,
+                                                     out T result)
         {
-            throw new InvalidOperationException(classType.Name + "->" + methodName);
+            return SerializationCore.ObjectManipulator.TryGetPropertyValue(obj,
+                propertyName, out result);
         }
 
-        private static FieldInfo DieBart(Type classType,
-                                         String fieldName)
+        public static Boolean TryGetPropertyValue(
+            this Object obj,
+            String propertyName,
+            out Object result)
         {
-            throw new InvalidOperationException(classType.Name + "." + fieldName);
+            return SerializationCore.ObjectManipulator.TryGetPropertyValue(obj,
+                propertyName, out result);
         }
 
         ///// <summary>
@@ -546,11 +537,24 @@ namespace Das.Extensions
         //    //return res;
         //}
 
-        public static Boolean TrySetPropertyValue(this Object obj, String propertyName,
+        public static Boolean TrySetPropertyValue(this Object obj,
+                                                  String propertyName,
                                                   Object value)
         {
             return SerializationCore.ObjectManipulator.SetProperty(obj.GetType(), propertyName,
                 ref obj, value);
+        }
+
+        private static MethodInfo Die(Type classType,
+                                      String methodName)
+        {
+            throw new InvalidOperationException(classType.Name + "->" + methodName);
+        }
+
+        private static FieldInfo DieBart(Type classType,
+                                         String fieldName)
+        {
+            throw new InvalidOperationException(classType.Name + "." + fieldName);
         }
 
         private static ISerializationCore? _dynamicFacade;

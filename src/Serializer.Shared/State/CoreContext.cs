@@ -3,10 +3,10 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    public abstract class CoreContext : SerializerCore, 
+    public abstract class CoreContext : SerializerCore,
                                         ISerializationContext
     {
-        public CoreContext(ISerializationCore dynamicFacade, 
+        public CoreContext(ISerializationCore dynamicFacade,
                            ISerializerSettings settings)
             : base(dynamicFacade, settings)
         {

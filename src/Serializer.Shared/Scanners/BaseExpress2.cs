@@ -53,21 +53,21 @@ namespace Das.Serializer.Scanners
         }
 
         protected abstract Boolean AdvanceScanState(String txt,
-                                                 ref Int32 currentIndex,
-                                                 StringBuilder stringBuilder,
-                                                 ref NodeScanState scanState);
+                                                    ref Int32 currentIndex,
+                                                    StringBuilder stringBuilder,
+                                                    ref NodeScanState scanState);
 
         protected abstract void AdvanceScanStateToNodeClose(String txt,
                                                             ref Int32 currentIndex,
                                                             StringBuilder stringBuilder,
                                                             ref NodeScanState scanState);
 
-        protected abstract void AdvanceScanStateToNodeOpened(String txt,
-                                                             ref Int32 currentIndex,
-                                                             StringBuilder stringBuilder,
-                                                             ref NodeScanState scanState);
-
         protected abstract void AdvanceScanStateToNodeNameRead(String txt,
+                                                               ref Int32 currentIndex,
+                                                               StringBuilder stringBuilder,
+                                                               ref NodeScanState scanState);
+
+        protected abstract void AdvanceScanStateToNodeOpened(String txt,
                                                              ref Int32 currentIndex,
                                                              StringBuilder stringBuilder,
                                                              ref NodeScanState scanState);
@@ -78,198 +78,27 @@ namespace Das.Serializer.Scanners
                                                       NodeScanState targetState,
                                                       ref NodeScanState scanState);
 
-        //protected abstract void AdvanceUntilEndOfNode(ref Int32 currentIndex,
-        //                                              String txt);
-
-
-        //protected abstract void EnsurePropertyValType(ref Int32 currentIndex,
-        //                                              String txt,
-        //                                              StringBuilder stringBuilder,
-        //                                              ref Type? propvalType);
-
-        //protected abstract NodeTypes GetNodeInstanceType(ref Int32 currentIndex,
-        //                                                 String txt,
-        //                                                 StringBuilder stringBuilder,
-        //                                                 ref Type? specifiedType,
-        //                                                 ref NodeScanState nodeScanState);
-
-        //protected Type GetTypeFromText(ref Int32 currentIndex,
-        //                               String txt,
-        //                               StringBuilder stringBuilder)
-        //{
-        //    stringBuilder.Clear();
-        //    var typeName = GetNextString(ref currentIndex, txt, stringBuilder);
-        //    var type = _typeInference.GetTypeFromClearName(typeName, true) ??
-        //               throw new TypeLoadException(typeName);
-        //    stringBuilder.Clear();
-
-        //    return type;
-        //}
-
-
-        protected abstract void HandleEncodingNode(String txt,
-                                                   ref Int32 currentIndex,
-                                                   StringBuilder stringBuilder,
-                                                   ref NodeScanState nodeScanState);
-
-        protected abstract Boolean IsCollectionHasMoreItems(ref Int32 currentIndex,
-                                                            String txt);
-
-        protected abstract void LoadNextPrimitive(ref Int32 currentIndex,
-                                                  String txt,
-                                                  StringBuilder stringBuilder);
-
-        [MethodImpl(256)]
-        protected static void SkipWhiteSpace(ref Int32 currentIndex,
-                                             String txt)
-        {
-            for (; currentIndex < txt.Length; currentIndex++)
-                switch (txt[currentIndex])
-                {
-                    case ' ':
-                    case '\t':
-                    case '\n':
-                    case '\r':
-                        break;
-                    default:
-                        return;
-                }
-        }
-
-        protected abstract Boolean TryGetNextString(ref Int32 currentIndex,
-                                                    String txt,
-                                                    StringBuilder sbString);
-
-        //private void BuildConstructorValues(ref Int32 currentIndex,
-        //                                    ref Object[] instance,
-        //                                    ParameterInfo[] ctorParams,
-        //                                    String txt,
-        //                                    StringBuilder stringBuilder,
-        //                                    ISerializerSettings settings,
-        //                                    Object? root,
-        //                                    ref NodeScanState nodeScanState)
-        //{
-        //    //var nodeScanState = NodeScanState.None;
-        //    var found = 0;
-
-        //    while (true)
-        //    {
-        //        String? name;
-        //        Object? value;
-
-        //        switch (nodeScanState)
-        //        {
-        //            case NodeScanState.JustOpened:
-        //                stringBuilder.Clear();
-        //                break;
-
-        //            case NodeScanState.EndOfNodeOpen:
-        //                if (stringBuilder.Length > 0)
-        //                    goto loadChildNode;
-        //                break;
-
-        //            case NodeScanState.AttributeNameRead:
-
-        //                name = stringBuilder.GetConsumingString();
-
-        //                for (var c = 0; c < ctorParams.Length; c++)
-        //                {
-        //                    if (!String.Equals(ctorParams[c].Name, name,
-        //                        StringComparison.OrdinalIgnoreCase))
-        //                        continue;
-
-        //                    AdvanceScanState(txt, ref currentIndex, stringBuilder, ref nodeScanState);
-
-        //                    if (nodeScanState != NodeScanState.AttributeValueRead)
-        //                        throw new InvalidOperationException();
-
-        //                    value = _primitiveScanner.GetValue(stringBuilder.GetConsumingString(),
-        //                        ctorParams[c].ParameterType, false);
-
-        //                    instance[c] = value ?? throw new ArgumentNullException(ctorParams[c].Name);
-
-        //                    goto next;
-        //                }
-
-        //                break;
-
-        //            case NodeScanState.ReadNodeName:
-
-        //                loadChildNode:
-        //                name = stringBuilder.GetConsumingString();
-
-        //                for (var c = 0; c < ctorParams.Length; c++)
-        //                {
-        //                    if (!String.Equals(ctorParams[c].Name, name,
-        //                        StringComparison.OrdinalIgnoreCase))
-        //                        continue;
-
-        //                    value = DeserializeNode(txt,
-        //                        ref currentIndex, stringBuilder, ctorParams[c].ParameterType,
-        //                        settings, _emptyCtorValues,
-        //                        ref nodeScanState, null, null, root, false);
-
-        //                    instance[c] = value ?? throw new ArgumentNullException(ctorParams[c].Name);
-
-        //                    goto next;
-        //                }
-
-        //                break;
-
-        //            case NodeScanState.NodeSelfClosed:
-        //            case NodeScanState.EndOfNodeClose:
-        //            case NodeScanState.EndOfMarkup:
-        //                return;
-        //        }
-
-        //        AdvanceScanState(txt, ref currentIndex, stringBuilder, ref nodeScanState);
-        //        continue;
-
-        //        next:
-        //        if (++found == ctorParams.Length)
-        //        {
-        //            AdvanceScanStateToNodeClose(txt, ref currentIndex, stringBuilder, ref nodeScanState);
-        //            return;
-        //        }
-
-        //        AdvanceScanState(txt, ref currentIndex, stringBuilder, ref nodeScanState);
-        //    }
-        //}
 
         protected Object? DeserializeNode(String txt,
-                                        ref Int32 currentIndex,
-                                        StringBuilder stringBuilder,
-                                        Type? specifiedType,
-                                        ISerializerSettings settings,
-                                        Object[] ctorValues,
-                                        ref NodeScanState nodeScanState,
-                                        Object? parent,
-                                        PropertyInfo? nodeIsProperty,
-                                        Object? root,
-                                        Boolean canBeEncodingNode)
+                                          ref Int32 currentIndex,
+                                          StringBuilder stringBuilder,
+                                          Type? specifiedType,
+                                          ISerializerSettings settings,
+                                          Object[] ctorValues,
+                                          ref NodeScanState nodeScanState,
+                                          Object? parent,
+                                          PropertyInfo? nodeIsProperty,
+                                          Object? root,
+                                          Boolean canBeEncodingNode)
         {
             var nodeType = OpenNode(txt, ref currentIndex, ref specifiedType, ref nodeScanState,
                 stringBuilder, canBeEncodingNode);
 
-            var isSetProps = nodeType != NodeTypes.Dynamic && 
+            var isSetProps = nodeType != NodeTypes.Dynamic &&
                              nodeType != NodeTypes.PropertiesToConstructor;
-
-            //if (nodeScanState == NodeScanState.None)
-            //    AdvanceScanState(txt, ref currentIndex, stringBuilder, ref nodeScanState);
-
-            //if (nodeScanState == NodeScanState.EncodingNodeOpened)
-            //    HandleEncodingNode(txt, ref currentIndex, stringBuilder, ref nodeScanState);
-
-            //specifiedType = specifiedType == Const.ObjectType
-            //    ? default
-            //    : specifiedType;
-            //var nodeType = GetNodeInstanceType(ref currentIndex, txt, stringBuilder,
-            //    ref specifiedType, ref nodeScanState);
 
             if (specifiedType == null)
                 throw new TypeLoadException();
-
-            //stringBuilder.Clear();
 
             try
             {
@@ -284,27 +113,6 @@ namespace Das.Serializer.Scanners
                             stringBuilder, parent, nodeIsProperty, settings, root, ref nodeScanState);
                         return collectionValue ?? throw new InvalidOperationException();
 
-                    case NodeTypes.PropertiesToConstructor when
-                        _typeInference.TryGetPropertiesConstructor(specifiedType, out _):
-                        //var ctorParams = ctor.GetParameters();
-                        //var arr = new Object[ctorParams.Length];
-
-                        child = new RuntimeObject();
-
-                        break;
-                        //var rdrr0000 = DeserializeNode(txt, ref currentIndex, stringBuilder,
-                        //    typeof(Object), settings, ctorValues, ref nodeScanState, parent, nodeIsProperty,
-                        //    root);
-
-
-                        //BuildConstructorValues(ref currentIndex, ref arr, ctorParams,
-                        //    txt, stringBuilder, settings, root, ref nodeScanState);
-
-                        //child = ctor.Invoke(arr);
-
-                        //return child; // todo: maybe more attributes/child nodes populate more properties?
-                        //break;
-
                     case NodeTypes.Object:
                         child = _instantiator.BuildDefault(specifiedType, true)
                                 ?? throw new InvalidOperationException();
@@ -312,6 +120,7 @@ namespace Das.Serializer.Scanners
                         break;
 
                     case NodeTypes.Dynamic:
+                    case NodeTypes.PropertiesToConstructor:
                         child = new RuntimeObject();
 
                         break;
@@ -319,32 +128,18 @@ namespace Das.Serializer.Scanners
                     case NodeTypes.Primitive:
 
                         var code = Type.GetTypeCode(specifiedType);
-                        
+
                         // load the node inner text into the sb
                         AdvanceScanStateToNodeOpened(txt, ref currentIndex, stringBuilder,
                             ref nodeScanState);
 
                         if (nodeScanState != NodeScanState.NodeSelfClosed)
                             AdvanceScanState(txt, ref currentIndex, stringBuilder, ref nodeScanState);
-                        //if (nodeScanState == NodeScanState.ReadNodeName)
-                        //    AdvanceScanState(txt, ref currentIndex, stringBuilder, ref nodeScanState);
 
                         switch (code)
                         {
                             case TypeCode.String:
-                                //AdvanceScanStateToNodeOpened(txt, ref currentIndex, stringBuilder,
-                                //    ref nodeScanState);
-
-                                //AdvanceScanState(txt, ref currentIndex, stringBuilder, ref nodeScanState);
-
                                 child = _primitiveScanner.Descape(stringBuilder.GetConsumingString());
-
-                                //var isAString = TryGetNextString(ref currentIndex, txt, stringBuilder);
-                                //child = !isAString
-                                //    ? default
-                                //    : _primitiveScanner.Descape(stringBuilder.GetConsumingString());
-
-                                //AdvanceScanState(txt, ref currentIndex, stringBuilder, ref nodeScanState);
 
                                 return child;
 
@@ -359,46 +154,25 @@ namespace Das.Serializer.Scanners
                             case TypeCode.Decimal:
                             case TypeCode.SByte:
                             case TypeCode.Byte:
-
-                                //LoadNextPrimitive(ref currentIndex, txt, stringBuilder);
-
-                                //if (stringBuilder.Length == 0 && txt[currentIndex] == '"')
-                                //{
-                                //    // numeric value in quotes...
-                                //    currentIndex++;
-                                //    LoadNextPrimitive(ref currentIndex, txt, stringBuilder);
-                                //    currentIndex++;
-                                //}
-
-                                //AdvanceUntilEndOfNode(ref currentIndex, txt);
-
-                                var rdrr = stringBuilder.GetConsumingString();
-                                return _primitiveScanner.GetValue(rdrr,
+                                return _primitiveScanner.GetValue(stringBuilder.GetConsumingString(),
                                     specifiedType, false);
 
-                                //return Convert.ChangeType(rdrr, code,
-                                //    CultureInfo.InvariantCulture);
-
                             case TypeCode.Boolean:
-                                
-                                //GetNext(ref currentIndex, txt, stringBuilder, _boolChars);
                                 child = Boolean.Parse(stringBuilder.ToString());
-                                
                                 return child;
-
 
                             case TypeCode.Char:
                                 if (!TryGetNextString(ref currentIndex, txt, stringBuilder))
                                     throw new InvalidOperationException();
 
                                 child = stringBuilder[0];
-                                
+
                                 return child;
 
                             case TypeCode.DateTime:
                                 LoadNextPrimitive(ref currentIndex, txt, stringBuilder);
                                 child = DateTime.Parse(stringBuilder.GetConsumingString());
-                                
+
                                 return child;
 
                             default:
@@ -407,7 +181,7 @@ namespace Das.Serializer.Scanners
 
                     case NodeTypes.StringConvertible:
 
-                        if (nodeScanState == NodeScanState.AttributeNameRead && 
+                        if (nodeScanState == NodeScanState.AttributeNameRead &&
                             stringBuilder.GetConsumingString() == _nullPrimitiveAttribute)
                         {
                             // nullable value type (probably null...)
@@ -415,23 +189,10 @@ namespace Das.Serializer.Scanners
                             if (nodeScanState == NodeScanState.AttributeValueRead &&
                                 String.Equals(stringBuilder.GetConsumingString(), "true",
                                     StringComparison.OrdinalIgnoreCase))
-                            {
                                 return null;
-                            }
                         }
 
                         var conv = _types.GetTypeConverter(specifiedType);
-
-                        //while (true)
-                        //{
-                        //    AdvanceScanState(txt, ref currentIndex, stringBuilder, ref nodeScanState);
-                        //    if (nodeScanState == NodeScanState.StartOfNodeClose)
-                        //        break;
-
-                        //    if (nodeScanState == NodeScanState.AttributeNameRead)
-                        //    {}
-
-                        //}
 
                         AdvanceScanStateUntil(txt, ref currentIndex, stringBuilder,
                             NodeScanState.StartOfNodeClose, ref nodeScanState);
@@ -454,7 +215,7 @@ namespace Das.Serializer.Scanners
                     {
                         case NodeScanState.JustOpened:
                             break;
-                        
+
                         case NodeScanState.StartOfNodeClose:
                         case NodeScanState.EndOfNodeClose:
 
@@ -480,7 +241,6 @@ namespace Das.Serializer.Scanners
 
                             propName = stringBuilder.GetConsumingString();
 
-                            
 
                             AdvanceScanState(txt, ref currentIndex, stringBuilder, ref nodeScanState);
 
@@ -490,45 +250,40 @@ namespace Das.Serializer.Scanners
                             if (nodeType == NodeTypes.Dynamic)
                                 throw new NotSupportedException();
 
-                            //if (nodeType != NodeTypes.Dynamic)
-                            //if (isSetProps)
+
+                            prop = GetProperty(specifiedType, propName);
+
+                            if (prop != null)
                             {
-                                prop = GetProperty(specifiedType, propName);
+                                var propVal = _primitiveScanner.GetValue(stringBuilder.GetConsumingString(),
+                                    prop.PropertyType, false);
 
-                                if (prop != null)
-                                {
-                                    var propVal = _primitiveScanner.GetValue(stringBuilder.GetConsumingString(),
-                                        prop.PropertyType, false);
-
-                                    if (isSetProps)
-                                    {
-                                        prop.SetValue(child, propVal, null);
-                                    }
-                                    else
-                                        ((RuntimeObject) child!).Properties.Add(propName,
-                                            new RuntimeObject(propVal));
-
-                                    propsSet++;
-                                }
+                                if (isSetProps)
+                                    prop.SetValue(child, propVal, null);
                                 else
-                                {
-                                    if (propName == _circularReferenceAttribute)
-                                    {
-                                        if (root == null)
-                                            throw new InvalidOperationException();
+                                    ((RuntimeObject) child!).Properties.Add(propName,
+                                        new RuntimeObject(propVal));
 
-                                        //AdvanceScanState(txt, ref currentIndex, stringBuilder, ref nodeScanState);
-                                        child = GetFromXPath(root, stringBuilder.GetConsumingString(),
-                                            stringBuilder);
-                                        return child;
-                                    }
-                                    else if (propName == _nullPrimitiveAttribute)
-                                    {}
-
-                                    stringBuilder.Clear();
-                                }
+                                propsSet++;
                             }
-                           
+                            else
+                            {
+                                if (propName == _circularReferenceAttribute)
+                                {
+                                    if (root == null)
+                                        throw new InvalidOperationException();
+
+                                    child = GetFromXPath(root, stringBuilder.GetConsumingString(),
+                                        stringBuilder);
+                                    return child;
+                                }
+                                else if (propName == _nullPrimitiveAttribute)
+                                {
+                                }
+
+                                stringBuilder.Clear();
+                            }
+
 
                             break;
 
@@ -537,28 +292,24 @@ namespace Das.Serializer.Scanners
                             loadChildNode:
                             propName = stringBuilder.GetConsumingString();
                             if (propName == "PlayerLabel")
-                            {}
+                            {
+                            }
 
                             Type? propType = null;
                             if (nodeType != NodeTypes.Dynamic)
                             {
                                 prop = GetProperty(specifiedType, propName);
                                 propType = prop?.PropertyType;
-                                //EnsurePropertyValType(ref currentIndex, txt, stringBuilder, ref propType);
                             }
 
                             var nodePropVal = DeserializeNode(txt,
                                 ref currentIndex, stringBuilder, propType, settings, _emptyCtorValues,
                                 ref nodeScanState, child, prop, root, false);
 
-                            //if (nodeType != NodeTypes.Dynamic && 
-                            //    nodeType != NodeTypes.PropertiesToConstructor)
                             if (isSetProps)
                             {
                                 if (prop is { } p && p.CanWrite)
-                                {
                                     p.SetValue(child, nodePropVal, null);
-                                }
                             }
                             else
                                 ((RuntimeObject) child!).Properties.Add(propName,
@@ -590,15 +341,11 @@ namespace Das.Serializer.Scanners
 
                         var robj = (RuntimeObject) child;
                         for (var c = 0; c < ctorParams.Length; c++)
-                        {
                             if (robj.Properties.TryGetValue(ctorParams[c].Name, out var found) ||
                                 robj.Properties.TryGetValue(
                                     _typeInference.ToPropertyStyle(
                                         ctorParams[c].Name), out found))
-                            {
                                 arr[c] = found.PrimitiveValue;
-                            }
-                        }
 
                         return ctor.Invoke(arr);
 
@@ -606,17 +353,25 @@ namespace Das.Serializer.Scanners
                     default:
                         return child;
                 }
-
-                //if (nodeType != NodeTypes.Dynamic)
-                //    return child;
-
-                //return _dynamicTypes.BuildDynamicObject((RuntimeObject) child!);
             }
             finally
             {
                 AdvanceScanStateToNodeClose(txt, ref currentIndex, stringBuilder, ref nodeScanState);
             }
         }
+
+
+        protected abstract void HandleEncodingNode(String txt,
+                                                   ref Int32 currentIndex,
+                                                   StringBuilder stringBuilder,
+                                                   ref NodeScanState nodeScanState);
+
+        protected abstract Boolean IsCollectionHasMoreItems(ref Int32 currentIndex,
+                                                            String txt);
+
+        protected abstract void LoadNextPrimitive(ref Int32 currentIndex,
+                                                  String txt,
+                                                  StringBuilder stringBuilder);
 
         protected abstract NodeTypes OpenNode(String txt,
                                               ref Int32 currentIndex,
@@ -625,15 +380,36 @@ namespace Das.Serializer.Scanners
                                               StringBuilder stringBuilder,
                                               Boolean canBeEncodingNode);
 
+        [MethodImpl(256)]
+        protected static void SkipWhiteSpace(ref Int32 currentIndex,
+                                             String txt)
+        {
+            for (; currentIndex < txt.Length; currentIndex++)
+                switch (txt[currentIndex])
+                {
+                    case ' ':
+                    case '\t':
+                    case '\n':
+                    case '\r':
+                        break;
+                    default:
+                        return;
+                }
+        }
+
+        protected abstract Boolean TryGetNextString(ref Int32 currentIndex,
+                                                    String txt,
+                                                    StringBuilder sbString);
+
         private Object GetCollectionValue(ref Int32 currentIndex,
-                                           String txt,
-                                           Type type,
-                                           StringBuilder stringBuilder,
-                                           Object? parent,
-                                           PropertyInfo? prop,
-                                           ISerializerSettings settings,
-                                           Object? root,
-                                           ref NodeScanState nodeScanState)
+                                          String txt,
+                                          Type type,
+                                          StringBuilder stringBuilder,
+                                          Object? parent,
+                                          PropertyInfo? prop,
+                                          ISerializerSettings settings,
+                                          Object? root,
+                                          ref NodeScanState nodeScanState)
         {
             var germane = _types.GetGermaneType(type);
 
@@ -649,17 +425,8 @@ namespace Das.Serializer.Scanners
                 if (nodeScanState == NodeScanState.StartOfNodeClose)
                     break;
 
-                //SkipWhiteSpace(ref currentIndex, txt);
-
-                //if (!IsCollectionHasMoreItems(ref currentIndex, txt))
-                //    break;
-
-                //var noneState = NodeScanState.None;
-
                 var current = DeserializeNode(txt, ref currentIndex, stringBuilder, germane, settings,
-                    _emptyCtorValues, ref nodeScanState,
-                    //ref noneState,
-                    parent, prop, root, false);
+                    _emptyCtorValues, ref nodeScanState, parent, prop, root, false);
 
                 if (current == null)
                     break;
@@ -667,13 +434,7 @@ namespace Das.Serializer.Scanners
                 stringBuilder.Clear();
 
                 collection.Add(current);
-
-                // pass the </VX>...
-                //AdvanceScanStateToNodeClose(txt, ref currentIndex, stringBuilder, ref nodeScanState);
             }
-
-            //AdvanceUntil(']', ref currentIndex, txt);
-            //currentIndex++;
 
             wrapItUp:
 
@@ -716,35 +477,6 @@ namespace Das.Serializer.Scanners
             throw new InvalidOperationException();
         }
 
-
-        //private static void GetNext(ref Int32 currentIndex,
-        //                            String txt,
-        //                            StringBuilder stringBuilder,
-        //                            HashSet<Char> allowed)
-        //{
-        //    SkipWhiteSpace(ref currentIndex, txt);
-
-        //    for (; currentIndex < txt.Length; currentIndex++)
-        //    {
-        //        var currentChar = txt[currentIndex];
-        //        if (allowed.Contains(currentChar))
-        //            stringBuilder.Append(currentChar);
-        //        else
-        //            return;
-        //    }
-        //}
-
-        //[MethodImpl(256)]
-        //private String GetNextString(ref Int32 currentIndex,
-        //                             String txt,
-        //                             StringBuilder stringBuilder)
-        //{
-        //    if (!TryGetNextString(ref currentIndex, txt, stringBuilder))
-        //        throw new InvalidOperationException();
-
-        //    return stringBuilder.ToString();
-        //}
-
         [MethodImpl(256)]
         private PropertyInfo? GetProperty(Type type,
                                           String name)
@@ -755,25 +487,12 @@ namespace Das.Serializer.Scanners
 
         protected static readonly Object[] _emptyCtorValues = new Object[0];
 
-        //private static readonly HashSet<Char> _boolChars = new(
-        //    new[]
-        //    {
-        //        't',
-        //        'r',
-        //        'u',
-        //        'e',
-        //        'f',
-        //        'a',
-        //        'l',
-        //        's'
-        //    });
-
         private readonly String _circularReferenceAttribute;
-        private readonly String _nullPrimitiveAttribute;
         private readonly IDynamicTypes _dynamicTypes;
         protected readonly Char[] _fieldStartChars;
 
         protected readonly IInstantiator _instantiator;
+        private readonly String _nullPrimitiveAttribute;
         protected readonly IObjectManipulator _objectManipulator;
 
 

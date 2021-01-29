@@ -15,8 +15,10 @@ namespace Das.Serializer
             ProtoBufOptions<TPropertyAttribute> options)
             where TPropertyAttribute : Attribute;
 
-        void SetTypeSurrogate(Type looksLike, Type isReally);
+        void SetTypeSurrogate(Type looksLike,
+                              Type isReally);
 
-        Boolean TryDeleteSurrogate(Type lookedLike, Type wasReally);
+        Boolean TryDeleteSurrogate(Type lookedLike,
+                                   Type wasReally);
     }
 }

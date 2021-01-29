@@ -7,7 +7,8 @@ namespace Das.Serializer
 {
     public class BinaryNode : BaseNode<IBinaryNode>, IBinaryNode
     {
-        public BinaryNode(String name, ISerializerSettings settings) : base(settings)
+        public BinaryNode(String name,
+                          ISerializerSettings settings) : base(settings)
         {
             Name = name;
 

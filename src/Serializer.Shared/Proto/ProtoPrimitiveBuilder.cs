@@ -4,7 +4,6 @@ using System;
 using System.Reflection.Emit;
 using System.Threading.Tasks;
 
-
 namespace Das.Serializer.ProtoBuf
 {
     // ReSharper disable once UnusedType.Global
@@ -47,7 +46,8 @@ namespace Das.Serializer.ProtoBuf
             }
         }
 
-        private void PrintString(ProtoPrintState s, Action<ProtoPrintState> pushStringValueToStack)
+        private void PrintString(ProtoPrintState s,
+                                 Action<ProtoPrintState> pushStringValueToStack)
         {
             PrintHeaderBytes(s.CurrentField.HeaderBytes, s);
 

@@ -3,19 +3,13 @@ using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using Das.Serializer;
 using Serializer.Tests;
+
 // ReSharper disable All
 
 namespace Serializer.Benchmarks
 {
     public class XmlBenchmarks
     {
-        private static DasSerializer Serializer;
-
-        
-        private static String SimpleExampleXml;
-        private static String PrimitivePropXml;
-        private static String ObjectPropXml;
-
         static XmlBenchmarks()
         {
             Serializer = new DasSerializer();
@@ -28,6 +22,30 @@ namespace Serializer.Benchmarks
 
             var objectCollectionProp = SimpleClassWithObjectCollection.GetExample();
             ObjectPropXml = Serializer.ToXml(objectCollectionProp);
+        }
+
+        [Benchmark]
+        public SimpleClassWithObjectCollection ObjectCollectionBaseline()
+        {
+            return Serializer.FromXml<SimpleClassWithObjectCollection>(ObjectPropXml);
+        }
+
+        [Benchmark]
+        public SimpleClassWithObjectCollection ObjectCollectionExpress()
+        {
+            return Serializer.FromXmlEx<SimpleClassWithObjectCollection>(ObjectPropXml);
+        }
+
+        [Benchmark]
+        public SimpleClassWithPrimitiveCollection PrimitiveCollectionBaseline()
+        {
+            return Serializer.FromXml<SimpleClassWithPrimitiveCollection>(PrimitivePropXml);
+        }
+
+        [Benchmark]
+        public SimpleClassWithPrimitiveCollection PrimitiveCollectionExpress()
+        {
+            return Serializer.FromXmlEx<SimpleClassWithPrimitiveCollection>(PrimitivePropXml);
         }
 
 
@@ -43,29 +61,11 @@ namespace Serializer.Benchmarks
             return Serializer.FromXmlEx<SimpleClass>(SimpleExampleXml);
         }
 
-        [Benchmark]
-        public SimpleClassWithPrimitiveCollection PrimitiveCollectionBaseline()
-        {
-            return Serializer.FromXml<SimpleClassWithPrimitiveCollection>(PrimitivePropXml);
-        }
+        private static DasSerializer Serializer;
 
-        [Benchmark]
-        public SimpleClassWithPrimitiveCollection PrimitiveCollectionExpress()
-        {
-            return Serializer.FromXmlEx<SimpleClassWithPrimitiveCollection>(PrimitivePropXml);
-        }
 
-        [Benchmark]
-        public SimpleClassWithObjectCollection ObjectCollectionBaseline()
-        {
-            return Serializer.FromXml<SimpleClassWithObjectCollection>(ObjectPropXml);
-        }
-
-        [Benchmark]
-        public SimpleClassWithObjectCollection ObjectCollectionExpress()
-        {
-            return Serializer.FromXmlEx<SimpleClassWithObjectCollection>(ObjectPropXml);
-        }
-        
+        private static String SimpleExampleXml;
+        private static String PrimitivePropXml;
+        private static String ObjectPropXml;
     }
 }

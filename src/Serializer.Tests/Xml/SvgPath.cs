@@ -8,5 +8,3 @@ namespace Serializer.Tests.Xml
         public String? D { get; set; }
     }
 }
-
-

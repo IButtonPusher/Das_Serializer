@@ -1,4 +1,7 @@
-﻿#if !NET40
+﻿using System;
+using System.Threading.Tasks;
+
+#if !NET40
 
 #else
 using Das.Serializer.ProtoBuf;
@@ -6,9 +9,6 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 #endif
-
-
-
 
 
 namespace Das.Serializer
@@ -32,9 +32,8 @@ namespace Das.Serializer
         {
         }
 
-        
-        #else
 
+        #else
         public override IProtoSerializer GetProtoSerializer<TPropertyAttribute>(
             ProtoBufOptions<TPropertyAttribute> options)
         {

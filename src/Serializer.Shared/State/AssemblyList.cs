@@ -19,7 +19,7 @@ namespace Das.Serializer
             _failedToLoad = new HashSet<AssemblyName>();
         }
 
-        public Boolean TryGetAssembly(String name, 
+        public Boolean TryGetAssembly(String name,
                                       out Assembly assembly)
         {
             if (_actualAssemblies.TryGetValue(name, out assembly))
@@ -43,13 +43,11 @@ namespace Das.Serializer
             foreach (var asmName in GetRunningAndDependencies())
             {
                 if (TryLoad(asmName, out var asm))
-                {
                     foreach (var type in asm.GetTypes())
                     {
                         if (interfaceType.IsAssignableFrom(type))
                             return type;
                     }
-                }
             }
 
             return default;
@@ -69,8 +67,10 @@ namespace Das.Serializer
             }
 
             foreach (var runningAndNeeded in GetRunningAndDependencies())
+            {
                 if (sended.Add(runningAndNeeded) && TryLoad(runningAndNeeded, out var asm))
                     yield return asm;
+            }
         }
 
         public IEnumerator<Assembly> GetEnumerator()
@@ -94,7 +94,8 @@ namespace Das.Serializer
             _actualAssemblies.TryAdd(asFile.Name, assembly);
         }
 
-        private static Boolean AreEqual(String name, Assembly assembly)
+        private static Boolean AreEqual(String name,
+                                        Assembly assembly)
         {
             return IsAssemblyUsable(assembly) && assembly.CodeBase.EndsWith(name,
                 StringComparison.OrdinalIgnoreCase);
@@ -104,8 +105,10 @@ namespace Das.Serializer
         {
             var sended = new HashSet<Assembly>();
             foreach (var dll in _actualAssemblies.Values)
+            {
                 if (sended.Add(dll))
                     yield return dll;
+            }
 
             foreach (var dll in AppDomain.CurrentDomain.GetAssemblies())
             {
@@ -132,8 +135,10 @@ namespace Das.Serializer
                     yield return name;
 
                 foreach (var dependency in dll.GetReferencedAssemblies())
+                {
                     if (sended.Add(dependency))
                         yield return dependency;
+                }
             }
         }
 
@@ -142,7 +147,8 @@ namespace Das.Serializer
             return !dll.IsDynamic && !String.IsNullOrWhiteSpace(dll.Location);
         }
 
-        private static Boolean TryFromBinFolder(String name, out Assembly found)
+        private static Boolean TryFromBinFolder(String name,
+                                                out Assembly found)
         {
             found = default!;
             var binDir = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory;
@@ -164,14 +170,15 @@ namespace Das.Serializer
             return found != null;
         }
 
-        private static Boolean TryGetRunning(String name, out Assembly assembly)
+        private static Boolean TryGetRunning(String name,
+                                             out Assembly assembly)
         {
             var running = GetRunning();
             assembly = running.FirstOrDefault(n => AreEqual(name, n))!;
             return assembly != null;
         }
 
-        private static Boolean TryGetRunningAndDependencies(String name, 
+        private static Boolean TryGetRunningAndDependencies(String name,
                                                             out Assembly assembly)
         {
             var running = GetRunningAndDependencies();

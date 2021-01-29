@@ -6,7 +6,8 @@ namespace Das.Serializer.State
     public class BinaryBorrawable : BinaryState, IBinaryLoaner
     {
         internal BinaryBorrawable(Action<IBinaryLoaner> returnToLibrary,
-                                  ISerializerSettings settings, IStateProvider dynamicFacade,
+                                  ISerializerSettings settings,
+                                  IStateProvider dynamicFacade,
                                   Func<IBinaryState, BinaryScanner> getScanner,
                                   Func<ISerializationCore, ISerializerSettings, IBinaryPrimitiveScanner>
                                       getPrimitiveScanner)

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    public abstract class SerializerCore : TypeCore, 
+    public abstract class SerializerCore : TypeCore,
                                            ISerializationCore
     {
         protected SerializerCore(ISerializationCore dynamicFacade,

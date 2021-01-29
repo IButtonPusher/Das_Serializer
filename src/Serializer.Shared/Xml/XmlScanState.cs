@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Das.Serializer.Xml
 {
@@ -43,7 +44,7 @@ namespace Das.Serializer.Xml
                     if (currentChar == '?')
                     {
                         scanState = NodeScanState.EncodingNodeOpened;
-                        
+
                         // skip <?xml(space)
                         SkipUntil(ref currentIndex, txt, ' ');
                         return true;
@@ -96,9 +97,7 @@ namespace Das.Serializer.Xml
                 case NodeScanState.AttributeNameRead:
                     currentChar = txt[currentIndex];
                     if (currentChar != '\'' && currentChar != '"')
-                    {
                         throw new NotImplementedException();
-                    }
 
                     currentIndex++;
 
@@ -115,7 +114,7 @@ namespace Das.Serializer.Xml
                     {
                         // opening a child node, all the whitespace in the sb 
                         // is useless at best
-                        stringBuilder.Clear(); 
+                        stringBuilder.Clear();
                         scanState = NodeScanState.JustOpened;
                     }
 
@@ -155,20 +154,18 @@ namespace Das.Serializer.Xml
         }
 
         /// <summary>
-        /// ' ', '>', '/'
+        ///     ' ', '>', '/'
         /// </summary>
-        private static readonly Char[] _nodeNameEnders = { ' ', '>', '/'};
+        private static readonly Char[] _nodeNameEnders = {' ', '>', '/'};
 
         /// <summary>
-        /// '=', '>', '/', '?'
+        ///     '=', '>', '/', '?'
         /// </summary>
-        private static readonly Char[] _attributeNameSplitters = { '=', '>', '/','?'};
+        private static readonly Char[] _attributeNameSplitters = {'=', '>', '/', '?'};
 
         /// <summary>
-        /// single/double quote
+        ///     single/double quote
         /// </summary>
         private static readonly Char[] _attributeValueEnders = {'\'', '"'};
     }
-
-    
 }

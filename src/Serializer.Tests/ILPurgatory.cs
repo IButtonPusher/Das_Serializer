@@ -59,7 +59,6 @@
 //}
 
 
-
 //    }
 //}
 
@@ -86,3 +85,6 @@
 //        return (Func<T, long>)method.CreateDelegate(typeof(Func<T, long>));
 //    }
 //}
+
+using System;
+using System.Threading.Tasks;

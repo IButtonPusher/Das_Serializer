@@ -8,7 +8,7 @@ namespace Das.Serializer.Objects
     /// </summary>
     public class ValueNode : IValueNode
     {
-        public ValueNode(Object? value) 
+        public ValueNode(Object? value)
             : this(value, value?.GetType())
         {
         }
@@ -17,7 +17,7 @@ namespace Das.Serializer.Objects
         {
         }
 
-        public ValueNode(Object? value, 
+        public ValueNode(Object? value,
                          Type? type)
         {
             _value = value;
@@ -32,16 +32,17 @@ namespace Das.Serializer.Objects
             set => _type = value;
         }
 
-        // ReSharper disable once UnusedMember.Global
-        protected void Set(Object value, Type type)
-        {
-            _value = value;
-            _type = type;
-        }
-
         public override String ToString()
         {
             return (Type?.Name ?? "?") + ": = " + Value;
+        }
+
+        // ReSharper disable once UnusedMember.Global
+        protected void Set(Object value,
+                           Type type)
+        {
+            _value = value;
+            _type = type;
         }
 
         protected Type? _type;

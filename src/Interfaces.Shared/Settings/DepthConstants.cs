@@ -5,7 +5,8 @@ namespace Das.Serializer
 {
     public class DepthConstants : ISerializationDepth
     {
-        private DepthConstants(SerializationDepth depth, Boolean isOmitDefault,
+        private DepthConstants(SerializationDepth depth,
+                               Boolean isOmitDefault,
                                Boolean isRespectXmlIgnore)
         {
             SerializationDepth = depth;

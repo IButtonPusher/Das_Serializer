@@ -31,43 +31,6 @@ namespace Das.Serializer
 
         private IBinaryFeeder Feeder => _feeder ?? throw new NullReferenceException(nameof(_feeder));
 
-        private void BuildCollection(ref IBinaryNode node)
-        {
-            var germane = TypeInferrer.GetGermaneType(node.Type!);
-            var feeder = Feeder;
-
-            var index = 0;
-            var blockEnd = node.BlockStart + node.BlockSize;
-
-            if (IsLeaf(germane, true))
-            {
-                while (feeder.Index < blockEnd)
-                {
-                    var res = feeder.GetPrimitive(germane);
-                    _nodes.Sealer.Imbue(node, index.ToString(), res!);
-                    index++;
-                }
-
-                return;
-            }
-
-            while (feeder.Index < blockEnd)
-            {
-                var child = NewNode(index.ToString(), node, germane);
-                BuildNext(ref child);
-                index++;
-            }
-        }
-
-        private void BuildFallbackObject(ref IBinaryNode node)
-        {
-            var fbType = node.Type;
-            var nodeSize = node.BlockSize;
-            var val = Feeder.GetFallback(fbType!, ref nodeSize);
-            node.Value = val;
-            node.BlockSize = nodeSize;
-        }
-
         protected void BuildNext(ref IBinaryNode node)
         {
             switch (node.NodeType)
@@ -137,6 +100,43 @@ namespace Das.Serializer
             }
         }
 
+        private void BuildCollection(ref IBinaryNode node)
+        {
+            var germane = TypeInferrer.GetGermaneType(node.Type!);
+            var feeder = Feeder;
+
+            var index = 0;
+            var blockEnd = node.BlockStart + node.BlockSize;
+
+            if (IsLeaf(germane, true))
+            {
+                while (feeder.Index < blockEnd)
+                {
+                    var res = feeder.GetPrimitive(germane);
+                    _nodes.Sealer.Imbue(node, index.ToString(), res!);
+                    index++;
+                }
+
+                return;
+            }
+
+            while (feeder.Index < blockEnd)
+            {
+                var child = NewNode(index.ToString(), node, germane);
+                BuildNext(ref child);
+                index++;
+            }
+        }
+
+        private void BuildFallbackObject(ref IBinaryNode node)
+        {
+            var fbType = node.Type;
+            var nodeSize = node.BlockSize;
+            var val = Feeder.GetFallback(fbType!, ref nodeSize);
+            node.Value = val;
+            node.BlockSize = nodeSize;
+        }
+
         private T Deserialize<T>()
         {
             var orgType = typeof(T);
@@ -155,7 +155,9 @@ namespace Das.Serializer
             return (T) _rootNode.Value!;
         }
 
-        private IBinaryNode NewNode(String name, [NotNull] IBinaryNode parent, Type type)
+        private IBinaryNode NewNode(String name,
+                                    [NotNull] IBinaryNode parent,
+                                    Type type)
         {
             var child = _nodes.Get(name, parent, type);
             var feeder = Feeder;

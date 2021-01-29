@@ -5,7 +5,7 @@ namespace Das.Serializer.State
 {
     public class JsonContext : CoreContext, ITextContext
     {
-        public JsonContext(ISerializationCore dynamicFacade, 
+        public JsonContext(ISerializationCore dynamicFacade,
                            ISerializerSettings settings)
             : base(dynamicFacade, settings)
         {
@@ -14,7 +14,7 @@ namespace Das.Serializer.State
             _nodeProvider = new TextNodeProvider(dynamicFacade, manipulator,
                 dynamicFacade.NodeTypeProvider, PrimitiveScanner, settings);
 
-            Sealer = new TextNodeSealer(manipulator, PrimitiveScanner, 
+            Sealer = new TextNodeSealer(manipulator, PrimitiveScanner,
                 dynamicFacade, settings);
         }
 

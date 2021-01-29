@@ -5,11 +5,13 @@ using Das.Serializer;
 
 namespace Das.Streamers
 {
-    public class BinaryFeeder : SerializerCore, 
+    public class BinaryFeeder : SerializerCore,
                                 IBinaryFeeder
     {
         public BinaryFeeder(IBinaryPrimitiveScanner primitiveScanner,
-                            ISerializationCore dynamicFacade, IByteArray bytes, ISerializerSettings settings)
+                            ISerializationCore dynamicFacade,
+                            IByteArray bytes,
+                            ISerializerSettings settings)
             : base(dynamicFacade, settings)
         {
             _scanner = primitiveScanner;
@@ -140,9 +142,7 @@ namespace Das.Streamers
                     if (length == -1) return null;
                 }
                 else if (length == 0)
-                {
                     return null;
-                }
 
                 return GetBytes(length);
             }
@@ -191,7 +191,8 @@ namespace Das.Streamers
         }
 
 
-        public Object? GetFallback(Type dataType, ref Int32 blockSize)
+        public Object? GetFallback(Type dataType,
+                                   ref Int32 blockSize)
         {
             //collection data we have to open a new node and that has to get these bytes
             if (IsCollection(dataType))
@@ -207,9 +208,7 @@ namespace Das.Streamers
                 bytes = GetBytes(blockSize);
             }
             else
-            {
                 bytes = GetBytesForValueTypeObject(dataType);
-            }
 
             var res = _scanner.GetValue(bytes, dataType, false);
             return res;

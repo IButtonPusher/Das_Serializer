@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    public interface ISerializationContext : ISerializationCore, 
+    public interface ISerializationContext : ISerializationCore,
                                              ISettingsUser
     {
         IScanNodeProvider ScanNodeProvider { get; }

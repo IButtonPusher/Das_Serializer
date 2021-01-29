@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security;
 using System.Threading.Tasks;
 using Das.Serializer;
+
 #pragma warning disable 8604
 #pragma warning disable 8602
 
@@ -11,7 +12,7 @@ namespace Das.Printers
 {
     public class XmlPrinter : TextPrinter
     {
-        public XmlPrinter(ITextRemunerable writer, 
+        public XmlPrinter(ITextRemunerable writer,
                           ISerializationState stateProvider,
                           ISerializerSettings settings)
             : base(writer, stateProvider, settings)
@@ -24,56 +25,11 @@ namespace Das.Printers
 
         public override Boolean IsRespectXmlIgnore => true;
 
-        protected override void PrintCollection(IPrintNode node)
-        {
-            node.Type = node.Value.GetType();
-
-            var parent = _formatStack.Pop();
-
-            var knownEmpty = node.IsEmptyInitialized;
-
-            if (parent.IsTagOpen)
-            {
-                Writer.Append(knownEmpty ? SelfClose : CloseTag);
-                parent.IsTagOpen = false;
-            }
-
-            if (!knownEmpty)
-            {
-                var germane = _stateProvider.TypeInferrer.GetGermaneType(node.Type);
-
-                PrintSeries(ExplodeList(node.Value as IEnumerable, germane),
-                    PrintCollectionObject);
-            }
-
-            _formatStack.Push(parent);
-        }
-
-        protected void PrintCollectionObject(ObjectNode val)
-        {
-            if (!_isIgnoreCircularDependencies)
-                PushStack($"[{val.Index}]");
-
-            PrintNode(val);
-            if (!_isIgnoreCircularDependencies)
-                PopStack();
-        }
-
-        private void PrintLeafAttribute(IPrintNode node)
-        {
-            IsPrintingLeaf = true;
-            Writer.Append($" {node.Name}={Const.Quote}");
-            var res = _nodeTypes.GetNodeType(node.Type, Settings.SerializationDepth);
-            node.NodeType = res;
-            PrintObject(node);
-            Writer.Append(Const.Quote);
-        }
-
 
         public override void PrintNode(INamedValue node)
         {
             if (node.Value == null)
-                return; 
+                return;
 
             if (!_isIgnoreCircularDependencies)
                 PushStack("/" + node.Name);
@@ -93,15 +49,17 @@ namespace Das.Printers
 
                 if (parent.IsTagOpen) //try to print like inline attributes zb <tag val="5" ...
                 {
-                    if (nodeType == NodeTypes.Primitive && !isWrapping && 
+                    if (nodeType == NodeTypes.Primitive && !isWrapping &&
                         _settings.IsUseAttributesInXml)
                     {
                         //does a leaf need to go in the stack?
                         _formatStack.Push(parent);
                         node.Type = valType;
                         using (var valu = _printNodePool.GetPrintNode(node))
+                        {
                             PrintLeafAttribute(valu);
-                        
+                        }
+
 
                         return;
                     }
@@ -131,9 +89,7 @@ namespace Das.Printers
                     Writer.Append(OpenAttributes, node.Name);
                 }
                 else
-                {
                     return; //we're ignoring circular refs and this was a circular ref...
-                }
 
                 if (isWrapping)
                 {
@@ -179,8 +135,10 @@ namespace Das.Printers
 
                 node.Type = valType;
                 using (var print = _printNodePool.GetPrintNode(node))
+                {
                     couldPrint = PrintObject(print);
-                
+                }
+
 
                 _formatStack.Pop();
                 /////////////////////////
@@ -224,6 +182,41 @@ namespace Das.Printers
             }
         }
 
+        protected override void PrintCollection(IPrintNode node)
+        {
+            node.Type = node.Value.GetType();
+
+            var parent = _formatStack.Pop();
+
+            var knownEmpty = node.IsEmptyInitialized;
+
+            if (parent.IsTagOpen)
+            {
+                Writer.Append(knownEmpty ? SelfClose : CloseTag);
+                parent.IsTagOpen = false;
+            }
+
+            if (!knownEmpty)
+            {
+                var germane = _stateProvider.TypeInferrer.GetGermaneType(node.Type);
+
+                PrintSeries(ExplodeList(node.Value as IEnumerable, germane),
+                    PrintCollectionObject);
+            }
+
+            _formatStack.Push(parent);
+        }
+
+        protected void PrintCollectionObject(ObjectNode val)
+        {
+            if (!_isIgnoreCircularDependencies)
+                PushStack($"[{val.Index}]");
+
+            PrintNode(val);
+            if (!_isIgnoreCircularDependencies)
+                PopStack();
+        }
+
         protected override void PrintReferenceType(IPrintNode node)
         {
             var series = _stateProvider.ObjectManipulator.GetPropertyResults(node, this)
@@ -245,6 +238,16 @@ namespace Das.Printers
             Writer.Append(SecurityElement.Escape(input)!);
 
             _formatStack.Push(parent);
+        }
+
+        private void PrintLeafAttribute(IPrintNode node)
+        {
+            IsPrintingLeaf = true;
+            Writer.Append($" {node.Name}={Const.Quote}");
+            var res = _nodeTypes.GetNodeType(node.Type, Settings.SerializationDepth);
+            node.NodeType = res;
+            PrintObject(node);
+            Writer.Append(Const.Quote);
         }
 
         private const String SelfClose = " />\r\n";

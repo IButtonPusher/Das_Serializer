@@ -10,7 +10,8 @@ namespace Das.Serializer
 {
     public class DasCodeGenerator
     {
-        public DasCodeGenerator(String assemblyName, String moduleName,
+        public DasCodeGenerator(String assemblyName,
+                                String moduleName,
                                 AssemblyBuilderAccess access)
         {
             _lock = new Object();
@@ -24,54 +25,6 @@ namespace Das.Serializer
 
         private ModuleBuilder ModuleBuilder =>
             _moduleBuilder ??= GetModuleBuilder();
-
-        [Pure]
-        private AssemblyBuilder GetAssemblyBuilder()
-        {
-            var access = _access;
-            lock (_lock)
-            {
-                var asmName = new AssemblyName(_assemblyName);
-
-                #if NET40
-
-                return AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, access);
-
-                #else
-                return AssemblyBuilder.DefineDynamicAssembly(asmName, access);
-
-                #endif
-            }
-        }
-
-        // ReSharper disable once UnusedMember.Local
-        // ReSharper disable once MemberCanBeMadeStatic.Local
-        private Boolean GetCanSave()
-        {
-            #if NET45
-            return _access == AssemblyBuilderAccess.Save ||
-                    _access == AssemblyBuilderAccess.RunAndSave;
-            #else
-            return false;
-            #endif
-        }
-
-        [Pure]
-        private ModuleBuilder GetModuleBuilder()
-        {
-            lock (_lock)
-            {
-                #if NET45 || NET40
-
-                var canSave = GetCanSave();
-                //if we will be saving to disk, create the module to be saved as well.
-                if (canSave)
-                    return AssemblyBuilder.DefineDynamicModule(_moduleName, _moduleName + ".netmodule");
-                #endif
-
-                return AssemblyBuilder.DefineDynamicModule(_moduleName);
-            }
-        }
 
         public TypeBuilder GetTypeBuilder(String typeName)
         {
@@ -93,6 +46,53 @@ namespace Das.Serializer
             #if NET45 || NET40
             AssemblyBuilder.Save(saveAs);
             #endif
+        }
+
+        [Pure]
+        private AssemblyBuilder GetAssemblyBuilder()
+        {
+            var access = _access;
+            lock (_lock)
+            {
+                var asmName = new AssemblyName(_assemblyName);
+
+                #if NET40
+                return AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, access);
+
+                #else
+                return AssemblyBuilder.DefineDynamicAssembly(asmName, access);
+
+                #endif
+            }
+        }
+
+        // ReSharper disable once UnusedMember.Local
+        // ReSharper disable once MemberCanBeMadeStatic.Local
+        private Boolean GetCanSave()
+        {
+            #if NET45
+            return _access == AssemblyBuilderAccess.Save ||
+                   _access == AssemblyBuilderAccess.RunAndSave;
+            #else
+            return false;
+            #endif
+        }
+
+        [Pure]
+        private ModuleBuilder GetModuleBuilder()
+        {
+            lock (_lock)
+            {
+                #if NET45 || NET40
+
+                var canSave = GetCanSave();
+                //if we will be saving to disk, create the module to be saved as well.
+                if (canSave)
+                    return AssemblyBuilder.DefineDynamicModule(_moduleName, _moduleName + ".netmodule");
+                #endif
+
+                return AssemblyBuilder.DefineDynamicModule(_moduleName);
+            }
         }
 
         private readonly AssemblyBuilderAccess _access;

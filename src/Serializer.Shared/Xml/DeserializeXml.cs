@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-#if !ALWAYS_EXPRESS
-
-using System.Runtime.CompilerServices;
-#endif
 using System.Threading.Tasks;
 using Das.Streamers;
+#if !ALWAYS_EXPRESS
+using System.Runtime.CompilerServices;
+#endif
 
 namespace Das.Serializer
 {
@@ -50,7 +49,6 @@ namespace Das.Serializer
                 var arr = txt.ToCharArray();
                 return _FromXml<T>(arr);
             #endif
-
         }
 
         public T FromXml<T>(Char[] xml)
@@ -76,7 +74,6 @@ namespace Das.Serializer
         }
 
         #if !ALWAYS_EXPRESS
-
         [MethodImpl(256)]
         private T _FromXml<T>(String xml)
         {

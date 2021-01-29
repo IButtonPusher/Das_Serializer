@@ -8,14 +8,14 @@ using System.Reflection.Emit;
 using System.Threading.Tasks;
 using Das.Extensions;
 
-
 namespace Das.Serializer.ProtoBuf
 {
     // ReSharper disable once UnusedType.Global
     // ReSharper disable once UnusedTypeParameter
     public partial class ProtoDynamicProvider<TPropertyAttribute>
     {
-        private Boolean CanScanAndAddPackedArray(Type fieldType, out TypeCode typeCode)
+        private Boolean CanScanAndAddPackedArray(Type fieldType,
+                                                 out TypeCode typeCode)
         {
             typeCode = TypeCode.Empty;
 
@@ -100,7 +100,7 @@ namespace Das.Serializer.ProtoBuf
 
             s.LoadParentToStack();
 
-            if (!(GetPackedArrayType(type) is {} packType))
+            if (!(GetPackedArrayType(type) is { } packType))
                 throw new InvalidOperationException("Cannot print " + type + " as a packed repeated field");
 
             /////////////////////////////////////
@@ -149,7 +149,7 @@ namespace Das.Serializer.ProtoBuf
                                        Type fieldType,
                                        Boolean isCanAddToCollection)
         {
-            if (!(GetPackedArrayType(fieldType) is {} packType))
+            if (!(GetPackedArrayType(fieldType) is { } packType))
                 throw new NotSupportedException();
 
             if (isCanAddToCollection && CanScanAndAddPackedArray(fieldType, out _))

@@ -24,34 +24,48 @@ namespace Das.Serializer.Remunerators
         Int32 GetVarIntLength(Int32 varInt);
         //IProtoWriter Push();
 
-        void Write(Byte[] bytes, Int32 count, Stream outStream);
+        void Write(Byte[] bytes,
+                   Int32 count,
+                   Stream outStream);
 
-        void Write(Byte[] values, Stream outStream);
+        void Write(Byte[] values,
+                   Stream outStream);
 
-        void WriteInt16(Int16 val, Stream outStream);
+        void WriteInt16(Int16 val,
+                        Stream outStream);
 
-        void WriteInt16(UInt16 val, Stream outStream);
+        void WriteInt16(UInt16 val,
+                        Stream outStream);
 
-        void WriteInt32(Int32 value, Stream outStream);
+        void WriteInt32(Int32 value,
+                        Stream outStream);
 
-        void WriteInt32(Int64 val, Stream outStream);
+        void WriteInt32(Int64 val,
+                        Stream outStream);
 
-        void WriteInt64(Int64 val, Stream outStream);
+        void WriteInt64(Int64 val,
+                        Stream outStream);
 
-        void WriteInt64(UInt64 val, Stream outStream);
+        void WriteInt64(UInt64 val,
+                        Stream outStream);
 
-        void WriteInt8(Byte value, Stream outStream);
+        void WriteInt8(Byte value,
+                       Stream outStream);
 
-        void WriteInt8(SByte value, Stream outStream);
+        void WriteInt8(SByte value,
+                       Stream outStream);
 
-        void WritePacked16<TCollection>(TCollection packed, Stream _outStream)
+        void WritePacked16<TCollection>(TCollection packed,
+                                        Stream _outStream)
             where TCollection : IEnumerable<Int16>;
 
 
-        void WritePacked32<TCollection>(TCollection packed, Stream _outStream)
+        void WritePacked32<TCollection>(TCollection packed,
+                                        Stream _outStream)
             where TCollection : IEnumerable<Int32>;
 
-        void WritePacked64<TCollection>(TCollection packed, Stream _outStream)
+        void WritePacked64<TCollection>(TCollection packed,
+                                        Stream _outStream)
             where TCollection : IEnumerable<Int64>;
     }
 }

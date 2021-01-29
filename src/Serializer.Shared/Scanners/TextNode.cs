@@ -9,9 +9,9 @@ namespace Das.Serializer
 {
     public class TextNode : BaseNode<ITextNode>, ITextNode
     {
-        public TextNode(String name, 
+        public TextNode(String name,
                         ISerializerSettings settings,
-                        INodeManipulator nodeManipulator, 
+                        INodeManipulator nodeManipulator,
                         INodeTypeProvider nodeTypeProvider,
                         ISerializationDepth depth)
             : base(settings)
@@ -26,7 +26,8 @@ namespace Das.Serializer
                 StringComparer.InvariantCultureIgnoreCase);
         }
 
-        public void Set(String name, ISerializationDepth depth,
+        public void Set(String name,
+                        ISerializationDepth depth,
                         INodeManipulator nodeManipulator)
         {
             Name = name;
@@ -54,7 +55,9 @@ namespace Das.Serializer
         public override void Clear()
         {
             foreach (var child in Children.Values)
+            {
                 child.Clear();
+            }
 
             Children.Clear();
             _nodeManipulator = default;
@@ -71,7 +74,9 @@ namespace Das.Serializer
         {
             foreach (var node in Children)
             foreach (var grand in node.Value)
+            {
                 yield return grand;
+            }
 
             yield return this;
         }

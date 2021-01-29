@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    public interface INamedValue : IValueNode, 
+    public interface INamedValue : IValueNode,
                                    IDisposable
     {
         Boolean IsEmptyInitialized { get; }

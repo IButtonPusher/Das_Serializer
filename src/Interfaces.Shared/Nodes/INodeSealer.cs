@@ -8,7 +8,9 @@ namespace Das.Serializer
     {
         void CloseNode(TNode node);
 
-        void Imbue([NotNull] TNode node, String propertyName, Object value);
+        void Imbue([NotNull] TNode node,
+                   String propertyName,
+                   Object value);
 
         void Imbue(TNode childNode);
     }

@@ -32,7 +32,8 @@ namespace Das.Serializer
             _stream.Position--;
         }
 
-        public Byte[] this[Int32 start, Int32 length]
+        public Byte[] this[Int32 start,
+                           Int32 length]
         {
             get
             {
@@ -99,7 +100,9 @@ namespace Das.Serializer
             else Length = 0;
         }
 
-        [ThreadStatic] private static Byte[]? _byteCache;
+        [ThreadStatic]
+        private static Byte[]? _byteCache;
+
         private Stream _stream;
     }
 }

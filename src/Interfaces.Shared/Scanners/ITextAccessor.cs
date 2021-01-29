@@ -15,7 +15,8 @@ namespace Das.Serializer
 
         Int32 Length { get; }
 
-        Boolean Contains(String str, StringComparison comparison);
+        Boolean Contains(String str,
+                         StringComparison comparison);
 
         Boolean Contains(Char c);
 
@@ -35,9 +36,11 @@ namespace Das.Serializer
 
         String[] Split();
 
-        String[] Split(Char[] separators, StringSplitOptions options = StringSplitOptions.RemoveEmptyEntries);
+        String[] Split(Char[] separators,
+                       StringSplitOptions options = StringSplitOptions.RemoveEmptyEntries);
 
-        String Substring(Int32 start, Int32 length);
+        String Substring(Int32 start,
+                         Int32 length);
 
         String Substring(Int32 start);
 

@@ -1,7 +1,8 @@
-﻿using System;
+﻿// ReSharper disable once RedundantUsingDirective
+using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
-// ReSharper disable once RedundantUsingDirective
 using BenchmarkDotNet.Running;
 using Serializer.Tests;
 using Serializer.Tests.ProtocolBuffers;
@@ -14,15 +15,15 @@ namespace Serializer.Benchmarks
     {
         public static void Main(String[] args)
         {
-#if DEBUG
+            #if DEBUG
             //RunManyTimes();
 
             //RunJsonManyTimes();
 
             RunXmlManyTimes();
 
-#endif
-#if !DEBUG
+            #endif
+            #if !DEBUG
             if (args == null || args.Length == 0)
             //if (false)
             {
@@ -31,8 +32,7 @@ namespace Serializer.Benchmarks
             }
             else
                RunManyTimes();
-#endif
-
+            #endif
         }
 
         private static void RunJsonManyTimes()
@@ -43,30 +43,8 @@ namespace Serializer.Benchmarks
             {
                 bm.PrimitivePropertiesJsonBaseline();
                 bm.PrimitivePropertiesJsonExpress();
-
             }
         }
-
-        private static void RunXmlManyTimes()
-        {
-            var bm = new XmlBenchmarks();
-
-            for (var c = 0; c < 10000; c++)
-            {
-                bm.PrimitivePropertiesBaseline();
-                bm.PrimitivePropertiesExpress();
-
-                bm.PrimitiveCollectionBaseline();
-                bm.PrimitiveCollectionExpress();
-
-                bm.ObjectCollectionBaseline();
-                bm.ObjectCollectionExpress();
-            }
-
-        }
-
-        [ThreadStatic]
-        private static Byte[]? _rdrr;
 
         private unsafe static void RunManyTimes()
         {
@@ -100,7 +78,7 @@ namespace Serializer.Benchmarks
 
                         buff.TypeProvider.DumpProxies();
 
-#endif
+                        #endif
                     }
 
 
@@ -110,20 +88,35 @@ namespace Serializer.Benchmarks
 
             for (var i = 0; i < 1000; i++)
             {
-               
             }
 
 
             Debug.WriteLine(" das TOTAL: " + swo.ElapsedMilliseconds);
         }
 
-     
+        private static void RunXmlManyTimes()
+        {
+            var bm = new XmlBenchmarks();
+
+            for (var c = 0; c < 10000; c++)
+            {
+                bm.PrimitivePropertiesBaseline();
+                bm.PrimitivePropertiesExpress();
+
+                bm.PrimitiveCollectionBaseline();
+                bm.PrimitiveCollectionExpress();
+
+                bm.ObjectCollectionBaseline();
+                bm.ObjectCollectionExpress();
+            }
+        }
+
+        [ThreadStatic]
+        private static Byte[]? _rdrr;
+
 
         public class Benchies : TestBase
         {
-            private String _xmlString;
-            private Char[] _xmlEnumerable;
-
             public Benchies()
             {
                 var mc1 = ObjectDictionary.Get();
@@ -144,6 +137,9 @@ namespace Serializer.Benchmarks
             {
                 return Serializer.FromXml<ObjectDictionary>(_xmlEnumerable);
             }
+
+            private Char[] _xmlEnumerable;
+            private String _xmlString;
         }
     }
 }

@@ -11,8 +11,6 @@ namespace Das.Serializer
             _state = state;
         }
 
-        protected abstract Boolean CanValueBeNumber(Boolean wasInputInQuotes);
-
         public Object GetValue(String? input,
                                Type type,
                                Boolean wasInputInQuotes)
@@ -74,6 +72,8 @@ namespace Das.Serializer
         }
 
         public abstract String Descape(String? input);
+
+        protected abstract Boolean CanValueBeNumber(Boolean wasInputInQuotes);
 
         private readonly ITypeCore _state;
     }

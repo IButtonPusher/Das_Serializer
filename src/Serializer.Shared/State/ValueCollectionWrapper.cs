@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
@@ -15,14 +16,18 @@ namespace Das.Serializer
             _addDelegate = addDelegate;
         }
 
-        public ICollection GetBaseCollection() => _baseCollection;
+        public ICollection GetBaseCollection()
+        {
+            return _baseCollection;
+        }
 
         public IEnumerator GetEnumerator()
         {
             return _baseCollection.GetEnumerator();
         }
 
-        public void CopyTo(Array array, Int32 index)
+        public void CopyTo(Array array,
+                           Int32 index)
         {
             _baseCollection.CopyTo(array, index);
         }
@@ -54,7 +59,8 @@ namespace Das.Serializer
             throw new NotSupportedException();
         }
 
-        void IList.Insert(Int32 index, Object value)
+        void IList.Insert(Int32 index,
+                          Object value)
         {
             throw new NotSupportedException();
         }

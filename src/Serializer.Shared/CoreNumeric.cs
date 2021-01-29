@@ -16,7 +16,8 @@ namespace Das.Serializer
             return GetCurrencyImpl(fromString, ref isAnyValid);
         }
 
-        public Boolean TryGetCurrency(String fromString, out Double currency)
+        public Boolean TryGetCurrency(String fromString,
+                                      out Double currency)
         {
             var isAnyValid = false;
             currency = GetCurrencyImpl(fromString, ref isAnyValid);
@@ -33,9 +34,7 @@ namespace Das.Serializer
                 {
                     var ch = str[i];
                     if (Char.IsDigit(ch))
-                    {
                         yield return ch;
-                    }
                     else if (!isDotDetected && ch == DOT && i < str.Length - 1)
                     {
                         isDotDetected = true;
@@ -57,7 +56,8 @@ namespace Das.Serializer
             return Convert.ToInt32(GetCurrency(fromString));
         }
 
-        public Double GetNumericalDifference(Double left, Double right)
+        public Double GetNumericalDifference(Double left,
+                                             Double right)
         {
             if (right.IsZero())
                 return 0;
@@ -69,12 +69,22 @@ namespace Das.Serializer
             return (0 - (1 - left / right)) * 100;
         }
 
-        public Boolean AreEqual(Double left, Double right)
+        public Boolean AreEqual(Double left,
+                                Double right)
         {
             return Math.Abs(left - right) < TOLERANCE;
         }
 
-        private static Double GetCurrencyImpl(String fromString, ref Boolean isAnyValid)
+        public Int64 GetInt64(String fromString)
+        {
+            var str = String.Concat(fromString.Where(Char.IsNumber));
+            if (Int64.TryParse(str, out var yes))
+                return yes;
+            return 0;
+        }
+
+        private static Double GetCurrencyImpl(String fromString,
+                                              ref Boolean isAnyValid)
         {
             var len = fromString.Length;
             _multiple = 1;
@@ -103,9 +113,7 @@ namespace Das.Serializer
                     }
                 }
                 else
-                {
                     current = EOL;
-                }
 
                 switch (current)
                 {
@@ -232,14 +240,6 @@ namespace Das.Serializer
             return _isNegation ? 0 - _buildingResult : _buildingResult;
         }
 
-        public Int64 GetInt64(String fromString)
-        {
-            var str = String.Concat(fromString.Where(Char.IsNumber));
-            if (Int64.TryParse(str, out var yes))
-                return yes;
-            return 0;
-        }
-
         private const Double TOLERANCE = 0.000001;
 
         private const Char DOT = '.';
@@ -248,24 +248,34 @@ namespace Das.Serializer
         private const Char EOL = '\n';
         private const Char NEG = '-';
 
-        [ThreadStatic] private static Double _buildingResult;
+        [ThreadStatic]
+        private static Double _buildingResult;
 
-        [ThreadStatic] private static Int64 _currentGroup;
+        [ThreadStatic]
+        private static Int64 _currentGroup;
 
-        [ThreadStatic] private static Int32 _currentGroupLength;
+        [ThreadStatic]
+        private static Int32 _currentGroupLength;
 
-        [ThreadStatic] private static Int32 _dotGroupLength;
+        [ThreadStatic]
+        private static Int32 _dotGroupLength;
 
-        [ThreadStatic] private static Int64 _dotGroup;
+        [ThreadStatic]
+        private static Int64 _dotGroup;
 
-        [ThreadStatic] private static Int64 _commaGroup;
+        [ThreadStatic]
+        private static Int64 _commaGroup;
 
-        [ThreadStatic] private static Int32 _commaGroupLength;
+        [ThreadStatic]
+        private static Int32 _commaGroupLength;
 
-        [ThreadStatic] private static Int64 _multiple;
+        [ThreadStatic]
+        private static Int64 _multiple;
 
-        [ThreadStatic] private static Char _firstGroup;
+        [ThreadStatic]
+        private static Char _firstGroup;
 
-        [ThreadStatic] private static Boolean _isNegation;
+        [ThreadStatic]
+        private static Boolean _isNegation;
     }
 }

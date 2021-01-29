@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using Das.Extensions;
+
 #if !ALWAYS_EXPRESS
 using Das.Streamers;
 #endif
@@ -119,5 +120,3 @@ namespace Das.Serializer
         private static readonly Object[] _empty = new Object[0];
     }
 }
-
-

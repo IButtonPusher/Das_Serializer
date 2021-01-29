@@ -35,7 +35,8 @@ namespace Das.Serializer.ProtoBuf
         /// <exception cref="MissingMethodException">If allowReadOnly is false and no default constructor is found</exception>
         IProtoProxy<T> GetProtoProxy<T>(Boolean allowReadOnly = false);
 
-        Boolean TryGetProtoField(PropertyInfo prop, Boolean isRequireAttribute,
+        Boolean TryGetProtoField(PropertyInfo prop,
+                                 Boolean isRequireAttribute,
                                  out IProtoFieldAccessor field);
     }
 }

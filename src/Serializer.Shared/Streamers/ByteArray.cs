@@ -21,7 +21,8 @@ namespace Das.Serializer
             }
         }
 
-        public Byte[] this[Int32 start, Int32 length]
+        public Byte[] this[Int32 start,
+                           Int32 length]
         {
             get
             {
@@ -90,10 +91,12 @@ namespace Das.Serializer
 
         public static implicit operator ByteArray(Byte[] array)
         {
-            return new ByteArray(array);
+            return new(array);
         }
 
-        [ThreadStatic] private static Byte[]? _byteCache;
+        [ThreadStatic]
+        private static Byte[]? _byteCache;
+
         private Byte[] _bytes;
 
         private Int32 _lastIndex;

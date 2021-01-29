@@ -6,14 +6,15 @@ namespace Das.Serializer
 {
     public abstract class StringBase
     {
-        protected static String Remove(ISet<Char> chars, String from)
+        protected static String Remove(ISet<Char> chars,
+                                       String from)
         {
             if (String.IsNullOrEmpty(from) || chars.Count == 0)
                 return from;
 
             var isNeeded = false;
             for (var c = 0; c < from.Length; c++)
-                if (chars.Contains(@from[c]))
+                if (chars.Contains(from[c]))
                 {
                     isNeeded = true;
                     break;

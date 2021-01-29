@@ -104,15 +104,15 @@ namespace Das.Serializer
         }
 
         private static readonly ThreadLocal<Queue<PrintNode>> PrintNodeBuffer =
-            new ThreadLocal<Queue<PrintNode>>(
+            new(
                 () => new Queue<PrintNode>());
 
         private static readonly ThreadLocal<Queue<NamedValueNode>> NamedNodeBuffer =
-            new ThreadLocal<Queue<NamedValueNode>>(
+            new(
                 () => new Queue<NamedValueNode>());
 
         private static readonly ThreadLocal<Queue<PropertyValueNode>> PropertyBuffer =
-            new ThreadLocal<Queue<PropertyValueNode>>(
+            new(
                 () => new Queue<PropertyValueNode>());
 
         private readonly INodeTypeProvider _nodeTypeProvider;

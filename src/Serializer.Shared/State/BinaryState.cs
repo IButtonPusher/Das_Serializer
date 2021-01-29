@@ -5,7 +5,7 @@ namespace Das.Serializer
 {
     public class BinaryState : BaseState, IBinaryState
     {
-        internal BinaryState(IStateProvider stateProvider, 
+        internal BinaryState(IStateProvider stateProvider,
                              ISerializerSettings settings,
                              Func<IBinaryState, BinaryScanner> getScanner,
                              Func<ISerializationCore, ISerializerSettings, IBinaryPrimitiveScanner> getPrimitiveScanner)
@@ -14,7 +14,7 @@ namespace Das.Serializer
             _settings = settings;
             PrimitiveScanner = getPrimitiveScanner(stateProvider, settings);
             _nodeProvider = stateProvider.ScanNodeProvider as IBinaryNodeProvider
-                ?? throw new InvalidCastException(stateProvider.ScanNodeProvider.GetType().Name);
+                            ?? throw new InvalidCastException(stateProvider.ScanNodeProvider.GetType().Name);
 
             _scanner = getScanner(this);
             Scanner = _scanner;

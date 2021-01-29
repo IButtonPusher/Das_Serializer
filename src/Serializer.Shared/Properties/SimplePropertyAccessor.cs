@@ -1,12 +1,10 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
     public class SimplePropertyAccessor : IPropertyAccessor
     {
-        private readonly Func<object, object>? _getter;
-        private readonly PropertySetter? _setter;
-
         public SimplePropertyAccessor(Type declaringType,
                                       String propertyName,
                                       Func<object, object>? getter,
@@ -38,14 +36,14 @@ namespace Das.Serializer
             return true;
         }
 
-        public bool SetPropertyValue<TTarget>(ref TTarget targetObj, 
+        public bool SetPropertyValue<TTarget>(ref TTarget targetObj,
                                               Object? propVal)
         {
             if (_setter == null)
                 return false;
 
             Object? oTarget = targetObj;
-            
+
             _setter(ref oTarget, propVal);
             return true;
         }
@@ -76,5 +74,8 @@ namespace Das.Serializer
             return DeclaringType.Name + "->" + PropertyPath + "( read: "
                    + CanRead + " write: " + CanWrite + " )";
         }
+
+        private readonly Func<object, object>? _getter;
+        private readonly PropertySetter? _setter;
     }
 }

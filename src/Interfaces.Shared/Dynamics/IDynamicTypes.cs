@@ -7,6 +7,8 @@ namespace Das.Serializer
 {
     public interface IDynamicTypes
     {
+        Object BuildDynamicObject(RuntimeObject robj);
+
         Type GetDynamicImplementation(Type baseInterface);
 
         /// <summary>
@@ -24,8 +26,6 @@ namespace Das.Serializer
                             IEnumerable<DasProperty> properties,
                             IEnumerable<EventInfo> events,
                             params Type[] parentTypes);
-
-        Object BuildDynamicObject(RuntimeObject robj);
 
         Boolean TryGetDynamicType(String clearName,
                                   out Type? type);

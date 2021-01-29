@@ -37,7 +37,6 @@ namespace Das.Serializer
             var dynamicTypes = new DasTypeBuilder(settings, typeManipulator, manipulator);
 
             #else
-
             var dynamicTypes = new InvalidTypeBuilder(assemblyList);
 
             #endif
@@ -61,9 +60,7 @@ namespace Das.Serializer
         public ITextParser TextParser { get; }
 
 
-
         public IDynamicTypes DynamicTypes { get; }
-
 
 
         public IInstantiator ObjectInstantiator { get; }

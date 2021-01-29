@@ -88,12 +88,12 @@ namespace Das.Serializer
         public Boolean CacheTypeConstructors { get; set; }
 
         /// <summary>
-        /// Returns a mutable copy of the defaults. A new copy is generated each time
-        /// this property is accessed.
+        ///     Returns a mutable copy of the defaults. A new copy is generated each time
+        ///     this property is accessed.
         /// </summary>
         public static DasSettings Default => (DasSettings) _default.MemberwiseClone();
 
-        
+
         private static readonly DasSettings _default;
     }
 }

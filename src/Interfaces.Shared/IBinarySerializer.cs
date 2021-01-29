@@ -26,14 +26,17 @@ namespace Das.Serializer
         ///     will create a byte array that cannot be deserialized as TypeB but
         ///     can as TypeA
         /// </summary>
-        Byte[] ToBytes(Object o, Type asType);
+        Byte[] ToBytes(Object o,
+                       Type asType);
 
         Byte[] ToBytes<TObject>(TObject o);
 
         Byte[] ToBytes<TTarget>(Object o);
 
-        void ToBytes(Object o, FileInfo fileName);
+        void ToBytes(Object o,
+                     FileInfo fileName);
 
-        void ToBytes<TTarget>(Object o, FileInfo fileName);
+        void ToBytes<TTarget>(Object o,
+                              FileInfo fileName);
     }
 }

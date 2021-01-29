@@ -12,7 +12,7 @@ namespace Das.Printers
     {
         protected PrinterBase(ISerializationState stateProvider,
                               ISerializerSettings settings)
-        : base(settings)
+            : base(settings)
         {
             //Settings = settings;
             _stateProvider = stateProvider;
@@ -292,8 +292,8 @@ namespace Das.Printers
                     break;
                 case CircularReference.ThrowException:
                     throw new CircularReferenceException(_pathStack, PathSeparator);
-                    //var path = _pathStack.ToString(PathSeparator, '[');
-                    //throw new InvalidOperationException($"Circular reference {PathSeparator}{path}");
+                //var path = _pathStack.ToString(PathSeparator, '[');
+                //throw new InvalidOperationException($"Circular reference {PathSeparator}{path}");
                 case CircularReference.SerializePath:
                     var objIndex = _pathObjects.IndexOf(o);
                     PrintCircularDependency(objIndex);

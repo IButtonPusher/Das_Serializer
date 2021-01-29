@@ -8,7 +8,8 @@ namespace Das.Serializer
 {
     public interface INumberExtractor
     {
-        Boolean AreEqual(Double left, Double right);
+        Boolean AreEqual(Double left,
+                         Double right);
 
         /// <summary>
         ///     Tries to turn the whole string into the number using 0.00 formatting
@@ -25,11 +26,13 @@ namespace Das.Serializer
 
         Int32 GetInt32(String fromString);
 
-        Double GetNumericalDifference(Double left, Double right);
+        Double GetNumericalDifference(Double left,
+                                      Double right);
 
         /// <summary>
         ///     Tries to find some currency but if nothing found returns false
         /// </summary>
-        Boolean TryGetCurrency(String fromString, out Double currency);
+        Boolean TryGetCurrency(String fromString,
+                               out Double currency);
     }
 }

@@ -7,9 +7,9 @@ using Das.Serializer.Concurrency;
 namespace Das.Serializer
 {
     /// <summary>
-    /// Creates a system wide mutex on a string based on the file's name
+    ///     Creates a system wide mutex on a string based on the file's name
     /// </summary>
-    public class SafeFile :  IDisposable
+    public class SafeFile : IDisposable
     {
         static SafeFile()
         {
@@ -38,7 +38,8 @@ namespace Das.Serializer
             //_protector.ReleaseMutex();
         }
 
-        private readonly Mutex _protector;
         private static readonly StaScheduler _staScheduler;
+
+        private readonly Mutex _protector;
     }
 }

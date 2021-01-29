@@ -42,7 +42,8 @@ namespace Das.Serializer
             }
         }
 
-        private IBinaryFeeder GetFeeder(IBinaryContext state, IByteArray arr)
+        private IBinaryFeeder GetFeeder(IBinaryContext state,
+                                        IByteArray arr)
         {
             return new BinaryFeeder(state.PrimitiveScanner, state, arr, Settings);
         }

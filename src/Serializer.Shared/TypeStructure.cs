@@ -12,7 +12,7 @@ using Das.Serializer.Types;
 
 namespace Das
 {
-    public class TypeStructure : TypeCore, 
+    public class TypeStructure : TypeCore,
                                  ITypeStructure
     {
         public TypeStructure(Type type,
@@ -86,7 +86,8 @@ namespace Das
         public Int32 PropertyCount { get; }
 
 
-        public Boolean OnDeserialized(Object obj, IObjectManipulator objectManipulator)
+        public Boolean OnDeserialized(Object obj,
+                                      IObjectManipulator objectManipulator)
         {
             if (_onDeserializedMethodName == null)
                 return false;
@@ -95,7 +96,6 @@ namespace Das
             return true;
         }
 
-        
 
         public IPropertyValueIterator<IProperty> GetPropertyValues(Object o,
                                                                    ISerializationDepth depth)
@@ -128,65 +128,32 @@ namespace Das
         public IEnumerable<INamedField> GetMembersToSerialize(ISerializationDepth depth)
         {
             foreach (var kvp in GetValueGetters(depth))
-                yield return MemberTypes[kvp.Key];
-        }
-
-        public object? GetValue(Object o, String propertyName)
-        {
-            if (_propGetters.TryGetValue(propertyName, out var getter))
-                return getter(o);
-            if (_getOnly.TryGetValue(propertyName, out var getOnly))
-                return getOnly(o);
-            if (_getDontSerialize.TryGetValue(propertyName, out var notSerialized))
-                return notSerialized(o);
-            return null;
-        }
-
-        
-
-        public bool TryGetPropertyValue(Object obj, 
-                                        String propertyName, 
-                                        out Object result)
-        {
-            result = GetPropertyValueImpl(obj, propertyName, out _)!;
-            return result != null;
-        }
-
-        public object? GetPropertyValue(Object o, 
-                                        String propertyName)
-        {
-            return GetPropertyValueImpl(o, propertyName, out _);
-        }
-
-        private Object? GetPropertyValueImpl(Object o,
-                                             String propertyName,
-                                             out INamedField? mInfo)
-        {
-            if (!MemberTypes.TryGetValue(propertyName, out mInfo))
             {
-                return null;
+                yield return MemberTypes[kvp.Key];
             }
+        }
 
+        public object? GetValue(Object o,
+                                String propertyName)
+        {
             if (_propGetters.TryGetValue(propertyName, out var getter))
                 return getter(o);
             if (_getOnly.TryGetValue(propertyName, out var getOnly))
                 return getOnly(o);
             if (_getDontSerialize.TryGetValue(propertyName, out var notSerialized))
                 return notSerialized(o);
-
-            mInfo = null;
             return null;
         }
 
-        IProperty? ITypeStructure.GetPropertyValue(Object o, 
-                                           String propertyName)
+        IProperty? ITypeStructure.GetPropertyValue(Object o,
+                                                   String propertyName)
         {
             try
             {
                 var val = GetPropertyValueImpl(o, propertyName, out var mInfo);
                 if (mInfo == null)
                     return null;
-                
+
                 //if (!MemberTypes.TryGetValue(propertyName, out var mInfo))
                 //    return null;
                 //var pType = mInfo.Type;
@@ -212,7 +179,9 @@ namespace Das
             }
         }
 
-        public Boolean SetFieldValue(String fieldName, Object targetObj, Object fieldVal)
+        public Boolean SetFieldValue(String fieldName,
+                                     Object targetObj,
+                                     Object fieldVal)
         {
             if (!_fieldSetters.TryGetValue(fieldName, out var set))
                 return false;
@@ -220,7 +189,9 @@ namespace Das
             return true;
         }
 
-        public Boolean SetFieldValue<T>(String fieldName, Object targetObj, Object fieldVal)
+        public Boolean SetFieldValue<T>(String fieldName,
+                                        Object targetObj,
+                                        Object fieldVal)
         {
             if (!_fieldSetters.TryGetValue(fieldName, out var set))
                 return false;
@@ -228,15 +199,8 @@ namespace Das
             return true;
         }
 
-        public Boolean SetPropertyValue(ref Object targetObj, 
-                                        String propName, 
-                                        Object? propVal)
-        {
-            return SetValue(propName, ref targetObj, propVal, Depth);
-        }
-        
-        public Boolean SetValue(String propName, 
-                                ref Object targetObj, 
+        public Boolean SetValue(String propName,
+                                ref Object targetObj,
                                 Object? propVal,
                                 SerializationDepth depth)
         {
@@ -268,16 +232,16 @@ namespace Das
             return true;
         }
 
-        public void SetPropertyValueUnsafe(String propName, 
-                                           ref Object targetObj, 
+        public void SetPropertyValueUnsafe(String propName,
+                                           ref Object targetObj,
                                            Object propVal)
         {
-            
             _propertySetters[propName](ref targetObj!, propVal);
         }
 
 
-        public Boolean TryGetAttribute<TAttribute>(String memberName, out TAttribute value)
+        public Boolean TryGetAttribute<TAttribute>(String memberName,
+                                                   out TAttribute value)
             where TAttribute : Attribute
         {
             if (_propertyAttributes.TryGetValue(memberName, typeof(TAttribute), out var items)
@@ -295,7 +259,35 @@ namespace Das
         protected PropertyValueIterator<IProperty> PropertyValues
             => _propertyValues.Value!;
 
-        private void CreateFieldDelegates(Type type, ISerializationDepth depth)
+        public object? GetPropertyValue(Object o,
+                                        String propertyName)
+        {
+            return GetPropertyValueImpl(o, propertyName, out _);
+        }
+
+        public Boolean SetPropertyValue(ref Object targetObj,
+                                        String propName,
+                                        Object? propVal)
+        {
+            return SetValue(propName, ref targetObj, propVal, Depth);
+        }
+
+        public override string ToString()
+        {
+            return GetType().Name + ": " + Type.FullName;
+        }
+
+
+        public bool TryGetPropertyValue(Object obj,
+                                        String propertyName,
+                                        out Object result)
+        {
+            result = GetPropertyValueImpl(obj, propertyName, out _)!;
+            return result != null;
+        }
+
+        private void CreateFieldDelegates(Type type,
+                                          ISerializationDepth depth)
         {
             if ((depth.SerializationDepth & SerializationDepth.PrivateFields) !=
                 SerializationDepth.PrivateFields)
@@ -325,9 +317,13 @@ namespace Das
                 var isSerialize = true;
                 var attrs = pi.GetCustomAttributes(true);
 
-                foreach (var attr in attrs) _propertyAttributes.Add(pi.Name, attr.GetType(), attr);
+                foreach (var attr in attrs)
+                {
+                    _propertyAttributes.Add(pi.Name, attr.GetType(), attr);
+                }
 
                 foreach (var attr in attrs)
+                {
                     switch (attr)
                     {
                         case IgnoreDataMemberAttribute _:
@@ -339,6 +335,7 @@ namespace Das
                                 isSerialize = false;
                             break;
                     }
+                }
 
                 if (!isSerialize)
                 {
@@ -385,6 +382,24 @@ namespace Das
                 _propGetterList.AddRange(_getOnly.OrderBy(p => p.Key));
         }
 
+        private Object? GetPropertyValueImpl(Object o,
+                                             String propertyName,
+                                             out INamedField? mInfo)
+        {
+            if (!MemberTypes.TryGetValue(propertyName, out mInfo))
+                return null;
+
+            if (_propGetters.TryGetValue(propertyName, out var getter))
+                return getter(o);
+            if (_getOnly.TryGetValue(propertyName, out var getOnly))
+                return getOnly(o);
+            if (_getDontSerialize.TryGetValue(propertyName, out var notSerialized))
+                return notSerialized(o);
+
+            mInfo = null;
+            return null;
+        }
+
         private IEnumerable<KeyValuePair<String, Func<Object, Object>>> GetValueGetters(
             ISerializationDepth depth)
         {
@@ -398,16 +413,20 @@ namespace Das
 
             if (!isSet || (depth.SerializationDepth & SerializationDepth.GetOnlyProperties) != 0)
                 foreach (var kvp in _getOnly)
+                {
                     yield return kvp;
+                }
 
             if ((depth.SerializationDepth & SerializationDepth.PrivateFields) == 0)
                 yield break;
 
             foreach (var kvp in _fieldGetters)
+            {
                 yield return kvp;
+            }
         }
 
-        private void SetPropertyForDynamicAccess(Type type, 
+        private void SetPropertyForDynamicAccess(Type type,
                                                  PropertyInfo pi)
         {
             //even if a property will be excluded from serialization, we may still want
@@ -422,11 +441,6 @@ namespace Das
 
             var member = new DasMember(pi.Name, pi.PropertyType);
             MemberTypes[pi.Name] = member;
-        }
-
-        public override string ToString()
-        {
-            return GetType().Name + ": " + Type.FullName;
         }
 
         private readonly Dictionary<String, Func<Object, Object>> _fieldGetters;

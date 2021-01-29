@@ -1,6 +1,6 @@
-﻿using Das.Serializer.Scanners;
-using System;
+﻿using System;
 using System.Threading.Tasks;
+using Das.Serializer.Scanners;
 
 // ReSharper disable UnusedMember.Global
 // ReSharper disable UnusedMemberInSuper.Global
@@ -9,6 +9,8 @@ namespace Das.Serializer
 {
     public interface ISerializerSettings : ISerializationDepth
     {
+        IAttributeValueSurrogates AttributeValueSurrogates { get; set; }
+
         /// <summary>
         ///     Specifies whether ConstructorInfo methods will be turned into delegates and cached
         ///     for faster object instantiation.  This can cause issues with anonymous types
@@ -31,7 +33,7 @@ namespace Das.Serializer
         Boolean IsPropertyNamesCaseSensitive { get; set; }
 
         /// <summary>
-        /// Using attributes can make the markup smaller but can limit compatibility with other serializers
+        ///     Using attributes can make the markup smaller but can limit compatibility with other serializers
         /// </summary>
         Boolean IsUseAttributesInXml { get; set; }
 
@@ -63,7 +65,5 @@ namespace Das.Serializer
         ///     which may make it impossible for other deserializers or services to understand the data
         /// </summary>
         TypeSpecificity TypeSpecificity { get; set; }
-
-        IAttributeValueSurrogates AttributeValueSurrogates { get; set; }
     }
 }

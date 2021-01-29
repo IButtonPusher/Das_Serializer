@@ -8,10 +8,10 @@ namespace Das.Serializer
 {
     public class StateProvider : CoreContext, IStateProvider
     {
-        public StateProvider(ISerializationCore dynamicFacade, 
+        public StateProvider(ISerializationCore dynamicFacade,
                              ITextContext xmlContext,
-                             ITextContext jsonContext, 
-                             IBinaryContext binaryContext, 
+                             ITextContext jsonContext,
+                             IBinaryContext binaryContext,
                              ISerializerSettings settings)
             : base(dynamicFacade, settings)
         {
@@ -38,7 +38,8 @@ namespace Das.Serializer
                 ? buffer.Dequeue()
                 : new BinaryBorrawable(ReturnToLibrary, settings, this,
                     s => new BinaryScanner(s),
-                    (c, s) => new BinaryPrimitiveScanner(c, s));
+                    (c,
+                     s) => new BinaryPrimitiveScanner(c, s));
             state.UpdateSettings(settings);
             return state;
         }
@@ -85,12 +86,12 @@ namespace Das.Serializer
         }
 
         protected static readonly ThreadLocal<Queue<IBinaryLoaner>> _binaryBuffer
-            = new ThreadLocal<Queue<IBinaryLoaner>>(() => new Queue<IBinaryLoaner>());
+            = new(() => new Queue<IBinaryLoaner>());
 
         protected static readonly ThreadLocal<Queue<IXmlLoaner>> _xmlBuffer
-            = new ThreadLocal<Queue<IXmlLoaner>>(() => new Queue<IXmlLoaner>());
+            = new(() => new Queue<IXmlLoaner>());
 
         protected static readonly ThreadLocal<Queue<IJsonLoaner>> _jsonBuffer
-            = new ThreadLocal<Queue<IJsonLoaner>>(() => new Queue<IJsonLoaner>());
+            = new(() => new Queue<IJsonLoaner>());
     }
 }

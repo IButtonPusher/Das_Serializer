@@ -6,21 +6,25 @@ namespace Das.Serializer.NodeBuilders
 {
     public class BinaryNodeProvider : NodeProvider<IBinaryNode>, IBinaryNodeProvider
     {
-        public BinaryNodeProvider(ISerializationCore dynamicFacade, ISerializerSettings settings)
+        public BinaryNodeProvider(ISerializationCore dynamicFacade,
+                                  ISerializerSettings settings)
             : this(dynamicFacade, new NodeManipulator(dynamicFacade, settings),
                 dynamicFacade.NodeTypeProvider, settings)
         {
         }
 
-        public BinaryNodeProvider(ISerializationCore dynamicFacade, INodeManipulator nodeManipulator,
-                                  INodeTypeProvider nodeTypes, ISerializerSettings settings)
+        public BinaryNodeProvider(ISerializationCore dynamicFacade,
+                                  INodeManipulator nodeManipulator,
+                                  INodeTypeProvider nodeTypes,
+                                  ISerializerSettings settings)
             : base(nodeTypes, settings)
         {
             Sealer = new BinaryNodeSealer(nodeManipulator, dynamicFacade, settings);
             _nodes = nodeManipulator;
         }
 
-        public void ResolveCircularReference(IBinaryNode node, ref Byte distanceFromRoot)
+        public void ResolveCircularReference(IBinaryNode node,
+                                             ref Byte distanceFromRoot)
         {
             var chain = new Stack<IBinaryNode>();
             var current = node.Parent;
@@ -46,7 +50,9 @@ namespace Das.Serializer.NodeBuilders
 
         public INodeSealer<IBinaryNode> Sealer { get; }
 
-        public IBinaryNode Get(String name, IBinaryNode parent, Type type)
+        public IBinaryNode Get(String name,
+                               IBinaryNode parent,
+                               Type type)
         {
             var node = Get(name, type);
             node.Parent = parent;
@@ -54,7 +60,8 @@ namespace Das.Serializer.NodeBuilders
             return node;
         }
 
-        private IBinaryNode Get(String name, Type type)
+        private IBinaryNode Get(String name,
+                                Type type)
         {
             var buffer = Buffer;
             var item = buffer.Count > 0

@@ -33,7 +33,8 @@ namespace Das.Serializer.Types
         }
 
 
-        public void CopyTo(KeyValuePair<A, B>[] array, Int32 arrayIndex)
+        public void CopyTo(KeyValuePair<A, B>[] array,
+                           Int32 arrayIndex)
         {
             throw new InvalidOperationException();
         }
@@ -47,7 +48,8 @@ namespace Das.Serializer.Types
 
         Boolean ICollection<KeyValuePair<A, B>>.IsReadOnly => throw new InvalidOperationException();
 
-        public void Add(A key, B value)
+        public void Add(A key,
+                        B value)
         {
             throw new InvalidOperationException();
         }
@@ -62,7 +64,8 @@ namespace Das.Serializer.Types
             throw new InvalidOperationException();
         }
 
-        public Boolean TryGetValue(A key, out B value)
+        public Boolean TryGetValue(A key,
+                                   out B value)
         {
             throw new InvalidOperationException();
         }
@@ -98,7 +101,8 @@ namespace Das.Serializer.Types
         }
 
 
-        public void CopyTo(B[] array, Int32 arrayIndex)
+        public void CopyTo(B[] array,
+                           Int32 arrayIndex)
         {
             throw new InvalidOperationException();
         }
@@ -117,7 +121,8 @@ namespace Das.Serializer.Types
             throw new InvalidOperationException();
         }
 
-        public void Insert(Int32 index, B item)
+        public void Insert(Int32 index,
+                           B item)
         {
             throw new InvalidOperationException();
         }

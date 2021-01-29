@@ -11,7 +11,8 @@ namespace Das.Serializer.Remunerators
     /// </summary>
     public unsafe class DeferredBinaryWriter : BinaryWriterWrapper, IBinaryWriter
     {
-        public DeferredBinaryWriter(IPrintNode node, IBinaryWriter parent)
+        public DeferredBinaryWriter(IPrintNode node,
+                                    IBinaryWriter parent)
             : base(parent)
         {
             _backingList = new ByteBuilder();
@@ -38,7 +39,8 @@ namespace Das.Serializer.Remunerators
             _backingList.Append(buffer);
         }
 
-        void IRemunerable<Byte[]>.Append(Byte[] data, Int32 limit)
+        void IRemunerable<Byte[]>.Append(Byte[] data,
+                                         Int32 limit)
         {
             _backingList.Append(data, limit);
         }
@@ -96,16 +98,6 @@ namespace Das.Serializer.Remunerators
             _backingList.Clear();
         }
 
-
-        [MethodImpl(256)]
-        private void SetLength(Int64 val)
-        {
-            var pi = (Byte*) &val;
-
-            for (var c = 0; c < 4; c++)
-                _backingList[c] = pi[c];
-        }
-
         public override String ToString()
         {
             return _node +
@@ -114,9 +106,20 @@ namespace Das.Serializer.Remunerators
         }
 
         [MethodImpl(256)]
-        protected sealed override void Write(Byte* bytes, Int32 count)
+        protected sealed override void Write(Byte* bytes,
+                                             Int32 count)
         {
             _backingList.Append(bytes, count);
+        }
+
+
+        [MethodImpl(256)]
+        private void SetLength(Int64 val)
+        {
+            var pi = (Byte*) &val;
+
+            for (var c = 0; c < 4; c++)
+                _backingList[c] = pi[c];
         }
 
         private readonly ByteBuilder _backingList;

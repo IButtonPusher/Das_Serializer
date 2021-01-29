@@ -1,22 +1,21 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-#if !GENERATECODE
+﻿#if !GENERATECODE
 using System.Linq.Expressions;
 #else
 using System.Reflection.Emit;
 #endif
+using System;
+using System.Collections;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
-
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    public class ObjectInstantiator : TypeCore, 
+    public class ObjectInstantiator : TypeCore,
                                       IInstantiator
     {
         static ObjectInstantiator()
@@ -29,9 +28,9 @@ namespace Das.Serializer
         }
 
 
-        public ObjectInstantiator(ITypeInferrer typeInferrer, 
+        public ObjectInstantiator(ITypeInferrer typeInferrer,
                                   ITypeManipulator typeManipulator,
-                                  IDictionary<Type, Type> typeSurrogates, 
+                                  IDictionary<Type, Type> typeSurrogates,
                                   IObjectManipulator objectManipulator,
                                   IDynamicTypes dynamicTypes)
             : base(typeManipulator.Settings)
@@ -43,7 +42,7 @@ namespace Das.Serializer
             _dynamicTypes = dynamicTypes;
         }
 
-        public Object? BuildDefault(Type type, 
+        public Object? BuildDefault(Type type,
                                     Boolean isCacheConstructors)
         {
             if (_typeSurrogates.ContainsKey(type))
@@ -55,7 +54,7 @@ namespace Das.Serializer
             {
                 case InstantiationType.EmptyString:
                     return String.Empty;
-                
+
                 case InstantiationType.DefaultConstructor:
                     if (isCacheConstructors)
                         return CreateInstanceCacheConstructor(type);
@@ -136,7 +135,8 @@ namespace Das.Serializer
             return false;
         }
 
-        public void OnDeserialized(IValueNode node, ISerializationDepth depth)
+        public void OnDeserialized(IValueNode node,
+                                   ISerializationDepth depth)
         {
             if (node.Type == null || node.Value == null)
                 return;
@@ -153,7 +153,8 @@ namespace Das.Serializer
         }
 
 
-        public T CreatePrimitiveObject<T>(Byte[] rawValue, Type objType)
+        public T CreatePrimitiveObject<T>(Byte[] rawValue,
+                                          Type objType)
         {
             if (rawValue.Length == 0)
                 return default!;
@@ -164,7 +165,8 @@ namespace Das.Serializer
             return structure!;
         }
 
-        public Object CreatePrimitiveObject(Byte[] rawValue, Type objType)
+        public Object CreatePrimitiveObject(Byte[] rawValue,
+                                            Type objType)
         {
             return CreatePrimitiveObject<Object>(rawValue, objType);
         }
@@ -180,7 +182,8 @@ namespace Das.Serializer
             return constructor;
         }
 
-        public bool TryGetDefaultConstructor(Type type, out ConstructorInfo ctor)
+        public bool TryGetDefaultConstructor(Type type,
+                                             out ConstructorInfo ctor)
         {
             if (Constructors.TryGetValue(type, out ctor!))
             {
@@ -265,7 +268,7 @@ namespace Das.Serializer
             return ctored;
         }
 
-        private static ConstructorInfo? GetConstructor(Type type, 
+        private static ConstructorInfo? GetConstructor(Type type,
                                                        ICollection<Type> genericArguments,
                                                        out Type[] argTypes)
         {
@@ -298,13 +301,9 @@ namespace Das.Serializer
             if (InstantionTypes.TryGetValue(type, out var res))
                 return res;
             if (type == typeof(String))
-            {
                 res = InstantiationType.EmptyString;
-            }
             else if (type.IsArray)
-            {
                 res = InstantiationType.EmptyArray;
-            }
             else if (!type.IsAbstract)
             {
                 if (_typeInferrer.HasEmptyConstructor(type))
@@ -317,19 +316,15 @@ namespace Das.Serializer
                     res = InstantiationType.Uninitialized;
             }
             else if (_typeInferrer.IsCollection(type))
-            {
                 res = InstantiationType.EmptyArray;
-            }
             else
-            {
                 return InstantiationType.Abstract;
-            }
 
             InstantionTypes.TryAdd(type, res);
             return res;
         }
 
-        private static bool TryGetConstructorDelegate(Type type, 
+        private static bool TryGetConstructorDelegate(Type type,
                                                       Type delegateType,
                                                       out Delegate result)
         {
@@ -364,10 +359,10 @@ namespace Das.Serializer
             //            ownerType = typeof(ObjectInstantiator);
             //    }
             //}
-            
+
             var dynamicMethod = new DynamicMethod("DM$_" + type.Name, type, argTypes, ownerType);
             //var dynamicMethod = new DynamicMethod("DM$_" + type.Name, type, argTypes, type);
-            
+
             var ilGen = dynamicMethod.GetILGenerator();
 
             for (var i = 0; i < argTypes.Length; i++)
@@ -381,8 +376,6 @@ namespace Das.Serializer
             return true;
 
             #else
-
-
             if (argTypes.Length == 0)
             {
                 result = CreateConstructor(constructor);
@@ -398,8 +391,6 @@ namespace Das.Serializer
         }
 
         #if !GENERATECODE
-
-
         private static Func<Object[], Object> CreateConstructor(ConstructorInfo cInfo, 
                                                                 Type[] paramArguments)
         {
@@ -468,7 +459,6 @@ namespace Das.Serializer
         }
 
         #endif
-
 
 
         private static readonly ConcurrentDictionary<Type, InstantiationType> InstantionTypes;

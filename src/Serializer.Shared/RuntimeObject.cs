@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
@@ -30,10 +31,6 @@ namespace Das.Serializer
             PrimitiveValue = primitiveValue;
         }
 
-        public Type GetObjectType() => PrimitiveValue != null
-            ? PrimitiveValue.GetType()
-            : Const.ObjectType;
-
         public RuntimeObject? this[String key]
         {
             get
@@ -45,6 +42,17 @@ namespace Das.Serializer
             }
         }
 
+        public Object? PrimitiveValue { get; set; }
+
+        public Dictionary<String, RuntimeObject> Properties { get; }
+
+        public Type GetObjectType()
+        {
+            return PrimitiveValue != null
+                ? PrimitiveValue.GetType()
+                : Const.ObjectType;
+        }
+
         public override string ToString()
         {
             if (PrimitiveValue is { } p)
@@ -52,9 +60,5 @@ namespace Das.Serializer
 
             return GetType().Name + " - " + Properties.Count + " properties";
         }
-
-        public Dictionary<String, RuntimeObject> Properties { get; }
-
-        public Object? PrimitiveValue { get; set; }
     }
 }
