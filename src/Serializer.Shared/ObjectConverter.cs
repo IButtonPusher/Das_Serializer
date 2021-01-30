@@ -252,7 +252,7 @@ namespace Das
                     var values = new List<Object>();
                     foreach (var conParam in cInfo.GetParameters())
                     {
-                        var search = _dynamicFacade.TypeInferrer.ToPropertyStyle(conParam.Name);
+                        var search = _dynamicFacade.TypeInferrer.ToPascalCase(conParam.Name);
 
                         if (props.ContainsKey(search))
                             values.Add(props[search]);

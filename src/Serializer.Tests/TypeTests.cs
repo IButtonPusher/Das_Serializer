@@ -37,12 +37,35 @@ namespace Serializer.Tests
             var sb = Serializer.ObjectManipulator.CastDynamic<StringBuilder>(saver);
         }
 
+        [Fact]
+        public void ChangeStringCaseStyles()
+        {
+            var pascalCase = "SiteId";
+            var asSnake = Serializer.TypeInferrer.ToSnakeCase(pascalCase);
+            Assert.True(asSnake == "site_id");
+
+            var asCamel = Serializer.TypeInferrer.ToCamelCase(pascalCase);
+            Assert.True(asCamel == "siteId");
+
+            var snakeCase = "hand_no";
+            asCamel = Serializer.TypeInferrer.ToCamelCase(snakeCase);
+            Assert.True(asCamel == "handNo");
+
+            var asPascal = Serializer.TypeInferrer.ToPascalCase(snakeCase);
+            Assert.True(asPascal == "HandNo");
+
+            var camelCase = "tableName";
+            asSnake = Serializer.TypeInferrer.ToSnakeCase(camelCase);
+            Assert.True(asSnake == "table_name");
+
+            asPascal = Serializer.TypeInferrer.ToPascalCase(camelCase);
+            Assert.True(asPascal == "TableName");
+        }
+
 
         [Fact]
         public void GenericType()
         {
-            //var extType = typeof(ExtensionMethods);
-
             var type = typeof(List<String>);
             var str = type.GetClearName(false);
             Serializer.TypeInferrer.ClearCachedNames();

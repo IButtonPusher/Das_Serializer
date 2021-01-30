@@ -40,11 +40,53 @@ namespace Serializer.Tests.ProtocolBuffers
     [ProtoContract]
     public class MultiPropMessage
     {
+        public static MultiPropMessage GetTestOne()
+        {
+            return new MultiPropMessage
+            {
+                A = 26256,
+                S = "hello world",
+                BigInt = (Int64) Int32.MaxValue + 1,
+                LittleIntian = 63,
+                U32 = Int32.MaxValue - 5,
+                U64 = (Int64)Int32.MaxValue + 5,
+                TrueOrFalse = true
+            };
+        }
+
+        public static MultiPropMessage GetTestTwo()
+        {
+            return new MultiPropMessage
+            {
+                A = 6,
+                S = "Gööd ßye not world",
+                BigInt = -33,
+                LittleIntian = 0,
+                U32 = 1,
+                U64 = (Int64)Int32.MaxValue + 5000
+            };
+        }
+
+        [ProtoMember(4)]
+        public Byte LittleIntian { get; set; }
+
         [ProtoMember(2)]
         public Int32 A { get; set; }
 
+        [ProtoMember(7)]
+        public Boolean TrueOrFalse { get; set; }
+
         [ProtoMember(1)]
         public String S { get; set; }
+
+        [ProtoMember(5)]
+        public UInt32 U32 { get;set; }
+
+        [ProtoMember(3)]
+        public Int64 BigInt { get; set; }
+
+        [ProtoMember(6)]
+        public UInt64 U64 { get; set; }
     }
 
     [ProtoContract]
@@ -65,12 +107,14 @@ namespace Serializer.Tests.ProtocolBuffers
                     MultiPropMessage1 = new MultiPropMessage
                     {
                         A = 5,
-                        S = "hello"
+                        S = "hello",
+                        BigInt = 54321
                     },
                     MultiPropMessage2 = new MultiPropMessage
                     {
                         A = 51,
-                        S = "world"
+                        S = "world",
+                        BigInt = 12345
                     }
                 };
 
@@ -80,12 +124,14 @@ namespace Serializer.Tests.ProtocolBuffers
                     MultiPropMessage1 = new MultiPropMessage
                     {
                         A = 4,
-                        S = "hallo"
+                        S = "hallo",
+                        BigInt = 80085
                     },
                     MultiPropMessage2 = new MultiPropMessage
                     {
                         A = 41,
-                        S = "weld"
+                        S = "weld",
+                        BigInt = 1337
                     }
                 };
 
@@ -213,16 +259,18 @@ namespace Serializer.Tests.ProtocolBuffers
                     new ComposedMessage2
                     {
                         A = 3,
-                        MultiPropMessage1 = new MultiPropMessage
-                        {
-                            A = 5,
-                            S = "hello"
-                        },
-                        MultiPropMessage2 = new MultiPropMessage
-                        {
-                            A = 51,
-                            S = "world"
-                        }
+                        MultiPropMessage1 = MultiPropMessage.GetTestOne(),
+                        MultiPropMessage2 = MultiPropMessage.GetTestTwo()
+                        //MultiPropMessage1 = new MultiPropMessage
+                        //{
+                        //    A = 5,
+                        //    S = "hello"
+                        //},
+                        //MultiPropMessage2 = new MultiPropMessage
+                        //{
+                        //    A = 51,
+                        //    S = "world"
+                        //}
                     },
                     new ComposedMessage2
                     {

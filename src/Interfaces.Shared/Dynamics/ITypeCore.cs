@@ -50,7 +50,7 @@ namespace Das.Serializer
                                        out ConstructorInfo ctor);
 
         Boolean TryGetNullableType(Type type,
-                                   out Type? primitive);
+                                   out Type primitive);
 
         /// <summary>
         ///     Attempts to find a constructor that has parameters that match the name and type of

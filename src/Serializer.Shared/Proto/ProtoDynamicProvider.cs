@@ -3,11 +3,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Das.Extensions;
 using Das.Serializer.Remunerators;
@@ -55,7 +57,11 @@ namespace Das.Serializer.ProtoBuf
             _writeInt16 = writer.GetPublicStaticMethodOrDie(nameof(ProtoBufWriter.WriteInt16),
                 typeof(Int16), stream);
             _writeInt32 = writer.GetPublicStaticMethodOrDie(nameof(ProtoBufWriter.WriteInt32), typeof(Int32), stream);
+            _writeUInt32 = writer.GetPublicStaticMethodOrDie(nameof(ProtoBufWriter.WriteUInt32), typeof(UInt32), stream);
+            
             WriteInt64 = writer.GetPublicStaticMethodOrDie(nameof(ProtoBufWriter.WriteInt64), typeof(Int64), stream);
+            WriteUInt64 = writer.GetPublicStaticMethodOrDie(nameof(ProtoBufWriter.WriteUInt64), typeof(UInt64), stream);
+            
             _writeBytes = writer.GetPublicStaticMethodOrDie(nameof(ProtoBufWriter.Write), typeof(Byte[]), stream);
             _writeSomeBytes = writer.GetPublicStaticMethodOrDie(nameof(ProtoBufWriter.Write),
                 typeof(Byte[]), typeof(Int32), stream);
@@ -84,6 +90,9 @@ namespace Das.Serializer.ProtoBuf
             _getDoubleBytes = bitConverter.GetPublicStaticMethodOrDie(nameof(BitConverter.GetBytes),
                 typeof(Double));
 
+            _getSingleBytes = bitConverter.GetPublicStaticMethodOrDie(nameof(BitConverter.GetBytes),
+                typeof(Single));
+
             _getStringBytes = typeof(UTF8Encoding).GetMethodOrDie(nameof(UTF8Encoding.GetBytes),
                 typeof(String));
 
@@ -110,6 +119,9 @@ namespace Das.Serializer.ProtoBuf
 
             _getInt32 = protoBase.GetPublicStaticMethodOrDie(nameof(ProtoDynamicBase.GetInt32));
             _getInt64 = protoBase.GetPublicStaticMethodOrDie(nameof(ProtoDynamicBase.GetInt64));
+
+            _getUInt32 = protoBase.GetPublicStaticMethodOrDie(nameof(ProtoDynamicBase.GetUInt32));
+            _getUInt64 = protoBase.GetPublicStaticMethodOrDie(nameof(ProtoDynamicBase.GetUInt64));
 
             _getColumnIndex = protoBase.GetPublicStaticMethodOrDie(nameof(ProtoDynamicBase.GetColumnIndex));
 
@@ -161,8 +173,10 @@ namespace Das.Serializer.ProtoBuf
         {
             if (pType.IsPrimitive)
                 return pType == typeof(Int32) ||
+                       pType == typeof(UInt32) ||
                        pType == typeof(Int16) ||
                        pType == typeof(Int64) ||
+                       pType == typeof(UInt64) ||
                        pType == typeof(Byte) ||
                        pType == typeof(Boolean)
                     ? ProtoFieldAction.VarInt
@@ -174,7 +188,7 @@ namespace Das.Serializer.ProtoBuf
             if (pType == Const.ByteArrayType)
                 return ProtoFieldAction.ByteArray;
 
-            if (GetPackedArrayType(pType) != null)
+            if ( GetPackedArrayTypeCode(pType) != TypeCode.Empty)
                 return ProtoFieldAction.PackedArray;
 
             if (typeof(IDictionary).IsAssignableFrom(pType))
@@ -203,11 +217,35 @@ namespace Das.Serializer.ProtoBuf
             return ProtoFieldAction.ChildObject;
         }
 
+
+        #if DEBUG
+        #if NET45 || NET40
+
+        #endif
+
+
+        public void DumpProxies()
+        {
+            #if NET45 || NET40
+            if (Interlocked.Increment(ref _dumpCount) > 1)
+            {
+                Debug.WriteLine("WARNING:  Proxies already dumped");
+                return;
+            }
+
+            _asmBuilder.Save("protoTest.dll");
+            #endif
+        }
+
+        #endif
+
         public MethodInfo GetStreamLength { get; }
 
         public MethodInfo SetStreamPosition { get; }
 
         public MethodInfo WriteInt64 { get; }
+
+        public MethodInfo WriteUInt64 { get; }
 
         public MethodInfo CopyMemoryStream { get; }
 
@@ -328,7 +366,6 @@ namespace Das.Serializer.ProtoBuf
                 printFields = scanFieldArr;
 
             AddPrintMethod(type, bldr, genericParent, printFields, typeProxies);
-            //AddPrintMethod(type, bldr, genericParent, scanFieldArr, typeProxies);
 
             if (ctor != null)
             {
@@ -430,15 +467,11 @@ namespace Das.Serializer.ProtoBuf
                                                         MethodAttributes.Virtual |
                                                         MethodAttributes.CheckAccessOnOverride |
                                                         MethodAttributes.Final;
-        #if NET45 || NET40
-        // ReSharper disable once StaticMemberInGenericType
-        #if DEBUG
-        private static Int32 _dumpCount;
-        #endif
-        private static readonly String SaveFile = $"{AssemblyName}.dll";
-        #endif
 
         // ReSharper disable once StaticMemberInGenericType
+        private static Int32 _dumpCount;
+        private static readonly String SaveFile = $"{AssemblyName}.dll";
+
         private static readonly Byte[] _negative32Fill =
         {
             Byte.MaxValue, Byte.MaxValue,
@@ -461,10 +494,25 @@ namespace Das.Serializer.ProtoBuf
         private readonly MethodInfo _getArrayLength;
         private readonly MethodInfo _getAutoProtoProxy;
         private readonly MethodInfo _getColumnIndex;
+        
+        /// <summary>
+        /// BitConverter.GetBytes(Double)
+        /// </summary>
         private readonly MethodInfo _getDoubleBytes;
 
+        /// <summary>
+        /// ProtoDynamicBase.GetInt32
+        /// </summary>
         private readonly MethodInfo _getInt32;
+        
+        /// <summary>
+        /// ProtoDynamicBase.GetInt64
+        /// </summary>
         private readonly MethodInfo _getInt64;
+
+        private readonly MethodInfo _getUInt32;
+        private readonly MethodInfo _getUInt64;
+
         private readonly MethodInfo _getPackedInt16Length;
 
         private readonly MethodInfo _getPackedInt32Length;
@@ -506,6 +554,7 @@ namespace Das.Serializer.ProtoBuf
 
         private readonly MethodInfo _writeInt16;
         private readonly MethodInfo _writeInt32;
+        private readonly MethodInfo _writeUInt32;
 
         private readonly MethodInfo _writeInt8;
 
@@ -514,26 +563,11 @@ namespace Das.Serializer.ProtoBuf
         private readonly MethodInfo _writePacked64;
         private readonly MethodInfo _writeSomeBytes;
         private readonly MethodInfo _writeStreamByte;
-
-
-        #if DEBUG
         #if NET45 || NET40
+        // ReSharper disable once StaticMemberInGenericType
+        #if DEBUG
 
         #endif
-
-
-        public void DumpProxies()
-        {
-            #if NET45 || NET40
-            if (System.Threading.Interlocked.Increment(ref _dumpCount) > 1)
-            {
-                System.Diagnostics.Debug.WriteLine("WARNING:  Proxies already dumped");
-                return;
-            }
-
-            _asmBuilder.Save("protoTest.dll");
-            #endif
-        }
 
         #endif
     }

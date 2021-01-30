@@ -11,12 +11,35 @@ namespace Das.Serializer.Remunerators
     /// </summary>
     public unsafe class DeferredBinaryWriter : BinaryWriterWrapper, IBinaryWriter
     {
+        public DeferredBinaryWriter(IBinaryWriter parent,
+                                    NodeTypes nodeType,
+                                    Boolean isWrapping)
+        : base(parent)
+        {
+            _backingList = new ByteBuilder();
+            //_node = node;
+            _parent = parent;
+
+            _isWrapPossible = nodeType != NodeTypes.Primitive || isWrapping;
+
+            //for nullable primitive we will write a single byte to indicate null or not
+            if (!_isWrapPossible)
+                return;
+
+            WriteInt32(0);
+
+            if (isWrapping)
+                _backingList.Append(1);
+            else
+                _backingList.Append(0);
+        }
+
         public DeferredBinaryWriter(IPrintNode node,
                                     IBinaryWriter parent)
             : base(parent)
         {
             _backingList = new ByteBuilder();
-            _node = node;
+            //_node = node;
             _parent = parent;
 
             _isWrapPossible = node.NodeType != NodeTypes.Primitive || node.IsWrapping;
@@ -27,7 +50,7 @@ namespace Das.Serializer.Remunerators
 
             WriteInt32(0);
 
-            if (_node.IsWrapping)
+            if (node.IsWrapping)
                 _backingList.Append(1);
             else
                 _backingList.Append(0);
@@ -100,7 +123,7 @@ namespace Das.Serializer.Remunerators
 
         public override String ToString()
         {
-            return _node +
+            return //_node +
                    " Byte Count: " + _backingList.Count + " Length: " +
                    Length + " Nodes: " + Children.Count;
         }
@@ -125,7 +148,7 @@ namespace Das.Serializer.Remunerators
         private readonly ByteBuilder _backingList;
         private readonly Boolean _isWrapPossible;
 
-        private readonly IPrintNode _node;
+        //private readonly IPrintNode _node;
         private readonly IBinaryWriter _parent;
         private Boolean _isPopped;
     }

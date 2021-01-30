@@ -33,14 +33,23 @@ namespace Das.Serializer.Remunerators
 
         public override IBinaryWriter Push(IPrintNode node)
         {
-            var list = GetChildWriter(node, this, Length);
+            var list = GetChildWriter(node);
             Children.Add(list);
             return list;
         }
 
-        protected abstract TChildWriter GetChildWriter(IPrintNode node,
-                                                       IBinaryWriter parent,
-                                                       Int32 index);
+        public override IBinaryWriter Push(NodeTypes nodeType,
+                                           Boolean isWrapping)
+        {
+            var list = GetChildWriter(nodeType, isWrapping);
+            Children.Add(list);
+            return list;
+        }
+
+        protected abstract TChildWriter GetChildWriter(NodeTypes nodeType,
+                                                       Boolean isWrapping);
+
+        protected abstract TChildWriter GetChildWriter(IPrintNode node);
 
         // ReSharper disable once CollectionNeverQueried.Local
         protected readonly List<TChildWriter> Children =
@@ -106,6 +115,9 @@ namespace Das.Serializer.Remunerators
         public IBinaryWriter? Parent { get; protected set; }
 
         public abstract IBinaryWriter Push(IPrintNode node);
+
+        public abstract IBinaryWriter Push(NodeTypes nodeType,
+                                           Boolean isWrapping);
 
         public virtual Int32 GetDataLength()
         {

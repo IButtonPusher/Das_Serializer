@@ -79,14 +79,12 @@ namespace Das.Serializer
                 {
                     var printer = new XmlPrinter(writer, state, settings);
 
-                    var rootText = !asType.IsGenericType && !IsCollection(asType)
-                        ? TypeInferrer.ToClearName(asType, true)
-                        : Root;
+                    var rootText = TypeInferrer.ToClearNameNoGenericArgs(asType, true);
+                    //var rootText = !asType.IsGenericType && !IsCollection(asType)
+                    //    ? TypeInferrer.ToClearName(asType, true)
+                    //    : asType.Name;
 
-                    using (var node = PrintNodePool.GetNamedValue(rootText, o, asType))
-                    {
-                        printer.PrintNode(node);
-                    }
+                    printer.PrintNode(rootText, asType, o);
 
                     return writer.ToString();
                 }

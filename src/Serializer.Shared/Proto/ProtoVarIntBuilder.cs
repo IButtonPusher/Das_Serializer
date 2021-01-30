@@ -56,6 +56,26 @@ namespace Das.Serializer.ProtoBuf
                             il.Emit(OpCodes.Ldarg_1);
                             il.Emit(OpCodes.Call, _getInt64);
                             break;
+
+                        ///////////////
+                        // UINT32
+                        ///////////////
+                        case TypeCode.UInt32:
+                            il.Emit(OpCodes.Ldarg_1);
+                            il.Emit(OpCodes.Call, _getUInt32);
+                            break;
+
+
+                        ///////////////
+                        // UINT64
+                        ///////////////
+                        case TypeCode.UInt64:
+                            il.Emit(OpCodes.Ldarg_1);
+                            il.Emit(OpCodes.Call, _getUInt64);
+                            break;
+
+                        default:
+                            throw new NotImplementedException();
                     }
 
                     break;
@@ -104,6 +124,7 @@ namespace Das.Serializer.ProtoBuf
                             il.Emit(OpCodes.Call, _bytesToDouble);
 
                             return;
+
                         default:
                             throw new NotImplementedException();
                     }

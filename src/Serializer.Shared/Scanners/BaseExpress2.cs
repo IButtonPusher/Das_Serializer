@@ -127,11 +127,26 @@ namespace Das.Serializer.Scanners
 
                     case NodeTypes.Primitive:
 
+                        if (nodeScanState == NodeScanState.AttributeNameRead)
+                        {
+                            switch (stringBuilder.GetConsumingString())
+                            {
+                                case Const.XmlXsiAttribute:
+                                    AdvanceScanState(txt, ref currentIndex, stringBuilder, ref nodeScanState);
+                                    stringBuilder.Clear();
+                                    break;
+
+                                default:
+                                    throw new NotImplementedException();
+                            }
+                        }
+
                         var code = Type.GetTypeCode(specifiedType);
 
                         // load the node inner text into the sb
                         AdvanceScanStateToNodeOpened(txt, ref currentIndex, stringBuilder,
                             ref nodeScanState);
+                        stringBuilder.Clear();
 
                         if (nodeScanState != NodeScanState.NodeSelfClosed)
                             AdvanceScanState(txt, ref currentIndex, stringBuilder, ref nodeScanState);
@@ -343,7 +358,7 @@ namespace Das.Serializer.Scanners
                         for (var c = 0; c < ctorParams.Length; c++)
                             if (robj.Properties.TryGetValue(ctorParams[c].Name, out var found) ||
                                 robj.Properties.TryGetValue(
-                                    _typeInference.ToPropertyStyle(
+                                    _typeInference.ToPascalCase(
                                         ctorParams[c].Name), out found))
                                 arr[c] = found.PrimitiveValue;
 
@@ -482,7 +497,7 @@ namespace Das.Serializer.Scanners
                                           String name)
         {
             return type.GetProperty(name) ?? type.GetProperty(
-                _typeInference.ToPropertyStyle(name));
+                _typeInference.ToPascalCase(name));
         }
 
         protected static readonly Object[] _emptyCtorValues = new Object[0];

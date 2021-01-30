@@ -46,6 +46,7 @@ namespace Das
             _getDontSerialize = new Dictionary<String, Func<Object, Object>>();
             _fieldGetters = new Dictionary<String, Func<Object, Object>>();
             _propertyAttributes = new DoubleDictionary<String, Type, Object>();
+            _propertyInfos = new Dictionary<string, PropertyInfo>();
 
             _fieldSetters = new SortedList<String, Action<Object, Object?>>();
 
@@ -85,6 +86,25 @@ namespace Das
 
         public Int32 PropertyCount { get; }
 
+
+        public IEnumerable<KeyValuePair<PropertyInfo, object?>> IteratePropertyValues(Object o,
+            ISerializationDepth depth)
+        {
+            var isRespectXmlIgnoreAttribute = depth.IsRespectXmlIgnore;
+            var cnt = _propGetterList.Count;
+
+            for (var c = 0; c < cnt; c++)
+            {
+                var kvp = _propGetterList[c];
+                if (isRespectXmlIgnoreAttribute && _xmlIgnores.Contains(kvp.Key))
+                    continue;
+                var name = kvp.Key;
+                var propInfo = _propertyInfos[name];
+                var val = kvp.Value(o);
+
+                yield return new KeyValuePair<PropertyInfo, Object?>(propInfo, val);
+            }
+        }
 
         public Boolean OnDeserialized(Object obj,
                                       IObjectManipulator objectManipulator)
@@ -145,7 +165,7 @@ namespace Das
             return null;
         }
 
-        IProperty? ITypeStructure.GetPropertyValue(Object o,
+        IProperty? ITypeStructure.GetProperty(Object o,
                                                    String propertyName)
         {
             try
@@ -311,6 +331,7 @@ namespace Das
         {
             foreach (var pi in _types.GetPublicProperties(type))
             {
+                _propertyInfos.Add(pi.Name, pi);
                 if (!pi.CanRead)
                     continue;
 
@@ -454,6 +475,7 @@ namespace Das
         private readonly String? _onDeserializedMethodName;
 
         private readonly DoubleDictionary<String, Type, Object> _propertyAttributes;
+        private readonly Dictionary<String, PropertyInfo> _propertyInfos;
 
         private readonly SortedList<String, PropertySetter> _propertySetters;
 

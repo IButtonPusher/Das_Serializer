@@ -25,12 +25,10 @@ namespace Das.Serializer.ProtoBuf
             return Scan(stream, stream.Length);
         }
 
-        public virtual T Scan(Stream stream,
-                              Int64 byteCount)
-        {
-            throw new NotSupportedException();
-        }
+        public abstract T Scan(Stream stream,
+                               Int64 byteCount);
 
+       
         public virtual T BuildDefault()
         {
             throw new NotSupportedException();
@@ -190,7 +188,7 @@ namespace Das.Serializer.ProtoBuf
 
             while (true)
             {
-                var currentByte = (Byte) stream.ReadByte();
+                var currentByte = (Int64) stream.ReadByte();
 
                 result += (currentByte & 0x7F) << push;
                 if (push == 28 && result < 0)
@@ -222,6 +220,23 @@ namespace Das.Serializer.ProtoBuf
             }
         }
 
+        public static UInt32 GetUInt32(Stream stream)
+        {
+            UInt32 result = 0;
+            var push = 0;
+
+            while (true)
+            {
+                var currentByte = stream.ReadByte();
+
+                result += (UInt32)(currentByte & 0x7F) << push;
+
+                push += 7;
+                if ((currentByte & 0x80) == 0)
+                    return result;
+            }
+        }
+
         public static Int64 GetPositiveInt64(Stream stream)
         {
             var result = 0L;
@@ -232,6 +247,23 @@ namespace Das.Serializer.ProtoBuf
                 var currentByte = stream.ReadByte();
 
                 result += (currentByte & 0x7F) << push;
+
+                push += 7;
+                if ((currentByte & 0x80) == 0)
+                    return result;
+            }
+        }
+
+        public static UInt64 GetUInt64(Stream stream)
+        {
+            UInt64 result = 0L;
+            var push = 0;
+
+            while (true)
+            {
+                var currentByte = stream.ReadByte();
+
+                result += (UInt64)(currentByte & 0x7F) << push;
 
                 push += 7;
                 if ((currentByte & 0x80) == 0)

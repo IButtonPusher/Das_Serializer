@@ -48,7 +48,7 @@ namespace Das.Serializer
 
 
         public Boolean TryGetNullableType(Type candidate,
-                                          out Type? primitive)
+                                          out Type primitive)
         {
             return TryGetNullableTypeImpl(candidate, out primitive);
         }
@@ -272,7 +272,9 @@ namespace Das.Serializer
             {
                 if (con.GetParameters().Length <= 0 || !con.GetParameters().All(p =>
                     !string.IsNullOrEmpty(p.Name) &&
-                    rProps.ContainsKey(p.Name) && rProps[p.Name] == p.ParameterType))
+                    rProps.ContainsKey(p.Name) 
+                    &&  p.ParameterType.IsAssignableFrom(rProps[p.Name])))
+                    //&& rProps[p.Name] == p.ParameterType))
                     continue;
 
                 constr = con;
@@ -367,12 +369,14 @@ namespace Das.Serializer
 
 
         private static Boolean TryGetNullableTypeImpl(Type candidate,
-                                                      out Type? primitive)
+                                                      out Type primitive)
         {
-            primitive = null;
             if (!candidate.IsGenericType ||
                 candidate.GetGenericTypeDefinition() != typeof(Nullable<>))
+            {
+                primitive = null!;
                 return false;
+            }
 
             primitive = candidate.GetGenericArguments()[0];
             return true;

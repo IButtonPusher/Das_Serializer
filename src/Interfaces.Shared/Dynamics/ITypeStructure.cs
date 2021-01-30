@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
 using Das.Serializer.Objects;
 
@@ -21,8 +22,11 @@ namespace Das.Serializer
         /// </summary>
         IEnumerable<INamedField> GetMembersToSerialize(ISerializationDepth depth);
 
-        IProperty? GetPropertyValue(Object o,
-                                    String propertyName);
+        IProperty? GetProperty(Object o,
+                               String propertyName);
+
+        Object? GetPropertyValue(Object o,
+                               String propertyName);
 
 
         /// <summary>
@@ -30,6 +34,9 @@ namespace Das.Serializer
         /// </summary>
         IPropertyValueIterator<IProperty> GetPropertyValues(Object o,
                                                             ISerializationDepth depth);
+
+        IEnumerable<KeyValuePair<PropertyInfo, Object?>> IteratePropertyValues(Object o,
+                                                                               ISerializationDepth depth);
 
         Boolean OnDeserialized(Object obj,
                                IObjectManipulator objectManipulator);

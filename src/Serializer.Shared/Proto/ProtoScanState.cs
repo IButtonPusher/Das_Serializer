@@ -106,7 +106,8 @@ namespace Das.Serializer.ProtoBuf
 
                     if (canSetValueInline)
                         res = (_,
-                               s) => s.IL.Emit(OpCodes.Callvirt, field.SetMethod!);
+                               s) => s.IL.Emit(OpCodes.Callvirt, field.SetMethod ??
+                                                                 throw new MissingMethodException(field.Name));
                     else
                     {
                         var local = GetLocalForField(field);

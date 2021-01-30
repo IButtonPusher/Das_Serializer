@@ -16,6 +16,9 @@ namespace Das.Serializer
         public Byte[] ToBytes(Object o,
                               Type asType)
         {
+            Byte[] bob;
+            //Byte[] sally;
+
             using (var ms = new MemoryStream())
             {
                 var bWriter = new BinaryWriterWrapper(ms);
@@ -23,14 +26,39 @@ namespace Das.Serializer
                 using (var state = StateProvider.BorrowBinary(Settings))
                 using (var bp = new BinaryPrinter(bWriter, state))
                 {
-                    using (var node = PrintNodePool.GetNamedValue(Const.Root, o, asType))
-                    {
-                        bp.PrintNode(node);
-                    }
+                    bp.PrintNode(Const.Root, asType, o);
+                    //using (var node = PrintNodePool.GetNamedValue(Const.Root, o, asType))
+                    //{
+                    //    bp.PrintNode(node);
+                    //}
                 }
 
-                return ms.ToArray();
+                bob = ms.ToArray();
             }
+
+            //using (var ms = new MemoryStream())
+            //{
+            //    var bWriter = new BinaryWriterWrapper(ms);
+
+            //    using (var state = StateProvider.BorrowBinary(Settings))
+            //    using (var bp = new BinaryPrinter(bWriter, state))
+            //    {
+            //        //bp.PrintNode(Const.Root, asType, o);
+            //        using (var node = PrintNodePool.GetNamedValue(Const.Root, o, asType))
+            //        {
+            //            bp.PrintNode(node);
+            //        }
+            //    }
+
+            //    sally = ms.ToArray();
+
+
+            //}
+
+            //System.Diagnostics.Debug.WriteLine("old: " + string.Join(",", sally));
+            //System.Diagnostics.Debug.WriteLine("new: " + string.Join(",", bob));
+
+            return bob;
         }
 
         public Byte[] ToBytes<TObject>(TObject o)

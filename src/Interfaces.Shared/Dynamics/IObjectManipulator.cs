@@ -50,6 +50,10 @@ namespace Das.Serializer
         IPropertyValueIterator<IProperty> GetPropertyResults(IValueNode obj,
                                                              ISerializationDepth depth);
 
+        IEnumerable<KeyValuePair<PropertyInfo, Object?>> GetPropertyResults(Object? val,
+                                                                            Type valType,
+                                                                            ISerializationDepth depth);
+
         T GetPropertyValue<T>(Object obj,
                               String propertyName);
 

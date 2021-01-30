@@ -449,7 +449,7 @@ namespace Das.Serializer.Json
                                           String name)
         {
             return type.GetProperty(name) ?? type.GetProperty(
-                _typeInference.ToPropertyStyle(name));
+                _typeInference.ToPascalCase(name));
         }
 
         /// <summary>

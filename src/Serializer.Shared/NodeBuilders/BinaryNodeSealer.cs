@@ -56,7 +56,7 @@ namespace Das.Serializer
                                                     Type propertyType,
                                                     out Object val)
         {
-            var propKey = _dynamicFacade.TypeInferrer.ToPropertyStyle(key);
+            var propKey = _dynamicFacade.TypeInferrer.ToPascalCase(key);
             return node.DynamicProperties.TryGetValue(propKey, out val!);
         }
 

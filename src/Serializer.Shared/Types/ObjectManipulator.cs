@@ -29,7 +29,7 @@ namespace Das.Types
             if (propertyName == null)
                 return default;
             var str = _typeDelegates.GetTypeStructure(asType, DepthConstants.AllProperties);
-            return str.GetPropertyValue(o, propertyName);
+            return str.GetProperty(o, propertyName);
         }
 
         public IEnumerable<IProperty> GetPropertyValues<T>(T obj)
@@ -38,16 +38,20 @@ namespace Das.Types
             return GetPropertyResults(node, _settings);
         }
 
+       
+
         public T GetPropertyValue<T>(Object obj,
                                      String propertyName)
         {
             return (T) GetPropertyResult(obj, obj.GetType(), propertyName)?.Value!;
         }
 
-        public object? GetPropertyValue(Object obj,
+        public Object? GetPropertyValue(Object obj,
                                         String propertyName)
         {
-            return GetPropertyResult(obj, obj.GetType(), propertyName)?.Value;
+            var str = _typeDelegates.GetTypeStructure(obj.GetType(), DepthConstants.AllProperties);
+            return str.GetPropertyValue(obj, propertyName);
+            //return GetPropertyResult(obj, obj.GetType(), propertyName)?.Value;
         }
 
         public Boolean TryGetPropertyValue(Object obj,
@@ -62,9 +66,12 @@ namespace Das.Types
 
             var oType = obj is Type t ? t : obj.GetType();
 
-            var propRes = GetPropertyResult(obj, oType, propertyName);
+            var str = _typeDelegates.GetTypeStructure(oType, DepthConstants.AllProperties);
+            result = str.GetPropertyValue(obj, propertyName)!;
 
-            result = propRes?.Value!;
+            //var propRes = GetPropertyResult(obj, oType, propertyName);
+
+            //result = propRes?.Value!;
             return result != null;
         }
 
@@ -95,6 +102,22 @@ namespace Das.Types
             var typeStruct = _typeDelegates.GetTypeStructure(useType!, DepthConstants.AllProperties);
             var found = typeStruct.GetPropertyValues(val, depth);
             return found;
+        }
+
+        public IEnumerable<KeyValuePair<PropertyInfo, Object?>> GetPropertyResults(Object? val,
+            Type valType,
+            ISerializationDepth depth)
+        {
+            if (val == null)
+                yield break;
+
+            var useType = _typeDelegates.IsUseless(valType)
+                ? val.GetType()
+                : valType;
+
+            var typeStruct = _typeDelegates.GetTypeStructure(useType!, DepthConstants.AllProperties);
+            foreach (var f in typeStruct.IteratePropertyValues(val, depth))
+                yield return f;
         }
 
         public Boolean SetFieldValue(Type classType,

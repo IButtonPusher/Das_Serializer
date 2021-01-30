@@ -150,7 +150,7 @@ namespace Serializer.Tests.Json
         {
             var sc = SimpleClassObjectProperty.GetNullPayload();
             sc.ID = 0;
-            var settings = DasSettings.Default;
+            var settings = DasSettings.CloneDefault();
 
             var srl = new DasSerializer(settings);
             settings.IsOmitDefaultValues = true;
@@ -367,7 +367,7 @@ namespace Serializer.Tests.Json
         {
             var sc = new SimpleClassObjectProperty("to everyone");
             sc.ID = 0;
-            var settings = DasSettings.Default;
+            var settings = DasSettings.CloneDefault();
             settings.IsOmitDefaultValues = true;
             settings.SerializationDepth |= SerializationDepth.GetOnlyProperties;
             var srl = new DasSerializer(settings);

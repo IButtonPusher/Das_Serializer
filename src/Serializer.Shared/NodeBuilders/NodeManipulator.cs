@@ -112,7 +112,7 @@ namespace Das.Serializer
 
             return _serializationCore.TypeManipulator.GetPropertyType(parent.Type,
                 child.Name) ?? _serializationCore.TypeManipulator.GetPropertyType(parent.Type,
-                _typeInferrer.ToPropertyStyle(child.Name));
+                _typeInferrer.ToPascalCase(child.Name));
         }
 
         public void InferType(INode node)
@@ -131,7 +131,7 @@ namespace Das.Serializer
                         case TextPropertySearchDepths.AsTypeInLoadedModules:
                             foundType = _typeInferrer.GetTypeFromClearName(node.Name, true)
                                         ?? _typeInferrer.GetTypeFromClearName(
-                                            _typeInferrer.ToPropertyStyle(node.Name), true);
+                                            _typeInferrer.ToPascalCase(node.Name), true);
                             break;
                         case TextPropertySearchDepths.AsTypeInNamespacesAndSystem:
                             foundType = _typeInferrer.GetTypeFromClearName(node.Name, true);

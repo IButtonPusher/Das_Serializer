@@ -85,10 +85,12 @@ namespace Das.Types
             _assemblies = assemblyList;
         }
 
+       
+
         /// <summary>
         ///     Returns the name in PascalCase
         /// </summary>
-        public String ToPropertyStyle(String name)
+        public String ToPascalCase(String name)
         {
             switch (name.Length)
             {
@@ -98,19 +100,134 @@ namespace Das.Types
                 case 1:
                     return name.ToUpper();
 
-                default:
-                    return $"{Char.ToUpper(name[0])}{name.Substring(1)}";
+                //default:
+                //    return $"{Char.ToUpper(name[0])}{name.Substring(1)}";
             }
+
+            var res = new StringBuilder();
+
+            var c = 0;
+            for (; c < name.Length; c++)
+            {
+                if (name[c] == '_')
+                    continue;
+
+                res.Append(Char.ToUpper(name[c++]));
+                break;
+            }
+
+            for (; c < name.Length; c++)
+            {
+                if (name[c] == '_')
+                {
+                    if (c < name.Length - 1)
+                        res.Append(Char.ToUpper(name[++c]));
+                }
+                else
+                    res.Append(name[c]);
+                
+            }
+            
+
+            return res.ToString();
         }
 
+        public string ToCamelCase(String name)
+        {
+            switch (name.Length)
+            {
+                case 0:
+                    return name;
+
+                case 1:
+                    return name.ToLower();
+            }
+
+            var res = new StringBuilder();
+
+            var c = 0;
+            for (; c < name.Length; c++)
+            {
+                if (name[c] == '_')
+                    continue;
+
+                res.Append(char.ToLower(name[c++]));
+                break;
+            }
+
+            for (; c < name.Length; c++)
+            {
+                if (name[c] == '_')
+                {
+                    if (c < name.Length - 1)
+                        res.Append(char.ToUpper(name[++c]));
+                }
+                else
+                    res.Append(name[c]);
+                
+            }
+            
+
+            return res.ToString();
+        }
+
+        public String ToSnakeCase(String name)
+        {
+            switch (name.Length)
+            {
+                case 0:
+                    return name;
+
+                case 1:
+                    return name.ToLower();
+            }
+
+            var res = new StringBuilder();
+
+            var c = 0;
+            for (; c < name.Length; c++)
+            {
+                if (name[c] == '_')
+                    continue;
+
+                res.Append(char.ToLower(name[c++]));
+                break;
+            }
+
+            for (; c < name.Length; c++)
+            {
+                if (char.IsUpper(name[c]))
+                {
+                    res.Append('_');
+                    res.Append(char.ToLower(name[c]));
+                }
+                else
+                    res.Append(char.ToLower(name[c]));
+            }
+
+            return res.ToString();
+        }
+
+        public string ToClearNameNoGenericArgs(Type type,
+                                               Boolean isOmitAssemblyName)
+        {
+            return ToClearNameImpl(type, isOmitAssemblyName, false);
+        }
 
         public String ToClearName(Type type,
                                   Boolean isOmitAssemblyName)
         {
+            return ToClearNameImpl(type, isOmitAssemblyName, true);
+        }
+
+        private String ToClearNameImpl(Type type,
+                                  Boolean isOmitAssemblyName,
+                                  Boolean isPrintGenericArgs)
+        {
             if (!isOmitAssemblyName && _cachedTypeNames.TryGetValue(type, out var name))
                 return name;
             if (type.IsGenericType)
-                name = GetClearGeneric(type, isOmitAssemblyName);
+                name = GetClearGeneric(type, isOmitAssemblyName, isPrintGenericArgs);
             else if (IsLeaf(type, true) && !type.IsEnum)
                 name = type.Name;
             else if (!String.IsNullOrWhiteSpace(type.Namespace))
@@ -496,7 +613,8 @@ namespace Das.Types
 
 
         private String GetClearGeneric(Type type,
-                                       Boolean isOmitAssemblyName)
+                                       Boolean isOmitAssemblyName,
+                                       Boolean isPrintGenericArgs)
         {
             StringBuilder sb;
 
@@ -508,10 +626,20 @@ namespace Das.Types
             else
                 sb = new StringBuilder($"{type.Assembly.ManifestModule.Name}, {type.Namespace}.{type.Name}");
 
-            sb.Remove(sb.Length - 2, 2);
-            foreach (var subType in type.GetGenericArguments())
+            var gargs = type.GetGenericArguments();
+            var rem = gargs.Length < 10
+                ? 2
+                : 1 + gargs.Length.ToString().Length;
+
+            sb.Remove(sb.Length - rem, rem);
+            //sb.Remove(sb.Length - 2, 2);
+
+            if (isPrintGenericArgs)
             {
-                sb.Append($"[{ToClearName(subType, isOmitAssemblyName)}]");
+                foreach (var subType in gargs)
+                {
+                    sb.Append($"[{ToClearName(subType, isOmitAssemblyName)}]");
+                }
             }
 
             return sb.ToString();

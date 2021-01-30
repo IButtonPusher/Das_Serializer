@@ -78,7 +78,6 @@ namespace Das.Serializer.ProtoBuf
 
             PrintHeaderBytes(pv.HeaderBytes, s);
 
-            //s.LoadProxyToStack();
             s.LoadCurrentFieldValueToStack();
             il.Emit(OpCodes.Ldarg_2);
 
@@ -92,6 +91,10 @@ namespace Das.Serializer.ProtoBuf
                     il.Emit(OpCodes.Call, WriteInt64);
                     break;
 
+                case TypeCode.UInt64:
+                    il.Emit(OpCodes.Call, WriteUInt64);
+                    break;
+
                 case TypeCode.Int16:
                     il.Emit(OpCodes.Call, _writeInt16);
                     break;
@@ -102,6 +105,10 @@ namespace Das.Serializer.ProtoBuf
 
                 case TypeCode.Boolean:
                     il.Emit(OpCodes.Call, _writeInt32);
+                    break;
+
+                case TypeCode.UInt32:
+                    il.Emit(OpCodes.Call, _writeUInt32);
                     break;
 
                 default:

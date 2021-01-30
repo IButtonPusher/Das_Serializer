@@ -63,7 +63,7 @@ namespace Das.Serializer
             return output;
         }
 
-        protected static readonly NullNode NullNode = NullNode.Instance;
+        //protected static readonly NullNode NullNode = NullNode.Instance;
 
         private readonly ConcurrentDictionary<Type, NodeTypes> _cachedNodeTypes;
 

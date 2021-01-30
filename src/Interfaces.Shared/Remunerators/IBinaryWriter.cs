@@ -23,6 +23,9 @@ namespace Das.Serializer.Remunerators
 
         IBinaryWriter Push(IPrintNode node);
 
+        IBinaryWriter Push(NodeTypes nodeType,
+                           Boolean isWrapping);
+
         void Write(Byte[] values);
 
         void WriteInt16(Int16 val);

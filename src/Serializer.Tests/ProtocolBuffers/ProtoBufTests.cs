@@ -217,8 +217,12 @@ namespace Serializer.Tests.ProtocolBuffers
         private static void PrintMemoryStream(MemoryStream ms)
         {
             var arr = ms.ToArray();
-            for (var c = 0; c < arr.Length; c++)
-                Debug.WriteLine(arr[c]);
+
+            var strArr = string.Join(",", arr);
+            Debug.WriteLine(strArr + "\r\n");
+            
+            //for (var c = 0; c < arr.Length; c++)
+            //    Debug.WriteLine(arr[c]);
         }
 
         [Benchmark]
@@ -251,16 +255,17 @@ namespace Serializer.Tests.ProtocolBuffers
         [Benchmark]
         public MultiPropMessage DasMultiProperties()
         {
-            var msg = new MultiPropMessage
-            {
-                A = 26256,
-                S = "hello world"
-            };
+            var msg = MultiPropMessage.GetTestOne();
+            
+           
             var o = TypeProvider.GetProtoProxy<MultiPropMessage>();
 
             using (var ms = new MemoryStream())
             {
                 o.Print(msg, ms);
+
+                Debug.WriteLine("DAS\r\n-----------------------------------");
+                PrintMemoryStream(ms);
 
                 ms.Position = 0;
                 return o.Scan(ms);
@@ -270,15 +275,19 @@ namespace Serializer.Tests.ProtocolBuffers
         [Benchmark]
         public MultiPropMessage ProtoNetMultiProperties()
         {
-            var msg = new MultiPropMessage
-            {
-                A = 26256,
-                S = "hello world"
-            };
+            var msg = MultiPropMessage.GetTestOne();
+            //var msg = new MultiPropMessage
+            //{
+            //    A = 26256,
+            //    S = "hello world",
+            //    BigInt = (Int64)Int32.MaxValue + 1
+            //};
             using (var ms = new MemoryStream())
             {
                 ProtoBuf.Serializer.Serialize(ms, msg);
                 ms.Position = 0;
+                Debug.WriteLine("PNET\r\n-----------------------------------");
+                PrintMemoryStream(ms);
                 return ProtoBuf.Serializer.Deserialize<MultiPropMessage>(ms);
             }
         }
@@ -322,11 +331,13 @@ namespace Serializer.Tests.ProtocolBuffers
             var msg = ComposedCollectionMessage.Default;
             var o = TypeProvider.GetProtoProxy<ComposedCollectionMessage>();
 
-            //    TypeProvider.DumpProxies();
+            TypeProvider.DumpProxies();
 
             using (var ms = new MemoryStream())
             {
                 o.Print(msg, ms);
+                Debug.WriteLine("DAS\r\n-----------------------------------");
+                PrintMemoryStream(ms);
                 ms.Position = 0;
                 var okThen = o.Scan(ms);
                 return okThen;
@@ -341,6 +352,10 @@ namespace Serializer.Tests.ProtocolBuffers
             using (var ms = new MemoryStream())
             {
                 ProtoBuf.Serializer.Serialize(ms, msg);
+
+                Debug.WriteLine("PNET\r\n-----------------------------------");
+                PrintMemoryStream(ms);
+
                 ms.Position = 0;
 
 
@@ -500,7 +515,7 @@ namespace Serializer.Tests.ProtocolBuffers
 
             var fromNet = ProtoNetMultiProperties();
 
-            //TypeProvider.DumpProxies();
+            TypeProvider.DumpProxies();
 
             var equal = SlowEquality.AreEqual(fromDas, fromNet);
             equal &= SlowEquality.AreEqual(fromDas2, fromNet);

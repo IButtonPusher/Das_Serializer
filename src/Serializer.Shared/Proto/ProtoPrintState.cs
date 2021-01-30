@@ -36,7 +36,7 @@ namespace Das.Serializer.ProtoBuf
 
             _writeInt32 = writeInt32;
             _streamAccessor = streamAccessor;
-            Fields = fields.ToArray();
+            Fields = fields.OrderBy(f => f.Index).ToArray();
         }
 
         public IEnumerator<ProtoPrintState> GetEnumerator()
@@ -94,17 +94,15 @@ namespace Das.Serializer.ProtoBuf
             // CALL THE PRINT METHOD ON THE PROXY WHICH
             // LEAVES THE CHILD STREAM WITH THE SERIALIZED BYTES
             /////////////////////////////////////////////////////
-            //LoadCurrentFieldValueToStack();
+            
             loadFieldValue(_il);
             _il.Emit(OpCodes.Ldloc, ChildObjectStream);
-            //LoadOutputStream();
             _il.Emit(OpCodes.Call, printMethod);
-
 
             ////////////////////////////////////////////
             // PRINT LENGTH OF CHILD STREAM
             ////////////////////////////////////////////
-            //il.Emit(OpCodes.Ldarg_0);
+            
             _il.Emit(OpCodes.Ldloc, ChildObjectStream);
             _il.Emit(OpCodes.Callvirt, _streamAccessor.GetStreamLength);
             _il.Emit(OpCodes.Ldarg_2);

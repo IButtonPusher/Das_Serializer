@@ -73,14 +73,27 @@ namespace Das.Serializer
                 using (var state = StateProvider.BorrowJson(Settings))
                 {
                     var jp = new JsonPrinter(sp, state);
-                    using (var node = PrintNodePool.GetNamedValue(String.Empty, obj, asType))
+
+                    //String str1, str2;
+
+                    //using (var node = PrintNodePool.GetNamedValue(String.Empty, obj, asType))
                     {
-                        jp.PrintNode(node);
+                        //jp.PrintNode(node);
+                        //var str1 = sp.ToString();
+                        //sp.Clear();
+
+
+                        jp.PrintNode(string.Empty, asType, obj);
+                            //NodeTypeProvider.GetNodeType(asType, _settings.SerializationDepth));
                     }
 
-                    var str = sp.ToString();
+                    return sp.ToString();
+                    //str2 = sp.ToString();
 
-                    return str;
+                    //if (str1 != str2)
+                    //{}
+
+                    //return str2;
                 }
             }
         }

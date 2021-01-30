@@ -53,7 +53,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Proto\IValueExtractor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoAutoProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoBufSerializer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoCollectionItem.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoPrimitiveBuilder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoPrintState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoScanningField.cs" />

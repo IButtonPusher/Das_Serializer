@@ -22,7 +22,7 @@ namespace Das.Extensions
 
         internal static ISerializerSettings Settings
         {
-            get => _settings ?? (_settings = DasSettings.Default);
+            get => _settings ?? (_settings = DasSettings.CloneDefault());
             set => _settings = value;
         }
 

@@ -40,56 +40,19 @@ namespace Das.Serializer.ProtoBuf
             }
         }
 
-        private static Type? GetPackedArrayType(Type propertyType)
+        private static TypeCode GetPackedArrayTypeCode(Type propertyType)
         {
             if (typeof(IEnumerable<Int32>).IsAssignableFrom(propertyType))
-                return typeof(Int32);
+                return TypeCode.Int32;
 
             if (typeof(IEnumerable<Int16>).IsAssignableFrom(propertyType))
-                return typeof(Int16);
+                return TypeCode.Int16;
 
-            if (typeof(IEnumerable<Int64>).IsAssignableFrom(propertyType))
-                return typeof(Int64);
-
-            return default;
+            return typeof(IEnumerable<Int64>).IsAssignableFrom(propertyType) 
+                ? TypeCode.Int64 
+                : TypeCode.Empty;
         }
 
-        //private MethodInfo? GetScanAndAddPackedMethod(Type fieldType)
-        //{
-        //    if (!fieldType.IsGenericType || !_types.IsCollection(fieldType))
-        //        return null;
-
-        //    var germane = _types.GetGermaneType(fieldType);
-        //    var iColl = typeof(ICollection<>).MakeGenericType(germane);
-        //    if (!iColl.IsAssignableFrom(fieldType))
-        //        return null;
-
-        //    MethodInfo? baseAdd;
-
-
-        //    switch (Type.GetTypeCode(germane))
-        //    {
-        //        case TypeCode.Int16:
-        //            baseAdd = typeof(ProtoDynamicBase).GetMethodOrDie(
-        //                nameof(ProtoDynamicBase.AddPacked16));
-        //            break;
-
-        //        case TypeCode.Int32:
-        //            baseAdd = typeof(ProtoDynamicBase).GetMethodOrDie(
-        //                nameof(ProtoDynamicBase.AddPacked32));
-        //            break;
-
-        //        case TypeCode.Int64:
-        //            baseAdd = typeof(ProtoDynamicBase).GetMethodOrDie(
-        //                nameof(ProtoDynamicBase.AddPacked64));
-        //            break;
-
-        //        default:
-        //            return null;
-        //    }
-
-        //    return baseAdd.MakeGenericMethod(fieldType);
-        //}
 
         private void PrintAsPackedArray(ProtoPrintState s)
         {
@@ -100,8 +63,7 @@ namespace Das.Serializer.ProtoBuf
 
             s.LoadParentToStack();
 
-            if (!(GetPackedArrayType(type) is { } packType))
-                throw new InvalidOperationException("Cannot print " + type + " as a packed repeated field");
+            var packTypeCode = GetPackedArrayTypeCode(type);
 
             /////////////////////////////////////
             // var arrayLocalField = obj.Property;
@@ -115,29 +77,35 @@ namespace Das.Serializer.ProtoBuf
             /////////////////////////////////////
             // WriteInt32(GetPackedArrayLength(ienum)); 
             /////////////////////////////////////
-            MethodInfo getPackedArrayLength = null!;
+            MethodInfo getPackedArrayLength;
+            MethodInfo writePackedArray;
 
-            if (packType == typeof(Int32))
-                getPackedArrayLength = _getPackedInt32Length.MakeGenericMethod(type);
-            else if (packType == typeof(Int16))
-                getPackedArrayLength = _getPackedInt16Length.MakeGenericMethod(type);
-            else if (packType == typeof(Int64))
-                getPackedArrayLength = _getPackedInt64Length.MakeGenericMethod(type);
+            switch (packTypeCode)
+            {
+                case TypeCode.Int32:
+                    getPackedArrayLength = _getPackedInt32Length.MakeGenericMethod(type);
+                    writePackedArray = _writePacked32.MakeGenericMethod(type);
+                    break;
+
+                case TypeCode.Int16:
+                    getPackedArrayLength = _getPackedInt16Length.MakeGenericMethod(type);
+                    writePackedArray = _writePacked16.MakeGenericMethod(type);
+                    break;
+
+                case TypeCode.Int64:
+                    getPackedArrayLength = _getPackedInt64Length.MakeGenericMethod(type);
+                    writePackedArray = _writePacked64.MakeGenericMethod(type);
+                    break;
+
+                default:
+                    throw new InvalidOperationException("Cannot print " + type + " as a packed repeated field");
+            }
 
 
             il.Emit(OpCodes.Ldloc, arrayLocalField);
             il.Emit(OpCodes.Call, getPackedArrayLength);
 
             s.WriteInt32();
-
-            MethodInfo writePackedArray = null!;
-
-            if (packType == typeof(Int32))
-                writePackedArray = _writePacked32.MakeGenericMethod(type);
-            else if (packType == typeof(Int16))
-                writePackedArray = _writePacked16.MakeGenericMethod(type);
-            else if (packType == typeof(Int64))
-                writePackedArray = _writePacked64.MakeGenericMethod(type);
 
 
             il.Emit(OpCodes.Ldloc, arrayLocalField);
@@ -149,8 +117,8 @@ namespace Das.Serializer.ProtoBuf
                                        Type fieldType,
                                        Boolean isCanAddToCollection)
         {
-            if (!(GetPackedArrayType(fieldType) is { } packType))
-                throw new NotSupportedException();
+            var packTypeCode = GetPackedArrayTypeCode(fieldType);
+
 
             if (isCanAddToCollection && CanScanAndAddPackedArray(fieldType, out _))
                 return;
@@ -164,15 +132,29 @@ namespace Das.Serializer.ProtoBuf
             il.Emit(OpCodes.Ldarg_1);
             il.Emit(OpCodes.Call, GetPositiveInt32);
 
+            Type packType;
 
-            if (packType == typeof(Int32))
-                il.Emit(OpCodes.Call, _extractPackedInt32Itar);
+            switch (packTypeCode)
+            {
+                case TypeCode.Int32:
+                    il.Emit(OpCodes.Call, _extractPackedInt32Itar);
+                    packType = typeof(Int32);
+                    break;
 
-            else if (packType == typeof(Int16))
-                il.Emit(OpCodes.Call, _extractPackedInt16Itar);
+                case TypeCode.Int16:
+                    il.Emit(OpCodes.Call, _extractPackedInt16Itar);
+                    packType = typeof(Int16);
+                    break;
 
-            else if (packType == typeof(Int64))
-                il.Emit(OpCodes.Call, _extractPackedInt64Itar);
+                case TypeCode.Int64:
+                    il.Emit(OpCodes.Call, _extractPackedInt64Itar);
+                    packType = typeof(Int64);
+                    break;
+
+                default:
+                    throw new InvalidOperationException("Cannot scan " + fieldType + " as a packed repeated field");
+            }
+
 
             //convert the value on the stack to an array for direct assignment
             var linqToArray = typeof(Enumerable).GetMethodOrDie(

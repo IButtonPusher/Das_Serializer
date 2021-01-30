@@ -60,7 +60,7 @@ namespace Das.Serializer
                         if (type == null && node.Type != null &&
                             key.Length > 0 && char.IsLower(key[0]))
                         {
-                            key = _facade.TypeInferrer.ToPropertyStyle(key);
+                            key = _facade.TypeInferrer.ToPascalCase(key);
                             type = _typeManipulator.GetPropertyType(node.Type, key);
                         }
 
@@ -203,7 +203,7 @@ namespace Das.Serializer
                                                     Type propertyType,
                                                     out Object? val)
         {
-            var propKey = _facade.TypeInferrer.ToPropertyStyle(key);
+            var propKey = _facade.TypeInferrer.ToPascalCase(key);
 
             if (node.TryGetAttribute(propKey, false, out var attrib))
             {

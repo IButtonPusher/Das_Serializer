@@ -55,6 +55,7 @@ namespace Das.Serializer.ProtoBuf
 
             /////////////////////////////
             // 1. GET CURRENT FIELD INDEX
+            // switch (ProtoDynamicBase.GetColumnIndex(P_0))
             /////////////////////////////
             var getNextColumnIndexLabel = AddLoadCurrentFieldIndex(il, switchFieldIndexLabel);
 
@@ -343,12 +344,11 @@ namespace Das.Serializer.ProtoBuf
             return returnValue;
         }
 
-        private static MethodInfo PrepareScanMethod(
-            TypeBuilder bldr,
-            Type genericParent,
-            Type parentType,
-            out MethodInfo abstractMethod,
-            out ILGenerator il)
+        private static MethodInfo PrepareScanMethod(TypeBuilder bldr,
+                                                    Type genericParent,
+                                                    Type parentType,
+                                                    out MethodInfo abstractMethod,
+                                                    out ILGenerator il)
         {
             var methodArgs = new[] {typeof(Stream), typeof(Int64)};
 

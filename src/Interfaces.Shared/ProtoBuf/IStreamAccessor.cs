@@ -60,5 +60,12 @@ namespace Das.Serializer.ProtoBuf
         ///     Int64 value, Stream outStream)
         /// </summary>
         MethodInfo WriteInt64 { get; }
+
+
+        /// <summary>
+        ///     public static void ProtoBufWriter.WriteUInt64(
+        ///     Int64 value, Stream outStream)
+        /// </summary>
+        MethodInfo WriteUInt64 { get; }
     }
 }

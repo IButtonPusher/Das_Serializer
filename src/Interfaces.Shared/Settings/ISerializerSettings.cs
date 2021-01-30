@@ -32,6 +32,9 @@ namespace Das.Serializer
         /// </summary>
         Boolean IsPropertyNamesCaseSensitive { get; set; }
 
+
+        PrintPropertyFormat PrintJsonPropertiesFormat { get; set; }
+
         /// <summary>
         ///     Using attributes can make the markup smaller but can limit compatibility with other serializers
         /// </summary>

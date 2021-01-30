@@ -9,11 +9,13 @@ namespace Das.Serializer
         where TProperty : class, INamedValue
     {
 #pragma warning disable 8618
+        
         public PropertyValueIterator()
-#pragma warning restore 8618
         {
             _propertyValues = new List<TProperty>();
         }
+
+#pragma warning restore 8618
 
         public Boolean MoveNext()
         {

@@ -56,9 +56,16 @@ namespace Das.Serializer
         String ToClearName(Type type,
                            Boolean isOmitAssemblyName);
 
+        String ToClearNameNoGenericArgs(Type type,
+                                        Boolean isOmitAssemblyName);
+
         /// <summary>
         ///     Pascal cases the string
         /// </summary>
-        String ToPropertyStyle(String name);
+        String ToPascalCase(String name);
+
+        String ToCamelCase(String name);
+
+        String ToSnakeCase(String name);
     }
 }

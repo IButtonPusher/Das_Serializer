@@ -26,7 +26,7 @@ namespace Das.Serializer
         {
         }
 
-        public DefaultStateProvider() : this(DasSettings.Default)
+        public DefaultStateProvider() : this(DasSettings.CloneDefault())
         {
         }
 

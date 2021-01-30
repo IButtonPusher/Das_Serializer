@@ -370,7 +370,7 @@ namespace Serializer.Tests.Xml
         {
             var sc = SimpleClassObjectProperty.GetNullPayload();
 
-            var settings = DasSettings.Default;
+            var settings = DasSettings.CloneDefault();
             settings.IsUseAttributesInXml = false;
             var srl = new DasSerializer(settings);
             var xml = srl.ToXml(sc);
@@ -412,7 +412,7 @@ namespace Serializer.Tests.Xml
         [Fact]
         public async Task SvgTestAsync()
         {
-            var settings = DasSettings.Default;
+            var settings = DasSettings.CloneDefault();
             settings.IsPropertyNamesCaseSensitive = false;
             var srl = new DasSerializer(settings);
             var fi = new FileInfo(Path.Combine(

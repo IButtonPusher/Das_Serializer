@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Das.Extensions;
 using Das.Serializer;
@@ -18,7 +19,7 @@ namespace Das.Printers
             _stateProvider = stateProvider;
             _typeInferrer = stateProvider.TypeInferrer;
             _nodeTypes = stateProvider.ScanNodeProvider.TypeProvider;
-            _nodeProvider = stateProvider.ScanNodeProvider;
+            //_nodeProvider = stateProvider.ScanNodeProvider;
             _printNodePool = stateProvider.PrintNodePool;
             _pathReferences = new HashSet<Object>();
             _pathStack = new List<String>();
@@ -62,6 +63,10 @@ namespace Das.Printers
         /// </summary>
         public abstract void PrintNode(INamedValue node);
 
+        public abstract void PrintNode(String nodeName,
+                                       Type? propType,
+                                       Object? value);
+
         protected static IEnumerable<ObjectNode> ExplodeList(IEnumerable? list,
                                                              Type itemType)
         {
@@ -72,6 +77,18 @@ namespace Das.Printers
             foreach (var o in list)
             {
                 yield return new ObjectNode(o, itemType, index++);
+            }
+        }
+
+        protected static IEnumerable<KeyValuePair<Object?, Type>> ExplodeIterator(IEnumerable? list,
+                                                             Type itemType)
+        {
+            if (list == null)
+                yield break;
+
+            foreach (var o in list)
+            {
+                yield return new KeyValuePair<object?, Type>(o, itemType);
             }
         }
 
@@ -130,13 +147,19 @@ namespace Das.Printers
             //have to assume that we don't have a tag open for xml
             //since attribute properties are only for primitives
             var reference = _pathStack.Take(index + 1).ToString(PathSeparator, '[');
-            using (var node = _printNodePool.GetNamedValue(PathAttribute, reference, Const.StrType))
-            {
-                PrintProperty(node);
-            }
+            PrintProperty(reference, PathAttribute, Const.StrType);
+
+            //using (var node = _printNodePool.GetNamedValue(PathAttribute, reference, Const.StrType))
+            //{
+            //    PrintProperty(node);
+            //}
         }
 
         protected abstract void PrintCollection(IPrintNode node);
+
+        protected abstract void PrintCollection(Object? value,
+                                                Type valType,
+                                                Boolean knownEmpty);
 
         protected abstract void PrintFallback(IPrintNode node);
 
@@ -196,11 +219,80 @@ namespace Das.Printers
             return willReturn;
         }
 
+        protected virtual void PrintCollectionObject(Object? o,
+                                   Type propType,
+                                   Int32 index)
+        {
+            //var nodeType = _nodeTypes.GetNodeType(propType, _settings.SerializationDepth);
+            PrintNode(index.ToString(), propType, o);
+            //PrintObject(o, propType, nodeType);
+        }
+
+        protected Boolean PrintObject(Object? o,
+                                      Type propType,
+                                      NodeTypes nodeType)
+        {
+            //var o = node.Value;
+            //var nodeType = node.NodeType;
+
+            var checkCircs = IsCheckCircularRefs(nodeType);
+
+            if (checkCircs && TryHandleCircularReference(o, propType, nodeType))
+                return true;
+
+            switch (nodeType)
+            {
+                case NodeTypes.Primitive:
+                    PrintPrimitive(o, propType);
+                    break;
+                case NodeTypes.Object:
+                case NodeTypes.PropertiesToConstructor:
+                    PrintReferenceType(o, propType);
+                    break;
+                case NodeTypes.Collection:
+                    var isEmpty = o is ICollection {Count: 0};
+                    
+                    PrintCollection(o, propType, isEmpty);
+                    break;
+                case NodeTypes.Fallback:
+                    PrintFallback(o, propType);
+                    break;
+                case NodeTypes.Dynamic:
+                    //should only be trying to print a dynamic if it's a prop of type object
+                    //with a null value. Can't do anything with that
+                    if (o != null)
+                        PrintFallback(o, propType);
+                    else
+                        PrintReferenceType(o, propType);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            var willReturn = o != null;
+
+            if (!checkCircs)
+                return willReturn;
+
+            _pathObjects.RemoveAt(_pathObjects.Count - 1);
+
+            if (o != null)
+                _pathReferences.Remove(o);
+
+            return willReturn;
+        }
+
 
         /// <summary>
         ///     By the time we get here any wrapping should have happened already
         /// </summary>
         protected abstract void PrintPrimitive(IPrintNode node);
+
+        protected abstract void PrintPrimitive(Object? o,
+                                               Type propType);
+
+        protected abstract void PrintFallback(Object? o,
+                                               Type propType);
 
         protected virtual void PrintProperties<T>(IPropertyValueIterator<T> values,
                                                   Action<T> exe) where T : class, INamedValue
@@ -210,6 +302,19 @@ namespace Das.Printers
                 var current = values[c];
                 exe(current);
             }
+        }
+
+        protected virtual void PrintProperties(IEnumerable<KeyValuePair<PropertyInfo, Object?>> values,
+                                               Action<PropertyInfo, Object?> exe)
+        {
+            foreach (var val in values)
+                exe(val.Key, val.Value);
+
+            //for (var c = 0; c < values.Count; c++)
+            //{
+            //    var current = values[c];
+            //    exe(current);
+            //}
         }
 
 
@@ -225,6 +330,25 @@ namespace Das.Printers
             prop.Dispose();
         }
 
+        protected void PrintProperty(PropertyInfo prop,
+                                     Object? propValue)
+        {
+            PrintProperty(propValue, prop.Name, prop.PropertyType);
+        }
+
+        protected virtual void PrintProperty(Object? propValue,
+                                     String name,
+                                     Type propertyType)
+        {
+            if (propertyType!.IsNestedPrivate && _typeInferrer.IsCollection(propertyType))
+            {
+                //force deferred to run
+            }
+
+            //var nodeType = _nodeTypes.GetNodeType(propertyType, _settings.SerializationDepth);
+            PrintNode(name, propertyType, propValue);//, nodeType);
+        }
+
         /// <summary>
         ///     prints most objects as series of properties
         /// </summary>
@@ -232,6 +356,23 @@ namespace Das.Printers
         {
             var properyValues = _stateProvider.ObjectManipulator.GetPropertyResults(node, this);
             PrintProperties<INamedValue>(properyValues, PrintProperty);
+        }
+
+        protected virtual void PrintReferenceType(Object? value,
+                                                  Type valType)
+        {
+            var properyValues = _stateProvider.ObjectManipulator.GetPropertyResults(value, valType, this);
+            PrintProperties(properyValues, PrintProperty);
+        }
+
+        protected virtual void PrintSeries(IEnumerable<KeyValuePair<Object?, Type>> values,
+                                           Action<Object?, Type, Int32> print)
+        {
+            var idx = 0;
+            foreach (var val in values)
+            {
+                print(val.Key, val.Value, idx++);
+            }
         }
 
         protected virtual void PrintSeries<T>(IEnumerable<T> values,
@@ -307,6 +448,41 @@ namespace Das.Printers
             return true;
         }
 
+        private Boolean TryHandleCircularReference(Object? o,
+                                                   Type propType,
+                                                   NodeTypes nodeType)
+        {
+            if (o == null || _pathReferences.Add(o))
+            {
+                _pathObjects.Add(o);
+                return false;
+            }
+
+            //uh oh... circular reference detected
+            switch (Settings.CircularReferenceBehavior)
+            {
+                case CircularReference.IgnoreObject:
+                    if (IsPrintNullProperties)
+                        PrintObject(null, propType, nodeType);
+                    
+
+                    break;
+                case CircularReference.ThrowException:
+                    throw new CircularReferenceException(_pathStack, PathSeparator);
+                
+                case CircularReference.SerializePath:
+                    var objIndex = _pathObjects.IndexOf(o);
+                    PrintCircularDependency(objIndex);
+                    break;
+                case CircularReference.NoValidation:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            return true;
+        }
+
         protected readonly Boolean _isIgnoreCircularDependencies;
         private readonly Boolean _isOmitDefaultProperties;
         protected readonly INodeTypeProvider _nodeTypes;
@@ -324,7 +500,7 @@ namespace Das.Printers
 
         private readonly ISerializationState _stateProvider;
         protected readonly ITypeInferrer _typeInferrer;
-        protected IScanNodeProvider _nodeProvider;
+        //protected IScanNodeProvider _nodeProvider;
 
         protected Boolean IsPrintNullProperties;
 

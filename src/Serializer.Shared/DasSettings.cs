@@ -23,6 +23,7 @@ namespace Das.Serializer
             CacheTypeConstructors = true;
             AttributeValueSurrogates = new NullAttributeValueSurrogates();
             IsUseAttributesInXml = true;
+            PrintJsonPropertiesFormat = PrintPropertyFormat.Default;
         }
 
         /// <summary>
@@ -36,6 +37,9 @@ namespace Das.Serializer
         ///     and having multiple properties with the "same" name will be problematic
         /// </summary>
         public Boolean IsPropertyNamesCaseSensitive { get; set; }
+
+        public PrintPropertyFormat PrintJsonPropertiesFormat { get; set; }
+
 
         public Boolean IsUseAttributesInXml { get; set; }
 
@@ -91,7 +95,7 @@ namespace Das.Serializer
         ///     Returns a mutable copy of the defaults. A new copy is generated each time
         ///     this property is accessed.
         /// </summary>
-        public static DasSettings Default => (DasSettings) _default.MemberwiseClone();
+        public static DasSettings CloneDefault() => (DasSettings) _default.MemberwiseClone();
 
 
         private static readonly DasSettings _default;

@@ -43,20 +43,19 @@ namespace Das.Serializer.Remunerators
         public static Int32 GetPackedArrayLength64<TCollection>(TCollection packedArray)
             where TCollection : IEnumerable<Int64>
         {
-            throw new NotImplementedException();
-            //var counter = 0;
-            //foreach (var val in packedArray)
-            //    GetVarIntLengthImpl(val, ref counter);
-            //return counter;
-        }
-
-        [MethodImpl(256)]
-        public static int GetVarIntLength(Int32 value)
-        {
             var counter = 0;
-            GetVarIntLengthImpl(value, ref counter);
+            foreach (var val in packedArray)
+                GetVarIntLengthImpl(val, ref counter);
             return counter;
         }
+
+        //[MethodImpl(256)]
+        //public static int GetVarIntLength(Int32 value)
+        //{
+        //    var counter = 0;
+        //    GetVarIntLengthImpl(value, ref counter);
+        //    return counter;
+        //}
 
         [MethodImpl(256)]
         public static void Write(Byte[] vals,
@@ -93,8 +92,64 @@ namespace Das.Serializer.Remunerators
             WriteInt32(val, outStream);
         }
 
+        public static void WriteUInt32(UInt32 value,
+                                       Stream outStream)
+        {
+            if (value > 127)
+                {
+                    if (value > 16256)
+                    {
+                        if (value > 1040384)
+                        {
+                            if (value > 66584576)
+                            {
+                                if (value > 2130706432)
+                                {
+                                    outStream.WriteByte((Byte) ((value & 127) | 128));
+                                    outStream.WriteByte((Byte) (((value & 16256) >> 7) | 128));
+                                    outStream.WriteByte((Byte) (((value & 1040384) >> 13) | 128));
+                                    outStream.WriteByte((Byte) (((value & 66584576) >> 19) | 128));
+                                    outStream.WriteByte((Byte) ((value & 1879048192) >> 28));
+
+                                    return;
+                                }
+
+                                outStream.WriteByte((Byte) ((value & 127) | 128));
+                                outStream.WriteByte((Byte) (((value & 16256) >> 7) | 128));
+                                outStream.WriteByte((Byte) (((value & 1040384) >> 13) | 128));
+                                outStream.WriteByte((Byte) (((value & 66584576) >> 19) | 128));
+                                outStream.WriteByte((Byte) ((value & 4261412864) >> 26));
+
+
+                                return;
+                            }
+
+                            outStream.WriteByte((Byte) ((value & 127) | 128));
+                            outStream.WriteByte((Byte) (((value & 16256) >> 7) | 128));
+                            outStream.WriteByte((Byte) (((value & 1040384) >> 13) | 128));
+                            outStream.WriteByte((Byte) ((value & 66584576) >> 20));
+
+                            return;
+                        }
+
+                        outStream.WriteByte((Byte) ((value & 127) | 128));
+                        outStream.WriteByte((Byte) (((value & 16256) >> 7) | 128));
+                        outStream.WriteByte((Byte) ((value & 1040384) >> 14));
+
+                        return;
+                    }
+
+                    outStream.WriteByte((Byte) ((value & 127) | 128));
+                    outStream.WriteByte((Byte) ((value & 16256) >> 7));
+
+                    return;
+                }
+
+                outStream.WriteByte((Byte) (value & 127));
+        }
+
         public static void WriteInt32(Int32 value,
-                                      Stream _outStream)
+                                      Stream outStream)
         {
             if (value >= 0)
             {
@@ -108,47 +163,47 @@ namespace Das.Serializer.Remunerators
                             {
                                 if (value > 2130706432)
                                 {
-                                    _outStream.WriteByte((Byte) ((value & 127) | 128));
-                                    _outStream.WriteByte((Byte) (((value & 16256) >> 7) | 128));
-                                    _outStream.WriteByte((Byte) (((value & 1040384) >> 13) | 128));
-                                    _outStream.WriteByte((Byte) (((value & 66584576) >> 19) | 128));
-                                    _outStream.WriteByte((Byte) ((value & 1879048192) >> 28));
+                                    outStream.WriteByte((Byte) ((value & 127) | 128));
+                                    outStream.WriteByte((Byte) (((value & 16256) >> 7) | 128));
+                                    outStream.WriteByte((Byte) (((value & 1040384) >> 13) | 128));
+                                    outStream.WriteByte((Byte) (((value & 66584576) >> 19) | 128));
+                                    outStream.WriteByte((Byte) ((value & 1879048192) >> 28));
 
                                     return;
                                 }
 
-                                _outStream.WriteByte((Byte) ((value & 127) | 128));
-                                _outStream.WriteByte((Byte) (((value & 16256) >> 7) | 128));
-                                _outStream.WriteByte((Byte) (((value & 1040384) >> 13) | 128));
-                                _outStream.WriteByte((Byte) (((value & 66584576) >> 19) | 128));
-                                _outStream.WriteByte((Byte) ((value & 4261412864) >> 26));
+                                outStream.WriteByte((Byte) ((value & 127) | 128));
+                                outStream.WriteByte((Byte) (((value & 16256) >> 7) | 128));
+                                outStream.WriteByte((Byte) (((value & 1040384) >> 13) | 128));
+                                outStream.WriteByte((Byte) (((value & 66584576) >> 19) | 128));
+                                outStream.WriteByte((Byte) ((value & 4261412864) >> 26));
 
 
                                 return;
                             }
 
-                            _outStream.WriteByte((Byte) ((value & 127) | 128));
-                            _outStream.WriteByte((Byte) (((value & 16256) >> 7) | 128));
-                            _outStream.WriteByte((Byte) (((value & 1040384) >> 13) | 128));
-                            _outStream.WriteByte((Byte) ((value & 66584576) >> 20));
+                            outStream.WriteByte((Byte) ((value & 127) | 128));
+                            outStream.WriteByte((Byte) (((value & 16256) >> 7) | 128));
+                            outStream.WriteByte((Byte) (((value & 1040384) >> 13) | 128));
+                            outStream.WriteByte((Byte) ((value & 66584576) >> 20));
 
                             return;
                         }
 
-                        _outStream.WriteByte((Byte) ((value & 127) | 128));
-                        _outStream.WriteByte((Byte) (((value & 16256) >> 7) | 128));
-                        _outStream.WriteByte((Byte) ((value & 1040384) >> 14));
+                        outStream.WriteByte((Byte) ((value & 127) | 128));
+                        outStream.WriteByte((Byte) (((value & 16256) >> 7) | 128));
+                        outStream.WriteByte((Byte) ((value & 1040384) >> 14));
 
                         return;
                     }
 
-                    _outStream.WriteByte((Byte) ((value & 127) | 128));
-                    _outStream.WriteByte((Byte) ((value & 16256) >> 7));
+                    outStream.WriteByte((Byte) ((value & 127) | 128));
+                    outStream.WriteByte((Byte) ((value & 16256) >> 7));
 
                     return;
                 }
 
-                _outStream.WriteByte((Byte) (value & 127));
+                outStream.WriteByte((Byte) (value & 127));
 
                 return;
             }
@@ -157,23 +212,12 @@ namespace Das.Serializer.Remunerators
             {
                 var current = (Byte) (value | 128);
                 value >>= 7;
-                WriteInt8(current, _outStream);
+                WriteInt8(current, outStream);
             }
 
-            Write(_negative32Fill, 0, 5, _outStream);
+            Write(_negative32Fill, 0, 5, outStream);
         }
 
-        public static void WriteInt32(Int64 val,
-                                      Stream outStream)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static void WriteInt64(UInt64 val,
-                                      Stream outStream)
-        {
-            throw new NotImplementedException();
-        }
 
         public static void WriteInt64(Int64 value,
                                       Stream outStream)
@@ -198,6 +242,20 @@ namespace Das.Serializer.Remunerators
 
                 Write(_negative32Fill, 0, 5, outStream);
             }
+        }
+
+        public static void WriteUInt64(UInt64 value,
+                                       Stream outStream)
+        {
+            do
+            {
+                var current = (Byte) (value & 127);
+                value >>= 7;
+                if (value > 0)
+                    current += 128; //8th bit to specify more bytes remain
+                WriteInt8(current, outStream);
+            } while (value > 0);
+
         }
 
 
@@ -246,6 +304,50 @@ namespace Das.Serializer.Remunerators
         }
 
         private static void GetVarIntLengthImpl(Int32 value,
+                                                ref Int32 counter)
+        {
+            if (value >= 0)
+            {
+                if (value > 127)
+                {
+                    if (value > 16256)
+                    {
+                        if (value > 1040384)
+                        {
+                            if (value > 66584576)
+                            {
+                                if (value > 2130706432)
+                                {
+                                    counter += 5;
+                                    return;
+                                }
+
+                                counter += 5;
+                                return;
+                            }
+
+                            counter += 4;
+                            return;
+                        }
+
+                        counter += 3;
+                        return;
+                    }
+
+                    counter += 2;
+                    return;
+                }
+
+                counter += 1;
+
+                return;
+            }
+
+            counter += 10; //negative
+        }
+
+        // not deja vu =\
+        private static void GetVarIntLengthImpl(Int64 value,
                                                 ref Int32 counter)
         {
             if (value >= 0)

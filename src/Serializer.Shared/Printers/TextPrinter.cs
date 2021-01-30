@@ -51,6 +51,12 @@ namespace Das.Printers
             PrintPrimitive(node);
         }
 
+        protected override void PrintFallback(Object? o,
+                                              Type propType)
+        {
+            PrintPrimitive(o, o!.GetType());
+        }
+
         /// <summary>
         ///     xml puts all primitives as attributes and in quotes. Json does not put
         ///     numeric types in quotes
@@ -73,15 +79,32 @@ namespace Das.Printers
             }
         }
 
+        protected override void PrintPrimitive(Object? o,
+                                               Type propType)
+        {
+            switch (o)
+            {
+                case Boolean b:
+                    Writer.Append(b ? "true" : "false");
+                    break;
+                default:
+                    var isRequiresQuotes = IsRequiresQuotes(o);
+                    var converter = _typeInferrer.GetTypeConverter(propType);
+                    var str = converter.ConvertToInvariantString(o!);
+                    PrintString(str!, isRequiresQuotes);
+                    break;
+            }
+        }
+
         protected abstract void PrintString(String str,
                                             Boolean isInQuotes);
 
-        protected void TabIn()
+        protected virtual void TabIn()
         {
             _tabs.Remove(0, _indentLength);
         }
 
-        protected void TabOut()
+        protected virtual void TabOut()
         {
             _tabs.Append(_indenter);
         }

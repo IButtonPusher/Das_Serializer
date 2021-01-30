@@ -8,7 +8,7 @@ namespace Das.Serializer
     public interface INodePool
     {
         INamedValue GetNamedValue(String name,
-                                  Object value,
+                                  Object? value,
                                   Type type);
 
         INamedValue GetNamedValue(DictionaryEntry entry);

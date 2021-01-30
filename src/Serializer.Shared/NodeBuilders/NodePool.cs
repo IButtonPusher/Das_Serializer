@@ -32,7 +32,7 @@ namespace Das.Serializer
         }
 
         public INamedValue GetNamedValue(String name,
-                                         Object value,
+                                         Object? value,
                                          Type type)
         {
             var buffer = NamedNodeBuffer.Value!;

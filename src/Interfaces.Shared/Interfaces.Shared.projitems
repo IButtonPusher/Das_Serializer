@@ -94,6 +94,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Settings\DepthConstants.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\ISerializationDepth.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\ISettingsUser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Settings\PrintPropertyFormat.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\ProtoBufOptions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\TextPropertySearchDepths.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\SerializationDepth.cs" />
