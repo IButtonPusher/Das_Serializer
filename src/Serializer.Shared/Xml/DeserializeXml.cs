@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using Das.Streamers;
+
 #if !ALWAYS_EXPRESS
 using System.Runtime.CompilerServices;
 #endif
@@ -61,11 +61,17 @@ namespace Das.Serializer
 
         public T FromXml<T>(Stream stream)
         {
-            using (var streamWrap = new StreamStreamer(stream))
-            using (var state = StateProvider.BorrowXml(Settings))
+            using (var sw = new StreamReader(stream))
             {
-                return state.Scanner.Deserialize<T>(streamWrap);
+                var str = sw.ReadToEnd();
+                return XmlExpress.Deserialize<T>(str, Settings, _empty);
             }
+
+            //using (var streamWrap = new StreamStreamer(stream))
+            //using (var state = StateProvider.BorrowXml(Settings))
+            //{
+            //    return state.Scanner.Deserialize<T>(streamWrap);
+            //}
         }
 
         public Object FromXml(Stream stream)

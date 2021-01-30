@@ -7,7 +7,6 @@ using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 using Das.Serializer;
-using Das.Serializer.Objects;
 using Das.Serializer.Remunerators;
 
 namespace Das.Printers
@@ -68,47 +67,47 @@ namespace Das.Printers
         }
 
 
-        public override void PrintNode(INamedValue node)
-        {
-            var name = node.Name;
-            var propType = node.Type;
-            var val = node.Value;
+        //public override void PrintNode(INamedValue node)
+        //{
+        //    var name = node.Name;
+        //    var propType = node.Type;
+        //    var val = node.Value;
 
-            var valType = val?.GetType() ?? propType;
-            if (!_isIgnoreCircularDependencies)
-                PushStack(name);
+        //    var valType = val?.GetType() ?? propType;
+        //    if (!_isIgnoreCircularDependencies)
+        //        PushStack(name);
 
-            try
-            {
-                var isWrapping = TryWrap(propType!, ref val, ref valType!);
-                var isLeaf = _typeInferrer.IsLeaf(valType, true);
+        //    try
+        //    {
+        //        var isWrapping = TryWrap(propType!, ref val, ref valType!);
+        //        var isLeaf = _typeInferrer.IsLeaf(valType, true);
 
-                switch (isWrapping)
-                {
-                    case false when !isLeaf:
-                        node.Type = valType;
-                        break;
-                    case false:
-                        //  node.Type = propType;
-                        break;
-                    default:
-                        node.Type = valType;
-                        break;
-                }
+        //        switch (isWrapping)
+        //        {
+        //            case false when !isLeaf:
+        //                node.Type = valType;
+        //                break;
+        //            case false:
+        //                //  node.Type = propType;
+        //                break;
+        //            default:
+        //                node.Type = valType;
+        //                break;
+        //        }
 
-                using (var print = _printNodePool.GetPrintNode(node))
-                {
-                    print.IsWrapping = isWrapping;
+        //        using (var print = _printNodePool.GetPrintNode(node))
+        //        {
+        //            print.IsWrapping = isWrapping;
 
-                    PrintBinaryNode(print, !isLeaf || isWrapping);
-                }
-            }
-            finally
-            {
-                if (!_isIgnoreCircularDependencies)
-                    PopStack();
-            }
-        }
+        //            PrintBinaryNode(print, !isLeaf || isWrapping);
+        //        }
+        //    }
+        //    finally
+        //    {
+        //        if (!_isIgnoreCircularDependencies)
+        //            PopStack();
+        //    }
+        //}
 
         public override void PrintNode(String name,
                                        Type? propType,
@@ -141,10 +140,7 @@ namespace Das.Printers
                 //using (var print = _printNodePool.GetPrintNode(named))
                 {
                     var nodeType = _nodeTypes.GetNodeType(propType, _settings.SerializationDepth);
-                    PrintBinaryNode(val, propType, nodeType, isWrapping, !isLeaf || isWrapping);
-                    //print.IsWrapping = isWrapping;
-
-                    //PrintBinaryNode(print, !isLeaf || isWrapping);
+                    PrintBinaryNode(val, propType!, nodeType, isWrapping, !isLeaf || isWrapping);
                 }
             }
             finally
@@ -215,21 +211,21 @@ namespace Das.Printers
             return true;
         }
 
-        protected Boolean PrintBinaryNode(IPrintNode print,
-                                          Boolean isPush)
-        {
-            if (isPush)
-            {
-                Push(print);
-                PrintObject(print);
+        //protected Boolean PrintBinaryNode(IPrintNode print,
+        //                                  Boolean isPush)
+        //{
+        //    if (isPush)
+        //    {
+        //        Push(print);
+        //        PrintObject(print);
 
-                _bWriter = _bWriter.Pop();
-            }
-            else
-                return PrintObject(print);
+        //        _bWriter = _bWriter.Pop();
+        //    }
+        //    else
+        //        return PrintObject(print);
 
-            return print.Value != null;
-        }
+        //    return print.Value != null;
+        //}
 
         protected Boolean PrintBinaryNode(Object? nodeValue,
                                           Type propType,
@@ -259,30 +255,30 @@ namespace Das.Printers
             _bWriter.WriteInt8((SByte) index);
         }
 
-        protected override void PrintCollection(IPrintNode node)
-        {
-            var germane = _typeInferrer.GetGermaneType(node.Type!);
+        //protected override void PrintCollection(IPrintNode node)
+        //{
+        //    var germane = _typeInferrer.GetGermaneType(node.Type!);
 
-            switch (node.Value)
-            {
-                case null:
-                    _bWriter.WriteInt8(0);
-                    break;
-                case IEnumerable list:
-                    var boom = ExplodeList(list, germane);
+        //    switch (node.Value)
+        //    {
+        //        case null:
+        //            _bWriter.WriteInt8(0);
+        //            break;
+        //        case IEnumerable list:
+        //            var boom = ExplodeList(list, germane);
 
-                    var isLeaf = _typeInferrer.IsLeaf(germane, true);
+        //            var isLeaf = _typeInferrer.IsLeaf(germane, true);
 
-                    if (isLeaf)
-                        PrintSeries(boom, PrintPrimitiveItem);
-                    else
-                        PrintSeries(boom, PrintNode);
-                    break;
-                default:
-                    throw new InvalidOperationException(
-                        $"{node.Value} is not valid to be printed as a collection");
-            }
-        }
+        //            if (isLeaf)
+        //                PrintSeries(boom, PrintPrimitiveItem);
+        //            else
+        //                PrintSeries(boom, PrintNode);
+        //            break;
+        //        default:
+        //            throw new InvalidOperationException(
+        //                $"{node.Value} is not valid to be printed as a collection");
+        //    }
+        //}
 
         protected override void PrintCollection(Object? value,
                                                 Type valType,
@@ -312,33 +308,33 @@ namespace Das.Printers
             }
         }
 
-        protected override void PrintFallback(IPrintNode node)
-        {
-            //we have to assume primistring otherwise the node type would have been more specific
-            var useType = node.Type;
-            var o = node.Value;
-            if (o != null && _typeInferrer.IsUseless(useType))
-                useType = o.GetType();
+        //protected override void PrintFallback(IPrintNode node)
+        //{
+        //    //we have to assume primistring otherwise the node type would have been more specific
+        //    var useType = node.Type;
+        //    var o = node.Value;
+        //    if (o != null && _typeInferrer.IsUseless(useType))
+        //        useType = o.GetType();
 
-            if (o == null)
-                //specify that the actual object is 0 bytes
-                _bWriter.WriteInt32(0);
-            else if (_typeInferrer.IsLeaf(useType!, true))
-            {
-                node.Type = useType;
-                PrintPrimitive(node);
-            }
-            else
-                using (var stream = new MemoryStream())
-                {
-                    //_fallbackFormatter = new BinaryFormatter();
-                    _fallbackFormatter.Serialize(stream, o);
+        //    if (o == null)
+        //        //specify that the actual object is 0 bytes
+        //        _bWriter.WriteInt32(0);
+        //    else if (_typeInferrer.IsLeaf(useType!, true))
+        //    {
+        //        node.Type = useType;
+        //        PrintPrimitive(node);
+        //    }
+        //    else
+        //        using (var stream = new MemoryStream())
+        //        {
+        //            //_fallbackFormatter = new BinaryFormatter();
+        //            _fallbackFormatter.Serialize(stream, o);
 
-                    var length = (Int32) stream.Length;
-                    var buff = stream.GetBuffer();
-                    _bWriter.Append(buff, length);
-                }
-        }
+        //            var length = (Int32) stream.Length;
+        //            var buff = stream.GetBuffer();
+        //            _bWriter.Append(buff, length);
+        //        }
+        //}
 
         protected override void PrintFallback(Object? o,
                                               Type useType)
@@ -366,35 +362,35 @@ namespace Das.Printers
                 }
         }
 
-        protected override void PrintPrimitive(IPrintNode node)
-        {
-            while (true)
-            {
-                var o = node.Value;
-                var type = node.Type;
+        //protected override void PrintPrimitive(IPrintNode node)
+        //{
+        //    while (true)
+        //    {
+        //        var o = node.Value;
+        //        var type = node.Type;
 
-                var code = Type.GetTypeCode(type);
+        //        var code = Type.GetTypeCode(type);
 
-                if (Print(o, code))
-                    return;
+        //        if (Print(o, code))
+        //            return;
 
-                if (!_typeInferrer.TryGetNullableType(type!, out var primType))
-                    throw new NotSupportedException($"Type {type} cannot be printed as a primitive");
+        //        if (!_typeInferrer.TryGetNullableType(type!, out var primType))
+        //            throw new NotSupportedException($"Type {type} cannot be printed as a primitive");
 
-                if (o == null)
-                    //null
-                    _bWriter.WriteInt8(0);
-                else
-                {
-                    //flag that there is a value
-                    _bWriter.WriteInt8(1);
-                    node.Type = primType;
-                    continue;
-                }
+        //        if (o == null)
+        //            //null
+        //            _bWriter.WriteInt8(0);
+        //        else
+        //        {
+        //            //flag that there is a value
+        //            _bWriter.WriteInt8(1);
+        //            node.Type = primType;
+        //            continue;
+        //        }
 
-                return;
-            }
-        }
+        //        return;
+        //    }
+        //}
 
         protected override void PrintPrimitive(Object? o,
                                                Type type)
@@ -443,13 +439,13 @@ namespace Das.Printers
             _bWriter.Append(bytes);
         }
 
-        private void PrintPrimitiveItem(NamedValueNode node)
-        {
-            using (var print = _printNodePool.GetPrintNode(node))
-            {
-                PrintPrimitive(print);
-            }
-        }
+        //private void PrintPrimitiveItem(NamedValueNode node)
+        //{
+        //    using (var print = _printNodePool.GetPrintNode(node))
+        //    {
+        //        PrintPrimitive(print);
+        //    }
+        //}
 
         private void PrintPrimitiveItem(Object? o,
                                         Type propType,
@@ -471,13 +467,13 @@ namespace Das.Printers
                 WriteType(nodeValue!.GetType());
         }
 
-        private void Push(IPrintNode node)
-        {
-            _bWriter = _bWriter.Push(node);
+        //private void Push(IPrintNode node)
+        //{
+        //    _bWriter = _bWriter.Push(node);
 
-            if (node.IsWrapping)
-                WriteType(node.Value!.GetType());
-        }
+        //    if (node.IsWrapping)
+        //        WriteType(node.Value!.GetType());
+        //}
 
         private Boolean TryWrap(Type propType,
                                 ref Object? val,

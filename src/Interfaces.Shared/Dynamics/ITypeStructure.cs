@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
-using Das.Serializer.Objects;
 
 // ReSharper disable UnusedMemberInSuper.Global
 
@@ -22,18 +21,18 @@ namespace Das.Serializer
         /// </summary>
         IEnumerable<INamedField> GetMembersToSerialize(ISerializationDepth depth);
 
-        IProperty? GetProperty(Object o,
-                               String propertyName);
+        //IProperty? GetProperty(Object o,
+        //                       String propertyName);
 
         Object? GetPropertyValue(Object o,
                                String propertyName);
 
 
-        /// <summary>
-        ///     For a collection, returns the values.  Otherwise returns the property values
-        /// </summary>
-        IPropertyValueIterator<IProperty> GetPropertyValues(Object o,
-                                                            ISerializationDepth depth);
+        ///// <summary>
+        /////     For a collection, returns the values.  Otherwise returns the property values
+        ///// </summary>
+        //IPropertyValueIterator<IProperty> GetPropertyValues(Object o,
+        //                                                    ISerializationDepth depth);
 
         IEnumerable<KeyValuePair<PropertyInfo, Object?>> IteratePropertyValues(Object o,
                                                                                ISerializationDepth depth);

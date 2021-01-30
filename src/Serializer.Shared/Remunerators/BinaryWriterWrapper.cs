@@ -78,10 +78,10 @@ namespace Das.Serializer.Remunerators
             return new DeferredBinaryWriter(this, nodeType, isWrapping);
         }
 
-        protected override DeferredBinaryWriter GetChildWriter(IPrintNode node)
-        {
-            var list = new DeferredBinaryWriter(node, this);
-            return list;
-        }
+        //protected override DeferredBinaryWriter GetChildWriter(IPrintNode node)
+        //{
+        //    var list = new DeferredBinaryWriter(node, this);
+        //    return list;
+        //}
     }
 }

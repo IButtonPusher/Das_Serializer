@@ -35,13 +35,13 @@
     <DefineConstants>TRACE;NET45;GENERATECODE;ALWAYS_EXPRESS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>Serializer.Tests.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\Serializer.ruleset</CodeAnalysisRuleSet>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TEST_NO_CODEGENERATION|AnyCPU'">
     <OutputPath>bin\TEST_NO_CODEGENERATION\</OutputPath>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <CodeAnalysisRuleSet>..\Serializer.Benchmarks\Serializer.Benchmarks.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\Serializer.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TEST_ALWAYS_EXPRESS|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>

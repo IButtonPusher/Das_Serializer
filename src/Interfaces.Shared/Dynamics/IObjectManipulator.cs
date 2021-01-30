@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
-using Das.Serializer.Objects;
 
 namespace Das.Serializer
 {
@@ -43,12 +42,14 @@ namespace Das.Serializer
                            Object[] parameters,
                            BindingFlags flags = BindingFlags.Public | BindingFlags.Instance);
 
-        IProperty? GetPropertyResult(Object o,
-                                     Type asType,
-                                     String propertyName);
+        //IProperty? GetPropertyResult(Object o,
+        //                             Type asType,
+        //                             String propertyName);
 
-        IPropertyValueIterator<IProperty> GetPropertyResults(IValueNode obj,
-                                                             ISerializationDepth depth);
+        //IPropertyValueIterator<IProperty> GetPropertyResults(IValueNode obj,
+        //                                                     ISerializationDepth depth);
+
+        IEnumerable<KeyValuePair<PropertyInfo, Object?>> GetPropertyResults(Object? val);
 
         IEnumerable<KeyValuePair<PropertyInfo, Object?>> GetPropertyResults(Object? val,
                                                                             Type valType,
@@ -61,7 +62,7 @@ namespace Das.Serializer
                                  String propertyName);
 
 
-        IEnumerable<IProperty> GetPropertyValues<T>(T obj);
+        //IEnumerable<IProperty> GetPropertyValues<T>(T obj);
 
         void Method(Object obj,
                     String methodName,

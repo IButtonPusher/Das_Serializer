@@ -19,10 +19,11 @@ namespace Das.Serializer
             _cachedPropertyAccessors = new DoubleDictionary<Type, string, IPropertyAccessor>();
         }
 
-        protected BaseTypeManipulator(ISerializerSettings settings,
-                                      INodePool nodePool) : base(settings)
+        protected BaseTypeManipulator(ISerializerSettings settings)
+                                      //INodePool nodePool) 
+            : base(settings)
         {
-            _nodePool = nodePool;
+            //_nodePool = nodePool;
         }
 
         public override Boolean HasSettableProperties(Type type)
@@ -169,15 +170,15 @@ namespace Das.Serializer
             }
         }
 
-        protected static MemberInfo GetMemberOrDie(Type declaringType,
-                                                   String propName)
-        {
-            var membersOnly = GetMembersOrDie(declaringType, propName);
-            if (membersOnly.Length != 1)
-                throw new AmbiguousMatchException(nameof(propName));
+        //protected static MemberInfo GetMemberOrDie(Type declaringType,
+        //                                           String propName)
+        //{
+        //    var membersOnly = GetMembersOrDie(declaringType, propName);
+        //    if (membersOnly.Length != 1)
+        //        throw new AmbiguousMatchException(nameof(propName));
 
-            return membersOnly[0];
-        }
+        //    return membersOnly[0];
+        //}
 
         protected static MemberInfo[] GetMembersOrDie(Type declaringType,
                                                       String propertyName)
@@ -230,14 +231,14 @@ namespace Das.Serializer
             if (IsAlreadyExists(type, doCache, depth, collection, out var result))
                 return result;
 
-            var pool = _nodePool;
+            //var pool = _nodePool;
 
             lock (_lockNewType)
             {
                 if (IsAlreadyExists(type, doCache, depth, collection, out result))
                     return result;
 
-                result = new TypeStructure(type, caseSensitive, depth, this, pool);
+                result = new TypeStructure(type, caseSensitive, depth, this);//, pool);
                 if (!doCache)
                     return result;
 
@@ -253,6 +254,6 @@ namespace Das.Serializer
         private static readonly ConcurrentDictionary<Type, ITypeStructure> _knownSensitive;
         private static readonly ConcurrentDictionary<Type, ITypeStructure> _knownInsensitive;
         private static readonly DoubleDictionary<Type, String, IPropertyAccessor> _cachedPropertyAccessors;
-        private readonly INodePool _nodePool;
+        //private readonly INodePool _nodePool;
     }
 }

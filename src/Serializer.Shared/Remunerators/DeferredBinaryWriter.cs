@@ -34,27 +34,27 @@ namespace Das.Serializer.Remunerators
                 _backingList.Append(0);
         }
 
-        public DeferredBinaryWriter(IPrintNode node,
-                                    IBinaryWriter parent)
-            : base(parent)
-        {
-            _backingList = new ByteBuilder();
-            //_node = node;
-            _parent = parent;
+        //public DeferredBinaryWriter(IPrintNode node,
+        //                            IBinaryWriter parent)
+        //    : base(parent)
+        //{
+        //    _backingList = new ByteBuilder();
+        //    //_node = node;
+        //    _parent = parent;
 
-            _isWrapPossible = node.NodeType != NodeTypes.Primitive || node.IsWrapping;
+        //    _isWrapPossible = node.NodeType != NodeTypes.Primitive || node.IsWrapping;
 
-            //for nullable primitive we will write a single byte to indicate null or not
-            if (!_isWrapPossible)
-                return;
+        //    //for nullable primitive we will write a single byte to indicate null or not
+        //    if (!_isWrapPossible)
+        //        return;
 
-            WriteInt32(0);
+        //    WriteInt32(0);
 
-            if (node.IsWrapping)
-                _backingList.Append(1);
-            else
-                _backingList.Append(0);
-        }
+        //    if (node.IsWrapping)
+        //        _backingList.Append(1);
+        //    else
+        //        _backingList.Append(0);
+        //}
 
         [MethodImpl(256)]
         public override void Write(Byte[] buffer)

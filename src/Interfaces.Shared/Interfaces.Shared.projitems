@@ -27,14 +27,12 @@
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IValueSetter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IProtoProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Nodes\AttributeValue.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ObjectPools\INodePool.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\ProtoFieldAction.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\IProtoProxy.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\IStreamAccessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\IBinaryWriter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\IProtoWriter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\IRemunerable.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Objects\IPropertyValueIterator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\ITypeCore.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\ITypeInferrer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\ITypeManipulator.cs" />
@@ -48,7 +46,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)IXmlSerializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Nodes\IBinaryNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Nodes\IBinaryNodeProvider.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Nodes\INamedValue.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Nodes\INode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Nodes\INodeManipulator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Nodes\IScanNodeProvider.cs" />
@@ -60,19 +57,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)Objects\DasMember.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\DasProperty.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\INamedField.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Objects\IPrintNode.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Objects\IProperty.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\IProtoField.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\IProtoFieldAccessor.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Objects\IProtoProperty.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Objects\IStronglyTyped.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\IValueNode.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Objects\NamedValueNode.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Objects\ObjectNode.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Objects\PrintNode.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Objects\PropertyValueNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\ProtoWireTypes.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Objects\ValueNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\IStreamDelegate.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\ITextRemunerable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IAttributeValueSurrogates.cs" />
@@ -111,5 +99,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)State\ITextContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\ITextState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\IXmlLoaner.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)ObjectPools\" />
   </ItemGroup>
 </Project>

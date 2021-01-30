@@ -9,9 +9,5 @@ namespace Das.Serializer
         Boolean IsEmptyInitialized { get; }
 
         String Name { get; }
-
-        //Type Type { get; }
-
-        //Object Value { get; }
     }
 }

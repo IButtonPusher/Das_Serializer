@@ -45,11 +45,11 @@ namespace Das.Printers
         }
 
 
-        protected override void PrintFallback(IPrintNode node)
-        {
-            node.Type = node.Value!.GetType();
-            PrintPrimitive(node);
-        }
+        //protected override void PrintFallback(IPrintNode node)
+        //{
+        //    node.Type = node.Value!.GetType();
+        //    PrintPrimitive(node);
+        //}
 
         protected override void PrintFallback(Object? o,
                                               Type propType)
@@ -57,27 +57,27 @@ namespace Das.Printers
             PrintPrimitive(o, o!.GetType());
         }
 
-        /// <summary>
-        ///     xml puts all primitives as attributes and in quotes. Json does not put
-        ///     numeric types in quotes
-        /// </summary>
-        protected override void PrintPrimitive(IPrintNode node)
-        {
-            var o = node.Value;
+        ///// <summary>
+        /////     xml puts all primitives as attributes and in quotes. Json does not put
+        /////     numeric types in quotes
+        ///// </summary>
+        //protected override void PrintPrimitive(IPrintNode node)
+        //{
+        //    var o = node.Value;
 
-            switch (o)
-            {
-                case Boolean b:
-                    Writer.Append(b ? "true" : "false");
-                    break;
-                default:
-                    var isRequiresQuotes = IsRequiresQuotes(o);
-                    var converter = _typeInferrer.GetTypeConverter(node.Type!);
-                    var str = converter.ConvertToInvariantString(o!);
-                    PrintString(str!, isRequiresQuotes);
-                    break;
-            }
-        }
+        //    switch (o)
+        //    {
+        //        case Boolean b:
+        //            Writer.Append(b ? "true" : "false");
+        //            break;
+        //        default:
+        //            var isRequiresQuotes = IsRequiresQuotes(o);
+        //            var converter = _typeInferrer.GetTypeConverter(node.Type!);
+        //            var str = converter.ConvertToInvariantString(o!);
+        //            PrintString(str!, isRequiresQuotes);
+        //            break;
+        //    }
+        //}
 
         protected override void PrintPrimitive(Object? o,
                                                Type propType)

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Das.Serializer;
-using Das.Serializer.Objects;
 
 namespace Das.Types
 {
@@ -22,28 +21,39 @@ namespace Das.Types
                 ConcurrentDictionary<String, Func<Object, Object[], Object>>>();
         }
 
-        public IProperty? GetPropertyResult(Object o,
-                                            Type asType,
-                                            String propertyName)
-        {
-            if (propertyName == null)
-                return default;
-            var str = _typeDelegates.GetTypeStructure(asType, DepthConstants.AllProperties);
-            return str.GetProperty(o, propertyName);
-        }
+        //public IProperty? GetPropertyResult(Object o,
+        //                                    Type asType,
+        //                                    String propertyName)
+        //{
+        //    if (propertyName == null)
+        //        return default;
+        //    var str = _typeDelegates.GetTypeStructure(asType, DepthConstants.AllProperties);
+        //    return str.GetProperty(o, propertyName);
+        //}
 
-        public IEnumerable<IProperty> GetPropertyValues<T>(T obj)
-        {
-            var node = new ValueNode(obj!, typeof(T));
-            return GetPropertyResults(node, _settings);
-        }
+        //public IEnumerable<IProperty> GetPropertyValues<T>(T obj)
+        //{
+        //    var node = new ValueNode(obj!, typeof(T));
+        //    return GetPropertyResults(node, _settings);
+        //}
 
        
 
         public T GetPropertyValue<T>(Object obj,
                                      String propertyName)
         {
-            return (T) GetPropertyResult(obj, obj.GetType(), propertyName)?.Value!;
+            var res = GetPropertyValue(obj, propertyName);
+            switch (res)
+            {
+                case T good:
+                    return good;
+
+                default:
+                    throw new InvalidCastException();
+
+            }
+
+            //return (T) GetPropertyResult(obj, obj.GetType(), propertyName)?.Value!;
         }
 
         public Object? GetPropertyValue(Object obj,
@@ -87,26 +97,35 @@ namespace Das.Types
             return false;
         }
 
-        public IPropertyValueIterator<IProperty> GetPropertyResults(IValueNode value,
-                                                                    ISerializationDepth depth)
+        //public IPropertyValueIterator<IProperty> GetPropertyResults(IValueNode value,
+        //                                                            ISerializationDepth depth)
+        //{
+        //    var val = value.Value;
+
+        //    if (val == null)
+        //        return new PropertyValueIterator<IProperty>();
+
+        //    var useType = _typeDelegates.IsUseless(value.Type)
+        //        ? val.GetType()
+        //        : value.Type;
+
+        //    var typeStruct = _typeDelegates.GetTypeStructure(useType!, DepthConstants.AllProperties);
+        //    var found = typeStruct.GetPropertyValues(val, depth);
+        //    return found;
+        //}
+
+        public IEnumerable<KeyValuePair<PropertyInfo, object?>> GetPropertyResults(Object? val)
         {
-            var val = value.Value;
-
             if (val == null)
-                return new PropertyValueIterator<IProperty>();
+                yield break;
 
-            var useType = _typeDelegates.IsUseless(value.Type)
-                ? val.GetType()
-                : value.Type;
-
-            var typeStruct = _typeDelegates.GetTypeStructure(useType!, DepthConstants.AllProperties);
-            var found = typeStruct.GetPropertyValues(val, depth);
-            return found;
+            foreach (var kvp in GetPropertyResults(val, val.GetType(), _settings))
+                yield return kvp;
         }
 
         public IEnumerable<KeyValuePair<PropertyInfo, Object?>> GetPropertyResults(Object? val,
-            Type valType,
-            ISerializationDepth depth)
+                                                                                   Type valType,
+                                                                                   ISerializationDepth depth)
         {
             if (val == null)
                 yield break;

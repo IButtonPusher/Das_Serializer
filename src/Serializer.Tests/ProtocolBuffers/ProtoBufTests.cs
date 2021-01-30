@@ -216,10 +216,7 @@ namespace Serializer.Tests.ProtocolBuffers
         // ReSharper disable once UnusedMember.Local
         private static void PrintMemoryStream(MemoryStream ms)
         {
-            var arr = ms.ToArray();
-
-            var strArr = string.Join(",", arr);
-            Debug.WriteLine(strArr + "\r\n");
+            Debug.WriteLine(string.Join(",", ms.ToArray()) + "\r\n");
             
             //for (var c = 0; c < arr.Length; c++)
             //    Debug.WriteLine(arr[c]);
@@ -331,7 +328,7 @@ namespace Serializer.Tests.ProtocolBuffers
             var msg = ComposedCollectionMessage.Default;
             var o = TypeProvider.GetProtoProxy<ComposedCollectionMessage>();
 
-            TypeProvider.DumpProxies();
+            //TypeProvider.DumpProxies();
 
             using (var ms = new MemoryStream())
             {
@@ -515,7 +512,7 @@ namespace Serializer.Tests.ProtocolBuffers
 
             var fromNet = ProtoNetMultiProperties();
 
-            TypeProvider.DumpProxies();
+            //TypeProvider.DumpProxies();
 
             var equal = SlowEquality.AreEqual(fromDas, fromNet);
             equal &= SlowEquality.AreEqual(fromDas2, fromNet);

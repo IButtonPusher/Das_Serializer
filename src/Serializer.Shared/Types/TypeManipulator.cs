@@ -29,9 +29,9 @@ namespace Das.Types
         //    _knownInsensitive = new ConcurrentDictionary<Type, ITypeStructure>();
         //}
 
-        public TypeManipulator(ISerializerSettings settings,
-                               INodePool nodePool)
-            : base(settings, nodePool)
+        public TypeManipulator(ISerializerSettings settings)
+                               //INodePool nodePool)
+            : base(settings)//, nodePool)
         {
             // _nodePool = nodePool;
             _cachedAdders = new ConcurrentDictionary<Type, VoidMethod>();

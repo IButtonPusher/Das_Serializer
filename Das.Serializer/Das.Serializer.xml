@@ -123,6 +123,12 @@
                 Int64 value, Stream outStream)
             </summary>
         </member>
+        <member name="P:Das.Serializer.ProtoBuf.IStreamAccessor.WriteUInt64">
+            <summary>
+                public static void ProtoBufWriter.WriteUInt64(
+                Int64 value, Stream outStream)
+            </summary>
+        </member>
         <member name="M:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1.ScanCollection(System.Type,Das.Serializer.ProtoBuf.IValueExtractor)">
             <summary>
                 ICollection[TProperty] where TProperty : ProtoContract
@@ -172,6 +178,21 @@
         <member name="P:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1.GetStringFromBytes">
             <summary>
                 Encoding-> public virtual string GetString(byte[] bytes, int index, int count)
+            </summary>
+        </member>
+        <member name="F:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1._getDoubleBytes">
+            <summary>
+            BitConverter.GetBytes(Double)
+            </summary>
+        </member>
+        <member name="F:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1._getInt32">
+            <summary>
+            ProtoDynamicBase.GetInt32
+            </summary>
+        </member>
+        <member name="F:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1._getInt64">
+            <summary>
+            ProtoDynamicBase.GetInt64
             </summary>
         </member>
         <member name="F:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1._readBytesField">
@@ -290,7 +311,7 @@
                 not specifying the assembly name
             </example>
         </member>
-        <member name="M:Das.Serializer.ITypeInferrer.ToPropertyStyle(System.String)">
+        <member name="M:Das.Serializer.ITypeInferrer.ToPascalCase(System.String)">
             <summary>
                 Pascal cases the string
             </summary>
@@ -303,11 +324,6 @@
         <member name="M:Das.Serializer.ITypeStructure.GetMembersToSerialize(Das.Serializer.ISerializationDepth)">
             <summary>
                 Returns properties and/or fields depending on specified depth
-            </summary>
-        </member>
-        <member name="M:Das.Serializer.ITypeStructure.GetPropertyValues(System.Object,Das.Serializer.ISerializationDepth)">
-            <summary>
-                For a collection, returns the values.  Otherwise returns the property values
             </summary>
         </member>
         <member name="M:Das.Serializer.IBinarySerializer.ToBytes(System.Object,System.Type)">
@@ -383,16 +399,6 @@
         <member name="F:Das.Serializer.NodeTypes.PropertiesToConstructor">
             <summary>
                 have to use default serialization for binary and string methods for text
-            </summary>
-        </member>
-        <member name="T:Das.Serializer.Objects.NamedValueNode">
-            <summary>
-                A named type/value association
-            </summary>
-        </member>
-        <member name="T:Das.Serializer.Objects.ValueNode">
-            <summary>
-                A type/value association
             </summary>
         </member>
         <member name="P:Das.Serializer.IProtoField.Header">
@@ -720,7 +726,7 @@
                 Use whitespace like spaces and tabs only
             </summary>
         </member>
-        <member name="P:Das.Serializer.DasSettings.Default">
+        <member name="M:Das.Serializer.DasSettings.CloneDefault">
             <summary>
                 Returns a mutable copy of the defaults. A new copy is generated each time
                 this property is accessed.
@@ -734,6 +740,11 @@
         <member name="M:Das.Serializer.Json.JsonExpress.GetValue(System.Int32@,System.String,System.Type,System.Text.StringBuilder,System.Object,System.Reflection.PropertyInfo,System.Object@,System.Object[])">
             <summary>
                 Leaves the StringBuilder dirty!
+            </summary>
+        </member>
+        <member name="T:Das.Serializer.ProtoEnumerator`1">
+            <summary>
+            Generates dynamic foreach code block
             </summary>
         </member>
         <member name="M:Das.Serializer.BaseExpress.GetUntilAny(System.Int32@,System.String,System.Text.StringBuilder,System.Char[],System.Char@)">
@@ -829,48 +840,6 @@
             <summary>
                 If obj is of type T, returns (T)obj.  Otherwise, instantiates an
                 object of T then does a memberwise deep copy from obj's members that match T's
-            </summary>
-        </member>
-        <member name="M:Das.Printers.PrinterBase.PrintNode(Das.Serializer.INamedValue)">
-            <summary>
-                For type wrapping has to occur one of the following has to be true
-                1. _settings.TypeSpecificity == All
-                2. _settings.TypeSpecificity == Discrepancy and val.GetType() != propType
-                -Xml should print this like an attribute __type="System.Int16" within the
-                tag it was going to do anyways
-                -Json should print it as a wrapper around the object
-                { "__type": "System.Int16", "__val": *Object's Json* }
-                -Binary can just put the type name/length bytes beforehand
-            </summary>
-        </member>
-        <member name="M:Das.Printers.PrinterBase.PrintObject(Das.Serializer.IPrintNode)">
-            <summary>
-                Every object passes through here.  Once we've gotten here we assume that any
-                type-wrapping has been performed already
-                1. Determine the right way to print this (as reference object, primitive etc)
-                2. Route to proper method
-            </summary>
-        </member>
-        <member name="M:Das.Printers.PrinterBase.PrintPrimitive(Das.Serializer.IPrintNode)">
-            <summary>
-                By the time we get here any wrapping should have happened already
-            </summary>
-        </member>
-        <member name="M:Das.Printers.PrinterBase.PrintReferenceType(Das.Serializer.IPrintNode)">
-            <summary>
-                prints most objects as series of properties
-            </summary>
-        </member>
-        <member name="M:Das.Printers.PrinterBase.TryHandleCircularReference(Das.Serializer.IPrintNode)">
-            <summary>
-                False if it's not a circular reference.  Handles the logic of what to do
-                if it is
-            </summary>
-        </member>
-        <member name="M:Das.Printers.TextPrinter.PrintPrimitive(Das.Serializer.IPrintNode)">
-            <summary>
-                xml puts all primitives as attributes and in quotes. Json does not put
-                numeric types in quotes
             </summary>
         </member>
         <member name="M:Das.Streamers.IBinaryFeeder.GetNextBlockSize">
@@ -988,7 +957,7 @@
                 in a class of type classType
             </summary>
         </member>
-        <member name="M:Das.Types.TypeInference.ToPropertyStyle(System.String)">
+        <member name="M:Das.Types.TypeInference.ToPascalCase(System.String)">
             <summary>
                 Returns the name in PascalCase
             </summary>

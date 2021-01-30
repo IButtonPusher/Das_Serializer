@@ -123,6 +123,12 @@
                 Int64 value, Stream outStream)
             </summary>
         </member>
+        <member name="P:Das.Serializer.ProtoBuf.IStreamAccessor.WriteUInt64">
+            <summary>
+                public static void ProtoBufWriter.WriteUInt64(
+                Int64 value, Stream outStream)
+            </summary>
+        </member>
         <member name="M:Das.Serializer.Remunerators.IProtoWriter.GetVarIntLength(System.Int32)">
             <summary>
                 The amount of bytes the int would need for serialization
@@ -190,7 +196,7 @@
                 not specifying the assembly name
             </example>
         </member>
-        <member name="M:Das.Serializer.ITypeInferrer.ToPropertyStyle(System.String)">
+        <member name="M:Das.Serializer.ITypeInferrer.ToPascalCase(System.String)">
             <summary>
                 Pascal cases the string
             </summary>
@@ -203,11 +209,6 @@
         <member name="M:Das.Serializer.ITypeStructure.GetMembersToSerialize(Das.Serializer.ISerializationDepth)">
             <summary>
                 Returns properties and/or fields depending on specified depth
-            </summary>
-        </member>
-        <member name="M:Das.Serializer.ITypeStructure.GetPropertyValues(System.Object,Das.Serializer.ISerializationDepth)">
-            <summary>
-                For a collection, returns the values.  Otherwise returns the property values
             </summary>
         </member>
         <member name="M:Das.Serializer.IBinarySerializer.ToBytes(System.Object,System.Type)">
@@ -283,16 +284,6 @@
         <member name="F:Das.Serializer.NodeTypes.PropertiesToConstructor">
             <summary>
                 have to use default serialization for binary and string methods for text
-            </summary>
-        </member>
-        <member name="T:Das.Serializer.Objects.NamedValueNode">
-            <summary>
-                A named type/value association
-            </summary>
-        </member>
-        <member name="T:Das.Serializer.Objects.ValueNode">
-            <summary>
-                A type/value association
             </summary>
         </member>
         <member name="P:Das.Serializer.IProtoField.Header">

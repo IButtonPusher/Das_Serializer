@@ -3,13 +3,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Das.Extensions;
 using Das.Serializer.Remunerators;
@@ -227,9 +225,9 @@ namespace Das.Serializer.ProtoBuf
         public void DumpProxies()
         {
             #if NET45 || NET40
-            if (Interlocked.Increment(ref _dumpCount) > 1)
+            if (System.Threading.Interlocked.Increment(ref _dumpCount) > 1)
             {
-                Debug.WriteLine("WARNING:  Proxies already dumped");
+                System.Diagnostics.Debug.WriteLine("WARNING:  Proxies already dumped");
                 return;
             }
 
@@ -469,8 +467,18 @@ namespace Das.Serializer.ProtoBuf
                                                         MethodAttributes.Final;
 
         // ReSharper disable once StaticMemberInGenericType
+        
+        #if DEBUG
+        
         private static Int32 _dumpCount;
+
+        #endif
+
+        #if NET45 || NET40
+
         private static readonly String SaveFile = $"{AssemblyName}.dll";
+
+        #endif
 
         private static readonly Byte[] _negative32Fill =
         {

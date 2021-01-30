@@ -20,7 +20,7 @@ namespace Das.Serializer
             AssemblyList = dynamicFacade.AssemblyList;
             ObjectManipulator = dynamicFacade.ObjectManipulator;
             NodeTypeProvider = dynamicFacade.NodeTypeProvider;
-            PrintNodePool = dynamicFacade.PrintNodePool;
+            //PrintNodePool = dynamicFacade.PrintNodePool;
             ScanNodeManipulator = dynamicFacade.ScanNodeManipulator;
 
             Surrogates = dynamicFacade.Surrogates is ConcurrentDictionary<Type, Type> conc
@@ -46,7 +46,7 @@ namespace Das.Serializer
 
         public INodeTypeProvider NodeTypeProvider { get; }
 
-        public INodePool PrintNodePool { get; }
+        //public INodePool PrintNodePool { get; }
 
         public INodeManipulator ScanNodeManipulator { get; }
 

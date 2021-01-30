@@ -34,7 +34,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)NodeBuilders\BinaryNodeSealer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NodeBuilders\JsonNodeTypeProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NodeBuilders\NodeManipulator.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)NodeBuilders\NodePool.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NodeBuilders\NodeProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NodeBuilders\NodeTypeProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NodeBuilders\TextNodeProvider.cs" />
@@ -48,7 +47,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Printers\TextPrinter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Printers\XmlPrinter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\SimplePropertyAccessor.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)PropertyValueIterator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Proto\CoreProtoProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Proto\IValueExtractor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoAutoProvider.cs" />

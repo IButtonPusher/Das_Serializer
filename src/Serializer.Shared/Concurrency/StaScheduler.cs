@@ -16,11 +16,11 @@ namespace Das.Serializer.Concurrency
             Start();
         }
 
-        public void BeginInvoke(Action action)
-        {
-            Task.Factory.StartNew(action, CancellationToken.None,
-                TaskCreationOptions.PreferFairness, this);
-        }
+        //public void BeginInvoke(Action action)
+        //{
+        //    Task.Factory.StartNew(action, CancellationToken.None,
+        //        TaskCreationOptions.PreferFairness, this);
+        //}
 
         public void Invoke(Action action)
         {
@@ -28,11 +28,11 @@ namespace Das.Serializer.Concurrency
                 TaskCreationOptions.PreferFairness, this));
         }
 
-        public void Invoke(Action action,
-                           Int32 priority)
-        {
-            throw new NotImplementedException();
-        }
+        //public void Invoke(Action action,
+        //                   Int32 priority)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         public T Invoke<T>(Func<T> action)
         {
@@ -41,38 +41,38 @@ namespace Das.Serializer.Concurrency
             //return action();
         }
 
-        public async Task InvokeAsync(Action action)
-        {
-            await Task.Factory.StartNew(action,
-                CancellationToken.None, TaskCreationOptions.PreferFairness, this);
-        }
+        //public async Task InvokeAsync(Action action)
+        //{
+        //    await Task.Factory.StartNew(action,
+        //        CancellationToken.None, TaskCreationOptions.PreferFairness, this);
+        //}
 
-        public async Task<T> InvokeAsync<T>(Func<T> action)
-        {
-            return await Task.Factory.StartNew(action, CancellationToken.None,
-                TaskCreationOptions.PreferFairness, this);
-        }
+        //public async Task<T> InvokeAsync<T>(Func<T> action)
+        //{
+        //    return await Task.Factory.StartNew(action, CancellationToken.None,
+        //        TaskCreationOptions.PreferFairness, this);
+        //}
 
-        public async Task<TOutput> InvokeAsync<TInput, TOutput>(TInput input,
-                                                                Func<TInput, TOutput> action)
-        {
-            return await Task.Factory.StartNew(() => action(input), CancellationToken.None,
-                TaskCreationOptions.PreferFairness, this);
-        }
+        //public async Task<TOutput> InvokeAsync<TInput, TOutput>(TInput input,
+        //                                                        Func<TInput, TOutput> action)
+        //{
+        //    return await Task.Factory.StartNew(() => action(input), CancellationToken.None,
+        //        TaskCreationOptions.PreferFairness, this);
+        //}
 
-        public async Task InvokeAsync<TInput>(TInput input,
-                                              Func<TInput, Task> action)
-        {
-            await action(input);
-        }
+        //public async Task InvokeAsync<TInput>(TInput input,
+        //                                      Func<TInput, Task> action)
+        //{
+        //    await action(input);
+        //}
 
-        public async Task<T> InvokeAsync<T>(Func<Task<T>> action)
-        {
-            var ran = await Task.Factory.StartNew(() => InnerInvokeAsync(action),
-                CancellationToken.None,
-                TaskCreationOptions.PreferFairness, this);
-            return await ran;
-        }
+        //public async Task<T> InvokeAsync<T>(Func<Task<T>> action)
+        //{
+        //    var ran = await Task.Factory.StartNew(() => InnerInvokeAsync(action),
+        //        CancellationToken.None,
+        //        TaskCreationOptions.PreferFairness, this);
+        //    return await ran;
+        //}
 
         protected override IEnumerable<Task> GetScheduledTasks()
         {
@@ -99,10 +99,10 @@ namespace Das.Serializer.Concurrency
             return _isExecuting && TryExecuteTask(task);
         }
 
-        private static async Task<T> InnerInvokeAsync<T>(Func<Task<T>> action)
-        {
-            return await action();
-        }
+        //private static async Task<T> InnerInvokeAsync<T>(Func<Task<T>> action)
+        //{
+        //    return await action();
+        //}
 
         private void RunOnCurrentThread()
         {

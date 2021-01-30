@@ -20,7 +20,7 @@ namespace Das.Printers
             _typeInferrer = stateProvider.TypeInferrer;
             _nodeTypes = stateProvider.ScanNodeProvider.TypeProvider;
             //_nodeProvider = stateProvider.ScanNodeProvider;
-            _printNodePool = stateProvider.PrintNodePool;
+            //_printNodePool = stateProvider.PrintNodePool;
             _pathReferences = new HashSet<Object>();
             _pathStack = new List<String>();
             PathSeparator = '.';
@@ -51,34 +51,34 @@ namespace Das.Printers
         //public ISerializerSettings Settings { get; }
 
 
-        /// <summary>
-        ///     For type wrapping has to occur one of the following has to be true
-        ///     1. _settings.TypeSpecificity == All
-        ///     2. _settings.TypeSpecificity == Discrepancy and val.GetType() != propType
-        ///     -Xml should print this like an attribute __type="System.Int16" within the
-        ///     tag it was going to do anyways
-        ///     -Json should print it as a wrapper around the object
-        ///     { "__type": "System.Int16", "__val": *Object's Json* }
-        ///     -Binary can just put the type name/length bytes beforehand
-        /// </summary>
-        public abstract void PrintNode(INamedValue node);
+        ///// <summary>
+        /////     For type wrapping has to occur one of the following has to be true
+        /////     1. _settings.TypeSpecificity == All
+        /////     2. _settings.TypeSpecificity == Discrepancy and val.GetType() != propType
+        /////     -Xml should print this like an attribute __type="System.Int16" within the
+        /////     tag it was going to do anyways
+        /////     -Json should print it as a wrapper around the object
+        /////     { "__type": "System.Int16", "__val": *Object's Json* }
+        /////     -Binary can just put the type name/length bytes beforehand
+        ///// </summary>
+        //public abstract void PrintNode(INamedValue node);
 
         public abstract void PrintNode(String nodeName,
                                        Type? propType,
                                        Object? value);
 
-        protected static IEnumerable<ObjectNode> ExplodeList(IEnumerable? list,
-                                                             Type itemType)
-        {
-            if (list == null)
-                yield break;
+        //protected static IEnumerable<ObjectNode> ExplodeList(IEnumerable? list,
+        //                                                     Type itemType)
+        //{
+        //    if (list == null)
+        //        yield break;
 
-            var index = 0;
-            foreach (var o in list)
-            {
-                yield return new ObjectNode(o, itemType, index++);
-            }
-        }
+        //    var index = 0;
+        //    foreach (var o in list)
+        //    {
+        //        yield return new ObjectNode(o, itemType, index++);
+        //    }
+        //}
 
         protected static IEnumerable<KeyValuePair<Object?, Type>> ExplodeIterator(IEnumerable? list,
                                                              Type itemType)
@@ -155,69 +155,69 @@ namespace Das.Printers
             //}
         }
 
-        protected abstract void PrintCollection(IPrintNode node);
+        //protected abstract void PrintCollection(IPrintNode node);
 
         protected abstract void PrintCollection(Object? value,
                                                 Type valType,
                                                 Boolean knownEmpty);
 
-        protected abstract void PrintFallback(IPrintNode node);
+        //protected abstract void PrintFallback(IPrintNode node);
 
-        /// <summary>
-        ///     Every object passes through here.  Once we've gotten here we assume that any
-        ///     type-wrapping has been performed already
-        ///     1. Determine the right way to print this (as reference object, primitive etc)
-        ///     2. Route to proper method
-        /// </summary>
-        protected Boolean PrintObject(IPrintNode node)
-        {
-            var o = node.Value;
-            var nodeType = node.NodeType;
+        ///// <summary>
+        /////     Every object passes through here.  Once we've gotten here we assume that any
+        /////     type-wrapping has been performed already
+        /////     1. Determine the right way to print this (as reference object, primitive etc)
+        /////     2. Route to proper method
+        ///// </summary>
+        //protected Boolean PrintObject(IPrintNode node)
+        //{
+        //    var o = node.Value;
+        //    var nodeType = node.NodeType;
 
-            var checkCircs = IsCheckCircularRefs(nodeType);
+        //    var checkCircs = IsCheckCircularRefs(nodeType);
 
-            if (checkCircs && TryHandleCircularReference(node))
-                return true;
+        //    if (checkCircs && TryHandleCircularReference(node))
+        //        return true;
 
-            switch (nodeType)
-            {
-                case NodeTypes.Primitive:
-                    PrintPrimitive(node);
-                    break;
-                case NodeTypes.Object:
-                case NodeTypes.PropertiesToConstructor:
-                    PrintReferenceType(node);
-                    break;
-                case NodeTypes.Collection:
-                    PrintCollection(node);
-                    break;
-                case NodeTypes.Fallback:
-                    PrintFallback(node);
-                    break;
-                case NodeTypes.Dynamic:
-                    //should only be trying to print a dynamic if it's a prop of type object
-                    //with a null value. Can't do anything with that
-                    if (o != null)
-                        PrintFallback(node);
-                    else
-                        PrintReferenceType(node);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+        //    switch (nodeType)
+        //    {
+        //        case NodeTypes.Primitive:
+        //            PrintPrimitive(node);
+        //            break;
+        //        case NodeTypes.Object:
+        //        case NodeTypes.PropertiesToConstructor:
+        //            PrintReferenceType(node);
+        //            break;
+        //        case NodeTypes.Collection:
+        //            PrintCollection(node);
+        //            break;
+        //        case NodeTypes.Fallback:
+        //            PrintFallback(node);
+        //            break;
+        //        case NodeTypes.Dynamic:
+        //            //should only be trying to print a dynamic if it's a prop of type object
+        //            //with a null value. Can't do anything with that
+        //            if (o != null)
+        //                PrintFallback(node);
+        //            else
+        //                PrintReferenceType(node);
+        //            break;
+        //        default:
+        //            throw new ArgumentOutOfRangeException();
+        //    }
 
-            var willReturn = node.Value != null;
+        //    var willReturn = node.Value != null;
 
-            if (!checkCircs)
-                return willReturn;
+        //    if (!checkCircs)
+        //        return willReturn;
 
-            _pathObjects.RemoveAt(_pathObjects.Count - 1);
+        //    _pathObjects.RemoveAt(_pathObjects.Count - 1);
 
-            if (o != null)
-                _pathReferences.Remove(o);
+        //    if (o != null)
+        //        _pathReferences.Remove(o);
 
-            return willReturn;
-        }
+        //    return willReturn;
+        //}
 
         protected virtual void PrintCollectionObject(Object? o,
                                    Type propType,
@@ -283,10 +283,10 @@ namespace Das.Printers
         }
 
 
-        /// <summary>
-        ///     By the time we get here any wrapping should have happened already
-        /// </summary>
-        protected abstract void PrintPrimitive(IPrintNode node);
+        ///// <summary>
+        /////     By the time we get here any wrapping should have happened already
+        ///// </summary>
+        //protected abstract void PrintPrimitive(IPrintNode node);
 
         protected abstract void PrintPrimitive(Object? o,
                                                Type propType);
@@ -294,15 +294,15 @@ namespace Das.Printers
         protected abstract void PrintFallback(Object? o,
                                                Type propType);
 
-        protected virtual void PrintProperties<T>(IPropertyValueIterator<T> values,
-                                                  Action<T> exe) where T : class, INamedValue
-        {
-            for (var c = 0; c < values.Count; c++)
-            {
-                var current = values[c];
-                exe(current);
-            }
-        }
+        //protected virtual void PrintProperties<T>(IPropertyValueIterator<T> values,
+        //                                          Action<T> exe) where T : class, INamedValue
+        //{
+        //    for (var c = 0; c < values.Count; c++)
+        //    {
+        //        var current = values[c];
+        //        exe(current);
+        //    }
+        //}
 
         protected virtual void PrintProperties(IEnumerable<KeyValuePair<PropertyInfo, Object?>> values,
                                                Action<PropertyInfo, Object?> exe)
@@ -318,17 +318,17 @@ namespace Das.Printers
         }
 
 
-        protected void PrintProperty(INamedValue prop)
-        {
-            if (prop.Type!.IsNestedPrivate && _typeInferrer.IsCollection(prop.Type))
-            {
-                //force deferred to run
-            }
+        //protected void PrintProperty(INamedValue prop)
+        //{
+        //    if (prop.Type!.IsNestedPrivate && _typeInferrer.IsCollection(prop.Type))
+        //    {
+        //        //force deferred to run
+        //    }
 
-            PrintNode(prop);
+        //    PrintNode(prop);
 
-            prop.Dispose();
-        }
+        //    prop.Dispose();
+        //}
 
         protected void PrintProperty(PropertyInfo prop,
                                      Object? propValue)
@@ -349,14 +349,14 @@ namespace Das.Printers
             PrintNode(name, propertyType, propValue);//, nodeType);
         }
 
-        /// <summary>
-        ///     prints most objects as series of properties
-        /// </summary>
-        protected virtual void PrintReferenceType(IPrintNode node)
-        {
-            var properyValues = _stateProvider.ObjectManipulator.GetPropertyResults(node, this);
-            PrintProperties<INamedValue>(properyValues, PrintProperty);
-        }
+        ///// <summary>
+        /////     prints most objects as series of properties
+        ///// </summary>
+        //protected virtual void PrintReferenceType(IPrintNode node)
+        //{
+        //    var properyValues = _stateProvider.ObjectManipulator.GetPropertyResults(node, this);
+        //    PrintProperties<INamedValue>(properyValues, PrintProperty);
+        //}
 
         protected virtual void PrintReferenceType(Object? value,
                                                   Type valType)
@@ -389,10 +389,10 @@ namespace Das.Printers
             _pathStack.Add(str);
         }
 
-        protected Boolean ShouldPrintNode(INamedValue prop)
-        {
-            return ShouldPrintValue(prop.Value);
-        }
+        //protected Boolean ShouldPrintNode(INamedValue prop)
+        //{
+        //    return ShouldPrintValue(prop.Value);
+        //}
 
         protected Boolean ShouldPrintValue<T>(T item)
         {
@@ -406,47 +406,47 @@ namespace Das.Printers
             return nodeType != NodeTypes.Primitive && !_isIgnoreCircularDependencies;
         }
 
-        /// <summary>
-        ///     False if it's not a circular reference.  Handles the logic of what to do
-        ///     if it is
-        /// </summary>
-        private Boolean TryHandleCircularReference(IPrintNode node)
-        {
-            var o = node.Value;
+        ///// <summary>
+        /////     False if it's not a circular reference.  Handles the logic of what to do
+        /////     if it is
+        ///// </summary>
+        //private Boolean TryHandleCircularReference(IPrintNode node)
+        //{
+        //    var o = node.Value;
 
-            if (o == null || _pathReferences.Add(o))
-            {
-                _pathObjects.Add(o);
-                return false;
-            }
+        //    if (o == null || _pathReferences.Add(o))
+        //    {
+        //        _pathObjects.Add(o);
+        //        return false;
+        //    }
 
-            //uh oh... circular reference detected
-            switch (Settings.CircularReferenceBehavior)
-            {
-                case CircularReference.IgnoreObject:
-                    if (IsPrintNullProperties)
-                        using (var nullRef = _printNodePool.GetPrintNode(node, null))
-                        {
-                            PrintObject(nullRef);
-                        }
+        //    //uh oh... circular reference detected
+        //    switch (Settings.CircularReferenceBehavior)
+        //    {
+        //        case CircularReference.IgnoreObject:
+        //            if (IsPrintNullProperties)
+        //                using (var nullRef = _printNodePool.GetPrintNode(node, null))
+        //                {
+        //                    PrintObject(nullRef);
+        //                }
 
-                    break;
-                case CircularReference.ThrowException:
-                    throw new CircularReferenceException(_pathStack, PathSeparator);
-                //var path = _pathStack.ToString(PathSeparator, '[');
-                //throw new InvalidOperationException($"Circular reference {PathSeparator}{path}");
-                case CircularReference.SerializePath:
-                    var objIndex = _pathObjects.IndexOf(o);
-                    PrintCircularDependency(objIndex);
-                    break;
-                case CircularReference.NoValidation:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+        //            break;
+        //        case CircularReference.ThrowException:
+        //            throw new CircularReferenceException(_pathStack, PathSeparator);
+        //        //var path = _pathStack.ToString(PathSeparator, '[');
+        //        //throw new InvalidOperationException($"Circular reference {PathSeparator}{path}");
+        //        case CircularReference.SerializePath:
+        //            var objIndex = _pathObjects.IndexOf(o);
+        //            PrintCircularDependency(objIndex);
+        //            break;
+        //        case CircularReference.NoValidation:
+        //            break;
+        //        default:
+        //            throw new ArgumentOutOfRangeException();
+        //    }
 
-            return true;
-        }
+        //    return true;
+        //}
 
         private Boolean TryHandleCircularReference(Object? o,
                                                    Type propType,
@@ -495,7 +495,7 @@ namespace Das.Printers
 
         //to print the x/json path by property/index
         private readonly List<String> _pathStack;
-        protected readonly INodePool _printNodePool;
+        //protected readonly INodePool _printNodePool;
 
 
         private readonly ISerializationState _stateProvider;

@@ -10,7 +10,6 @@ using System.Reflection.Emit;
 using System.Threading.Tasks;
 using Das.Extensions;
 using Das.Serializer;
-using Das.Serializer.Objects;
 
 namespace Das.Types
 {
@@ -221,12 +220,13 @@ namespace Das.Types
         {
             foreach (var o in attributes)
             {
-                var valu = new ValueNode(o);
+                //var valu = new ValueNode(o);
                 var attr = new DasAttribute(o.GetType());
 
-                foreach (var propVal in _objectManipulator.GetPropertyResults(valu, Settings))
+                //foreach (var propVal in _objectManipulator.GetPropertyResults(valu, Settings))
+                foreach (var propVal in _objectManipulator.GetPropertyResults(o))
                 {
-                    attr.PropertyValues.Add(propVal.Name, propVal.Value!);
+                    attr.PropertyValues.Add(propVal.Key.Name, propVal.Value!);
                 }
             }
 

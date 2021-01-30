@@ -21,7 +21,7 @@ namespace Das.Serializer.Remunerators
 
         IBinaryWriter Pop();
 
-        IBinaryWriter Push(IPrintNode node);
+        //IBinaryWriter Push(IPrintNode node);
 
         IBinaryWriter Push(NodeTypes nodeType,
                            Boolean isWrapping);

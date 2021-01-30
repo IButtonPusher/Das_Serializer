@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Das.Serializer;
@@ -23,95 +22,95 @@ namespace Das.Printers
 
         
 
-        public override void PrintNode(INamedValue node)
-        {
-            var name = node.Name;
-            var propType = node.Type;
-            var val = node.Value;
+        //public override void PrintNode(INamedValue node)
+        //{
+        //    var name = node.Name;
+        //    var propType = node.Type;
+        //    var val = node.Value;
 
-            if (val == null)
-                return;
+        //    if (val == null)
+        //        return;
 
-            if (!_isIgnoreCircularDependencies)
-            {
-                if (!String.IsNullOrWhiteSpace(name))
-                    PushStack(name);
-                else if (node.Type?.FullName != null)
-                    PushStack(node.Type.FullName);
-                else
-                    PushStack(Const.Root);
-                //PushStack(String.IsNullOrWhiteSpace(name) ? Const.Root : name);
-            }
+        //    if (!_isIgnoreCircularDependencies)
+        //    {
+        //        if (!String.IsNullOrWhiteSpace(name))
+        //            PushStack(name);
+        //        else if (node.Type?.FullName != null)
+        //            PushStack(node.Type.FullName);
+        //        else
+        //            PushStack(Const.Root);
+        //        //PushStack(String.IsNullOrWhiteSpace(name) ? Const.Root : name);
+        //    }
 
-            try
-            {
-                var isCloseBlock = false;
-                var valType = val.GetType();
-                var isWrapping = IsWrapNeeded(propType!, valType);
+        //    try
+        //    {
+        //        var isCloseBlock = false;
+        //        var valType = val.GetType();
+        //        var isWrapping = IsWrapNeeded(propType!, valType);
 
-                if (!String.IsNullOrWhiteSpace(name))
-                {
-                    if (name.Equals(PathAttribute))
-                    {
-                        Writer.Append(Const.OpenBrace);
-                        TabOut();
-                        isCloseBlock = true;
-                    }
+        //        if (!String.IsNullOrWhiteSpace(name))
+        //        {
+        //            if (name.Equals(PathAttribute))
+        //            {
+        //                Writer.Append(Const.OpenBrace);
+        //                TabOut();
+        //                isCloseBlock = true;
+        //            }
 
-                    Writer.Append(Const.Quote, name);
-                    Writer.Append(Const.Quote, ":");
-                }
-                else if (!isWrapping)
-                {
-                    var res = _nodeTypes.GetNodeType(valType, Settings.SerializationDepth);
-                    //root node, we have to wrap primitives
-                    if (res == NodeTypes.Primitive || res == NodeTypes.Fallback)
-                    {
-                        Writer.Append(Const.OpenBrace, _newLine);
-                        TabOut();
-                        isCloseBlock = true;
-                    }
-                }
+        //            Writer.Append(Const.Quote, name);
+        //            Writer.Append(Const.Quote, ":");
+        //        }
+        //        else if (!isWrapping)
+        //        {
+        //            var res = _nodeTypes.GetNodeType(valType, Settings.SerializationDepth);
+        //            //root node, we have to wrap primitives
+        //            if (res == NodeTypes.Primitive || res == NodeTypes.Fallback)
+        //            {
+        //                Writer.Append(Const.OpenBrace, _newLine);
+        //                TabOut();
+        //                isCloseBlock = true;
+        //            }
+        //        }
 
-                if (isWrapping)
-                {
-                    Writer.Append(Const.OpenBrace);
-                    TabOut();
-                    NewLine();
-                    var clear = _typeInferrer.ToClearName(valType, false);
+        //        if (isWrapping)
+        //        {
+        //            Writer.Append(Const.OpenBrace);
+        //            TabOut();
+        //            NewLine();
+        //            var clear = _typeInferrer.ToClearName(valType, false);
 
-                    Writer.Append(Const.StrQuote, Const.TypeWrap);
-                    Writer.Append(Const.StrQuote, ":");
-                    Writer.Append(Const.StrQuote, clear);
-                    Writer.Append(Const.StrQuote, ",");
+        //            Writer.Append(Const.StrQuote, Const.TypeWrap);
+        //            Writer.Append(Const.StrQuote, ":");
+        //            Writer.Append(Const.StrQuote, clear);
+        //            Writer.Append(Const.StrQuote, ",");
 
-                    NewLine();
+        //            NewLine();
 
-                    Writer.Append(Const.Quote, Const.Val);
-                    Writer.Append(Const.Quote, ": ");
-                    TabIn();
-                    isCloseBlock = true;
-                }
+        //            Writer.Append(Const.Quote, Const.Val);
+        //            Writer.Append(Const.Quote, ": ");
+        //            TabIn();
+        //            isCloseBlock = true;
+        //        }
 
-                node.Type = valType;
+        //        node.Type = valType;
 
-                using (var print = _printNodePool.GetPrintNode(node))
-                {
-                    PrintObject(print);
-                }
+        //        using (var print = _printNodePool.GetPrintNode(node))
+        //        {
+        //            PrintObject(print);
+        //        }
 
-                if (!isCloseBlock)
-                    return;
-                NewLine();
+        //        if (!isCloseBlock)
+        //            return;
+        //        NewLine();
 
-                Writer.Append(Const.CloseBrace);
-            }
-            finally
-            {
-                if (!_isIgnoreCircularDependencies)
-                    PopStack();
-            }
-        }
+        //        Writer.Append(Const.CloseBrace);
+        //    }
+        //    finally
+        //    {
+        //        if (!_isIgnoreCircularDependencies)
+        //            PopStack();
+        //    }
+        //}
 
         public override void PrintNode(String name,
                                        Type? propType,
@@ -266,34 +265,34 @@ namespace Das.Printers
             }
         }
 
-        protected override void PrintProperties<T>(IPropertyValueIterator<T> values,
-                                                   Action<T> exe)
-        {
-            var cnt = values.Count;
-            if (cnt == 0)
-                return;
+        //protected override void PrintProperties<T>(IPropertyValueIterator<T> values,
+        //                                           Action<T> exe)
+        //{
+        //    var cnt = values.Count;
+        //    if (cnt == 0)
+        //        return;
 
-            var current = values[0];
+        //    var current = values[0];
 
-            var printSep = ShouldPrintNode(current);
-            if (printSep)
-                exe(current);
+        //    var printSep = ShouldPrintNode(current);
+        //    if (printSep)
+        //        exe(current);
 
-            for (var c = 1; c < values.Count; c++)
-            {
-                current = values[c];
+        //    for (var c = 1; c < values.Count; c++)
+        //    {
+        //        current = values[c];
 
-                if (!ShouldPrintNode(current))
-                    continue;
+        //        if (!ShouldPrintNode(current))
+        //            continue;
 
-                if (printSep)
-                    Writer.Append(SequenceSeparator);
+        //        if (printSep)
+        //            Writer.Append(SequenceSeparator);
 
-                exe(current);
+        //        exe(current);
 
-                printSep = true;
-            }
-        }
+        //        printSep = true;
+        //    }
+        //}
 
         protected override void PrintProperty(Object? propValue,
                                               String name,
@@ -355,42 +354,42 @@ namespace Das.Printers
         }
 
 
-        protected override void PrintReferenceType(IPrintNode node)
-        {
-            if (node.Value == null)
-            {
-                Writer.Append(DasCoreSerializer.StrNull);
-                return;
-            }
+        //protected override void PrintReferenceType(IPrintNode node)
+        //{
+        //    if (node.Value == null)
+        //    {
+        //        Writer.Append(DasCoreSerializer.StrNull);
+        //        return;
+        //    }
 
-            var wasAny = !Writer.IsEmpty;
+        //    var wasAny = !Writer.IsEmpty;
 
-            if (wasAny)
-            {
-                TabOut();
-                NewLine();
+        //    if (wasAny)
+        //    {
+        //        TabOut();
+        //        NewLine();
 
-                Writer.Append(Const.OpenBrace);
+        //        Writer.Append(Const.OpenBrace);
 
-                TabOut();
-                NewLine();
-            }
-            else
-                Writer.Append(Const.OpenBrace);
+        //        TabOut();
+        //        NewLine();
+        //    }
+        //    else
+        //        Writer.Append(Const.OpenBrace);
 
-            base.PrintReferenceType(node);
+        //    base.PrintReferenceType(node);
 
-            if (wasAny)
-            {
-                TabIn();
-                NewLine();
-                Writer.Append(Const.CloseBrace);
-                TabIn();
-                NewLine();
-            }
-            else
-                Writer.Append(Const.CloseBrace);
-        }
+        //    if (wasAny)
+        //    {
+        //        TabIn();
+        //        NewLine();
+        //        Writer.Append(Const.CloseBrace);
+        //        TabIn();
+        //        NewLine();
+        //    }
+        //    else
+        //        Writer.Append(Const.CloseBrace);
+        //}
 
         protected override void PrintReferenceType(Object? value,
                                                    Type valType)
@@ -430,58 +429,58 @@ namespace Das.Printers
                 Writer.Append(Const.CloseBrace);
         }
 
-        private void PrintSpecialDictionary(IDictionary dic)
-        {
-            Writer.Append(Const.OpenBrace);
-            TabOut();
+        //private void PrintSpecialDictionary(IDictionary dic)
+        //{
+        //    Writer.Append(Const.OpenBrace);
+        //    TabOut();
 
-            var enumerator = dic.GetEnumerator();
-            if (!enumerator.MoveNext())
-                return;
+        //    var enumerator = dic.GetEnumerator();
+        //    if (!enumerator.MoveNext())
+        //        return;
 
-            using (var kvp = _printNodePool.GetNamedValue(enumerator.Entry))
-            {
-                PrintNode(kvp);
-            }
+        //    using (var kvp = _printNodePool.GetNamedValue(enumerator.Entry))
+        //    {
+        //        PrintNode(kvp);
+        //    }
 
-            while (enumerator.MoveNext())
-                using (var kvp = _printNodePool.GetNamedValue(enumerator.Entry))
-                {
-                    Writer.Append(SequenceSeparator);
-                    PrintNode(kvp);
-                }
+        //    while (enumerator.MoveNext())
+        //        using (var kvp = _printNodePool.GetNamedValue(enumerator.Entry))
+        //        {
+        //            Writer.Append(SequenceSeparator);
+        //            PrintNode(kvp);
+        //        }
 
-            TabIn();
-            Writer.Append(Const.CloseBrace);
-        }
+        //    TabIn();
+        //    Writer.Append(Const.CloseBrace);
+        //}
 
-        protected override void PrintCollection(IPrintNode node)
-        {
-            var serializeAs = node.Value!.GetType();
+        //protected override void PrintCollection(IPrintNode node)
+        //{
+        //    var serializeAs = node.Value!.GetType();
 
-            if (!_isIgnoreCircularDependencies)
-                PushStack($"[{serializeAs}]");
-            if (typeof(IDictionary).IsAssignableFrom(serializeAs) &&
-                serializeAs.GetGenericArguments().FirstOrDefault() == typeof(String)
-                && node.Value is IDictionary dic)
-            {
-                PrintSpecialDictionary(dic);
-                return;
-            }
+        //    if (!_isIgnoreCircularDependencies)
+        //        PushStack($"[{serializeAs}]");
+        //    //if (typeof(IDictionary).IsAssignableFrom(serializeAs) &&
+        //    //    serializeAs.GetGenericArguments().FirstOrDefault() == typeof(String)
+        //    //    && node.Value is IDictionary dic)
+        //    //{
+        //    //    PrintSpecialDictionary(dic);
+        //    //    return;
+        //    //}
 
-            Writer.Append(Const.OpenBracket);
-            TabOut();
+        //    Writer.Append(Const.OpenBracket);
+        //    TabOut();
 
-            var germane = _typeInferrer.GetGermaneType(serializeAs);
+        //    var germane = _typeInferrer.GetGermaneType(serializeAs);
 
-            PrintSeries(ExplodeList((node.Value as IEnumerable)!, germane),
-                PrintCollectionObject);
+        //    PrintSeries(ExplodeList((node.Value as IEnumerable)!, germane),
+        //        PrintCollectionObject);
 
-            TabIn();
-            Writer.Append(Const.CloseBracket);
-            if (!_isIgnoreCircularDependencies)
-                PopStack();
-        }
+        //    TabIn();
+        //    Writer.Append(Const.CloseBracket);
+        //    if (!_isIgnoreCircularDependencies)
+        //        PopStack();
+        //}
 
         protected override void PrintCollection(Object? value,
                                                 Type valType,
@@ -494,13 +493,13 @@ namespace Das.Printers
 
             if (!_isIgnoreCircularDependencies)
                 PushStack($"[{serializeAs}]");
-            if (typeof(IDictionary).IsAssignableFrom(serializeAs) &&
-                serializeAs.GetGenericArguments().FirstOrDefault() == typeof(String)
-                && value is IDictionary dic)
-            {
-                PrintSpecialDictionary(dic);
-                return;
-            }
+            //if (typeof(IDictionary).IsAssignableFrom(serializeAs) &&
+            //    serializeAs.GetGenericArguments().FirstOrDefault() == typeof(String)
+            //    && value is IDictionary dic)
+            //{
+            //    PrintSpecialDictionary(dic);
+            //    return;
+            //}
 
             Writer.Append(Const.OpenBracket);
             TabOut();
@@ -527,22 +526,22 @@ namespace Das.Printers
             //base.PrintCollectionObject(o, propType, index);
         }
 
-        protected void PrintCollectionObject(ObjectNode val)
-        {
-            using (var print = _printNodePool.GetPrintNode(val))
-            {
-                PrintObject(print);
-            }
-        }
+        //protected void PrintCollectionObject(ObjectNode val)
+        //{
+        //    using (var print = _printNodePool.GetPrintNode(val))
+        //    {
+        //        PrintObject(print);
+        //    }
+        //}
 
-        protected override void PrintFallback(IPrintNode node)
-        {
-            Writer.Append(Const.Quote);
-            node.Type = node.Value!.GetType();
+        //protected override void PrintFallback(IPrintNode node)
+        //{
+        //    Writer.Append(Const.Quote);
+        //    node.Type = node.Value!.GetType();
 
-            PrintPrimitive(node);
-            Writer.Append(Const.Quote);
-        }
+        //    PrintPrimitive(node);
+        //    Writer.Append(Const.Quote);
+        //}
 
         protected override void PrintFallback(Object? o,
                                               Type propType)

@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Das.Serializer;
-using Das.Serializer.Objects;
 using Das.Serializer.Types;
 
 namespace Das
@@ -18,18 +16,18 @@ namespace Das
         public TypeStructure(Type type,
                              Boolean isPropertyNamesCaseSensitive,
                              ISerializationDepth depth,
-                             ITypeManipulator state,
-                             INodePool nodePool)
+                             ITypeManipulator state)
+                             //INodePool nodePool)
             : base(state.Settings)
         {
             Type = type;
             _xmlIgnores = new HashSet<String>();
-            _propertyValues = new ThreadLocal<PropertyValueIterator<IProperty>>(()
-                => new PropertyValueIterator<IProperty>());
+            //_propertyValues = new ThreadLocal<PropertyValueIterator<IProperty>>(()
+            //    => new PropertyValueIterator<IProperty>());
 
             Depth = depth.SerializationDepth;
             _types = state;
-            _nodePool = nodePool;
+            //_nodePool = nodePool;
 
             if (type.IsDefined(typeof(SerializeAsTypeAttribute), false))
             {
@@ -117,30 +115,30 @@ namespace Das
         }
 
 
-        public IPropertyValueIterator<IProperty> GetPropertyValues(Object o,
-                                                                   ISerializationDepth depth)
-        {
-            var isRespectXmlIgnoreAttribute = depth.IsRespectXmlIgnore;
-            var cnt = _propGetterList.Count;
-            var res = PropertyValues;
-            res.Clear();
+        //public IPropertyValueIterator<IProperty> GetPropertyValues(Object o,
+        //                                                           ISerializationDepth depth)
+        //{
+        //    var isRespectXmlIgnoreAttribute = depth.IsRespectXmlIgnore;
+        //    var cnt = _propGetterList.Count;
+        //    var res = PropertyValues;
+        //    res.Clear();
 
-            for (var c = 0; c < cnt; c++)
-            {
-                var kvp = _propGetterList[c];
-                if (isRespectXmlIgnoreAttribute && _xmlIgnores.Contains(kvp.Key))
-                    continue;
-                var name = kvp.Key;
-                var val = kvp.Value(o);
-                var type = MemberTypes[name].Type;
+        //    for (var c = 0; c < cnt; c++)
+        //    {
+        //        var kvp = _propGetterList[c];
+        //        if (isRespectXmlIgnoreAttribute && _xmlIgnores.Contains(kvp.Key))
+        //            continue;
+        //        var name = kvp.Key;
+        //        var val = kvp.Value(o);
+        //        var type = MemberTypes[name].Type;
 
-                var pooledProp = _nodePool.GetProperty(name, val, type, Type);
+        //        var pooledProp = _nodePool.GetProperty(name, val, type, Type);
 
-                res.Add(pooledProp);
-            }
+        //        res.Add(pooledProp);
+        //    }
 
-            return res;
-        }
+        //    return res;
+        //}
 
         /// <summary>
         ///     Returns properties and/or fields depending on specified depth
@@ -165,39 +163,39 @@ namespace Das
             return null;
         }
 
-        IProperty? ITypeStructure.GetProperty(Object o,
-                                                   String propertyName)
-        {
-            try
-            {
-                var val = GetPropertyValueImpl(o, propertyName, out var mInfo);
-                if (mInfo == null)
-                    return null;
+        //IProperty? ITypeStructure.GetProperty(Object o,
+        //                                           String propertyName)
+        //{
+        //    try
+        //    {
+        //        var val = GetPropertyValueImpl(o, propertyName, out var mInfo);
+        //        if (mInfo == null)
+        //            return null;
 
-                //if (!MemberTypes.TryGetValue(propertyName, out var mInfo))
-                //    return null;
-                //var pType = mInfo.Type;
+        //        //if (!MemberTypes.TryGetValue(propertyName, out var mInfo))
+        //        //    return null;
+        //        //var pType = mInfo.Type;
 
-                //Object val;
+        //        //Object val;
 
-                //if (_propGetters.TryGetValue(propertyName, out var getter))
-                //    val = getter(o);
-                //else if (_getOnly.TryGetValue(propertyName, out var getOnly))
-                //    val = getOnly(o);
-                //else if (_getDontSerialize.TryGetValue(propertyName, out var notSerialized))
-                //    val = notSerialized(o);
-                //else return null;
+        //        //if (_propGetters.TryGetValue(propertyName, out var getter))
+        //        //    val = getter(o);
+        //        //else if (_getOnly.TryGetValue(propertyName, out var getOnly))
+        //        //    val = getOnly(o);
+        //        //else if (_getDontSerialize.TryGetValue(propertyName, out var notSerialized))
+        //        //    val = notSerialized(o);
+        //        //else return null;
 
-                var pType = mInfo.Type;
-                var res = _nodePool.GetProperty(propertyName, val, pType, Type);
+        //        var pType = mInfo.Type;
+        //        var res = _nodePool.GetProperty(propertyName, val, pType, Type);
 
-                return res;
-            }
-            catch (Exception ex)
-            {
-                throw new AggregateException(propertyName, ex);
-            }
-        }
+        //        return res;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new AggregateException(propertyName, ex);
+        //    }
+        //}
 
         public Boolean SetFieldValue(String fieldName,
                                      Object targetObj,
@@ -276,8 +274,8 @@ namespace Das
         }
 
 
-        protected PropertyValueIterator<IProperty> PropertyValues
-            => _propertyValues.Value!;
+        //protected PropertyValueIterator<IProperty> PropertyValues
+        //    => _propertyValues.Value!;
 
         public object? GetPropertyValue(Object o,
                                         String propertyName)
@@ -285,12 +283,12 @@ namespace Das
             return GetPropertyValueImpl(o, propertyName, out _);
         }
 
-        public Boolean SetPropertyValue(ref Object targetObj,
-                                        String propName,
-                                        Object? propVal)
-        {
-            return SetValue(propName, ref targetObj, propVal, Depth);
-        }
+        //public Boolean SetPropertyValue(ref Object targetObj,
+        //                                String propName,
+        //                                Object? propVal)
+        //{
+        //    return SetValue(propName, ref targetObj, propVal, Depth);
+        //}
 
         public override string ToString()
         {
@@ -470,7 +468,7 @@ namespace Das
         private readonly Dictionary<String, Func<Object, Object>> _getDontSerialize;
 
         private readonly Dictionary<String, Func<Object, Object>> _getOnly;
-        protected readonly INodePool _nodePool;
+        //protected readonly INodePool _nodePool;
 
         private readonly String? _onDeserializedMethodName;
 
@@ -479,7 +477,7 @@ namespace Das
 
         private readonly SortedList<String, PropertySetter> _propertySetters;
 
-        private readonly ThreadLocal<PropertyValueIterator<IProperty>> _propertyValues;
+        //private readonly ThreadLocal<PropertyValueIterator<IProperty>> _propertyValues;
         protected readonly List<KeyValuePair<String, Func<Object, Object>>> _propGetterList;
 
         private readonly Dictionary<String, Func<Object, Object>> _propGetters;

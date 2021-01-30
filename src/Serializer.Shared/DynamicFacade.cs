@@ -22,11 +22,11 @@ namespace Das.Serializer
             var typeCore = new TypeCore(settings);
             var nodeTypeProvider = new NodeTypeProvider(typeCore, settings);
 
-            PrintNodePool = new NodePool(settings, nodeTypeProvider);
+            //PrintNodePool = new NodePool(settings, nodeTypeProvider);
 
             TextParser = new CoreTextParser();
 
-            var typeManipulator = new TypeManipulator(settings, PrintNodePool);
+            var typeManipulator = new TypeManipulator(settings);//, PrintNodePool);
             TypeManipulator = typeManipulator;
 
             var manipulator = new ObjectManipulator(typeManipulator, settings);
@@ -77,7 +77,7 @@ namespace Das.Serializer
 
         public INodeTypeProvider NodeTypeProvider { get; }
 
-        public INodePool PrintNodePool { get; }
+        //public INodePool PrintNodePool { get; }
 
         public INodeManipulator ScanNodeManipulator { get; }
     }

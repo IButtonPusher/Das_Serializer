@@ -61,7 +61,7 @@
                 Use whitespace like spaces and tabs only
             </summary>
         </member>
-        <member name="P:Das.Serializer.DasSettings.Default">
+        <member name="M:Das.Serializer.DasSettings.CloneDefault">
             <summary>
                 Returns a mutable copy of the defaults. A new copy is generated each time
                 this property is accessed.
@@ -128,6 +128,21 @@
                 Encoding-> public virtual string GetString(byte[] bytes, int index, int count)
             </summary>
         </member>
+        <member name="F:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1._getDoubleBytes">
+            <summary>
+            BitConverter.GetBytes(Double)
+            </summary>
+        </member>
+        <member name="F:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1._getInt32">
+            <summary>
+            ProtoDynamicBase.GetInt32
+            </summary>
+        </member>
+        <member name="F:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1._getInt64">
+            <summary>
+            ProtoDynamicBase.GetInt64
+            </summary>
+        </member>
         <member name="F:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1._readBytesField">
             <summary>
                 Thread static Byte[]
@@ -169,6 +184,11 @@
         <member name="M:Das.Serializer.ProtoBuf.ProtoStateBase.LoadFieldProxy(Das.Serializer.IProtoFieldAccessor)">
             <summary>
                 Leaves the field on the stack
+            </summary>
+        </member>
+        <member name="T:Das.Serializer.ProtoEnumerator`1">
+            <summary>
+            Generates dynamic foreach code block
             </summary>
         </member>
         <member name="T:Das.Serializer.Remunerators.DeferredBinaryWriter">
@@ -266,48 +286,6 @@
                 valid xml or json markup but may lead to slower deserialization
             </param>
         </member>
-        <member name="M:Das.Printers.PrinterBase.PrintNode(Das.Serializer.INamedValue)">
-            <summary>
-                For type wrapping has to occur one of the following has to be true
-                1. _settings.TypeSpecificity == All
-                2. _settings.TypeSpecificity == Discrepancy and val.GetType() != propType
-                -Xml should print this like an attribute __type="System.Int16" within the
-                tag it was going to do anyways
-                -Json should print it as a wrapper around the object
-                { "__type": "System.Int16", "__val": *Object's Json* }
-                -Binary can just put the type name/length bytes beforehand
-            </summary>
-        </member>
-        <member name="M:Das.Printers.PrinterBase.PrintObject(Das.Serializer.IPrintNode)">
-            <summary>
-                Every object passes through here.  Once we've gotten here we assume that any
-                type-wrapping has been performed already
-                1. Determine the right way to print this (as reference object, primitive etc)
-                2. Route to proper method
-            </summary>
-        </member>
-        <member name="M:Das.Printers.PrinterBase.PrintPrimitive(Das.Serializer.IPrintNode)">
-            <summary>
-                By the time we get here any wrapping should have happened already
-            </summary>
-        </member>
-        <member name="M:Das.Printers.PrinterBase.PrintReferenceType(Das.Serializer.IPrintNode)">
-            <summary>
-                prints most objects as series of properties
-            </summary>
-        </member>
-        <member name="M:Das.Printers.PrinterBase.TryHandleCircularReference(Das.Serializer.IPrintNode)">
-            <summary>
-                False if it's not a circular reference.  Handles the logic of what to do
-                if it is
-            </summary>
-        </member>
-        <member name="M:Das.Printers.TextPrinter.PrintPrimitive(Das.Serializer.IPrintNode)">
-            <summary>
-                xml puts all primitives as attributes and in quotes. Json does not put
-                numeric types in quotes
-            </summary>
-        </member>
         <member name="M:Das.Streamers.BinaryFeeder.GetNextBlockSize">
             <summary>
                 Returns the amount of bytes that the next object will use.  Advances
@@ -397,7 +375,7 @@
                 in a class of type classType
             </summary>
         </member>
-        <member name="M:Das.Types.TypeInference.ToPropertyStyle(System.String)">
+        <member name="M:Das.Types.TypeInference.ToPascalCase(System.String)">
             <summary>
                 Returns the name in PascalCase
             </summary>
