@@ -71,7 +71,7 @@ namespace Das.Types
             return buildType.ManagedType;
         }
 
-        public object BuildDynamicObject(RuntimeObject robj)
+        public object BuildDynamicObject(IRuntimeObject robj)
         {
             var props = new List<DasProperty>();
             foreach (var kvp in robj.Properties)

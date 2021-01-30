@@ -12,10 +12,10 @@ namespace Das.Serializer.State
             var manipulator = new JsonNodeTypeProvider(dynamicFacade, settings);
             PrimitiveScanner = new JsonPrimitiveScanner(this);
             _nodeProvider = new TextNodeProvider(dynamicFacade, manipulator,
-                dynamicFacade.NodeTypeProvider, PrimitiveScanner, settings);
+                dynamicFacade.NodeTypeProvider, PrimitiveScanner, settings, string.Empty);
 
             Sealer = new TextNodeSealer(manipulator, PrimitiveScanner,
-                dynamicFacade, settings);
+                dynamicFacade, settings, "");
         }
 
         ITextNodeProvider ITextContext.ScanNodeProvider => _nodeProvider;

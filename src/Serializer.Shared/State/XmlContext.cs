@@ -13,9 +13,10 @@ namespace Das.Serializer
             var manipulator = new XmlNodeTypeProvider(dynamicFacade, PrimitiveScanner, settings);
 
             _nodeProvider = new TextNodeProvider(dynamicFacade, manipulator,
-                dynamicFacade.NodeTypeProvider, PrimitiveScanner, settings);
+                dynamicFacade.NodeTypeProvider, PrimitiveScanner, settings, "/");
 
-            Sealer = new TextNodeSealer(manipulator, PrimitiveScanner, dynamicFacade, settings);
+            Sealer = new TextNodeSealer(manipulator, PrimitiveScanner, dynamicFacade, 
+                settings, "/");
         }
 
 

@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Das.Extensions;
 
+
 namespace Das.Serializer
 {
     public abstract class BaseExpress

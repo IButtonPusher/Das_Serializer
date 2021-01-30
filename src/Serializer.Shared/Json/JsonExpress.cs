@@ -553,17 +553,6 @@ namespace Das.Serializer.Json
                                 case ':':
                                     return _stringPrimitiveScanner.GetValue(
                                         stringBuilder.GetConsumingString(), type, false);
-                                //currentIndex = j + 1;
-                                //GetNextPrimitive(ref currentIndex, json, stringBuilder);
-
-                                //var primi = stringBuilder.GetConsumingString();
-                                //if (Int64.TryParse(primi, out var i64))
-                                //{
-
-                                //}
-
-                                //return Convert.ChangeType(stringBuilder.ToString(), code,
-                                //    CultureInfo.InvariantCulture);
 
 
                                 default:
@@ -691,7 +680,6 @@ namespace Das.Serializer.Json
             return false;
         }
 
-        //private static readonly Char[] _objectOrStringOrNull = {'"', '{', 'n'};
         private static readonly Char[] _objectOrStringOrNull = {'"', '{', 'n', ',', '}'};
         private static readonly Char[] _arrayOrObjectOrNull = {'[', '{', 'n'};
 

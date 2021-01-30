@@ -1,5 +1,7 @@
 ﻿#if !GENERATECODE
 using PropertySetter = System.Action<object, object>;
+#else
+using System.Reflection.Emit;
 #endif
 
 using System;
@@ -9,7 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Reflection.Emit;
+
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Das.Extensions;
@@ -517,6 +519,8 @@ namespace Das.Types
         }
 
 
+        #if NET40 || NET45
+
         /// <summary>
         ///     Gets a delegate to add an object to a generic collection
         /// </summary>
@@ -546,6 +550,8 @@ namespace Das.Types
 
             return res!;
         }
+
+        #endif
 
         private VoidMethod CreateAddDelegate(ICollection collection,
                                              Type type)
@@ -832,80 +838,15 @@ namespace Das.Types
             }
         }
 
-        //public static IEnumerable<FieldInfo> GetRecursivePrivateFields(Type type)
-        //{
-        //    while (true)
-        //    {
-        //        foreach (var field in type.GetFields(Const.NonPublic))
-        //            yield return field;
 
-        //        var parent = type.BaseType;
-        //        if (parent == null) yield break;
-
-        //        type = parent;
-        //    }
-        //}
-
-        //private ITypeStructure ValidateCollection(Type type, 
-        //                                          ISerializationDepth depth,
-        //                                          Boolean caseSensitive)
-        //{
-        //    var collection = caseSensitive ? _knownSensitive : _knownInsensitive;
-
-        //    var doCache = Settings.CacheTypeConstructors;
-
-
-        //    if (IsAlreadyExists(type, doCache, depth, collection, out var result))
-        //        return result;
-
-        //    var pool = _nodePool;
-
-        //    lock (_lockNewType)
-        //    {
-        //        if (IsAlreadyExists(type, doCache, depth, collection, out result))
-        //            return result;
-
-        //        result = new TypeStructure(type, caseSensitive, depth, this, pool);
-        //        if (!doCache)
-        //            return result;
-
-        //        return collection.AddOrUpdate(type, result, (k, v) => v.Depth > result.Depth ? v : result);
-        //    }
-        //}
-
-        //private static Boolean IsAlreadyExists(Type type, 
-        //                                       Boolean doCache, 
-        //                                       ISerializationDepth depth,
-        //                                       ConcurrentDictionary<Type, ITypeStructure> collection,
-        //                                       out ITypeStructure res)
-        //{
-        //    res = default!;
-
-        //    if (!doCache || !collection.TryGetValue(type, out res)) 
-        //        return false;
-
-        //    if (res.Depth < depth.SerializationDepth) return false;
-
-
-        //    if (doCache && collection.TryGetValue(type, out res) &&
-        //        res.Depth >= depth.SerializationDepth)
-        //        return true;
-
-        //    res = default!;
-        //    return false;
-        //}
-
-        //private const BindingFlags InterfaceMethodBindings = BindingFlags.Instance |
-        //                                                     BindingFlags.Public | BindingFlags.NonPublic;
-
-
-        //private static readonly ConcurrentDictionary<Type, ITypeStructure> _knownSensitive;
-        //private static readonly ConcurrentDictionary<Type, ITypeStructure> _knownInsensitive;
+        #if GENERATECODE
 
         private static readonly Type[] ParamTypes =
         {
             Const.ObjectType.MakeByRefType(), Const.ObjectType
         };
+
+        #endif
 
 
         //private static readonly Object _lockNewType;

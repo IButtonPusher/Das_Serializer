@@ -2,11 +2,10 @@
 using System.Threading.Tasks;
 
 #if !GENERATECODE
-using System;
+
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 using Das.Serializer;
 
 namespace Das.Types
@@ -25,6 +24,11 @@ namespace Das.Types
             _abstractImplementations = new ConcurrentDictionary<Type, Type>();
         }
         private static readonly ConcurrentDictionary<Type, Type> _abstractImplementations;
+
+        public object BuildDynamicObject(IRuntimeObject robj)
+        {
+            throw new NotSupportedException();
+        }
 
         public Type GetDynamicImplementation(Type baseInterface)
         {

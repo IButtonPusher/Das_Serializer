@@ -1,13 +1,17 @@
-﻿using System;
-using System.Threading.Tasks;
-
-
-#if !GENERATECODE
-using Das.Serializer;
+﻿// ReSharper disable RedundantUsingDirective
+using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-#endif
+using System.Threading.Tasks;
+using Das.Serializer;
+
+//#if !GENERATECODE
+//using Das.Serializer;
+//using System.Linq;
+//using System.Linq.Expressions;
+//using System.Reflection;
+//#endif
 
 namespace Das.Types
 {

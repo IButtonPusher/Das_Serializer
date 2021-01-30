@@ -18,11 +18,11 @@ namespace Das.Serializer
         }
     }
 
-    public class RuntimeObject
+    public class RuntimeObject : IRuntimeObject
     {
         public RuntimeObject()
         {
-            Properties = new Dictionary<String, RuntimeObject>();
+            Properties = new Dictionary<String, IRuntimeObject>();
         }
 
         public RuntimeObject(Object? primitiveValue)
@@ -31,7 +31,7 @@ namespace Das.Serializer
             PrimitiveValue = primitiveValue;
         }
 
-        public RuntimeObject? this[String key]
+        public IRuntimeObject? this[String key]
         {
             get
             {
@@ -44,7 +44,7 @@ namespace Das.Serializer
 
         public Object? PrimitiveValue { get; set; }
 
-        public Dictionary<String, RuntimeObject> Properties { get; }
+        public Dictionary<String, IRuntimeObject> Properties { get; }
 
         public Type GetObjectType()
         {

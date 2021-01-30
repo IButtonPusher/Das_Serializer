@@ -432,7 +432,7 @@ namespace Das.Serializer
 
             var checkLengthExpression = Expression.IfThen(
                 Expression.NotEqual(len, Expression.Constant(paramArguments.Length)),
-                Expression.Throw(Expression.New(typeof(ArgumentException).GetConstructor(new Type[] {typeof(string)})!,
+                Expression.Throw(Expression.New(typeof(ArgumentException).GetConstructor(new[] {typeof(string)})!,
                     Expression.Constant("The length does not match parameters number")))
             );
 

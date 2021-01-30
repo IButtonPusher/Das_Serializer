@@ -22,7 +22,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NET45;GENERATECODE;TEST_NO_CODEGENERATION</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NET45;GENERATECODE;TEST_NO_CODEGENERATION;ALWAYS_EXPRESS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>..\Serializer.ruleset</CodeAnalysisRuleSet>
@@ -32,7 +32,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;NET45;GENERATECODE</DefineConstants>
+    <DefineConstants>TRACE;NET45;GENERATECODE;ALWAYS_EXPRESS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>Serializer.Tests.ruleset</CodeAnalysisRuleSet>

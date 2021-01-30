@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !GENERATECODE
+using System;
 using System.Threading.Tasks;
 using Das.Types;
 using Xunit;
@@ -10,6 +11,8 @@ namespace Serializer.Tests
 {
     public class ExpressionTests
     {
+        
+
         [Fact]
         public void PropertyGetters()
         {
@@ -56,5 +59,9 @@ namespace Serializer.Tests
 
             Assert.Equal("wiley wamboozle", inst2.SimpleLeft.Name);
         }
+
     }
 }
+#endif
+
+

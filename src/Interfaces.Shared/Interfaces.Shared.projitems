@@ -22,6 +22,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IInstantiator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IObjectConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IObjectManipulator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IRuntimeObject.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\ITypeStructureBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IValueSetter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IProtoProvider.cs" />

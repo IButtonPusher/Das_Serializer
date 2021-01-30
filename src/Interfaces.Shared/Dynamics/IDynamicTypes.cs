@@ -7,7 +7,7 @@ namespace Das.Serializer
 {
     public interface IDynamicTypes
     {
-        Object BuildDynamicObject(RuntimeObject robj);
+        Object BuildDynamicObject(IRuntimeObject robj);
 
         Type GetDynamicImplementation(Type baseInterface);
 

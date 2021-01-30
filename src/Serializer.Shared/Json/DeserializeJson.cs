@@ -84,7 +84,14 @@ namespace Das.Serializer
             }
             #else
             var streamWrap = new StreamStreamer(stream);
-            return FromJsonCharArray<T>(streamWrap);
+
+            using (var state = StateProvider.BorrowJson(Settings))
+            {
+                var res = state.Scanner.Deserialize<T>(streamWrap);
+                return res;
+            }
+
+            //return FromJsonCharArray<T>(streamWrap);
             #endif
         }
 
@@ -94,13 +101,22 @@ namespace Das.Serializer
             var buffer = new Byte[(Int32) stream.Length];
             await _readAsync(stream, buffer, 0, buffer.Length);
             var encoding = buffer.GetEncoding();
-            var chars = encoding.GetChars(buffer, 0, buffer.Length);
+            
+            #if ALWAYS_EXPRESS
 
+            var str = encoding.GetString(buffer, 0, buffer.Length);
+            return JsonExpress.Deserialize<T>(str, Settings, _empty);
+
+            #else
+
+            var chars = encoding.GetChars(buffer, 0, buffer.Length);
             using (var state = StateProvider.BorrowJson(Settings))
             {
                 var res = state.Scanner.Deserialize<T>(chars);
                 return res;
             }
+
+            #endif
         }
 
         public override void Dispose()
@@ -108,14 +124,14 @@ namespace Das.Serializer
         }
 
         // ReSharper disable once UnusedMember.Global
-        protected virtual T FromJsonCharArray<T>(Char[] json)
-        {
-            using (var state = StateProvider.BorrowJson(Settings))
-            {
-                var res = state.Scanner.Deserialize<T>(json);
-                return res;
-            }
-        }
+        //protected virtual T FromJsonCharArray<T>(Char[] json)
+        //{
+        //    using (var state = StateProvider.BorrowJson(Settings))
+        //    {
+        //        var res = state.Scanner.Deserialize<T>(json);
+        //        return res;
+        //    }
+        //}
 
         private static readonly Object[] _empty = new Object[0];
     }

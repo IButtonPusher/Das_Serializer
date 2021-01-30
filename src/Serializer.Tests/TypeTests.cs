@@ -14,7 +14,6 @@ using Xunit;
 
 namespace Serializer.Tests
 {
-    //[TestClass]
     public class TypeTests : TestBase
     {
         [Fact]
@@ -116,6 +115,8 @@ namespace Serializer.Tests
             Assert.Equal(type, type2);
         }
 
+        #if !TEST_NO_CODEGENERATION
+
         [Fact]
         public void PropertyGetters()
         {
@@ -155,6 +156,8 @@ namespace Serializer.Tests
                 Assert.Equal(res3, obj.SimpleLeft);
             }
         }
+
+        #endif
 
         [Fact]
         public void PropertySetters()

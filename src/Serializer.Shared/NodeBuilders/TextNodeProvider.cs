@@ -11,12 +11,13 @@ namespace Das.Serializer
                                 INodeManipulator nodeManipulator,
                                 INodeTypeProvider nodeTypes,
                                 IStringPrimitiveScanner scanner,
-                                ISerializerSettings settings)
+                                ISerializerSettings settings,
+                                String refPathIndicator)
             : base(facade.NodeTypeProvider, settings)
         {
             _nodeManipulator = nodeManipulator;
             _nodeTypes = nodeTypes;
-            Sealer = new TextNodeSealer(nodeManipulator, scanner, facade, settings);
+            Sealer = new TextNodeSealer(nodeManipulator, scanner, facade, settings, refPathIndicator);
         }
 
         public INodeSealer<ITextNode> Sealer { get; }

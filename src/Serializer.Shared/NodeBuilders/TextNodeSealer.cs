@@ -11,12 +11,14 @@ namespace Das.Serializer
         public TextNodeSealer(INodeManipulator nodeValues,
                               IStringPrimitiveScanner scanner,
                               ISerializationCore facade,
-                              ISerializerSettings settings)
+                              ISerializerSettings settings,
+                              String refPathIndicator)
             : base(facade, nodeValues, settings)
         {
             _values = nodeValues;
             _typeProvider = facade.NodeTypeProvider;
             _facade = facade;
+            _refPathIndicator = refPathIndicator;
 
             _typeManipulator = facade.TypeManipulator;
             _scanner = scanner;
@@ -227,18 +229,27 @@ namespace Das.Serializer
             var refLength = refValue.Length;
             var chain = new Stack<ITextNode>();
             var current = node.Parent;
+
+            //var root = current.Value;
+
             while (NullNode != current)
             {
+              //  root = current.Value;
+
                 chain.Push(current);
                 current = current.Parent;
             }
 
             current = chain.Pop();
-            var sb = new StringBuilder(current.Name);
+
+            var sb = new StringBuilder(_refPathIndicator +  current.Type?.FullName ?? current.Name);
+            
             while (sb.Length < refLength)
             {
                 current = chain.Pop();
-                sb.Append($"/{current.Name}");
+                sb.Append($"/{current.Type?.FullName ?? current.Name}");
+                
+                //sb.Append($"/{current.Name}");
             }
 
             if (current.Value == null)
@@ -251,6 +262,7 @@ namespace Das.Serializer
 
         private static readonly NullNode NullNode = NullNode.Instance;
         private readonly ISerializationCore _facade;
+        private readonly String _refPathIndicator;
         private readonly IObjectManipulator _objects;
 
         private readonly IStringPrimitiveScanner _scanner;
