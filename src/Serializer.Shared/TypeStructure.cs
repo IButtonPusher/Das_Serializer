@@ -5,10 +5,9 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
-using Das.Serializer;
 using Das.Serializer.Types;
 
-namespace Das
+namespace Das.Serializer
 {
     public class TypeStructure : TypeCore,
                                  ITypeStructure

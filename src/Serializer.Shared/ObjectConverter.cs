@@ -5,9 +5,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Das.Serializer;
 
-namespace Das
+namespace Das.Serializer
 {
     [SuppressMessage("ReSharper", "UseMethodIsInstanceOfType")]
     public class ObjectConverter : SerializerCore,
@@ -18,7 +17,7 @@ namespace Das
             : base(dynamicFacade, settings)
         {
             _dynamicFacade = dynamicFacade;
-            _nodeTypes = dynamicFacade.ScanNodeProvider.TypeProvider;
+            _nodeTypes = dynamicFacade.NodeTypeProvider;
             _instantiate = dynamicFacade.ObjectInstantiator;
             _types = dynamicFacade.TypeInferrer;
             _objects = dynamicFacade.ObjectManipulator;
@@ -34,7 +33,7 @@ namespace Das
             var outType = typeof(T);
 
             var outObj = _instantiate.BuildDefault(outType, settings.CacheTypeConstructors);
-            _currentNodeType = _nodeTypes.GetNodeType(outType, settings.SerializationDepth);
+            _currentNodeType = _nodeTypes.GetNodeType(outType);
 
             var refs = References.Value;
             refs.Clear();
@@ -83,8 +82,8 @@ namespace Das
         {
             //_currentSettings = settings;
             to ??= FromType(from, settings);
-            const SerializationDepth depth = SerializationDepth.Full;
-            _currentNodeType = _nodeTypes.GetNodeType(typeof(T), depth);
+            //const SerializationDepth depth = SerializationDepth.Full;
+            _currentNodeType = _nodeTypes.GetNodeType(typeof(T));
             var o = (Object) to;
 
             var refs = References.Value;
@@ -102,7 +101,7 @@ namespace Das
         public void Copy<T>(T from,
                             ref T to) where T : class
         {
-            Copy(from, ref to, _dynamicFacade.Settings);
+            Copy(from, ref to, _settings); //_dynamicFacade.Settings);
         }
 
         public Object SpawnCollection(Object[] objects,
@@ -238,8 +237,7 @@ namespace Das
                         if (!_objects.TryGetPropertyValue(from, prop.Name, out var fromProp))
                             continue;
 
-                        _currentNodeType = _nodeTypes.GetNodeType(prop.PropertyType,
-                            settings.SerializationDepth);
+                        _currentNodeType = _nodeTypes.GetNodeType(prop.PropertyType);
                         var toProp = _instantiate.BuildDefault(prop.PropertyType,
                             settings.CacheTypeConstructors) ?? throw new NullReferenceException(prop.Name);
                         toProp = Copy(fromProp, ref toProp, references, settings);
@@ -278,8 +276,7 @@ namespace Das
             var toListType = TypeInferrer.GetGermaneType(toType);
             var fromList = from as IEnumerable;
             var tempTo = new List<Object>();
-            _currentNodeType = _nodeTypes.GetNodeType(toListType,
-                settings.SerializationDepth);
+            _currentNodeType = _nodeTypes.GetNodeType(toListType);
 
             if (fromList == null)
                 return to;
@@ -322,7 +319,7 @@ namespace Das
                     //    _objects.SetPropertyValue(ref to, propInfo.Name, null);
                     continue;
 
-                _currentNodeType = _nodeTypes.GetNodeType(pType, settings.SerializationDepth);
+                _currentNodeType = _nodeTypes.GetNodeType(pType);
 
                 if (references.TryGetValue(nextFrom, out var found))
                 {

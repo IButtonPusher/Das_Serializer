@@ -10,7 +10,6 @@ namespace Das.Serializer
 
         IDynamicTypes DynamicTypes { get; }
 
-
         INodeTypeProvider NodeTypeProvider { get; }
 
         IInstantiator ObjectInstantiator { get; }

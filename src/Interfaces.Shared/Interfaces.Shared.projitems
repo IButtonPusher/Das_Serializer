@@ -63,7 +63,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Objects\ProtoWireTypes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\IStreamDelegate.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\ITextRemunerable.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Scanners\IAttributeValueSurrogates.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IBinaryFeeder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IBinaryPrimitiveScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IBinaryScanner.cs" />
@@ -78,12 +77,12 @@
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\ITextScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\CircularReference.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\DefaultValueOmission.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Settings\IProtoBufOptions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\ISerializerSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\DepthConstants.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\ISerializationDepth.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\ISettingsUser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\PrintPropertyFormat.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Settings\ProtoBufOptions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\TextPropertySearchDepths.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\SerializationDepth.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\TypeNotFound.cs" />
@@ -91,14 +90,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)State\IBinaryContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\IBinaryLoaner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\IBinaryState.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)State\IJsonLoaner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\IMutableState.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)State\ISerializationContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\ISerializationState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\IStateProvider.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)State\ITextContext.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)State\ITextState.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)State\IXmlLoaner.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)ObjectPools\" />

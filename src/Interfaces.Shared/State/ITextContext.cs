@@ -10,7 +10,7 @@ namespace Das.Serializer
     {
         IStringPrimitiveScanner PrimitiveScanner { get; }
 
-        new ITextNodeProvider ScanNodeProvider { get; }
+        ITextNodeProvider ScanNodeProvider { get; }
 
         INodeSealer<ITextNode> Sealer { get; }
     }

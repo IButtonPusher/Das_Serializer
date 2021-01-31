@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Das.Serializer;
 
-namespace Das
+namespace Das.Serializer
 {
     public interface IObjectConverter
     {

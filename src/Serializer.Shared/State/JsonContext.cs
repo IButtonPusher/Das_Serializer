@@ -10,7 +10,7 @@ namespace Das.Serializer.State
             : base(dynamicFacade, settings)
         {
             var manipulator = new JsonNodeTypeProvider(dynamicFacade, settings);
-            PrimitiveScanner = new JsonPrimitiveScanner(this);
+            PrimitiveScanner = new JsonPrimitiveScanner(dynamicFacade.TypeInferrer);
             _nodeProvider = new TextNodeProvider(dynamicFacade, manipulator,
                 dynamicFacade.NodeTypeProvider, PrimitiveScanner, settings, string.Empty);
 

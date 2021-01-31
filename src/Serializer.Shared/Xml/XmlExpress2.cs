@@ -202,13 +202,10 @@ namespace Das.Serializer.Xml
                 if (!AdvanceScanState(txt, ref currentIndex, stringBuilder, ref nodeScanState))
                     return NodeTypes.None;
 
-                //checkScanState:
-
                 var isAttributeRelevant = true;
 
-                while (nodeScanState == NodeScanState.AttributeNameRead && 
-                    isAttributeRelevant)
-                {
+                while (nodeScanState == NodeScanState.AttributeNameRead &&
+                       isAttributeRelevant)
                     switch (stringBuilder.ToString())
                     {
                         case Const.XmlXsiAttribute:
@@ -218,9 +215,9 @@ namespace Das.Serializer.Xml
                             AdvanceScanState(txt, ref currentIndex, stringBuilder, ref nodeScanState);
                             break;
 
-                            //AdvanceScanStateUntil(txt, ref currentIndex, stringBuilder, 
-                            //    NodeScanState.AttributeNameRead, ref nodeScanState);
-                            
+                        //AdvanceScanStateUntil(txt, ref currentIndex, stringBuilder, 
+                        //    NodeScanState.AttributeNameRead, ref nodeScanState);
+
 
                         case Const.XmlType:
                             stringBuilder.Clear();
@@ -233,20 +230,7 @@ namespace Das.Serializer.Xml
                         default:
                             isAttributeRelevant = false;
                             break;
-
-
                     }
-                }
-
-                //if (nodeScanState == NodeScanState.AttributeNameRead &&
-                //    stringBuilder.ToString() == Const.XmlType)
-                //{
-                //    stringBuilder.Clear();
-                //    AdvanceScanState(txt, ref currentIndex, stringBuilder, ref nodeScanState);
-                //    var typeName = stringBuilder.GetConsumingString();
-                //    specifiedType = _typeInference.GetTypeFromClearName(typeName, true) ??
-                //                    throw new TypeLoadException(typeName);
-                //}
             }
 
             if (specifiedType == null)

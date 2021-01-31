@@ -16,14 +16,12 @@ namespace Das.Serializer
         }
 
 
-        public NodeTypes GetNodeType(INode node,
-                                     SerializationDepth depth)
+        public NodeTypes GetNodeType(INode node)
         {
-            return GetNodeType(node.Type, depth);
+            return GetNodeType(node.Type);
         }
 
-        public NodeTypes GetNodeType(Type? type,
-                                     SerializationDepth depth)
+        public NodeTypes GetNodeType(Type? type)
         {
             if (type == null)
                 return NodeTypes.Dynamic;

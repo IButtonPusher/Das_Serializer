@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    public abstract class BaseState : CoreContext,
+    public abstract class BaseState : SerializerCore,
                                       ISerializationState
     {
         protected BaseState(ISerializationCore stateProvider,

@@ -16,7 +16,7 @@ namespace Das.Serializer
 
         T FromXml<T>(String xml);
 
-        T FromXml<T>(Char[] xml);
+        //T FromXml<T>(Char[] xml);
 
         T FromXml<T>(Stream stream);
 

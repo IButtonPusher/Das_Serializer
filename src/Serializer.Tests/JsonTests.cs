@@ -36,6 +36,19 @@ namespace Serializer.Tests.Json
             Assert.True(isOk);
         }
 
+        
+        [Fact]
+        public void EmptyStringIsNotNull()
+        {
+            var eg = SimpleClass.GetExample<SimpleClass>();
+            eg.Name = string.Empty;
+
+            var json = Serializer.ToJson(eg);
+            var eg2 = Serializer.FromJson<SimpleClass>(json);
+
+            Assert.NotNull(eg2.Name);
+        }
+
         [Fact]
         public void BlockingJson()
         {

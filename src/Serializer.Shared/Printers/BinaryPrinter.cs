@@ -16,13 +16,17 @@ namespace Das.Printers
                                  ISerializationDepth
     {
         public BinaryPrinter(IBinaryWriter writer,
-                             IBinaryState stateProvider)
-            : base(stateProvider)
+                             //IBinaryState stateProvider,
+                             ISerializerSettings settings,
+                             ITypeInferrer typeInferrer,
+                             INodeTypeProvider nodeTypes,
+                             IObjectManipulator objectManipulator)
+            : base(settings, typeInferrer, nodeTypes, objectManipulator)
         {
             _fallbackFormatter = new BinaryFormatter();
             IsPrintNullProperties = true;
             _bWriter = writer;
-            _stateProvider = stateProvider;
+            //_stateProvider = stateProvider;
 
             IsTextPrinter = false;
         }
@@ -139,7 +143,7 @@ namespace Das.Printers
                 //using (var named = _printNodePool.GetNamedValue(name, val, propType))
                 //using (var print = _printNodePool.GetPrintNode(named))
                 {
-                    var nodeType = _nodeTypes.GetNodeType(propType, _settings.SerializationDepth);
+                    var nodeType = _nodeTypes.GetNodeType(propType);
                     PrintBinaryNode(val, propType!, nodeType, isWrapping, !isLeaf || isWrapping);
                 }
             }
@@ -502,7 +506,7 @@ namespace Das.Printers
         }
 
         private readonly BinaryFormatter _fallbackFormatter;
-        protected readonly ISerializationState _stateProvider;
+        //protected readonly ISerializationState _stateProvider;
 
         protected IBinaryWriter _bWriter;
     }

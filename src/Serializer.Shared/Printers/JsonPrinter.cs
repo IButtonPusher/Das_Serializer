@@ -9,9 +9,14 @@ namespace Das.Printers
 {
     public class JsonPrinter : TextPrinter
     {
-        public JsonPrinter(ITextRemunerable writer,
-                           ISerializationState stateProvider)
-            : base(writer, stateProvider)
+        public JsonPrinter(ITextRemunerable writer, 
+                           ISerializerSettings settings,
+                           ITypeInferrer typeInferrer,
+                           INodeTypeProvider nodeTypes,
+                           IObjectManipulator objectManipulator)
+                           //ISerializationState stateProvider)
+            : base(writer, //stateProvider, 
+                settings, typeInferrer, nodeTypes, objectManipulator)
         {
           //  _stateProvider = stateProvider;
         }
@@ -151,7 +156,7 @@ namespace Das.Printers
                 }
                 else if (!isWrapping)
                 {
-                    var res = _nodeTypes.GetNodeType(valType, Settings.SerializationDepth);
+                    var res = _nodeTypes.GetNodeType(valType);
                     //root node, we have to wrap primitives
                     if (res == NodeTypes.Primitive || res == NodeTypes.Fallback)
                     {
@@ -182,7 +187,7 @@ namespace Das.Printers
                 }
 
                 propType = valType;
-                var nodeType = _nodeTypes.GetNodeType(propType, _settings.SerializationDepth);
+                var nodeType = _nodeTypes.GetNodeType(propType);
                 PrintObject(val, propType, nodeType);
                 //using (var print = _printNodePool.GetPrintNode(node))
                 //{
@@ -203,35 +208,35 @@ namespace Das.Printers
         }
 
 
-        protected override void PrintSeries<T>(IEnumerable<T> values,
-                                               Action<T> print)
-        {
-            using (var itar = values.GetEnumerator())
-            {
-                if (!itar.MoveNext())
-                    return;
+        //protected override void PrintSeries<T>(IEnumerable<T> values,
+        //                                       Action<T> print)
+        //{
+        //    using (var itar = values.GetEnumerator())
+        //    {
+        //        if (!itar.MoveNext())
+        //            return;
 
-                var printSep = ShouldPrintValue(itar.Current);
-                if (printSep)
-                    print(itar.Current);
-
-
-                while (itar.MoveNext())
-                {
-                    var current = itar.Current;
-
-                    if (!ShouldPrintValue(current))
-                        continue;
-
-                    if (printSep)
-                        Writer.Append(SequenceSeparator);
+        //        var printSep = ShouldPrintValue(itar.Current);
+        //        if (printSep)
+        //            print(itar.Current);
 
 
-                    print(current);
-                    printSep = true;
-                }
-            }
-        }
+        //        while (itar.MoveNext())
+        //        {
+        //            var current = itar.Current;
+
+        //            if (!ShouldPrintValue(current))
+        //                continue;
+
+        //            if (printSep)
+        //                Writer.Append(SequenceSeparator);
+
+
+        //            print(current);
+        //            printSep = true;
+        //        }
+        //    }
+        //}
 
         protected override void PrintSeries(IEnumerable<KeyValuePair<object?, Type>> values,
                                             Action<object?, Type, Int32> print)
@@ -521,7 +526,7 @@ namespace Das.Printers
                                                       Type propType,
                                                       Int32 index)
         {
-            var nodeType = _nodeTypes.GetNodeType(propType, _settings.SerializationDepth);
+            var nodeType = _nodeTypes.GetNodeType(propType);
             PrintObject(o, propType, nodeType);
             //base.PrintCollectionObject(o, propType, index);
         }

@@ -3,17 +3,16 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    public abstract class CoreContext : SerializerCore,
-                                        ISerializationContext
+    public abstract class CoreContext : SerializerCore
     {
-        public CoreContext(ISerializationCore dynamicFacade,
-                           ISerializerSettings settings)
+        protected CoreContext(ISerializationCore dynamicFacade,
+                              ISerializerSettings settings)
             : base(dynamicFacade, settings)
         {
             //_typeConverters = new ConcurrentDictionary<Type, TypeConverter>();
         }
 
-        public abstract IScanNodeProvider ScanNodeProvider { get; }
+        //public abstract IScanNodeProvider ScanNodeProvider { get; }
 
         //public TypeConverter GetTypeConverter(Type type)
         //{

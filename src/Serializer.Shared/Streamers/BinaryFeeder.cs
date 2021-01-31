@@ -21,11 +21,6 @@ namespace Das.Streamers
             _currentEndIndex = (Int32) _currentBytes.Length - 1;
         }
 
-        #region fields
-
-        protected IByteArray _currentBytes;
-        protected Int32 _currentEndIndex;
-
         public virtual Int32 GetInt32()
         {
             return (Int32) GetPrimitive(typeof(Int32))!;
@@ -63,15 +58,6 @@ namespace Das.Streamers
 
         public virtual Boolean HasMoreBytes => _byteIndex < _currentEndIndex;
 
-        protected Int32 _byteIndex;
-
-        private readonly IBinaryPrimitiveScanner _scanner;
-        private readonly ITypeInferrer _typeInferrer;
-
-        #endregion
-
-
-        #region public interface
 
         /// <summary>
         ///     Returns the amount of bytes that the next object will use.  Advances
@@ -112,46 +98,6 @@ namespace Das.Streamers
             var bytes = GetBytes(4);
             var res = _scanner.GetValue(bytes, typeof(Single), false);
             return (Single) res!;
-        }
-
-
-        private Byte[]? GetPrimitiveBytes(Type type)
-        {
-            while (true)
-            {
-                if (type.IsValueType && !type.IsGenericType)
-                {
-                    var res = GetBytesForValueTypeObject(type);
-                    return res;
-                }
-
-                if (TryGetNullableType(type, out var asPrimitive))
-                {
-                    var hasValue = GetPrimitive<Boolean>();
-                    if (!hasValue)
-                        return null;
-
-                    type = asPrimitive!;
-                    continue;
-                }
-
-                var length = GetNextBlockSize();
-
-                if (IsString(type))
-                {
-                    if (length == -1) return null;
-                }
-                else if (length == 0)
-                    return null;
-
-                return GetBytes(length);
-            }
-        }
-
-        private Byte[] GetBytesForValueTypeObject(Type type)
-        {
-            var length = TypeInferrer.BytesNeeded(type);
-            return GetBytes(length);
         }
 
         /// <summary>
@@ -214,6 +160,53 @@ namespace Das.Streamers
             return res;
         }
 
-        #endregion
+        private Byte[] GetBytesForValueTypeObject(Type type)
+        {
+            var length = TypeInferrer.BytesNeeded(type);
+            return GetBytes(length);
+        }
+
+
+        private Byte[]? GetPrimitiveBytes(Type type)
+        {
+            while (true)
+            {
+                if (type.IsValueType && !type.IsGenericType)
+                {
+                    var res = GetBytesForValueTypeObject(type);
+                    return res;
+                }
+
+                if (TryGetNullableType(type, out var asPrimitive))
+                {
+                    var hasValue = GetPrimitive<Boolean>();
+                    if (!hasValue)
+                        return null;
+
+                    type = asPrimitive!;
+                    continue;
+                }
+
+                var length = GetNextBlockSize();
+
+                if (IsString(type))
+                {
+                    if (length == -1) return null;
+                }
+                else if (length == 0)
+                    return null;
+
+                return GetBytes(length);
+            }
+        }
+
+        private readonly IBinaryPrimitiveScanner _scanner;
+        private readonly ITypeInferrer _typeInferrer;
+
+        protected Int32 _byteIndex;
+
+
+        protected IByteArray _currentBytes;
+        protected Int32 _currentEndIndex;
     }
 }

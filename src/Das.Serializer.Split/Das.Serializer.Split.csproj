@@ -4,7 +4,7 @@
     <TargetFrameworks>netstandard2.1;net45;netstandard2.0</TargetFrameworks>
 	 <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.0.19-alpha</Version>
+    <Version>0.0.20-alpha</Version>
     <Configurations>Debug;Release;TEST_NO_CODEGENERATION</Configurations>
   </PropertyGroup>
 
@@ -35,7 +35,7 @@ o = serializer.FromJson(json);</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Das.Serializer.Interfaces" Version="0.0.19-alpha" />
+    <PackageReference Include="Das.Serializer.Interfaces" Version="0.0.20-alpha" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
   </ItemGroup>
   
@@ -49,8 +49,8 @@ o = serializer.FromJson(json);</Description>
    <LangVersion>9.0</LangVersion>
    <Nullable>enable</Nullable>
    <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
-   <AssemblyVersion>0.0.19.0</AssemblyVersion>
-   <FileVersion>0.0.19.0</FileVersion>
+   <AssemblyVersion>0.0.20.0</AssemblyVersion>
+   <FileVersion>0.0.20.0</FileVersion>
    <AnalysisLevel>none</AnalysisLevel>
 </PropertyGroup>
 

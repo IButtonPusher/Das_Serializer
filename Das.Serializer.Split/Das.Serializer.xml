@@ -77,6 +77,14 @@
                 Leaves the StringBuilder dirty!
             </summary>
         </member>
+        <member name="M:Das.Serializer.DasSerializer.GetProtoSerializer``1(Das.Serializer.IProtoBufOptions{``0})">
+            <summary>
+            Returns a protocol buffers serializer that uses TPropertyAttribute as the attribute
+            for determining member tags/indexes
+            </summary>
+            <seealso cref="F:Das.Serializer.ProtoBufOptions.Default">Default implementation that uses
+            Das.Serializer.IndexedMemberAttribute and its 'Index' Property</seealso>
+        </member>
         <member name="M:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1.ScanCollection(System.Type,Das.Serializer.ProtoBuf.IValueExtractor)">
             <summary>
                 ICollection[TProperty] where TProperty : ProtoContract
@@ -254,6 +262,11 @@
                 Returns the rest of the text if the text started with whenStartsWith
             </summary>
         </member>
+        <member name="M:Das.Serializer.TypeStructure.GetMembersToSerialize(Das.Serializer.ISerializationDepth)">
+            <summary>
+                Returns properties and/or fields depending on specified depth
+            </summary>
+        </member>
         <member name="F:Das.Serializer.Xml.XmlExpress2._beforeStringChars">
             <summary>
                 ' ', ", (space, double-quote, comma>
@@ -295,11 +308,6 @@
         <member name="M:Das.Streamers.BinaryFeeder.GetNextType">
             <summary>
                 takes the next 4 bytes for length then the next N bytes and turns them into a Type
-            </summary>
-        </member>
-        <member name="M:Das.TypeStructure.GetMembersToSerialize(Das.Serializer.ISerializationDepth)">
-            <summary>
-                Returns properties and/or fields depending on specified depth
             </summary>
         </member>
         <member name="M:Das.Types.DasTypeBuilder.GetDynamicType(System.String,System.Collections.Generic.IEnumerable{Das.Serializer.DasProperty},System.Boolean,System.Collections.Generic.IEnumerable{System.Reflection.EventInfo},System.Collections.Generic.IDictionary{System.Reflection.MethodInfo,System.Reflection.MethodInfo},System.Type[])">

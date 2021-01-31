@@ -5,29 +5,35 @@ namespace Das.Serializer
 {
     public class BinaryState : BaseState, IBinaryState
     {
-        internal BinaryState(IStateProvider stateProvider,
+        internal BinaryState(ISerializationCore stateProvider,
                              ISerializerSettings settings,
-                             Func<IBinaryState, BinaryScanner> getScanner,
-                             Func<ISerializationCore, ISerializerSettings, IBinaryPrimitiveScanner> getPrimitiveScanner)
+                             //Func<IBinaryState, BinaryScanner> getScanner,
+                             //Func<BinaryScanner> getScanner,
+                             BinaryScanner binaryScanner,
+                             IBinaryNodeProvider binaryNodeProvider,
+                             IBinaryPrimitiveScanner primitiveScanner)
+                             //Func<ISerializationCore, ISerializerSettings, IBinaryPrimitiveScanner> getPrimitiveScanner)
             : base(stateProvider, settings)
         {
             _settings = settings;
-            PrimitiveScanner = getPrimitiveScanner(stateProvider, settings);
-            _nodeProvider = stateProvider.ScanNodeProvider as IBinaryNodeProvider
-                            ?? throw new InvalidCastException(stateProvider.ScanNodeProvider.GetType().Name);
+            PrimitiveScanner = primitiveScanner; //getPrimitiveScanner(stateProvider, settings);
+            _nodeProvider = binaryNodeProvider;
+            //_nodeProvider = stateProvider.ScanNodeProvider as IBinaryNodeProvider
+            //                ?? throw new InvalidCastException(stateProvider.ScanNodeProvider.GetType().Name);
 
-            _scanner = getScanner(this);
-            Scanner = _scanner;
+            //_scanner = getScanner(this);
+            _scanner = binaryScanner;
+            //Scanner = _scanner;
         }
 
 
-        public IBinaryScanner Scanner { get; }
+        public IBinaryScanner Scanner => _scanner;
 
         public IBinaryPrimitiveScanner PrimitiveScanner { get; }
 
         IBinaryNodeProvider IBinaryContext.ScanNodeProvider => _nodeProvider;
 
-        public override IScanNodeProvider ScanNodeProvider => _nodeProvider;
+        //public override IScanNodeProvider ScanNodeProvider => _nodeProvider;
 
         public override ISerializerSettings Settings
         {

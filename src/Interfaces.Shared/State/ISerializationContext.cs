@@ -6,7 +6,7 @@ namespace Das.Serializer
     public interface ISerializationContext : ISerializationCore,
                                              ISettingsUser
     {
-        IScanNodeProvider ScanNodeProvider { get; }
+        //IScanNodeProvider ScanNodeProvider { get; }
 
         //TypeConverter GetTypeConverter(Type type);
     }

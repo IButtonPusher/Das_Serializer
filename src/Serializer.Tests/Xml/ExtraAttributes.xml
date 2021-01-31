@@ -1,0 +1,5 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Serializer.Tests.SimpleClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Animal="Sheep" DateOfBirth="1980-09-04" GPA="3.14" HasCompletedOrientation="true" HireDate="2000-12-21" Name="Bobby Tables">
+  <ShiftPreference xmlns="http://tempuri.org/">09:00:00</ShiftPreference>
+  <ID xmlns="http://tempuri.org/">345</ID>
+</Serializer.Tests.SimpleClass>

@@ -156,15 +156,14 @@ namespace Das.Serializer
                                    NodeTypes specified)
         {
             if (specified == NodeTypes.None)
-                node.NodeType = _nodeTypeProvider.GetNodeType(node.Type,
-                    Settings.SerializationDepth);
+                node.NodeType = _nodeTypeProvider.GetNodeType(node.Type);
             else
                 node.NodeType = specified;
         }
 
         public void EnsureNodeType(INode node)
         {
-            node.NodeType = _nodeTypeProvider.GetNodeType(node.Type, Settings.SerializationDepth);
+            node.NodeType = _nodeTypeProvider.GetNodeType(node.Type);
         }
 
         protected virtual Boolean TryGetExplicitType(INode node,

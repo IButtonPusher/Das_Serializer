@@ -52,7 +52,7 @@ namespace Das.Serializer
                                         Type asType)
         {
             var settings = Settings;
-            var nodeType = NodeTypeProvider.GetNodeType(asType, Settings.SerializationDepth);
+            var nodeType = NodeTypeProvider.GetNodeType(asType);
 
             using (var writer = new StringSaver())
             {
@@ -62,6 +62,9 @@ namespace Das.Serializer
                 if (nodeType == NodeTypes.PropertiesToConstructor)
                 {
                     doCopy = false;
+
+                    
+
                     settings = StateProvider.ObjectConverter.Copy(settings, settings);
                     settings.TypeSpecificity = TypeSpecificity.All;
                 }
@@ -75,9 +78,11 @@ namespace Das.Serializer
                     settings.CacheTypeConstructors = false;
                 }
 
-                using (var state = StateProvider.BorrowXml(settings))
+                //using (var state = StateProvider.BorrowXml(settings))
                 {
-                    var printer = new XmlPrinter(writer, state, settings);
+                    var printer = new XmlPrinter(writer, //state, 
+                        settings, StateProvider.TypeInferrer, StateProvider.NodeTypeProvider,
+                        StateProvider.ObjectManipulator);
 
                     var rootText = TypeInferrer.ToClearNameNoGenericArgs(asType, true);
                     //var rootText = !asType.IsGenericType && !IsCollection(asType)

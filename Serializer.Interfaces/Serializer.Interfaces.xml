@@ -26,6 +26,12 @@
                 Gets a dynamic type in a wrapper that allows for properties to be accessed quickly
             </summary>
         </member>
+        <member name="M:Das.Serializer.IObjectConverter.ConvertEx``1(System.Object,Das.Serializer.ISerializerSettings)">
+            <summary>
+                If obj is of type T, returns (T)obj.  Otherwise, instantiates an
+                object of T then does a memberwise deep copy from obj's members that match T's
+            </summary>
+        </member>
         <member name="M:Das.Serializer.IObjectManipulator.CastDynamic``1(System.Object)">
             <summary>
                 Tries to cast or convert as IConvertible or via an implicit type conversion.
@@ -35,7 +41,7 @@
                 conversion exists
             </exception>
         </member>
-        <member name="M:Das.Serializer.IObjectManipulator.CastDynamic``1(System.Object,Das.IObjectConverter,Das.Serializer.ISerializerSettings)">
+        <member name="M:Das.Serializer.IObjectManipulator.CastDynamic``1(System.Object,Das.Serializer.IObjectConverter,Das.Serializer.ISerializerSettings)">
             <summary>
                 Tries to cast or convert as IConvertible. Otherwise creates a new T
                 and deep copies all compatible property values
@@ -542,22 +548,6 @@
             <summary>
                 A stateful, non threadsafe context that forms the basis of serialization/deserialization
                 transactions
-            </summary>
-        </member>
-        <member name="T:Das.Serializer.ITextContext">
-            <summary>
-                Stateless facade for text based deserialization
-            </summary>
-        </member>
-        <member name="T:Das.Serializer.ITextState">
-            <summary>
-                Stateful and not thread safe
-            </summary>
-        </member>
-        <member name="M:Das.IObjectConverter.ConvertEx``1(System.Object,Das.Serializer.ISerializerSettings)">
-            <summary>
-                If obj is of type T, returns (T)obj.  Otherwise, instantiates an
-                object of T then does a memberwise deep copy from obj's members that match T's
             </summary>
         </member>
         <member name="M:Das.Streamers.IBinaryFeeder.GetNextBlockSize">

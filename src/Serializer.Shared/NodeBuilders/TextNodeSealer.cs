@@ -31,7 +31,7 @@ namespace Das.Serializer
                 _values.InferType(node);
 
             if (node.NodeType == NodeTypes.None)
-                node.NodeType = _typeProvider.GetNodeType(node, Settings.SerializationDepth);
+                node.NodeType = _typeProvider.GetNodeType(node);
 
             switch (node.NodeType)
             {
@@ -78,9 +78,9 @@ namespace Das.Serializer
                         {
                             if (Settings.PropertySearchDepth == TextPropertySearchDepths.AsTypeInLoadedModules)
                                 val = str;
-                            else if (Settings.AttributeValueSurrogates.TryGetValue(node,
-                                key, str, out var found))
-                                val = found;
+                            //else if (Settings.AttributeValueSurrogates.TryGetValue(node,
+                            //    key, str, out var found))
+                            //    val = found;
                             else continue;
                         }
 

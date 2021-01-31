@@ -95,8 +95,7 @@ namespace Das.Serializer
 
                 if (!IsUseless(Type))
                 {
-                    NodeType = _nodeTypeProvider.GetNodeType(Type,
-                        Settings.SerializationDepth);
+                    NodeType = _nodeTypeProvider.GetNodeType(Type);
 
                     if (node.Type == null)
                     {

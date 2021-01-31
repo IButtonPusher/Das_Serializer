@@ -6,13 +6,15 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    public interface IMultiSerializer : IJsonSerializer, IBinarySerializer,
-                                        IXmlSerializer, ISerializationState
+    public interface IMultiSerializer : IJsonSerializer, 
+                                        IBinarySerializer,
+                                        IXmlSerializer, 
+                                        ISerializationState
     {
         IStateProvider StateProvider { get; }
 
         IProtoSerializer GetProtoSerializer<TPropertyAttribute>(
-            ProtoBufOptions<TPropertyAttribute> options)
+            IProtoBufOptions<TPropertyAttribute> options)
             where TPropertyAttribute : Attribute;
 
         void SetTypeSurrogate(Type looksLike,

@@ -12,11 +12,15 @@ namespace Das.Printers
     public class XmlPrinter : TextPrinter
     {
         public XmlPrinter(ITextRemunerable writer,
-                          ISerializationState stateProvider,
-                          ISerializerSettings settings)
-            : base(writer, stateProvider, settings)
+                          //ISerializationState stateProvider,
+                          ISerializerSettings settings,
+                          ITypeInferrer typeInferrer,
+                          INodeTypeProvider nodeTypes,
+                          IObjectManipulator objectManipulator)
+            : base(writer, //stateProvider, 
+                settings, typeInferrer, nodeTypes, objectManipulator)
         {
-            _stateProvider = stateProvider;
+            //_stateProvider = stateProvider;
             PathSeparator = '/';
             PathAttribute = Const.RefTag;
             _formatStack.Push(new StackFormat(-1, false));
@@ -199,8 +203,7 @@ namespace Das.Printers
                 var valType = nodeValue.GetType();
                 var isWrapping = IsWrapNeeded(propType, valType);
 
-                var nodeType = _nodeTypes.GetNodeType(valType,
-                    Settings.SerializationDepth);
+                var nodeType = _nodeTypes.GetNodeType(valType);
                 var parent = _formatStack.Pop();
 
                 /////////////////////////
@@ -262,7 +265,7 @@ namespace Das.Printers
                     if (!amAnonymous)
                     {
                         //embed type info
-                        var typeName = _stateProvider.TypeInferrer.ToClearName(valType, false);
+                        var typeName = _typeInferrer.ToClearName(valType, false);
 
                         typeName = SecurityElement.Escape(typeName);
 
@@ -279,9 +282,9 @@ namespace Das.Printers
                         Writer.Append(CloseAttributes);
                     }
                 }
-                else if (_stateProvider.TypeInferrer.IsLeaf(propType, true)
+                else if (_typeInferrer.IsLeaf(propType, true)
                          || nodeType == NodeTypes.Fallback && current.IsTagOpen
-                         || _stateProvider.TypeInferrer.TryGetNullableType(propType, out _))
+                         || _typeInferrer.TryGetNullableType(propType, out _))
                 {
                     //if we got here with a leaf then the regular logic of trying to make it an attribute 
                     //doesn't apply => self close
@@ -354,7 +357,7 @@ namespace Das.Printers
         {
             IsPrintingLeaf = true;
             Writer.Append($" {nodeName}={Const.Quote}");
-            var res = _nodeTypes.GetNodeType(propType, Settings.SerializationDepth);
+            var res = _nodeTypes.GetNodeType(propType);
             var nodeType = res;
             PrintObject(val, propType, nodeType);
             Writer.Append(Const.Quote);
@@ -405,7 +408,7 @@ namespace Das.Printers
 
             if (!knownEmpty)
             {
-                var germane = _stateProvider.TypeInferrer.GetGermaneType(nodeType);
+                var germane = _typeInferrer.GetGermaneType(nodeType);
 
                 TabOut();
 
@@ -485,7 +488,7 @@ namespace Das.Printers
         private const Char CloseAttributes = '>';
         private const Char OpenAttributes = '<';
 
-        private readonly ISerializationState _stateProvider;
+        //private readonly ISerializationState _stateProvider;
 
         protected Boolean IsPrintingLeaf;
     }

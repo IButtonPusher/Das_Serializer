@@ -70,9 +70,12 @@ namespace Das.Serializer
         {
             using (var sp = _escapeSaver.Value!)
             {
-                using (var state = StateProvider.BorrowJson(Settings))
+                //using (var state = StateProvider.BorrowJson(Settings))
                 {
-                    var jp = new JsonPrinter(sp, state);
+                    var jp = new JsonPrinter(sp, 
+                        Settings, StateProvider.TypeInferrer, StateProvider.NodeTypeProvider,
+                        StateProvider.ObjectManipulator);
+                        //state);
 
                     //String str1, str2;
 

@@ -13,32 +13,34 @@ namespace Das.Serializer
     {
         public Object FromJson(String json)
         {
-            #if ALWAYS_EXPRESS
+            //#if ALWAYS_EXPRESS
+            
 
             return JsonExpress.Deserialize<Object>(json, Settings, _empty);
 
-            #else
-            using (var state = StateProvider.BorrowJson(Settings))
-            {
-                return state.Scanner.Deserialize<Object>(json);
-            }
+            //#else
+            //using (var state = StateProvider.BorrowJson(Settings))
+            //{
+            //    return state.Scanner.Deserialize<Object>(json);
+            //}
 
-            #endif
+            //#endif
         }
 
         public T FromJson<T>(String json)
         {
-            #if ALWAYS_EXPRESS
+            //#if ALWAYS_EXPRESS
+            
 
             return JsonExpress.Deserialize<T>(json, Settings, _empty);
 
-            #else
-            using (var state = StateProvider.BorrowJson(Settings))
-            {
-                var res = state.Scanner.Deserialize<T>(json);
-                return res;
-            }
-            #endif
+            //#else
+            //using (var state = StateProvider.BorrowJson(Settings))
+            //{
+            //    var res = state.Scanner.Deserialize<T>(json);
+            //    return res;
+            //}
+            //#endif
         }
 
         public object FromJson(String json,
@@ -75,24 +77,25 @@ namespace Das.Serializer
 
         public virtual T FromJson<T>(Stream stream)
         {
-            #if ALWAYS_EXPRESS
+            //#if ALWAYS_EXPRESS
+            
 
             using (var sr = new StreamReader(stream))
             {
                 var txt = sr.ReadToEnd();
                 return JsonExpress.Deserialize<T>(txt, Settings, _empty);
             }
-            #else
-            var streamWrap = new StreamStreamer(stream);
+            //#else
+            //var streamWrap = new StreamStreamer(stream);
 
-            using (var state = StateProvider.BorrowJson(Settings))
-            {
-                var res = state.Scanner.Deserialize<T>(streamWrap);
-                return res;
-            }
+            //using (var state = StateProvider.BorrowJson(Settings))
+            //{
+            //    var res = state.Scanner.Deserialize<T>(streamWrap);
+            //    return res;
+            //}
 
-            //return FromJsonCharArray<T>(streamWrap);
-            #endif
+            ////return FromJsonCharArray<T>(streamWrap);
+            //#endif
         }
 
         public virtual async Task<T> FromJsonAsync<T>(Stream stream)
@@ -102,21 +105,22 @@ namespace Das.Serializer
             await _readAsync(stream, buffer, 0, buffer.Length);
             var encoding = buffer.GetEncoding();
             
-            #if ALWAYS_EXPRESS
+            //#if ALWAYS_EXPRESS
+            
 
             var str = encoding.GetString(buffer, 0, buffer.Length);
             return JsonExpress.Deserialize<T>(str, Settings, _empty);
 
-            #else
+            //#else
 
-            var chars = encoding.GetChars(buffer, 0, buffer.Length);
-            using (var state = StateProvider.BorrowJson(Settings))
-            {
-                var res = state.Scanner.Deserialize<T>(chars);
-                return res;
-            }
+            //var chars = encoding.GetChars(buffer, 0, buffer.Length);
+            //using (var state = StateProvider.BorrowJson(Settings))
+            //{
+            //    var res = state.Scanner.Deserialize<T>(chars);
+            //    return res;
+            //}
 
-            #endif
+            //#endif
         }
 
         public override void Dispose()

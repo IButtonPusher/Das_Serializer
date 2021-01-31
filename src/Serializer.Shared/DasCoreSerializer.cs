@@ -28,31 +28,37 @@ namespace Das.Serializer
             _readToEndAsync = readToEndAsync;
             _readAsync = readAsync;
 
+            var jsonPrimitiveScanner = new JsonPrimitiveScanner(TypeInferrer);
+            var xmlPrimitiveScanner = new XmlPrimitiveScanner(this);
+
             JsonExpress = new JsonExpress(ObjectInstantiator, TypeManipulator,
                 TypeInferrer, stateProvider.ObjectManipulator,
-                stateProvider.JsonContext.PrimitiveScanner,
+                //stateProvider.JsonContext.PrimitiveScanner,
+                jsonPrimitiveScanner,
                 DynamicTypes);
 
 
             XmlExpress = new XmlExpress2(ObjectInstantiator, TypeManipulator,
-                stateProvider.ObjectManipulator, stateProvider.XmlContext.PrimitiveScanner,
+                stateProvider.ObjectManipulator, 
+                xmlPrimitiveScanner,
+                //stateProvider.XmlContext.PrimitiveScanner,
                 TypeInferrer, _settings, DynamicTypes);
 
             AttributeParser = new XmlPrimitiveScanner(this);
         }
 
-        public DasCoreSerializer(IStateProvider stateProvider,
-                                 Func<TextWriter, String, Task> writeAsync,
-                                 Func<TextReader, Task<String>> readToEndAsync,
-                                 Func<Stream, Byte[], Int32, Int32, Task<Int32>> readAsync)
-            : this(stateProvider, stateProvider.Settings, writeAsync, readToEndAsync, readAsync)
-        {
-        }
+        //public DasCoreSerializer(IStateProvider stateProvider,
+        //                         Func<TextWriter, String, Task> writeAsync,
+        //                         Func<TextReader, Task<String>> readToEndAsync,
+        //                         Func<Stream, Byte[], Int32, Int32, Task<Int32>> readAsync)
+        //    : this(stateProvider, stateProvider.Settings, writeAsync, readToEndAsync, readAsync)
+        //{
+        //}
 
         public IStateProvider StateProvider { get; }
 
-        public override IScanNodeProvider ScanNodeProvider
-            => StateProvider.BinaryContext.ScanNodeProvider;
+        //public override IScanNodeProvider ScanNodeProvider
+        //    => StateProvider.BinaryContext.ScanNodeProvider;
 
         public void SetTypeSurrogate(Type looksLike,
                                      Type isReally)
@@ -78,7 +84,7 @@ namespace Das.Serializer
         }
 
         public virtual IProtoSerializer GetProtoSerializer<TPropertyAttribute>(
-            ProtoBufOptions<TPropertyAttribute> options)
+            IProtoBufOptions<TPropertyAttribute> options)
             where TPropertyAttribute : Attribute
         {
             return new ProtoBufSerializer(StateProvider, Settings,

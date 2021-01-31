@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Das
+namespace Das.Serializer
 {
     public class SerializeAsTypeAttribute : Attribute
     {
@@ -11,5 +11,11 @@ namespace Das
         }
 
         public Type TargetType { get; }
+    }
+
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class IndexedMemberAttribute : Attribute
+    {
+        public Int32 Index { get; set; }
     }
 }

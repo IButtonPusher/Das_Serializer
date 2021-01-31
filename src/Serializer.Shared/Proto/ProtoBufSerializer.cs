@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer.ProtoBuf
 {
-    public class ProtoBufSerializer : CoreContext, IProtoSerializer
+    public class ProtoBufSerializer : SerializerCore, IProtoSerializer
     {
         static ProtoBufSerializer()
         {
@@ -94,8 +94,8 @@ namespace Das.Serializer.ProtoBuf
         #endif
 
 
-        public override IScanNodeProvider ScanNodeProvider
-            => StateProvider.BinaryContext.ScanNodeProvider;
+        //public override IScanNodeProvider ScanNodeProvider
+        //    => StateProvider.BinaryContext.ScanNodeProvider;
 
         public IStateProvider StateProvider { get; }
 

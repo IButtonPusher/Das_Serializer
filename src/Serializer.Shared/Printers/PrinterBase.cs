@@ -11,14 +11,18 @@ namespace Das.Printers
 {
     public abstract class PrinterBase : TypeCore, ISerializationDepth
     {
-        protected PrinterBase(ISerializationState stateProvider,
-                              ISerializerSettings settings)
+        protected PrinterBase(//ISerializationState stateProvider,
+                              ISerializerSettings settings,
+                              ITypeInferrer typeInferrer, 
+                              INodeTypeProvider nodeTypes,
+                              IObjectManipulator objectManipulator)
             : base(settings)
         {
             //Settings = settings;
-            _stateProvider = stateProvider;
-            _typeInferrer = stateProvider.TypeInferrer;
-            _nodeTypes = stateProvider.ScanNodeProvider.TypeProvider;
+            //_stateProvider = stateProvider;
+            _typeInferrer = typeInferrer; //stateProvider.TypeInferrer;
+            _nodeTypes = nodeTypes; //stateProvider.ScanNodeProvider.TypeProvider;
+            _objectManipulator = objectManipulator;
             //_nodeProvider = stateProvider.ScanNodeProvider;
             //_printNodePool = stateProvider.PrintNodePool;
             _pathReferences = new HashSet<Object>();
@@ -27,7 +31,7 @@ namespace Das.Printers
             _pathObjects = new List<Object?>();
             PathAttribute = "$ref";
             IsTextPrinter = true;
-            _isIgnoreCircularDependencies = stateProvider.Settings.CircularReferenceBehavior
+            _isIgnoreCircularDependencies = settings.CircularReferenceBehavior
                                             == CircularReference.NoValidation;
 
             IsPrintNullProperties |= settings.CircularReferenceBehavior == CircularReference.IgnoreObject;
@@ -36,10 +40,11 @@ namespace Das.Printers
         }
 
 
-        protected PrinterBase(ISerializationState stateProvider)
-            : this(stateProvider, stateProvider.Settings)
-        {
-        }
+        //protected PrinterBase(ISerializationState stateProvider,
+        //                      ITypeInferrer typeInferrer)
+        //    : this(stateProvider, stateProvider.Settings, typeInferrer)
+        //{
+        //}
 
         Boolean ISerializationDepth.IsOmitDefaultValues => Settings.IsOmitDefaultValues;
 
@@ -117,7 +122,7 @@ namespace Das.Printers
                     if (_typeInferrer.IsUseless(declaredType))
                         return true;
 
-                    var res = _nodeTypes.GetNodeType(objectType, Settings.SerializationDepth);
+                    var res = _nodeTypes.GetNodeType(objectType);
 
                     if (res == NodeTypes.Fallback)
                         return false;
@@ -361,7 +366,8 @@ namespace Das.Printers
         protected virtual void PrintReferenceType(Object? value,
                                                   Type valType)
         {
-            var properyValues = _stateProvider.ObjectManipulator.GetPropertyResults(value, valType, this);
+            //var properyValues = _stateProvider.ObjectManipulator.GetPropertyResults(value, valType, this);
+            var properyValues = _objectManipulator.GetPropertyResults(value, valType, this);
             PrintProperties(properyValues, PrintProperty);
         }
 
@@ -375,14 +381,14 @@ namespace Das.Printers
             }
         }
 
-        protected virtual void PrintSeries<T>(IEnumerable<T> values,
-                                              Action<T> print)
-        {
-            foreach (var val in values)
-            {
-                print(val);
-            }
-        }
+        //protected virtual void PrintSeries<T>(IEnumerable<T> values,
+        //                                      Action<T> print)
+        //{
+        //    foreach (var val in values)
+        //    {
+        //        print(val);
+        //    }
+        //}
 
         protected void PushStack(String str)
         {
@@ -486,6 +492,7 @@ namespace Das.Printers
         protected readonly Boolean _isIgnoreCircularDependencies;
         private readonly Boolean _isOmitDefaultProperties;
         protected readonly INodeTypeProvider _nodeTypes;
+        private readonly IObjectManipulator _objectManipulator;
 
         //to map the order to property names
         private readonly List<Object?> _pathObjects;
@@ -498,7 +505,7 @@ namespace Das.Printers
         //protected readonly INodePool _printNodePool;
 
 
-        private readonly ISerializationState _stateProvider;
+        //private readonly ISerializationState _stateProvider;
         protected readonly ITypeInferrer _typeInferrer;
         //protected IScanNodeProvider _nodeProvider;
 

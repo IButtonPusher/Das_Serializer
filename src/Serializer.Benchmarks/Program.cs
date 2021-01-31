@@ -132,11 +132,11 @@ namespace Serializer.Benchmarks
                 return Serializer.FromXml<ObjectDictionary>(_xmlString);
             }
 
-            [Benchmark]
-            public ObjectDictionary DeserializeEnumerable()
-            {
-                return Serializer.FromXml<ObjectDictionary>(_xmlEnumerable);
-            }
+            //[Benchmark]
+            //public ObjectDictionary DeserializeEnumerable()
+            //{
+            //    return Serializer.FromXml<ObjectDictionary>(_xmlEnumerable);
+            //}
 
             private Char[] _xmlEnumerable;
             private String _xmlString;

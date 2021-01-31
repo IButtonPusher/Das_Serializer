@@ -18,7 +18,7 @@ namespace Das.Serializer.ProtoBuf
     public partial class ProtoDynamicProvider<TPropertyAttribute>
         where TPropertyAttribute : Attribute
     {
-        public ProtoDynamicProvider(ProtoBufOptions<TPropertyAttribute> protoSettings,
+        public ProtoDynamicProvider(IProtoBufOptions<TPropertyAttribute> protoSettings,
                                     ITypeManipulator typeManipulator,
                                     IInstantiator instantiator,
                                     IObjectManipulator objects)
@@ -542,7 +542,7 @@ namespace Das.Serializer.ProtoBuf
         private readonly ModuleBuilder _moduleBuilder;
         private readonly IObjectManipulator _objects;
 
-        private readonly ProtoBufOptions<TPropertyAttribute> _protoSettings;
+        private readonly IProtoBufOptions<TPropertyAttribute> _protoSettings;
 
         private readonly FieldInfo _proxyProviderField;
 

@@ -6,10 +6,10 @@ namespace Das.Serializer
     /// <summary>
     ///     Stateless facade for binary deserialization
     /// </summary>
-    public interface IBinaryContext : ISerializationContext
+    public interface IBinaryContext : ISerializationCore
     {
         IBinaryPrimitiveScanner PrimitiveScanner { get; }
 
-        new IBinaryNodeProvider ScanNodeProvider { get; }
+        IBinaryNodeProvider ScanNodeProvider { get; }
     }
 }

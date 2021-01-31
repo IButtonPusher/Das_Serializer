@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Das.Serializer.Scanners;
 
 // ReSharper disable UnusedMember.Global
 // ReSharper disable UnusedMemberInSuper.Global
@@ -9,7 +8,7 @@ namespace Das.Serializer
 {
     public interface ISerializerSettings : ISerializationDepth
     {
-        IAttributeValueSurrogates AttributeValueSurrogates { get; set; }
+        //IAttributeValueSurrogates AttributeValueSurrogates { get; set; }
 
         /// <summary>
         ///     Specifies whether ConstructorInfo methods will be turned into delegates and cached

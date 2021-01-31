@@ -131,13 +131,14 @@ namespace Das.Serializer.Scanners
                         {
                             switch (stringBuilder.GetConsumingString())
                             {
-                                case Const.XmlXsiAttribute:
+                                //case Const.XmlXsiAttribute:
+                                default: //todo: do we ever care about an attribute value here?
                                     AdvanceScanState(txt, ref currentIndex, stringBuilder, ref nodeScanState);
                                     stringBuilder.Clear();
                                     break;
 
-                                default:
-                                    throw new NotImplementedException();
+                                //default:
+                                //    throw new NotImplementedException();
                             }
                         }
 
@@ -186,7 +187,13 @@ namespace Das.Serializer.Scanners
 
                             case TypeCode.DateTime:
                                 LoadNextPrimitive(ref currentIndex, txt, stringBuilder);
-                                child = DateTime.Parse(stringBuilder.GetConsumingString());
+                                if (DateTime.TryParse(stringBuilder.GetConsumingString(),
+                                    out var dtGood))
+                                {
+                                    child = dtGood;
+                                }
+                                else child = DateTime.MinValue;
+                                //child = DateTime.Parse(stringBuilder.GetConsumingString());
 
                                 return child;
 

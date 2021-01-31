@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Das.Serializer.Scanners;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable UnusedMember.Global
@@ -21,7 +20,7 @@ namespace Das.Serializer
             SerializationDepth = SerializationDepth.GetSetProperties;
             TypeSearchNameSpaces = new[] {Const.Tsystem};
             CacheTypeConstructors = true;
-            AttributeValueSurrogates = new NullAttributeValueSurrogates();
+            //AttributeValueSurrogates = new NullAttributeValueSurrogates();
             IsUseAttributesInXml = true;
             PrintJsonPropertiesFormat = PrintPropertyFormat.Default;
         }
@@ -51,7 +50,7 @@ namespace Das.Serializer
         /// </summary>
         public TypeSpecificity TypeSpecificity { get; set; }
 
-        public IAttributeValueSurrogates AttributeValueSurrogates { get; set; }
+        //public IAttributeValueSurrogates AttributeValueSurrogates { get; set; }
 
         public CircularReference CircularReferenceBehavior { get; set; }
 

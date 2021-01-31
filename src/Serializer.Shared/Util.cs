@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace Das
+namespace Das.Serializer
 {
     public static class DasUtil
     {

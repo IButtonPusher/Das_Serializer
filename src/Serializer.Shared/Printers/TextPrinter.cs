@@ -9,24 +9,30 @@ namespace Das.Printers
     public abstract class TextPrinter : PrinterBase
     {
         protected TextPrinter(ITextRemunerable writer,
-                              ISerializationState stateProvider,
-                              ISerializerSettings settings)
-            : base(stateProvider, settings)
+                              //ISerializationState stateProvider,
+                              ISerializerSettings settings,
+                              ITypeInferrer typeInferrer,
+                              INodeTypeProvider nodeTypes,
+                              IObjectManipulator objectManipulator)
+            : base(//stateProvider, 
+                settings, typeInferrer, nodeTypes, objectManipulator)
         {
             writer.Undispose();
             Writer = writer;
             _tabs = new StringBuilder();
             _formatStack = new Stack<StackFormat>();
-            _indenter = stateProvider.Settings.Indentation;
-            _newLine = stateProvider.Settings.NewLine;
+            _indenter = settings.Indentation;
+            _newLine = settings.NewLine;
             _indentLength = _indenter.Length;
         }
 
-        protected TextPrinter(ITextRemunerable writer,
-                              ISerializationState stateProvider)
-            : this(writer, stateProvider, stateProvider.Settings)
-        {
-        }
+        //protected TextPrinter(ITextRemunerable writer,
+        //                      ISerializationState stateProvider,
+        //                      ITypeInferrer typeInferrer)
+        //    : this(writer, stateProvider, stateProvider.Settings,
+        //        typeInferrer)
+        //{
+        //}
 
         protected String Tabs => _tabs.ToString();
 

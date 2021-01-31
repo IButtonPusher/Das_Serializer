@@ -6,9 +6,17 @@ namespace Das.Serializer
 {
     public class BinaryScanner : SerializerCore, IBinaryScanner
     {
-        public BinaryScanner(IBinaryContext state) : base(state, state.Settings)
+        public BinaryScanner(IBinaryContext state,
+                             ISerializerSettings settings,
+                             ITypeManipulator typeManipulator,
+                             IObjectManipulator objectManipulator,
+                             IInstantiator objectInstantiator)
+            : base(state, settings)
         {
-            _state = state;
+            //_state = state;
+            _typeManipulator = typeManipulator;
+            _objectManipulator = objectManipulator;
+            _objectInstantiator = objectInstantiator;
             _nodes = state.ScanNodeProvider;
             _nodeManipulator = state.ScanNodeManipulator;
         }
@@ -79,7 +87,7 @@ namespace Das.Serializer
                     return;
             }
 
-            var propVals = _state.TypeManipulator.GetPropertiesToSerialize(
+            var propVals = _typeManipulator.GetPropertiesToSerialize(
                 node.Type!, Settings);
 
             foreach (var prop in propVals)
@@ -147,10 +155,10 @@ namespace Das.Serializer
             BuildNext(ref _rootNode);
 
             if (_rootNode.Type != orgType)
-                return ObjectManipulator.CastDynamic<T>(_rootNode.Value!);
+                return _objectManipulator.CastDynamic<T>(_rootNode.Value!);
 
             if (_rootNode.Value != null)
-                _state.ObjectInstantiator.OnDeserialized(_rootNode, Settings);
+                _objectInstantiator.OnDeserialized(_rootNode, Settings);
 
             return (T) _rootNode.Value!;
         }
@@ -194,7 +202,10 @@ namespace Das.Serializer
         private static readonly NullNode NullNode = NullNode.Instance;
         private readonly INodeManipulator _nodeManipulator;
         protected readonly IBinaryNodeProvider _nodes;
-        protected readonly IBinaryContext _state;
+        //protected readonly IBinaryContext _state;
+        private readonly ITypeManipulator _typeManipulator;
+        private readonly IObjectManipulator _objectManipulator;
+        private readonly IInstantiator _objectInstantiator;
         private IBinaryFeeder? _feeder;
         private IBinaryNode? _rootNode;
     }

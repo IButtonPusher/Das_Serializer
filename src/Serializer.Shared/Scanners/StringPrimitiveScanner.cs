@@ -15,8 +15,21 @@ namespace Das.Serializer
                                Type type,
                                Boolean wasInputInQuotes)
         {
-            if (string.IsNullOrEmpty(input))
+            if (ReferenceEquals(null, input))
                 return default!;
+
+            if (string.Equals(string.Empty, input))
+            {
+                if (type == Const.StrType)
+                    return input;
+
+                return default!;
+            }
+
+            if (string.IsNullOrEmpty(input))
+            {
+                return default!;
+            }
 
             if (type == Const.ObjectType)
             {

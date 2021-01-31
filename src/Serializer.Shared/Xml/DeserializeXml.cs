@@ -13,20 +13,20 @@ namespace Das.Serializer
     {
         public Object FromXml(String xml)
         {
-            #if ALWAYS_EXPRESS
+            //#if ALWAYS_EXPRESS
             return XmlExpress.Deserialize<Object>(xml, Settings, _empty);
-            #else
-            return _FromXml<Object>(xml);
-            #endif
+            //#else
+            //return _FromXml<Object>(xml);
+            //#endif
         }
 
         public T FromXml<T>(String xml)
         {
-            #if ALWAYS_EXPRESS
+            //#if ALWAYS_EXPRESS
             return XmlExpress.Deserialize<T>(xml, Settings, _empty);
-            #else
-            return _FromXml<T>(xml);
-            #endif
+            //#else
+            //return _FromXml<T>(xml);
+            //#endif
         }
 
         public T FromXmlEx<T>(String xml)
@@ -43,21 +43,21 @@ namespace Das.Serializer
         {
             var txt = await GetTextFromFileInfoAsync(file);
 
-            #if ALWAYS_EXPRESS
+            //#if ALWAYS_EXPRESS
             return XmlExpress.Deserialize<T>(txt, Settings, _empty);
-            #else
-                var arr = txt.ToCharArray();
-                return _FromXml<T>(arr);
-            #endif
+            //#else
+            //    var arr = txt.ToCharArray();
+            //    return _FromXml<T>(arr);
+            //#endif
         }
 
-        public T FromXml<T>(Char[] xml)
-        {
-            using (var state = StateProvider.BorrowXml(Settings))
-            {
-                return state.Scanner.Deserialize<T>(xml);
-            }
-        }
+        //public T FromXml<T>(Char[] xml)
+        //{
+        //    using (var state = StateProvider.BorrowXml(Settings))
+        //    {
+        //        return state.Scanner.Deserialize<T>(xml);
+        //    }
+        //}
 
         public T FromXml<T>(Stream stream)
         {
@@ -79,7 +79,8 @@ namespace Das.Serializer
             return FromXml<Object>(stream);
         }
 
-        #if !ALWAYS_EXPRESS
+        //#if !ALWAYS_EXPRESS
+        #if FALSE
         [MethodImpl(256)]
         private T _FromXml<T>(String xml)
         {

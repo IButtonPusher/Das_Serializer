@@ -14,6 +14,10 @@ namespace Serializer.Tests
         {
             Settings = new ProtoBufOptions<ProtoMemberAttribute>(p => p.Tag);
             ProtoSerializer = Serializer.GetProtoSerializer(Settings);
+            _serializer = new DasSerializer();
+            srl = _serializer;
+
+
             #if GENERATECODE
             TypeProvider = new ProtoDynamicProvider<ProtoMemberAttribute>(Settings,
                 Serializer.TypeManipulator,
@@ -38,6 +42,7 @@ namespace Serializer.Tests
             };
         }
 
+        protected readonly DasSerializer srl;
         private DasSerializer _serializer;
 
         protected IProtoSerializer ProtoSerializer;
