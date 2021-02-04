@@ -77,14 +77,14 @@ namespace Das.Serializer
                 case InstantiationType.NullObject:
                     return null;
                 case InstantiationType.Abstract:
-                    switch (Settings.NotFoundBehavior)
+                    switch (Settings.TypeNotFoundBehavior)
                     {
-                        case TypeNotFound.GenerateRuntime:
+                        case TypeNotFoundBehavior.GenerateRuntime:
                             var dynamicType = _dynamicTypes.GetDynamicImplementation(type);
                             return Activator.CreateInstance(dynamicType);
-                        case TypeNotFound.ThrowException:
+                        case TypeNotFoundBehavior.ThrowException:
                             throw new TypeLoadException(type.Name);
-                        case TypeNotFound.NullValue:
+                        case TypeNotFoundBehavior.NullValue:
                             return null;
                         default:
                             throw new NotImplementedException();

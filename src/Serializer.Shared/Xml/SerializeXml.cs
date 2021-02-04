@@ -84,7 +84,7 @@ namespace Das.Serializer
                         settings, StateProvider.TypeInferrer, StateProvider.NodeTypeProvider,
                         StateProvider.ObjectManipulator);
 
-                    var rootText = TypeInferrer.ToClearNameNoGenericArgs(asType, true);
+                    var rootText = TypeInferrer.ToClearName(asType, TypeNameOption.OmitGenericArguments);
                     //var rootText = !asType.IsGenericType && !IsCollection(asType)
                     //    ? TypeInferrer.ToClearName(asType, true)
                     //    : asType.Name;

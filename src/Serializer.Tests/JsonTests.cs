@@ -155,6 +155,11 @@ namespace Serializer.Tests.Json
             var json = Serializer.ToJson(mc1);
             var res = Serializer.FromJson<PrimitiveArray>(json);
             Assert.True(mc1.StringArray.SequenceEqual(res.StringArray));
+
+            mc1.StringArray = new String[0];
+            json = Serializer.ToJson(mc1);
+            res = Serializer.FromJson<PrimitiveArray>(json);
+            Assert.True(mc1.StringArray.SequenceEqual(res.StringArray));
         }
 
 
@@ -208,7 +213,7 @@ namespace Serializer.Tests.Json
         [Fact]
         public void GdiColorInferredJson()
         {
-            Serializer.Settings.NotFoundBehavior = TypeNotFound.ThrowException;
+            Serializer.Settings.TypeNotFoundBehavior = TypeNotFoundBehavior.ThrowException;
 
             var clr = Color.Purple;
             Serializer.Settings.TypeSpecificity = TypeSpecificity.All;

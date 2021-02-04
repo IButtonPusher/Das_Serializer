@@ -54,10 +54,14 @@ namespace Das.Serializer
         Boolean IsDefaultValue<T>(T value);
 
         String ToClearName(Type type,
-                           Boolean isOmitAssemblyName);
+                           TypeNameOption options = TypeNameOption.AssemblyName | 
+                                                    TypeNameOption.Namespace);
 
-        String ToClearNameNoGenericArgs(Type type,
-                                        Boolean isOmitAssemblyName);
+        //String ToClearName(Type type,
+        //                   Boolean isOmitAssemblyName);
+
+        //String ToClearNameNoGenericArgs(Type type,
+        //                                Boolean isOmitAssemblyName);
 
         /// <summary>
         ///     Pascal cases the string

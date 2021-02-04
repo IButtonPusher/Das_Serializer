@@ -45,7 +45,14 @@ namespace Das.Serializer
         ///     If an unknown type is in the serialized data, a dynamic type can be built
         ///     at runtime including properties.
         /// </summary>
-        TypeNotFound NotFoundBehavior { get; set; }
+        TypeNotFoundBehavior TypeNotFoundBehavior { get; set; }
+
+        
+        /// <summary>
+        /// If data exists in markup but no property can be found for the known type that is being
+        /// deserialized to.
+        /// </summary>
+        PropertyNotFoundBehavior PropertyNotFoundBehavior { get; set; }
 
         /// <summary>
         ///     Defines the depth of the search to resolve elements to their types when

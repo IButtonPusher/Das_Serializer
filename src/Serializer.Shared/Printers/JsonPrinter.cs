@@ -171,7 +171,7 @@ namespace Das.Printers
                     Writer.Append(Const.OpenBrace);
                     TabOut();
                     NewLine();
-                    var clear = _typeInferrer.ToClearName(valType, false);
+                    var clear = _typeInferrer.ToClearName(valType);
 
                     Writer.Append(Const.StrQuote, Const.TypeWrap);
                     Writer.Append(Const.StrQuote, ":");

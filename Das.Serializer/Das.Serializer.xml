@@ -21,6 +21,11 @@
                 To find aspecific Assembly or to iterate all in the current app domain
             </summary>
         </member>
+        <member name="M:Das.Serializer.IAssemblyList.GetAll">
+            <summary>
+            Returns all the assemblies that are referenced by the running process
+            </summary>
+        </member>
         <member name="M:Das.Serializer.IDynamicTypes.GetDynamicType(System.String,System.Collections.Generic.IEnumerable{Das.Serializer.DasProperty},System.Boolean,System.Collections.Generic.IEnumerable{System.Reflection.EventInfo},System.Collections.Generic.IDictionary{System.Reflection.MethodInfo,System.Reflection.MethodInfo},System.Type[])">
             <summary>
                 Gets a dynamic type in a wrapper that allows for properties to be accessed quickly
@@ -540,10 +545,16 @@
                 Using attributes can make the markup smaller but can limit compatibility with other serializers
             </summary>
         </member>
-        <member name="P:Das.Serializer.ISerializerSettings.NotFoundBehavior">
+        <member name="P:Das.Serializer.ISerializerSettings.TypeNotFoundBehavior">
             <summary>
                 If an unknown type is in the serialized data, a dynamic type can be built
                 at runtime including properties.
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.ISerializerSettings.PropertyNotFoundBehavior">
+            <summary>
+            If data exists in markup but no property can be found for the known type that is being
+            deserialized to.
             </summary>
         </member>
         <member name="P:Das.Serializer.ISerializerSettings.PropertySearchDepth">
@@ -621,12 +632,12 @@
                 setters are not serialized/deserialized.
             </summary>
         </member>
-        <member name="F:Das.Serializer.TypeNotFound.GenerateRuntime">
+        <member name="F:Das.Serializer.TypeNotFoundBehavior.GenerateRuntime">
             <summary>
                 Attempt to generate a dynamic type at runtime
             </summary>
         </member>
-        <member name="F:Das.Serializer.TypeNotFound.ThrowException">
+        <member name="F:Das.Serializer.TypeNotFoundBehavior.ThrowException">
             <summary>
                 Throw an exception if no type can be determined from any piece of data
             </summary>
@@ -672,7 +683,7 @@
             </summary>
             <param name="o">The object to serialize</param>
         </member>
-        <member name="P:Das.Serializer.DasSettings.NotFoundBehavior">
+        <member name="P:Das.Serializer.DasSettings.TypeNotFoundBehavior">
             <summary>
                 If an unknown type is in the serialized data, a dynamic type can be built
                 at runtime including properties.
@@ -733,7 +744,7 @@
                 Creates a system wide mutex on a string based on the file's name
             </summary>
         </member>
-        <member name="M:Das.Serializer.Json.JsonExpress.GetValue(System.Int32@,System.String,System.Type,System.Text.StringBuilder,System.Object,System.Reflection.PropertyInfo,System.Object@,System.Object[])">
+        <member name="M:Das.Serializer.Json.JsonExpress.GetValue(System.Int32@,System.String,System.Type,System.Text.StringBuilder,System.Object,System.Reflection.PropertyInfo,System.Object@,System.Object[],Das.Serializer.ISerializerSettings)">
             <summary>
                 Leaves the StringBuilder dirty!
             </summary>
@@ -801,6 +812,11 @@
         <member name="F:Das.Serializer.NodeScanState.EndOfMarkup">
             <summary>
                 We ran out of markup... Not a good state...
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.AssemblyList.GetRunning">
+            <summary>
+            does not check or modify the cache
             </summary>
         </member>
         <member name="M:Das.Serializer.CoreTextParser.TrySkip(System.String,System.String,System.String@)">

@@ -33,7 +33,7 @@ namespace Serializer.Benchmarks
         [Benchmark]
         public SimpleClassWithObjectCollection ObjectCollectionExpress()
         {
-            return Serializer.FromXmlEx<SimpleClassWithObjectCollection>(ObjectPropXml);
+            return Serializer.FromXml<SimpleClassWithObjectCollection>(ObjectPropXml);
         }
 
         [Benchmark]
@@ -45,7 +45,7 @@ namespace Serializer.Benchmarks
         [Benchmark]
         public SimpleClassWithPrimitiveCollection PrimitiveCollectionExpress()
         {
-            return Serializer.FromXmlEx<SimpleClassWithPrimitiveCollection>(PrimitivePropXml);
+            return Serializer.FromXml<SimpleClassWithPrimitiveCollection>(PrimitivePropXml);
         }
 
 
@@ -58,7 +58,7 @@ namespace Serializer.Benchmarks
         [Benchmark]
         public SimpleClass PrimitivePropertiesExpress()
         {
-            return Serializer.FromXmlEx<SimpleClass>(SimpleExampleXml);
+            return Serializer.FromXml<SimpleClass>(SimpleExampleXml);
         }
 
         private static DasSerializer Serializer;

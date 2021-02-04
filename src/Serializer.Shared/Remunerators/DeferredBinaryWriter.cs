@@ -9,7 +9,7 @@ namespace Das.Serializer.Remunerators
     ///     Writes to a temporary collection that is eventually merged back into the main stream (or parent deferred)
     ///     along with the length of the data for fixed length deserialization
     /// </summary>
-    public unsafe class DeferredBinaryWriter : BinaryWriterWrapper, IBinaryWriter
+    public class DeferredBinaryWriter : BinaryWriterWrapper, IBinaryWriter
     {
         public DeferredBinaryWriter(IBinaryWriter parent,
                                     NodeTypes nodeType,
@@ -33,28 +33,6 @@ namespace Das.Serializer.Remunerators
             else
                 _backingList.Append(0);
         }
-
-        //public DeferredBinaryWriter(IPrintNode node,
-        //                            IBinaryWriter parent)
-        //    : base(parent)
-        //{
-        //    _backingList = new ByteBuilder();
-        //    //_node = node;
-        //    _parent = parent;
-
-        //    _isWrapPossible = node.NodeType != NodeTypes.Primitive || node.IsWrapping;
-
-        //    //for nullable primitive we will write a single byte to indicate null or not
-        //    if (!_isWrapPossible)
-        //        return;
-
-        //    WriteInt32(0);
-
-        //    if (node.IsWrapping)
-        //        _backingList.Append(1);
-        //    else
-        //        _backingList.Append(0);
-        //}
 
         [MethodImpl(256)]
         public override void Write(Byte[] buffer)
@@ -128,8 +106,10 @@ namespace Das.Serializer.Remunerators
                    Length + " Nodes: " + Children.Count;
         }
 
+        #if !PARTIALTRUST
+
         [MethodImpl(256)]
-        protected sealed override void Write(Byte* bytes,
+        protected sealed override unsafe void Write(Byte* bytes,
                                              Int32 count)
         {
             _backingList.Append(bytes, count);
@@ -137,7 +117,7 @@ namespace Das.Serializer.Remunerators
 
 
         [MethodImpl(256)]
-        private void SetLength(Int64 val)
+        private unsafe void SetLength(Int64 val)
         {
             var pi = (Byte*) &val;
 
@@ -145,10 +125,20 @@ namespace Das.Serializer.Remunerators
                 _backingList[c] = pi[c];
         }
 
+#else
+
+[MethodImpl(256)]
+private void SetLength(Int64 val)
+{
+    var bytes = BitConverter.GetBytes(val);
+    _backingList.Append(bytes, 4);
+}
+
+#endif
+
         private readonly ByteBuilder _backingList;
         private readonly Boolean _isWrapPossible;
 
-        //private readonly IPrintNode _node;
         private readonly IBinaryWriter _parent;
         private Boolean _isPopped;
     }

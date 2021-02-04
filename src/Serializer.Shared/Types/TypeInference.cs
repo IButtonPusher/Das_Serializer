@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Das.Extensions;
 using Das.Serializer;
+using Das.Serializer.Types;
 
 namespace Das.Types
 {
@@ -74,7 +75,10 @@ namespace Das.Types
             CachedSizes[typeof(Boolean)] = 1;
 
 
+            _lockCachedTypeNames = new Object();
+
             _cachedTypeNames = new ConcurrentDictionary<Type, String>();
+            _cachedTypeNames2 = new DoubleDictionary<Type, TypeNameOption, String>();
         }
 
         public TypeInference(IDynamicTypes dynamicTypes,
@@ -214,6 +218,52 @@ namespace Das.Types
             return ToClearNameImpl(type, isOmitAssemblyName, false);
         }
 
+        public string ToClearName(Type type,
+                                  TypeNameOption options= TypeNameOption.AssemblyName | 
+                                                          TypeNameOption.Namespace)
+        {
+            lock (_lockCachedTypeNames)
+            {
+                if (_cachedTypeNames2.TryGetValue(type, options, out var ez))
+                    return ez;
+            }
+
+            var isOmitAssemblyName = (options & TypeNameOption.AssemblyName) == 0;
+            var isPrintGenericArgs = (options & TypeNameOption.OmitGenericArguments) == 0;
+
+            String name;
+
+            if (type.IsGenericType)
+            {
+                name = GetClearGeneric(type, options, isOmitAssemblyName, isPrintGenericArgs);
+            }
+
+            //if (!isOmitAssemblyName && _cachedTypeNames.TryGetValue(type, out var name))
+            //    return name;
+            //if (type.IsGenericType)
+            //    name = GetClearGeneric(type, isOmitAssemblyName, isPrintGenericArgs);
+            else if (IsLeaf(type, true) && !type.IsEnum)
+                name = type.Name;
+            else if (!String.IsNullOrWhiteSpace(type.Namespace))
+            {
+                if (isOmitAssemblyName || type.Namespace?.StartsWith(Const.Tsystem) == true)
+                    name = type.FullName;
+                else
+                    name = $"{type.Assembly.ManifestModule.Name},{type.FullName}";
+            }
+            else
+                name = type.AssemblyQualifiedName;
+
+            if (name == null)
+                return type.Name;
+            //return name;
+
+            if (!isOmitAssemblyName)
+                _cachedTypeNames.TryAdd(type, name);
+            TypeNames.TryAdd(name, type);
+            return name;
+        }
+
         public String ToClearName(Type type,
                                   Boolean isOmitAssemblyName)
         {
@@ -227,7 +277,8 @@ namespace Das.Types
             if (!isOmitAssemblyName && _cachedTypeNames.TryGetValue(type, out var name))
                 return name;
             if (type.IsGenericType)
-                name = GetClearGeneric(type, isOmitAssemblyName, isPrintGenericArgs);
+                name = GetClearGeneric(type, TypeNameOption.Invalid,
+                    isOmitAssemblyName, isPrintGenericArgs);
             else if (IsLeaf(type, true) && !type.IsEnum)
                 name = type.Name;
             else if (!String.IsNullOrWhiteSpace(type.Namespace))
@@ -440,9 +491,12 @@ namespace Das.Types
         private Type? FromAssemblyQualified(String clearName,
                                             String[] tokens)
         {
+            if (Type.GetType(clearName) is { } ez)
+                return ez;
+
             Type? type = null;
 
-            if (_assemblies.TryGetAssembly(tokens[0], out var assembly))
+            if (_assemblies.TryGetAssemblyByFileName(tokens[0], out var assembly))
                 type = assembly.GetType(tokens[1]) ??
                        Type.GetType($"{tokens[1]},{assembly.FullName}");
 
@@ -512,8 +566,8 @@ namespace Das.Types
             if (_dynamicTypes.TryGetFromAssemblyQualifiedName(clearName, out type))
                 return type;
 
-            if (TryFind(clearName, _assemblies, out type))
-                return type;
+            //if (TryFind(clearName, _assemblies, out type))
+            //    return type;
 
             if (TryFind(clearName, _assemblies.GetAll(), out type))
                 return type;
@@ -533,17 +587,17 @@ namespace Das.Types
             if (type != null)
                 return type;
 
-            var assName = tokens.Take(0, tokens.Length - 1).ToString('.') + ".dll";
-            var isFound = _assemblies.TryGetAssembly(assName, out var assFound);
+            var asmName = tokens.Take(0, tokens.Length - 1).ToString('.') + ".dll";
+            var isFound = _assemblies.TryGetAssemblyByFileName(asmName, out var asmFound);
 
             if (isFound)
             {
-                type = assFound.GetType(nsName);
+                type = asmFound.GetType(nsName);
                 if (type != null)
                     return type;
             }
 
-            if (isSearchLoadedAssemblies && TryFind(nsName, _assemblies, out type))
+            if (isSearchLoadedAssemblies && TryFind(nsName, _assemblies.GetAll(), out type))
                 return type;
 
             if (isRecurse)
@@ -564,8 +618,29 @@ namespace Das.Types
             if (nameSpaceAssemblySearch is { } search)
                 foreach (var kvp in search)
                 {
-                    if (!_assemblies.TryGetAssembly(kvp.Value, out var asm))
+                    if (kvp.Value.Length < 4)
                         continue;
+
+                    var extMaybe = kvp.Value.Substring(kvp.Value.Length - 4, 4).ToLower();
+
+                    Assembly asm;
+
+                    switch (extMaybe)
+                    {
+                        case ".dll":
+                        case ".exe":
+                            if (!_assemblies.TryGetAssemblyByFileName(kvp.Value, out asm))
+                                continue;
+                            break;
+
+                        default:
+                            if (!_assemblies.TryGetAssemblyByName(kvp.Value, out asm))
+                                continue;
+                            break;
+                    }
+
+                    //if (!_assemblies.TryGetAssemblyByFileName(kvp.Value, out asm))
+                    //    continue;
 
                     var searchNs = kvp.Key + "." + singleToken;
                     var type = asm.GetType(searchNs);
@@ -613,18 +688,33 @@ namespace Das.Types
 
 
         private String GetClearGeneric(Type type,
+                                       TypeNameOption options,
                                        Boolean isOmitAssemblyName,
                                        Boolean isPrintGenericArgs)
         {
-            StringBuilder sb;
+            var sb = new StringBuilder();
+            if (!isOmitAssemblyName && !type.Namespace.StartsWith(Const.Tsystem))
+            {
+                sb.Append(type.Assembly.ManifestModule.Name);
+                sb.Append('.');
+            }
 
-            if (type.Namespace == null)
-                return type.Name;
+            if (type.Namespace != null &&
+                (options & TypeNameOption.Namespace) == TypeNameOption.Namespace)
+            {
+                sb.Append(type.Namespace);
+                sb.Append('.');
+            }
 
-            if (isOmitAssemblyName || type.Namespace.StartsWith(Const.Tsystem))
-                sb = new StringBuilder($"{type.Namespace}.{type.Name}");
-            else
-                sb = new StringBuilder($"{type.Assembly.ManifestModule.Name}, {type.Namespace}.{type.Name}");
+            sb.Append(type.Name);
+
+            //if (type.Namespace == null)
+            //    return type.Name;
+
+            //if (isOmitAssemblyName || type.Namespace.StartsWith(Const.Tsystem))
+            //    sb = new StringBuilder($"{type.Namespace}.{type.Name}");
+            //else
+            //    sb = new StringBuilder($"{type.Assembly.ManifestModule.Name}, {type.Namespace}.{type.Name}");
 
             var gargs = type.GetGenericArguments();
             var rem = gargs.Length < 10
@@ -730,6 +820,8 @@ namespace Das.Types
 
         private static readonly ConcurrentDictionary<String, Type?> TypeNames;
         private static readonly ConcurrentDictionary<Type, String> _cachedTypeNames;
+        private static readonly DoubleDictionary<Type, TypeNameOption, String> _cachedTypeNames2;
+        private static readonly Object _lockCachedTypeNames;
 
         private readonly IAssemblyList _assemblies;
 

@@ -107,7 +107,7 @@ namespace Das.Serializer
             throw new InvalidOperationException("Cannot load ");
         }
 
-        public TypeConverter GetTypeConverter(Type type)
+        private static TypeConverter GetTypeConverter(Type type)
         {
             return _typeConverters.TryGetValue(type, out var found)
                 ? found
@@ -156,6 +156,9 @@ namespace Das.Serializer
             return NumericTypes.Contains(
                 Nullable.GetUnderlyingType(myType) ?? myType);
         }
+
+
+       
 
         public Boolean HasEmptyConstructor(Type t)
         {
@@ -234,6 +237,34 @@ namespace Das.Serializer
             {
                 yield return prop;
             }
+        }
+
+        public object? ConvertTo(Object obj,
+                                 Type type)
+        {
+            var conv = GetTypeConverter(type);
+            return conv.ConvertFrom(obj);
+        }
+
+        public bool CanChangeType(Type @from,
+                                  Type to)
+        {
+            var conv = GetTypeConverter(to);
+            return conv.CanConvertFrom(@from);
+        }
+
+        public string ConvertToInvariantString(Object obj)
+        {
+            var converter = GetTypeConverter(obj.GetType());
+            return converter.ConvertToInvariantString(obj)!;
+            //var str = converter.ConvertToInvariantString(o!);
+        }
+
+        public object ConvertFromInvariantString(String str,
+                                                 Type toType)
+        {
+            var conv = GetTypeConverter(toType);
+            return conv.ConvertFromInvariantString(str)!;
         }
 
         public PropertyInfo? FindPublicProperty(Type type,

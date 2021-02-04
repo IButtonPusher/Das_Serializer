@@ -23,13 +23,16 @@ namespace Das.Serializer
             //AttributeValueSurrogates = new NullAttributeValueSurrogates();
             IsUseAttributesInXml = true;
             PrintJsonPropertiesFormat = PrintPropertyFormat.Default;
+            PropertyNotFoundBehavior = PropertyNotFoundBehavior.Ignore;
         }
 
         /// <summary>
         ///     If an unknown type is in the serialized data, a dynamic type can be built
         ///     at runtime including properties.
         /// </summary>
-        public TypeNotFound NotFoundBehavior { get; set; }
+        public TypeNotFoundBehavior TypeNotFoundBehavior { get; set; }
+
+        public PropertyNotFoundBehavior PropertyNotFoundBehavior { get; set; }
 
         /// <summary>
         ///     Particularly for Json pascal case is often used.  Setting this to false

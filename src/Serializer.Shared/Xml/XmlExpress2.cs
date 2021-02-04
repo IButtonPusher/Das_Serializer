@@ -251,8 +251,9 @@ namespace Das.Serializer.Xml
             if (_types.IsLeaf(specifiedType, true))
                 return NodeTypes.Primitive;
 
-            var conv = _types.GetTypeConverter(specifiedType);
-            if (conv.CanConvertFrom(typeof(String)))
+            //var conv = _types.GetTypeConverter(specifiedType);
+            //if (conv.CanConvertFrom(typeof(String)))
+            if (_types.CanChangeType(typeof(String), specifiedType))
                 return NodeTypes.StringConvertible;
 
             if (_typeInference.TryGetPropertiesConstructor(specifiedType, out _))

@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    public interface ITypeStructure : ITypeStructureBase,
-                                      IValueSetter
+    public interface ITypeStructure : ITypeStructureBase
+                                      //IValueSetter
     {
         SerializationDepth Depth { get; }
 
@@ -47,6 +47,11 @@ namespace Das.Serializer
         Boolean SetFieldValue<T>(String fieldName,
                                  Object targetObj,
                                  Object fieldVal);
+
+        Boolean TrySetPropertyValue(String propName,
+                                    ref Object targetObj,
+                                    Object? propVal,
+                                    SerializationDepth depth = SerializationDepth.AllProperties);
 
 
         Boolean TryGetAttribute<TAttribute>(String propertyName,

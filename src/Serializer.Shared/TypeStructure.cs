@@ -216,10 +216,10 @@ namespace Das.Serializer
             return true;
         }
 
-        public Boolean SetValue(String propName,
-                                ref Object targetObj,
-                                Object? propVal,
-                                SerializationDepth depth)
+        public Boolean TrySetPropertyValue(String propName,
+                                           ref Object targetObj,
+                                           Object? propVal,
+                                           SerializationDepth depth = SerializationDepth.AllProperties)
         {
             if (_propertySetters.TryGetValue(propName, out var setDel))
             {

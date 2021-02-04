@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -205,7 +204,7 @@ namespace Serializer.Tests.Xml
         [Fact]
         public void GdiColorInferredXml()
         {
-            Serializer.Settings.NotFoundBehavior = TypeNotFound.ThrowException;
+            Serializer.Settings.TypeNotFoundBehavior = TypeNotFoundBehavior.ThrowException;
 
             var clr = Color.Purple;
             Serializer.Settings.TypeSpecificity = TypeSpecificity.All;
@@ -250,7 +249,6 @@ namespace Serializer.Tests.Xml
             foreach (var a in srl.FromXmlItems<ValueArticleDto>(xml))
             {
                 count++;
-                Debug.WriteLine(a.Headline);
             }
 
             Assert.True(count == 100);

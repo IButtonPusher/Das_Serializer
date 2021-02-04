@@ -40,8 +40,9 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TEST_NO_CODEGENERATION|AnyCPU'">
     <OutputPath>bin\TEST_NO_CODEGENERATION\</OutputPath>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <CodeAnalysisRuleSet>..\Serializer.ruleset</CodeAnalysisRuleSet>
+    <DefineConstants>PARTIALTRUST;TEST_NO_CODEGENERATION</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TEST_ALWAYS_EXPRESS|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>

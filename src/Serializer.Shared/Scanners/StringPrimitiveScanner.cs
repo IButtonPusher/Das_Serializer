@@ -80,8 +80,9 @@ namespace Das.Serializer
             if (input == "null")
                 return null!;
 
-            var conv = _state.GetTypeConverter(type);
-            return conv.ConvertFromInvariantString(input)!;
+            return _state.ConvertFromInvariantString(input, type);
+            //var conv = _state.GetTypeConverter(type);
+            //return conv.ConvertFromInvariantString(input)!;
         }
 
         public abstract String Descape(String? input);

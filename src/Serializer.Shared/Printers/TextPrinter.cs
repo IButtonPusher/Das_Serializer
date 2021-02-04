@@ -95,8 +95,9 @@ namespace Das.Printers
                     break;
                 default:
                     var isRequiresQuotes = IsRequiresQuotes(o);
-                    var converter = _typeInferrer.GetTypeConverter(propType);
-                    var str = converter.ConvertToInvariantString(o!);
+                    //var converter = _typeInferrer.GetTypeConverter(propType);
+                    var str = _typeInferrer.ConvertToInvariantString(o!);
+                    //var str = converter.ConvertToInvariantString(o!);
                     PrintString(str!, isRequiresQuotes);
                     break;
             }

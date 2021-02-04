@@ -164,11 +164,25 @@ namespace Das.Serializer.Remunerators
             Write(data, 0, limit);
         }
 
+        #if !PARTIALTRUST
+
         protected virtual unsafe void Write(Byte* bytes,
                                             Int32 count)
         {
             for (var c = 0; c < count; c++)
                 OutStream.WriteByte(bytes[c]);
         }
+
+        #else
+
+        public override void Write(Byte[] bytes)
+        {
+            for (var c = 0; c < bytes.Length; c++)
+                OutStream.WriteByte(bytes[c]);
+        }
+
+
+
+        #endif
     }
 }

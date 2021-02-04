@@ -3,9 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using Das.Extensions;
 using Das.Serializer;
-using Das.Types;
 using Xunit;
 
 #pragma warning disable 8602
@@ -20,12 +18,13 @@ namespace Serializer.Tests
         public void AssemblyType()
         {
             var type = typeof(DasSerializer);
-            var str = type.GetClearName(false);
+            
+            var str = Serializer.TypeInferrer.ToClearName(type);
             var type2 = Serializer.TypeInferrer.GetTypeFromClearName(str);
             Assert.Equal(type, type2);
 
             type = typeof(DasSettings);
-            str = type.GetClearName(false);
+            str = Serializer.TypeInferrer.ToClearName(type);
             type2 = Serializer.TypeInferrer.GetTypeFromClearName(str);
             Assert.Equal(type, type2);
         }
@@ -67,14 +66,14 @@ namespace Serializer.Tests
         public void GenericType()
         {
             var type = typeof(List<String>);
-            var str = type.GetClearName(false);
+            var str = Serializer.TypeInferrer.ToClearName(type);
             Serializer.TypeInferrer.ClearCachedNames();
             var type2 = Serializer.TypeInferrer.GetTypeFromClearName(str, true);
             Assert.Equal(type, type2);
 
 
             type = typeof(Dictionary<String, Random>);
-            str = type.GetClearName(false);
+            str = Serializer.TypeInferrer.ToClearName(type);
             Serializer.TypeInferrer.ClearCachedNames();
             type2 = Serializer.TypeInferrer.GetTypeFromClearName(str, true);
             Assert.Equal(type, type2);
@@ -91,19 +90,19 @@ namespace Serializer.Tests
             Assert.NotEqual(type, type2);
 
             type = typeof(Object[]);
-            str = type.GetClearName(false);
+            str = Serializer.TypeInferrer.ToClearName(type);
             Serializer.TypeInferrer.ClearCachedNames();
             type2 = Serializer.TypeInferrer.GetTypeFromClearName(str);
             Assert.Equal(type, type2);
 
             type = typeof(GenericClass<SimpleClassObjectProperty>);
-            str = type.GetClearName(false);
+            str = Serializer.TypeInferrer.ToClearName(type);
             Serializer.TypeInferrer.ClearCachedNames();
             type2 = Serializer.TypeInferrer.GetTypeFromClearName(str, true);
             Assert.Equal(type, type2);
 
             type = typeof(Dictionary<string, List<decimal>>);
-            str = type.GetClearName(false);
+            str = Serializer.TypeInferrer.ToClearName(type);
             Serializer.TypeInferrer.ClearCachedNames();
             type2 = Serializer.TypeInferrer.GetTypeFromClearName(str, true);
             Assert.Equal(type, type2);
@@ -114,12 +113,12 @@ namespace Serializer.Tests
         public void NamespaceType()
         {
             var type = typeof(Encoding);
-            var str = type.GetClearName(false);
+            var str = Serializer.TypeInferrer.ToClearName(type);
             var type2 = Serializer.TypeInferrer.GetTypeFromClearName(str);
             Assert.Equal(type, type2);
 
             type = typeof(IEnumerable);
-            str = type.GetClearName(false);
+            str = Serializer.TypeInferrer.ToClearName(type);
             type2 = Serializer.TypeInferrer.GetTypeFromClearName(str);
             Assert.Equal(type, type2);
         }
@@ -128,12 +127,12 @@ namespace Serializer.Tests
         public void PrimitiveType()
         {
             var type = typeof(Int32);
-            var str = type.GetClearName(false);
+            var str = Serializer.TypeInferrer.ToClearName(type);
             var type2 = Serializer.TypeInferrer.GetTypeFromClearName(str);
             Assert.Equal(type, type2);
 
             type = typeof(String);
-            str = type.GetClearName(false);
+            str = Serializer.TypeInferrer.ToClearName(type);
             type2 = Serializer.TypeInferrer.GetTypeFromClearName(str);
             Assert.Equal(type, type2);
         }
@@ -180,7 +179,7 @@ namespace Serializer.Tests
             }
         }
 
-        #endif
+        
 
         [Fact]
         public void PropertySetters()
@@ -202,8 +201,10 @@ namespace Serializer.Tests
                 nameof(SimpleClassObjectProperty.Name));
 
             func2(ref instance2!, "wiley wamboozle");
-
+            
             Assert.Equal("wiley wamboozle", inst2.SimpleLeft.Name);
         }
+
+        #endif
     }
 }

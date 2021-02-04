@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -24,7 +23,18 @@ namespace Das.Serializer
         IEnumerable<PropertyInfo> GetPublicProperties(Type type,
                                                       Boolean numericFirst = true);
 
-        TypeConverter GetTypeConverter(Type type);
+        //TypeConverter GetTypeConverter(Type type);
+
+        Object? ConvertTo(Object obj,
+                          Type type);
+
+        String ConvertToInvariantString(Object obj);
+
+        Object ConvertFromInvariantString(String str,
+                                          Type toType);
+
+        Boolean CanChangeType(Type from,
+                              Type to);
 
         Boolean HasEmptyConstructor(Type t);
 

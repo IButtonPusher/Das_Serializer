@@ -26,7 +26,7 @@ namespace Serializer.Benchmarks
         [Benchmark]
         public SimpleClassObjectProperty PrimitivePropertiesJsonExpress()
         {
-            return Serializer.FromJsonEx<SimpleClassObjectProperty>(NullPayloadJson);
+            return Serializer.FromJson<SimpleClassObjectProperty>(NullPayloadJson);
         }
 
         private static readonly DasSerializer Serializer;

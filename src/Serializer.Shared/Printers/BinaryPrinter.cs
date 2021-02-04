@@ -43,6 +43,8 @@ namespace Das.Printers
 
         public override Boolean IsRespectXmlIgnore => false;
 
+        #if !PARTIALTRUST
+
 
         public static unsafe Byte[] GetBytes(String str)
         {
@@ -55,6 +57,15 @@ namespace Das.Printers
 
             return bytes;
         }
+
+#else
+
+        public static Byte[] GetBytes(String str)
+        {
+        return System.Text.Encoding.UTF8.GetBytes(str);
+        }
+
+#endif
 
         public static Byte[] GetBytes(Decimal dec)
         {
@@ -500,7 +511,7 @@ namespace Das.Printers
 
         private void WriteType(Type type)
         {
-            var typeName = _typeInferrer.ToClearName(type, false);
+            var typeName = _typeInferrer.ToClearName(type);
 
             WriteString(typeName);
         }

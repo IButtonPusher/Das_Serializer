@@ -116,21 +116,21 @@ namespace Das.Extensions
         }
 
 
-        /// <summary>
-        ///     Creates an easier to read string depiction of a type name, particularly
-        ///     with generics. Can be parsed back into a type using DasType.FromClearName(..)
-        ///     into
-        /// </summary>
-        /// <param name="type"></param>
-        /// <param name="isOmitAssemblyName">
-        ///     Guarantees that the output string will be
-        ///     valid xml or json markup but may lead to slower deserialization
-        /// </param>
-        public static String GetClearName(this Type type,
-                                          Boolean isOmitAssemblyName)
-        {
-            return SerializationCore.TypeInferrer.ToClearName(type, isOmitAssemblyName);
-        }
+        ///// <summary>
+        /////     Creates an easier to read string depiction of a type name, particularly
+        /////     with generics. Can be parsed back into a type using DasType.FromClearName(..)
+        /////     into
+        ///// </summary>
+        ///// <param name="type"></param>
+        ///// <param name="isOmitAssemblyName">
+        /////     Guarantees that the output string will be
+        /////     valid xml or json markup but may lead to slower deserialization
+        ///// </param>
+        //public static String GetClearName(this Type type,
+        //                                  Boolean isOmitAssemblyName)
+        //{
+        //    return SerializationCore.TypeInferrer.ToClearName(type, isOmitAssemblyName);
+        //}
 
         [MethodImpl(256)]
         public static String GetConsumingString(this StringBuilder sb)
@@ -180,7 +180,7 @@ namespace Das.Extensions
                         break;
                 }
 
-            return wot ?? throw new MissingMethodException(classType.Name, methodName);
+            return wot ?? throw new MissingMethodException(classType.FullName, methodName);
         }
 
         public static MethodInfo GetMethodOrDie(
@@ -541,7 +541,7 @@ namespace Das.Extensions
                                                   String propertyName,
                                                   Object value)
         {
-            return SerializationCore.ObjectManipulator.SetProperty(obj.GetType(), propertyName,
+            return SerializationCore.ObjectManipulator.TrySetProperty(obj.GetType(), propertyName,
                 ref obj, value);
         }
 
