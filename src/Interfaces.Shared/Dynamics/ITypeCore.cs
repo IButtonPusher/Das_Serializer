@@ -68,5 +68,15 @@ namespace Das.Serializer
         /// </summary>
         Boolean TryGetPropertiesConstructor(Type type,
                                             out ConstructorInfo constr);
+
+
+        ///// <summary>
+        /////     Attempts to find a constructor that has parameters that match the name and type of
+        /////     all properties with public get methods
+        ///// </summary>
+        //Boolean TryGetPropertiesConstructor(Type type,
+        //                                    Object[] additionalCtorValues,
+        //                                    out ConstructorInfo constr);
+
     }
 }

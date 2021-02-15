@@ -215,9 +215,6 @@ namespace Das.Serializer.Xml
                             AdvanceScanState(txt, ref currentIndex, stringBuilder, ref nodeScanState);
                             break;
 
-                        //AdvanceScanStateUntil(txt, ref currentIndex, stringBuilder, 
-                        //    NodeScanState.AttributeNameRead, ref nodeScanState);
-
 
                         case Const.XmlType:
                             stringBuilder.Clear();
@@ -251,8 +248,6 @@ namespace Das.Serializer.Xml
             if (_types.IsLeaf(specifiedType, true))
                 return NodeTypes.Primitive;
 
-            //var conv = _types.GetTypeConverter(specifiedType);
-            //if (conv.CanConvertFrom(typeof(String)))
             if (_types.CanChangeType(typeof(String), specifiedType))
                 return NodeTypes.StringConvertible;
 

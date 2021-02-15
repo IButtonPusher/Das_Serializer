@@ -16,7 +16,7 @@ namespace Das.Serializer
                              Boolean isPropertyNamesCaseSensitive,
                              ISerializationDepth depth,
                              ITypeManipulator state)
-                             //INodePool nodePool)
+            //INodePool nodePool)
             : base(state.Settings)
         {
             Type = type;
@@ -150,18 +150,6 @@ namespace Das.Serializer
             }
         }
 
-        public object? GetValue(Object o,
-                                String propertyName)
-        {
-            if (_propGetters.TryGetValue(propertyName, out var getter))
-                return getter(o);
-            if (_getOnly.TryGetValue(propertyName, out var getOnly))
-                return getOnly(o);
-            if (_getDontSerialize.TryGetValue(propertyName, out var notSerialized))
-                return notSerialized(o);
-            return null;
-        }
-
         //IProperty? ITypeStructure.GetProperty(Object o,
         //                                           String propertyName)
         //{
@@ -282,11 +270,16 @@ namespace Das.Serializer
             return GetPropertyValueImpl(o, propertyName, out _);
         }
 
-        //public Boolean SetPropertyValue(ref Object targetObj,
-        //                                String propName,
-        //                                Object? propVal)
+        //public object? GetValue(Object o,
+        //                        String propertyName)
         //{
-        //    return SetValue(propName, ref targetObj, propVal, Depth);
+        //    if (_propGetters.TryGetValue(propertyName, out var getter))
+        //        return getter(o);
+        //    if (_getOnly.TryGetValue(propertyName, out var getOnly))
+        //        return getOnly(o);
+        //    if (_getDontSerialize.TryGetValue(propertyName, out var notSerialized))
+        //        return notSerialized(o);
+        //    return null;
         //}
 
         public override string ToString()
@@ -295,13 +288,13 @@ namespace Das.Serializer
         }
 
 
-        public bool TryGetPropertyValue(Object obj,
-                                        String propertyName,
-                                        out Object result)
-        {
-            result = GetPropertyValueImpl(obj, propertyName, out _)!;
-            return result != null;
-        }
+        //public bool TryGetPropertyValue(Object obj,
+        //                                String propertyName,
+        //                                out Object result)
+        //{
+        //    result = GetPropertyValueImpl(obj, propertyName, out _)!;
+        //    return result != null;
+        //}
 
         private void CreateFieldDelegates(Type type,
                                           ISerializationDepth depth)
@@ -344,10 +337,10 @@ namespace Das.Serializer
                 {
                     switch (attr)
                     {
-                        case IgnoreDataMemberAttribute _:
+                        case IgnoreDataMemberAttribute:
                             isSerialize = false;
                             break;
-                        case XmlIgnoreAttribute _:
+                        case XmlIgnoreAttribute:
                             _xmlIgnores.Add(pi.Name);
                             if (depth.IsRespectXmlIgnore)
                                 isSerialize = false;

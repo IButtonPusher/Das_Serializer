@@ -75,7 +75,9 @@ namespace Das.Serializer.Json
                 sb, ctorValues, true, settings);
 
             if (settings.TypeNotFoundBehavior == TypeNotFoundBehavior.GenerateRuntime &&
-                res is RuntimeObject robj)
+                res is RuntimeObject robj &&
+                //don't dynamically build a type if we specified we want a RuntimeObject
+                type != typeof(RuntimeObject)) 
                 return _dynamicTypes.BuildDynamicObject(robj);
 
             return res;
@@ -157,7 +159,8 @@ namespace Das.Serializer.Json
                 child = type != Const.ObjectType
                     ? _instantiator.BuildDefault(type, true)
                       ?? throw new InvalidOperationException()
-                    : new RuntimeObject();
+                    : new RuntimeObject(_types);
+
                 root ??= child;
 
                 DeserializeImpl(ref child, ref currentIndex, json, type,
@@ -172,6 +175,15 @@ namespace Das.Serializer.Json
 
                 child = ctor.Invoke(arr);
                 root ??= child;
+            }
+            
+            else if (type == typeof(RuntimeObject))
+            {
+                child = new RuntimeObject(_types);
+                root ??= child;
+
+                DeserializeImpl(ref child, ref currentIndex, json, type,
+                    ref root, ctorValues, isRootLevel, settings);
             }
             else throw new InvalidOperationException();
 
@@ -253,7 +265,7 @@ namespace Das.Serializer.Json
 
                                 if (anonymousVal != null)
                                 {
-                                    robj.Properties.Add(propName, new RuntimeObject(anonymousVal));
+                                    robj.Properties.Add(propName, new RuntimeObject(_types, anonymousVal));
                                     continue;
                                 }
                             }
@@ -375,10 +387,6 @@ namespace Das.Serializer.Json
 
 
             var collection = GetCollection(type, prop, parent);
-
-            //AdvanceUntil('[', ref currentIndex, json);
-
-
 
             if (json[currentIndex] != ']')
             {
@@ -585,7 +593,6 @@ namespace Das.Serializer.Json
                                 case ':':
                                     return _stringPrimitiveScanner.GetValue(
                                         stringBuilder.GetConsumingString(), type, false);
-
 
                                 default:
                                     stringBuilder.Insert(0, next);

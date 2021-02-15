@@ -52,10 +52,9 @@ namespace Das.Serializer
                                 Type newObjectType,
                                 ISerializerSettings settings)
         {
-            //_currentSettings = settings;
             var newObject = _dynamicFacade.ObjectInstantiator.BuildDefault(newObjectType,
                 settings.CacheTypeConstructors) ?? throw new NullReferenceException(newObjectType.Name);
-            //_currentSettings = settings;
+            
             return ConvertEx(obj, newObject, settings);
         }
 
@@ -68,7 +67,6 @@ namespace Das.Serializer
                          ISerializerSettings settings)
             where T : class
         {
-            //_currentSettings = settings;
             var to = FromType(from, settings);
 #pragma warning disable 8634
             Copy(from, ref to, settings);
@@ -80,9 +78,9 @@ namespace Das.Serializer
                             ref T to,
                             ISerializerSettings settings) where T : class
         {
-            //_currentSettings = settings;
+            
             to ??= FromType(from, settings);
-            //const SerializationDepth depth = SerializationDepth.Full;
+            
             _currentNodeType = _nodeTypes.GetNodeType(typeof(T));
             var o = (Object) to;
 
@@ -94,8 +92,6 @@ namespace Das.Serializer
             if (o is T good)
                 to = good;
             else throw new InvalidCastException(from.GetType() + " -> " + typeof(T).Name);
-
-            //to = (T) o;
         }
 
         public void Copy<T>(T from,
@@ -109,7 +105,6 @@ namespace Das.Serializer
                                       ISerializerSettings settings,
                                       Type? collectionGenericArgs = null)
         {
-            //_currentSettings = settings;
             var itemType = collectionGenericArgs ?? TypeInferrer.GetGermaneType(collectionType);
 
             if (collectionType.IsArray)
@@ -179,9 +174,7 @@ namespace Das.Serializer
                     var addDelegate = _dynamicFacade.TypeManipulator.GetAdder(ienum);
 
                     foreach (var child in objects)
-                    {
                         addDelegate(val, child);
-                    }
 
                     return val;
 
@@ -204,8 +197,6 @@ namespace Das.Serializer
                             Dictionary<object, object> references,
                             ISerializerSettings settings)
         {
-            //var settings = _currentSettings;
-
             if (to == null)
             {
                 to = from;
@@ -285,7 +276,7 @@ namespace Das.Serializer
             {
                 var toItem = _instantiate.BuildDefault(toListType,
                     settings.CacheTypeConstructors);
-                //?? throw new NullReferenceException(toListType.Name);
+                
                 toItem = Copy(fromItem, ref toItem, references, settings);
                 if (toItem != null)
                     tempTo.Add(toItem);
@@ -359,11 +350,7 @@ namespace Das.Serializer
         }
 
         private static readonly ThreadLocal<Dictionary<Object, Object>> References
-            = new(()
-                => new Dictionary<Object, Object>());
-
-        //[ThreadStatic]
-        //private static ISerializerSettings? _currentSettings;
+            = new(() => new Dictionary<Object, Object>());
 
         [ThreadStatic]
         private static NodeTypes _currentNodeType;

@@ -212,11 +212,11 @@ namespace Das.Types
             return res.ToString();
         }
 
-        public string ToClearNameNoGenericArgs(Type type,
-                                               Boolean isOmitAssemblyName)
-        {
-            return ToClearNameImpl(type, isOmitAssemblyName, false);
-        }
+        //public string ToClearNameNoGenericArgs(Type type,
+        //                                       Boolean isOmitAssemblyName)
+        //{
+        //    return ToClearNameImpl(type, isOmitAssemblyName, false);
+        //}
 
         public string ToClearName(Type type,
                                   TypeNameOption options= TypeNameOption.AssemblyName | 
@@ -247,59 +247,67 @@ namespace Das.Types
             else if (!String.IsNullOrWhiteSpace(type.Namespace))
             {
                 if (isOmitAssemblyName || type.Namespace?.StartsWith(Const.Tsystem) == true)
-                    name = type.FullName;
+                    name = type.FullName!;
                 else
                     name = $"{type.Assembly.ManifestModule.Name},{type.FullName}";
             }
             else
-                name = type.AssemblyQualifiedName;
+                name = type.AssemblyQualifiedName!;
 
             if (name == null)
-                return type.Name;
-            //return name;
-
-            if (!isOmitAssemblyName)
-                _cachedTypeNames.TryAdd(type, name);
-            TypeNames.TryAdd(name, type);
-            return name;
-        }
-
-        public String ToClearName(Type type,
-                                  Boolean isOmitAssemblyName)
-        {
-            return ToClearNameImpl(type, isOmitAssemblyName, true);
-        }
-
-        private String ToClearNameImpl(Type type,
-                                  Boolean isOmitAssemblyName,
-                                  Boolean isPrintGenericArgs)
-        {
-            if (!isOmitAssemblyName && _cachedTypeNames.TryGetValue(type, out var name))
-                return name;
-            if (type.IsGenericType)
-                name = GetClearGeneric(type, TypeNameOption.Invalid,
-                    isOmitAssemblyName, isPrintGenericArgs);
-            else if (IsLeaf(type, true) && !type.IsEnum)
-                name = type.Name;
-            else if (!String.IsNullOrWhiteSpace(type.Namespace))
             {
-                if (isOmitAssemblyName || type.Namespace?.StartsWith(Const.Tsystem) == true)
-                    name = type.FullName;
-                else
-                    name = $"{type.Assembly.ManifestModule.Name},{type.FullName}";
+                name = type.Name;
+                //return type.Name;
             }
-            else
-                name = type.AssemblyQualifiedName;
-
-            if (name == null)
-                return type.Name;
             //return name;
+
+            lock (_lockCachedTypeNames)
+            {
+                _cachedTypeNames2[type, options] = name;
+            }
 
             if (!isOmitAssemblyName)
                 _cachedTypeNames.TryAdd(type, name);
             TypeNames.TryAdd(name, type);
             return name;
         }
+
+        //public String ToClearName(Type type,
+        //                          Boolean isOmitAssemblyName)
+        //{
+        //    return ToClearNameImpl(type, isOmitAssemblyName, true);
+        //}
+
+        //private String ToClearNameImpl(Type type,
+        //                          Boolean isOmitAssemblyName,
+        //                          Boolean isPrintGenericArgs)
+        //{
+        //    if (!isOmitAssemblyName && _cachedTypeNames.TryGetValue(type, out var name))
+        //        return name;
+        //    if (type.IsGenericType)
+        //        name = GetClearGeneric(type, TypeNameOption.Invalid,
+        //            isOmitAssemblyName, isPrintGenericArgs);
+        //    else if (IsLeaf(type, true) && !type.IsEnum)
+        //        name = type.Name;
+        //    else if (!String.IsNullOrWhiteSpace(type.Namespace))
+        //    {
+        //        if (isOmitAssemblyName || type.Namespace?.StartsWith(Const.Tsystem) == true)
+        //            name = type.FullName;
+        //        else
+        //            name = $"{type.Assembly.ManifestModule.Name},{type.FullName}";
+        //    }
+        //    else
+        //        name = type.AssemblyQualifiedName;
+
+        //    if (name == null)
+        //        return type.Name;
+        //    //return name;
+
+        //    if (!isOmitAssemblyName)
+        //        _cachedTypeNames.TryAdd(type, name);
+        //    TypeNames.TryAdd(name, type);
+        //    return name;
+        //}
 
         public void ClearCachedNames()
         {
@@ -693,10 +701,10 @@ namespace Das.Types
                                        Boolean isPrintGenericArgs)
         {
             var sb = new StringBuilder();
-            if (!isOmitAssemblyName && !type.Namespace.StartsWith(Const.Tsystem))
+            if (!isOmitAssemblyName && !type.Namespace!.StartsWith(Const.Tsystem))
             {
                 sb.Append(type.Assembly.ManifestModule.Name);
-                sb.Append('.');
+                sb.Append(',');
             }
 
             if (type.Namespace != null &&
@@ -728,7 +736,7 @@ namespace Das.Types
             {
                 foreach (var subType in gargs)
                 {
-                    sb.Append($"[{ToClearName(subType, isOmitAssemblyName)}]");
+                    sb.Append($"[{ToClearName(subType, options)}]");
                 }
             }
 

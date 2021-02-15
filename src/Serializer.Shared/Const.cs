@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -17,6 +18,8 @@ namespace Das.Serializer
         //public const String XmlXsiNamespace = " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"";
         public const String XmlNull = "xsi:nil";
         public const String Empty = "";
+
+        public static readonly List<Type> EmptyTypeList = new(0);
 
         public const String RefAttr = "$ref";
         public const String RefTag = "__ref";

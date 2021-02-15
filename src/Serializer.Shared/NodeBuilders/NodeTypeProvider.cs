@@ -5,7 +5,8 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    public class NodeTypeProvider : TypeCore, INodeTypeProvider
+    public class NodeTypeProvider : TypeCore, 
+                                    INodeTypeProvider
     {
         public NodeTypeProvider(ITypeCore typeCore,
                                 ISerializerSettings settings)
@@ -14,7 +15,6 @@ namespace Das.Serializer
             _cachedNodeTypes = new ConcurrentDictionary<Type, NodeTypes>();
             _types = typeCore;
         }
-
 
         public NodeTypes GetNodeType(INode node)
         {
@@ -60,8 +60,6 @@ namespace Das.Serializer
 
             return output;
         }
-
-        //protected static readonly NullNode NullNode = NullNode.Instance;
 
         private readonly ConcurrentDictionary<Type, NodeTypes> _cachedNodeTypes;
 

@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+//using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -21,7 +22,7 @@ namespace Das.Serializer
                 IEnumerable<PropertyInfo>>();
 
             _typesKnownSettableProperties = new ConcurrentDictionary<Type, Boolean>();
-            CachedConstructors = new ConcurrentDictionary<Type, ConstructorInfo>();
+            CachedConstructors = new ConcurrentDictionary<Type, ConstructorInfo?>();
             CollectionTypes = new ConcurrentDictionary<Type, Boolean>();
             LeavesNotString = new ConcurrentDictionary<Type, Boolean>();
             LeavesYesString = new ConcurrentDictionary<Type, bool>();
@@ -119,8 +120,19 @@ namespace Das.Serializer
             if (_typesKnownSettableProperties.TryGetValue(type, out var yesOrNo))
                 return yesOrNo;
 
-            var allPublic = GetPublicProperties(type, false);
-            yesOrNo = allPublic.Any(p => p.CanWrite);
+            yesOrNo = false;
+
+            foreach (var pubProp in GetPublicProperties(type, false))
+            {
+                if (pubProp.CanWrite)
+                {
+                    yesOrNo = true;
+                    break;
+                }
+            }
+
+            //var allPublic = GetPublicProperties(type, false);
+            //yesOrNo = allPublic.Any(p => p.CanWrite);
             _typesKnownSettableProperties.TryAdd(type, yesOrNo);
             return yesOrNo;
         }
@@ -192,7 +204,15 @@ namespace Das.Serializer
             }
 
             res = type.GetProperties(BindingFlags.Instance | BindingFlags.Public);
-            var byName = new HashSet<String>(res.Select(p => p.Name));
+
+            var byName = new HashSet<String>();
+            foreach (var r in res)
+            {
+                byName.Add(r.Name);
+            }
+
+            
+            //var byName = new HashSet<String>(res.Select(p => p.Name));
 
             //todo: remove this and get it to work with explicits
             if (type.IsInterface)
@@ -287,41 +307,58 @@ namespace Das.Serializer
             constr = null!;
             var isAnomymous = IsAnonymousType(type);
 
-            if (!isAnomymous && CachedConstructors.TryGetValue(type, out constr!))
-                return constr != null;
+            constr = !isAnomymous
+                ? CachedConstructors.GetOrAdd(type, GetPropertiesCtorImpl)!
+                : GetPropertiesCtorImpl(type)!;
+            return constr != null;
+        }
 
-            var rProps = new Dictionary<String, Type>(
+        [ThreadStatic]
+        private static Dictionary<String, Type>? _rProps;
+
+        private static ConstructorInfo? GetPropertiesCtorImpl(Type type)
+        {
+            _rProps ??= new Dictionary<String, Type>(
                 StringComparer.OrdinalIgnoreCase);
 
-            foreach (var p in type.GetProperties().Where(p => !p.CanWrite && p.CanRead))
+            foreach (var p in type.GetProperties())
             {
-                rProps[p.Name] = p.PropertyType;
-            }
+                if (p.CanWrite || !p.CanRead)
+                    continue;
 
+                _rProps[p.Name] = p.PropertyType;
+            }
 
             foreach (var con in type.GetConstructors())
             {
-                if (con.GetParameters().Length <= 0 || !con.GetParameters().All(p =>
-                    !string.IsNullOrEmpty(p.Name) &&
-                    rProps.ContainsKey(p.Name) 
-                    &&  p.ParameterType.IsAssignableFrom(rProps[p.Name])))
-                    //&& rProps[p.Name] == p.ParameterType))
+                var ctorParams = con.GetParameters();
+                //if (ctorParams.Length == 0)
+                if (ctorParams.Length != _rProps.Count)
                     continue;
 
-                constr = con;
-                break;
+                foreach (var p in ctorParams)
+                {
+                    if (String.IsNullOrEmpty(p.Name) ||
+                        !_rProps.TryGetValue(p.Name, out var propType) ||
+                        !p.ParameterType.IsAssignableFrom(propType))
+                    {
+                        goto fail;
+                    }
+                }
+
+                _rProps.Clear();
+              
+                return con;
+
+                fail: ;
             }
 
-            if (constr == null)
-                return false;
-
-            if (isAnomymous)
-                return true;
-
-
-            CachedConstructors.TryAdd(type, constr);
-            return true;
+            _rProps.Clear();
+            return default;
         }
+
+
+      
 
         public static Boolean IsLeaf(Type t,
                                      Boolean isStringCounts)
@@ -365,7 +402,7 @@ namespace Das.Serializer
             return // value type or a string if desired
                 (t.IsValueType || isStringCounts && t == Const.StrType)
                 // not an object unless it's a nullable
-                && Type.GetTypeCode(t) > TypeCode.DBNull; //|| TryGetNullableTypeImpl(t, out _));
+                && Type.GetTypeCode(t) > TypeCode.DBNull; 
         }
 
         private static Type? GetKeyValuePair(Type dicType)
@@ -419,7 +456,7 @@ namespace Das.Serializer
         private static readonly ConcurrentDictionary<Type, Boolean> _typesKnownSettableProperties;
         private static readonly ConcurrentDictionary<Type, Type> _cachedGermane;
 
-        private static readonly ConcurrentDictionary<Type, ConstructorInfo> CachedConstructors;
+        private static readonly ConcurrentDictionary<Type, ConstructorInfo?> CachedConstructors;
 
         private static readonly ConcurrentDictionary<Type, Boolean> LeavesNotString;
         private static readonly ConcurrentDictionary<Type, Boolean> LeavesYesString;

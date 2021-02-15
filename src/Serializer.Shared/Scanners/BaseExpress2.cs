@@ -121,7 +121,7 @@ namespace Das.Serializer.Scanners
 
                     case NodeTypes.Dynamic:
                     case NodeTypes.PropertiesToConstructor:
-                        child = new RuntimeObject();
+                        child = new RuntimeObject(_types);
 
                         break;
 
@@ -206,7 +206,6 @@ namespace Das.Serializer.Scanners
                                     child = dtGood;
                                 }
                                 else child = DateTime.MinValue;
-                                //child = DateTime.Parse(stringBuilder.GetConsumingString());
 
                                 return child;
 
@@ -298,7 +297,7 @@ namespace Das.Serializer.Scanners
                                     prop.SetValue(child, propVal, null);
                                 else
                                     ((RuntimeObject) child!).Properties.Add(propName,
-                                        new RuntimeObject(propVal));
+                                        new RuntimeObject(_types, propVal));
 
                                 propsSet++;
                             }
@@ -349,7 +348,7 @@ namespace Das.Serializer.Scanners
                             }
                             else
                                 ((RuntimeObject) child!).Properties.Add(propName,
-                                    new RuntimeObject(nodePropVal!));
+                                    new RuntimeObject(_types, nodePropVal!));
 
                             propsSet++;
 

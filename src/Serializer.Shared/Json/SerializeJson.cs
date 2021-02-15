@@ -70,38 +70,16 @@ namespace Das.Serializer
         {
             using (var sp = _escapeSaver.Value!)
             {
-                //using (var state = StateProvider.BorrowJson(Settings))
-                {
-                    var jp = new JsonPrinter(sp, 
-                        Settings, StateProvider.TypeInferrer, StateProvider.NodeTypeProvider,
-                        StateProvider.ObjectManipulator);
-                        //state);
+                var jp = new JsonPrinter(sp,
+                    Settings, StateProvider.TypeInferrer, StateProvider.NodeTypeProvider,
+                    StateProvider.ObjectManipulator);
 
-                    //String str1, str2;
+                jp.PrintNode(string.Empty, asType, obj);
 
-                    //using (var node = PrintNodePool.GetNamedValue(String.Empty, obj, asType))
-                    {
-                        //jp.PrintNode(node);
-                        //var str1 = sp.ToString();
-                        //sp.Clear();
-
-
-                        jp.PrintNode(string.Empty, asType, obj);
-                            //NodeTypeProvider.GetNodeType(asType, _settings.SerializationDepth));
-                    }
-
-                    return sp.ToString();
-                    //str2 = sp.ToString();
-
-                    //if (str1 != str2)
-                    //{}
-
-                    //return str2;
-                }
+                return sp.ToString();
             }
         }
 
-        private static readonly ThreadLocal<StringSaver> _escapeSaver =
-            new(NewStringSaver);
+        private static readonly ThreadLocal<StringSaver> _escapeSaver = new(NewStringSaver);
     }
 }

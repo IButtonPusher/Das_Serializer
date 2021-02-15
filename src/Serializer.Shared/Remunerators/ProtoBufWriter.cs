@@ -49,14 +49,6 @@ namespace Das.Serializer.Remunerators
             return counter;
         }
 
-        //[MethodImpl(256)]
-        //public static int GetVarIntLength(Int32 value)
-        //{
-        //    var counter = 0;
-        //    GetVarIntLengthImpl(value, ref counter);
-        //    return counter;
-        //}
-
         [MethodImpl(256)]
         public static void Write(Byte[] vals,
                                  Stream _outStream)

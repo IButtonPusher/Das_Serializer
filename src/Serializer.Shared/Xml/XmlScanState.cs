@@ -18,7 +18,6 @@ namespace Das.Serializer.Xml
             }
 
             Char currentChar;
-            //var currentChar = txt[currentIndex];
 
             switch (scanState)
             {
@@ -54,15 +53,12 @@ namespace Das.Serializer.Xml
                     {
                         SkipUntil(ref currentIndex, txt, '>');
                         scanState = NodeScanState.None;
-                        //currentIndex++;
+                        
                         return AdvanceScanState(txt, ref currentIndex, stringBuilder, ref scanState);
                     }
 
                     goto readNodeName;
 
-                //case NodeScanState.EncodingNodeOpened:
-                //    //skip the chance of it being an encoding node if we already know it is
-                //    goto readNodeName;
 
                 case NodeScanState.EncodingNodeOpened:
                 case NodeScanState.ReadNodeName:

@@ -420,6 +420,13 @@ namespace Serializer.Tests.Xml
             var doc = await srl.FromXmlAsync<SvgDocument>(fi);
 
             Assert.NotNull(doc.Path);
+
+            //fi = new FileInfo(Path.Combine(
+            //    AppDomain.CurrentDomain.BaseDirectory,
+            //    "Xml",
+            //    "book.svg"));
+
+            //doc = await srl.FromXmlAsync<SvgDocument>(fi);
         }
 
         [Fact]

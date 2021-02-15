@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Das.Serializer
 {
     public interface ITypeStructure : ITypeStructureBase
-                                      //IValueSetter
+        //IValueSetter
     {
         SerializationDepth Depth { get; }
 
@@ -21,18 +21,9 @@ namespace Das.Serializer
         /// </summary>
         IEnumerable<INamedField> GetMembersToSerialize(ISerializationDepth depth);
 
-        //IProperty? GetProperty(Object o,
-        //                       String propertyName);
-
         Object? GetPropertyValue(Object o,
-                               String propertyName);
+                                 String propertyName);
 
-
-        ///// <summary>
-        /////     For a collection, returns the values.  Otherwise returns the property values
-        ///// </summary>
-        //IPropertyValueIterator<IProperty> GetPropertyValues(Object o,
-        //                                                    ISerializationDepth depth);
 
         IEnumerable<KeyValuePair<PropertyInfo, Object?>> IteratePropertyValues(Object o,
                                                                                ISerializationDepth depth);
@@ -48,14 +39,14 @@ namespace Das.Serializer
                                  Object targetObj,
                                  Object fieldVal);
 
-        Boolean TrySetPropertyValue(String propName,
-                                    ref Object targetObj,
-                                    Object? propVal,
-                                    SerializationDepth depth = SerializationDepth.AllProperties);
-
 
         Boolean TryGetAttribute<TAttribute>(String propertyName,
                                             out TAttribute value)
             where TAttribute : Attribute;
+
+        Boolean TrySetPropertyValue(String propName,
+                                    ref Object targetObj,
+                                    Object? propVal,
+                                    SerializationDepth depth = SerializationDepth.AllProperties);
     }
 }
