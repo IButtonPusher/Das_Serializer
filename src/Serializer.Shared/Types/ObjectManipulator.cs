@@ -168,13 +168,13 @@ namespace Das.Types
         ///     Attempts to set a property value for a targetObj which is a property of name propName
         ///     in a class of type classType
         /// </summary>
-        public Boolean SetProperty(Type classType,
+        public Boolean TrySetProperty(Type classType,
                                    String propName,
                                    ref Object targetObj,
                                    Object? propVal)
         {
             var str = _typeDelegates.GetTypeStructure(classType, DepthConstants.AllProperties);
-            return str.SetValue(propName, ref targetObj, propVal, SerializationDepth.AllProperties);
+            return str.TrySetPropertyValue(propName, ref targetObj, propVal);
         }
 
         public void SetMutableProperties(IEnumerable<PropertyInfo> mutable,
@@ -186,7 +186,7 @@ namespace Das.Types
                 if (!TryGetPropertyValue(source, m.Name, out var propVal))
                     continue;
 
-                SetProperty(target.GetType(), m.Name, ref target, propVal);
+                TrySetProperty(target.GetType(), m.Name, ref target, propVal);
             }
         }
 
@@ -194,7 +194,7 @@ namespace Das.Types
                                         String propName,
                                         Object? propVal)
         {
-            return SetProperty(targetObj.GetType(), propName, ref targetObj!, propVal);
+            return TrySetProperty(targetObj.GetType(), propName, ref targetObj!, propVal);
         }
 
         public void Method(Object obj,
@@ -212,7 +212,7 @@ namespace Das.Types
             if (!meths.TryGetValue(methodName, out var target))
             {
                 var meth = type.FindMethod(methodName, parameters, flags) ??
-                           throw new MissingMethodException(type.Name, methodName);
+                           throw new MissingMethodException(type.FullName, methodName);
 
                 if (meth.IsGenericMethod)
                     throw new NotSupportedException(
@@ -234,7 +234,7 @@ namespace Das.Types
                                       BindingFlags.Default | BindingFlags.Instance | BindingFlags.Public)
         {
             var meth = obj.GetType().FindMethod(methodName, parameters, flags) ??
-                       throw new MissingMethodException(obj.GetType().Name, methodName);
+                       throw new MissingMethodException(obj.GetType().FullName, methodName);
             meth = meth.MakeGenericMethod(genericParameters);
             meth.Invoke(obj, parameters);
         }
@@ -253,7 +253,7 @@ namespace Das.Types
                 return target(obj, parameters);
 
             var meth = type.FindMethod(funcName, parameters, flags) ??
-                       throw new MissingMethodException(type.Name, funcName);
+                       throw new MissingMethodException(type.FullName, funcName);
 
             #region TODO: don't use reflection for generic methods
 
@@ -276,7 +276,7 @@ namespace Das.Types
 
         {
             var meth = obj.GetType().FindMethod(funcName, parameters, flags) ??
-                       throw new MissingMethodException(obj.GetType().Name, funcName);
+                       throw new MissingMethodException(obj.GetType().FullName, funcName);
             meth = meth.MakeGenericMethod(genericParameters);
 
             return meth.Invoke(obj, parameters)!;

@@ -65,6 +65,8 @@ namespace Das.Serializer
             return res;
         }
 
+        #if !PARTIALTRUST
+
         public unsafe Int32 GetInt32(Byte[] value)
         {
             fixed (Byte* pbyte = &value[0])
@@ -85,6 +87,34 @@ namespace Das.Serializer
                 return new String(cptr, 0, tempByte.Length / 2);
             }
         }
+
+        #else
+
+
+        public Int32 GetInt32(Byte[] value)
+        {
+            return BitConverter.ToInt32(value, 0);
+        }
+
+
+        public String? GetString(Byte[] tempByte)
+        {
+
+
+            if (tempByte == null)
+                return null;
+
+            return BitConverter.ToString(tempByte, 0);
+
+            //fixed (Byte* bptr = tempByte)
+            //{
+            //    var cptr = (Char*) bptr;
+            //    return new String(cptr, 0, tempByte.Length / 2);
+            //}
+        }
+
+
+        #endif
 
 
         private readonly BinaryFormatter _fallbackFormatter;

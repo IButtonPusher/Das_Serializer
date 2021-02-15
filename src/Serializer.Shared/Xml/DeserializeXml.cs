@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Das.Extensions;
 
 #if !ALWAYS_EXPRESS
-using System.Runtime.CompilerServices;
+
 #endif
 
 namespace Das.Serializer
@@ -29,10 +30,26 @@ namespace Das.Serializer
             //#endif
         }
 
-        public T FromXmlEx<T>(String xml)
+        public async Task<T> FromXmlAsync<T>(Stream stream)
         {
-            return XmlExpress.Deserialize<T>(xml, Settings, _empty);
+            stream.Position = 0;
+            var buffer = new Byte[(Int32) stream.Length];
+            await _readAsync(stream, buffer, 0, buffer.Length);
+            var encoding = buffer.GetEncoding();
+            var txt = encoding.GetString(buffer, 0, buffer.Length);
+            return XmlExpress.Deserialize<T>(txt, Settings, _empty);
+
+            //using (TextReader tr = new StreamReader(stream))
+            //{
+            //    var xml = await _readToEndAsync(tr).ConfigureAwait(true);
+            //    return XmlExpress.Deserialize<T>(xml, Settings, _empty);
+            //}
         }
+
+        //public T FromXmlEx<T>(String xml)
+        //{
+        //    return XmlExpress.Deserialize<T>(xml, Settings, _empty);
+        //}
 
         public IEnumerable<T> FromXmlItems<T>(String xml)
         {

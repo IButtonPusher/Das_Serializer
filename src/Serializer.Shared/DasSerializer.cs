@@ -1,11 +1,10 @@
-﻿using Das.Serializer.ProtoBuf;
+﻿//using Das.Serializer.ProtoBuf;
 using System;
 using System.Threading.Tasks;
 
 #if !NET40
 
 #else
-using Das.Serializer.ProtoBuf;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -85,10 +84,10 @@ namespace Das.Serializer
         public override IProtoSerializer GetProtoSerializer<TPropertyAttribute>(
             IProtoBufOptions<TPropertyAttribute> options)
         {
-            var protoProv = new ProtoDynamicProvider<TPropertyAttribute>(options, TypeManipulator,
+            var protoProv = new ProtoBuf.ProtoDynamicProvider<TPropertyAttribute>(options, TypeManipulator,
                 ObjectInstantiator, ObjectManipulator);
 
-            return new ProtoBufSerializer(StateProvider, Settings,
+            return new ProtoBuf.ProtoBufSerializer(StateProvider, Settings,
                 protoProv);
         }
 

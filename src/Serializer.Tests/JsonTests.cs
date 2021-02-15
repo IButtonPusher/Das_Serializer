@@ -36,6 +36,25 @@ namespace Serializer.Tests.Json
             Assert.True(isOk);
         }
 
+        [Fact]
+        public void SpecifyRuntimeObject()
+        {
+            var vvq = GetAnonymousObject();
+
+            var json = _serializer.ToJson(vvq);
+            var res = _serializer.FromJson<RuntimeObject>(json);
+
+            var isOk = Equals(res["Id"], _serializer.ObjectManipulator.GetPropertyValue(vvq, "Id")) &&
+                       Equals(res["Name"], _serializer.ObjectManipulator.GetPropertyValue(vvq, "Name")) &&
+                       Equals(res["NumericString"], _serializer.ObjectManipulator.GetPropertyValue(vvq, "NumericString")) && 
+                       Equals(res["ZipCode"], _serializer.ObjectManipulator.GetPropertyValue(vvq, "ZipCode"));
+
+
+            //var isOk = SlowEquality.AreEqual(res, vvq);
+            Assert.True(isOk);
+        }
+
+
         
         [Fact]
         public void EmptyStringIsNotNull()
@@ -155,6 +174,11 @@ namespace Serializer.Tests.Json
             var json = Serializer.ToJson(mc1);
             var res = Serializer.FromJson<PrimitiveArray>(json);
             Assert.True(mc1.StringArray.SequenceEqual(res.StringArray));
+
+            mc1.StringArray = new String[0];
+            json = Serializer.ToJson(mc1);
+            res = Serializer.FromJson<PrimitiveArray>(json);
+            Assert.True(mc1.StringArray.SequenceEqual(res.StringArray));
         }
 
 
@@ -208,7 +232,7 @@ namespace Serializer.Tests.Json
         [Fact]
         public void GdiColorInferredJson()
         {
-            Serializer.Settings.NotFoundBehavior = TypeNotFound.ThrowException;
+            Serializer.Settings.TypeNotFoundBehavior = TypeNotFoundBehavior.ThrowException;
 
             var clr = Color.Purple;
             Serializer.Settings.TypeSpecificity = TypeSpecificity.All;

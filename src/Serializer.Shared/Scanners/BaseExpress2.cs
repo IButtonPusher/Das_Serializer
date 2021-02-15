@@ -121,7 +121,7 @@ namespace Das.Serializer.Scanners
 
                     case NodeTypes.Dynamic:
                     case NodeTypes.PropertiesToConstructor:
-                        child = new RuntimeObject();
+                        child = new RuntimeObject(_types);
 
                         break;
 
@@ -150,7 +150,20 @@ namespace Das.Serializer.Scanners
                         stringBuilder.Clear();
 
                         if (nodeScanState != NodeScanState.NodeSelfClosed)
+                        {
                             AdvanceScanState(txt, ref currentIndex, stringBuilder, ref nodeScanState);
+
+                            if (nodeScanState == NodeScanState.JustOpened)
+                            {
+                                // a primitive value needlessly wrapped in another tag 
+                                // e.g. <item><key><string>why!?</string></key></item>
+                                child = DeserializeNode(txt, ref currentIndex, stringBuilder, specifiedType,
+                                    settings, ctorValues, ref nodeScanState, parent, nodeIsProperty,
+                                    root, false);
+                                AdvanceScanState(txt, ref currentIndex, stringBuilder, ref nodeScanState);
+                                return child;
+                            }
+                        }
 
                         switch (code)
                         {
@@ -193,7 +206,6 @@ namespace Das.Serializer.Scanners
                                     child = dtGood;
                                 }
                                 else child = DateTime.MinValue;
-                                //child = DateTime.Parse(stringBuilder.GetConsumingString());
 
                                 return child;
 
@@ -214,12 +226,13 @@ namespace Das.Serializer.Scanners
                                 return null;
                         }
 
-                        var conv = _types.GetTypeConverter(specifiedType);
+                        //var conv = _types.GetTypeConverter(specifiedType);
 
                         AdvanceScanStateUntil(txt, ref currentIndex, stringBuilder,
                             NodeScanState.StartOfNodeClose, ref nodeScanState);
 
-                        return conv.ConvertFrom(stringBuilder.GetConsumingString());
+                        return _types.ConvertTo(stringBuilder.GetConsumingString(), specifiedType);
+                        //return conv.ConvertFrom(stringBuilder.GetConsumingString());
 
                     default:
                         throw new NotImplementedException();
@@ -284,7 +297,7 @@ namespace Das.Serializer.Scanners
                                     prop.SetValue(child, propVal, null);
                                 else
                                     ((RuntimeObject) child!).Properties.Add(propName,
-                                        new RuntimeObject(propVal));
+                                        new RuntimeObject(_types, propVal));
 
                                 propsSet++;
                             }
@@ -335,7 +348,7 @@ namespace Das.Serializer.Scanners
                             }
                             else
                                 ((RuntimeObject) child!).Properties.Add(propName,
-                                    new RuntimeObject(nodePropVal!));
+                                    new RuntimeObject(_types, nodePropVal!));
 
                             propsSet++;
 

@@ -16,7 +16,5 @@ namespace Das.Serializer
         Byte[] HeaderBytes { get; }
 
         MethodInfo? SetMethod { get; }
-
-        //Object GetValue(Object from);
     }
 }

@@ -43,7 +43,7 @@ namespace Serializer.Tests
         }
 
         protected readonly DasSerializer srl;
-        private DasSerializer _serializer;
+        protected DasSerializer _serializer;
 
         protected IProtoSerializer ProtoSerializer;
 

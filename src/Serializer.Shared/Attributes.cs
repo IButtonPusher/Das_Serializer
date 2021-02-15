@@ -16,6 +16,7 @@ namespace Das.Serializer
     // ReSharper disable once ClassNeverInstantiated.Global
     public class IndexedMemberAttribute : Attribute
     {
+        // ReSharper disable once UnusedAutoPropertyAccessor.Global
         public Int32 Index { get; set; }
     }
 }

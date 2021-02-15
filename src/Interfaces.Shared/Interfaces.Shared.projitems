@@ -24,7 +24,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IObjectManipulator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IRuntimeObject.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\ITypeStructureBase.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IValueSetter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dynamics\TypeNameOption.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IProtoProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Nodes\AttributeValue.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\ProtoFieldAction.cs" />
@@ -51,8 +51,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Nodes\IScanNodeProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Nodes\INodeSealer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Nodes\INodeTypeProvider.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Nodes\ITextNode.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Nodes\ITextNodeProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Nodes\NodeTypes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\DasMember.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Objects\DasProperty.cs" />
@@ -68,13 +66,11 @@
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IBinaryScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\INumberExtractor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IPrimitiveScanner.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Scanners\IProtoFeeder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IScannerBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IStreamWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IStringPrimitiveScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\ITextAccessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\ITextParser.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Scanners\ITextScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\CircularReference.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\DefaultValueOmission.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\IProtoBufOptions.cs" />
@@ -83,9 +79,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)Settings\ISerializationDepth.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\ISettingsUser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\PrintPropertyFormat.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Settings\PropertyNotFoundBehavior.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\TextPropertySearchDepths.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\SerializationDepth.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Settings\TypeNotFound.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Settings\TypeNotFoundBehavior.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\TypeSpecificity.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\IBinaryContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\IBinaryLoaner.cs" />

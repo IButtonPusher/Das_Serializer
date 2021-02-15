@@ -59,7 +59,7 @@ namespace Das.Serializer
 
             var wal = node.Value ?? throw new NullReferenceException(node.ToString());
             var t = wal.GetType();
-            if (_objects.SetProperty(t, name, ref wal, value)) return;
+            if (_objects.TrySetProperty(t, name, ref wal, value)) return;
 
             wal = node.Value;
 

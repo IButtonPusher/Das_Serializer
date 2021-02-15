@@ -27,10 +27,10 @@ namespace Das.Serializer
 
         Task<T> FromJsonAsync<T>(Stream stream);
 
-        T FromJsonEx<T>(String json);
+        //T FromJsonEx<T>(String json);
 
-        T FromJsonEx<T>(String json,
-                        Object[] ctorValues);
+        //T FromJsonEx<T>(String json,
+        //                Object[] ctorValues);
 
         String JsonEscape(String str);
 

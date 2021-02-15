@@ -20,10 +20,10 @@ namespace Das.Serializer
 
         public Boolean IsRespectXmlIgnore { get; }
 
-        public static ISerializationDepth Full =
+        public static readonly ISerializationDepth Full =
             new DepthConstants(SerializationDepth.Full, true, false);
 
-        public static ISerializationDepth AllProperties =
+        public static readonly ISerializationDepth AllProperties =
             new DepthConstants(SerializationDepth.AllProperties, true, false);
     }
 }

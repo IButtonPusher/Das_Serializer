@@ -61,12 +61,18 @@ namespace Das.Serializer.Remunerators
             }
         }
 
+        #if !PARTIALTRUST
+
         public unsafe void Append(Byte* bytes,
                                   Int32 count)
         {
             for (var c = 0; c < count; c++)
                 _backingList.Add(bytes[c]);
         }
+
+#else
+
+#endif
 
 
         public void Clear()

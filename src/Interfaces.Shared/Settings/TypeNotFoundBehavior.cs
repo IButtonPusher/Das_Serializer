@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    public enum TypeNotFound
+    public enum TypeNotFoundBehavior
     {
         /// <summary>
         ///     Attempt to generate a dynamic type at runtime

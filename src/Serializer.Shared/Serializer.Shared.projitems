@@ -35,8 +35,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)NodeBuilders\NodeManipulator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NodeBuilders\NodeProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NodeBuilders\NodeTypeProvider.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)NodeBuilders\TextNodeProvider.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)NodeBuilders\TextNodeSealer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NodeBuilders\XmlNodeTypeProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ObjectConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Printers\BinaryPrinter.cs" />
@@ -82,8 +80,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\NullNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\NodeScanState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\StringPrimitiveScanner.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Scanners\TextNode.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Scanners\ValueArgsBuilder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\XmlPrimitiveScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SerializerCore.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\AssemblyList.cs" />

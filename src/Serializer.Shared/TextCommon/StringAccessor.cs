@@ -105,10 +105,10 @@ namespace Das.Serializer
             return accessMe == null ? null : new StringAccessor(accessMe);
         }
 
-        public static implicit operator String?(StringAccessor? accessMe)
-        {
-            return accessMe?._accessing;
-        }
+        //public static implicit operator String?(StringAccessor? accessMe)
+        //{
+        //    return accessMe?._accessing;
+        //}
 
         public String Remove(Int32 start,
                              Int32 length)

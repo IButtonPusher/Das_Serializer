@@ -26,7 +26,9 @@ namespace Das.Serializer
 
         Task<T> FromXmlAsync<T>(FileInfo file);
 
-        T FromXmlEx<T>(String xml);
+        Task<T> FromXmlAsync<T>(Stream stream);
+
+        //T FromXmlEx<T>(String xml);
 
         IEnumerable<T> FromXmlItems<T>(String xml);
 

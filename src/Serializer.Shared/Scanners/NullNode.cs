@@ -6,7 +6,8 @@ using Das.Serializer.Types;
 
 namespace Das.Serializer
 {
-    public class NullNode : ITextNode, IBinaryNode, IEquatable<INode>
+    public class NullNode : //ITextNode, 
+                            IBinaryNode, IEquatable<INode>
     {
         static NullNode()
         {
@@ -17,7 +18,7 @@ namespace Das.Serializer
         {
             _attributes = new InvalidCollection<String, AttributeValue>();
             DynamicProperties = new InvalidCollection<String, Object?>();
-            Children = new InvalidCollection<String, ITextNode>();
+            //Children = new InvalidCollection<String, ITextNode>();
             PendingReferences = new List<IBinaryNode>();
         }
 
@@ -45,11 +46,11 @@ namespace Das.Serializer
 
         INode INode.Parent => Instance;
 
-        ITextNode INode<ITextNode>.Parent
-        {
-            get => Instance;
-            set => throw new InvalidOperationException();
-        }
+        //ITextNode INode<ITextNode>.Parent
+        //{
+        //    get => Instance;
+        //    set => throw new InvalidOperationException();
+        //}
 
         public Type? Type
         {
@@ -98,10 +99,10 @@ namespace Das.Serializer
             throw new InvalidOperationException();
         }
 
-        IEnumerator<ITextNode> IEnumerable<ITextNode>.GetEnumerator()
-        {
-            yield break;
-        }
+        //IEnumerator<ITextNode> IEnumerable<ITextNode>.GetEnumerator()
+        //{
+        //    yield break;
+        //}
 
         IEnumerator IEnumerable.GetEnumerator()
         {
@@ -120,27 +121,27 @@ namespace Das.Serializer
         {
         }
 
-        public String Text => String.Empty;
+        //public String Text => String.Empty;
 
 
-        public void Append(String str)
-        {
-        }
+        //public void Append(String str)
+        //{
+        //}
 
-        public void Append(Char c)
-        {
-        }
+        //public void Append(Char c)
+        //{
+        //}
 
-        public void SetText(Object value)
-        {
-        }
+        //public void SetText(Object value)
+        //{
+        //}
 
-        public void AddChild(ITextNode node)
-        {
-            throw new InvalidOperationException();
-        }
+        //public void AddChild(ITextNode node)
+        //{
+        //    throw new InvalidOperationException();
+        //}
 
-        public IDictionary<String, ITextNode> Children { get; }
+        //public IDictionary<String, ITextNode> Children { get; }
 
 
         public static NullNode Instance { get; }

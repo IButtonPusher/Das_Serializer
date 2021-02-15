@@ -285,9 +285,16 @@ namespace Das.Serializer
         {
             // ReSharper disable once ConstantNullCoalescingCondition
             _sb ??= GetBackingBuilder();
-            //if (_sb == null)
-            //    Undispose();
+            
             _sb.Clear();
+        }
+
+        public String GetConsumingString()
+        {
+            _sb ??= GetBackingBuilder();
+            var res = _sb.ToString();
+            _sb.Clear();
+            return res;
         }
 
         [MethodImpl(256)]
