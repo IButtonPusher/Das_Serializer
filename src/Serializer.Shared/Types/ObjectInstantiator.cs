@@ -61,8 +61,6 @@ namespace Das.Serializer
                     else
                         return CreateInstanceDetectConstructor(type);
 
-                //return Activator.CreateInstance(type);
-
                 case InstantiationType.Emit:
                     if (isCacheConstructors)
                         return CreateInstanceCacheConstructor(type);
@@ -72,23 +70,30 @@ namespace Das.Serializer
                 case InstantiationType.EmptyArray:
                     var germane = _typeInferrer.GetGermaneType(type);
                     return Array.CreateInstance(germane, 0);
+
                 case InstantiationType.Uninitialized:
                     return FormatterServices.GetUninitializedObject(type);
+
                 case InstantiationType.NullObject:
                     return null;
+
                 case InstantiationType.Abstract:
                     switch (Settings.TypeNotFoundBehavior)
                     {
                         case TypeNotFoundBehavior.GenerateRuntime:
                             var dynamicType = _dynamicTypes.GetDynamicImplementation(type);
                             return Activator.CreateInstance(dynamicType);
+
                         case TypeNotFoundBehavior.ThrowException:
                             throw new TypeLoadException(type.Name);
+
                         case TypeNotFoundBehavior.NullValue:
                             return null;
+
                         default:
                             throw new NotImplementedException();
                     }
+
                 default:
                     throw new NotImplementedException();
             }
@@ -296,7 +301,7 @@ namespace Das.Serializer
                 $"Type '{type.Name}' doesn't have the requested constructor.");
         }
 
-        private InstantiationType GetInstantiationType(Type type)
+        public InstantiationType GetInstantiationType(Type type)
         {
             if (InstantionTypes.TryGetValue(type, out var res))
                 return res;
@@ -348,20 +353,8 @@ namespace Das.Serializer
             var ownerType = type.IsGenericType
                 ? typeof(ObjectInstantiator)
                 : type;
-            //if (type.IsGenericType)
-            //{
-            //    var garg =  type.GetGenericArguments()[0];
-            //    if (!garg.IsValueType && garg != typeof(String))
-            //    {
-            //        if (!garg.IsInterface)
-            //            ownerType = garg;
-            //        else 
-            //            ownerType = typeof(ObjectInstantiator);
-            //    }
-            //}
 
             var dynamicMethod = new DynamicMethod("DM$_" + type.Name, type, argTypes, ownerType);
-            //var dynamicMethod = new DynamicMethod("DM$_" + type.Name, type, argTypes, type);
 
             var ilGen = dynamicMethod.GetILGenerator();
 

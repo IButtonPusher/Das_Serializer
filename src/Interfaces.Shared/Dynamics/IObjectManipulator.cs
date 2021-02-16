@@ -42,7 +42,7 @@ namespace Das.Serializer
                            Object[] parameters,
                            BindingFlags flags = BindingFlags.Public | BindingFlags.Instance);
 
-      
+
         IEnumerable<KeyValuePair<PropertyInfo, Object?>> GetPropertyResults(Object? val);
 
         IEnumerable<KeyValuePair<PropertyInfo, Object?>> GetPropertyResults(Object? val,
@@ -55,8 +55,6 @@ namespace Das.Serializer
         Object? GetPropertyValue(Object obj,
                                  String propertyName);
 
-
-        //IEnumerable<IProperty> GetPropertyValues<T>(T obj);
 
         void Method(Object obj,
                     String methodName,
@@ -84,11 +82,6 @@ namespace Das.Serializer
                                   Object source,
                                   Object target);
 
-        Boolean TrySetProperty(Type classType,
-                            String propName,
-                            ref Object targetObj,
-                            Object? propVal);
-
         Boolean SetPropertyValue(ref Object targetObj,
                                  String propName,
                                  Object? propVal);
@@ -106,5 +99,10 @@ namespace Das.Serializer
         Boolean TryGetPropertyValue(Object obj,
                                     String propertyName,
                                     out Object result);
+
+        Boolean TrySetProperty(Type classType,
+                               String propName,
+                               ref Object targetObj,
+                               Object? propVal);
     }
 }

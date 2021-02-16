@@ -22,11 +22,10 @@ namespace Das.Serializer
 
         Boolean Contains(String str);
 
-        void CopyTo(
-            int sourceIndex,
-            char[] destination,
-            int destinationIndex,
-            int count);
+        void CopyTo(int sourceIndex,
+                    char[] destination,
+                    int destinationIndex,
+                    int count);
 
         Int32 Count(Char c);
 

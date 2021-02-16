@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
+
 using Serializer.Tests;
 using Serializer.Tests.ProtocolBuffers;
 
@@ -18,16 +19,19 @@ namespace Serializer.Benchmarks
             #if DEBUG
             //RunManyTimes();
 
-            //RunJsonManyTimes();
+            RunJsonManyTimes();
+            //var jb = new JsonBenchmarks();
+            //var rdrr = jb.JsonNetPrimitivePropertiesJson();
+            
 
-            RunXmlManyTimes();
+            //RunXmlManyTimes();
 
-            #endif
-            #if !DEBUG
+            #else
+
             if (args == null || args.Length == 0)
             //if (false)
             {
-                //BenchmarkRunner.Run<JsonBenchmarks>();
+                BenchmarkRunner.Run<JsonBenchmarks>();
                 BenchmarkRunner.Run<ProtoBufTests>();
             }
             else
@@ -38,11 +42,13 @@ namespace Serializer.Benchmarks
         private static void RunJsonManyTimes()
         {
             var bm = new JsonBenchmarks();
+            var wafl = bm.JsonNetPrimitivePropertiesJson();
 
             for (var c = 0; c < 10000; c++)
             {
-                bm.PrimitivePropertiesJsonBaseline();
-                bm.PrimitivePropertiesJsonExpress();
+                bm.DasPrimitivePropertiesJson();
+                //bm.PrimitivePropertiesJsonBaseline();
+                //bm.PrimitivePropertiesJsonExpress();
             }
         }
 

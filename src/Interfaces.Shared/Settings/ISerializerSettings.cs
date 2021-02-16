@@ -31,9 +31,6 @@ namespace Das.Serializer
         /// </summary>
         Boolean IsPropertyNamesCaseSensitive { get; set; }
 
-
-        PrintPropertyFormat PrintJsonPropertiesFormat { get; set; }
-
         /// <summary>
         ///     Using attributes can make the markup smaller but can limit compatibility with other serializers
         /// </summary>
@@ -41,16 +38,13 @@ namespace Das.Serializer
 
         String NewLine { get; set; }
 
-        /// <summary>
-        ///     If an unknown type is in the serialized data, a dynamic type can be built
-        ///     at runtime including properties.
-        /// </summary>
-        TypeNotFoundBehavior TypeNotFoundBehavior { get; set; }
 
-        
+        PrintPropertyFormat PrintJsonPropertiesFormat { get; set; }
+
+
         /// <summary>
-        /// If data exists in markup but no property can be found for the known type that is being
-        /// deserialized to.
+        ///     If data exists in markup but no property can be found for the known type that is being
+        ///     deserialized to.
         /// </summary>
         PropertyNotFoundBehavior PropertyNotFoundBehavior { get; set; }
 
@@ -59,6 +53,12 @@ namespace Das.Serializer
         ///     deserializing text as JSON or XML
         /// </summary>
         TextPropertySearchDepths PropertySearchDepth { get; }
+
+        /// <summary>
+        ///     If an unknown type is in the serialized data, a dynamic type can be built
+        ///     at runtime including properties.
+        /// </summary>
+        TypeNotFoundBehavior TypeNotFoundBehavior { get; set; }
 
 
         /// <summary>

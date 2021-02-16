@@ -11,15 +11,15 @@ namespace Das.Serializer
     public interface IAssemblyList
     {
         /// <summary>
-        /// Returns all the assemblies that are referenced by the running process
+        ///     Returns all the assemblies that are referenced by the running process
         /// </summary>
         IEnumerable<Assembly> GetAll();
 
         Boolean TryGetAssemblyByFileName(String fileName,
-                               out Assembly assembly);
+                                         out Assembly assembly);
 
         Boolean TryGetAssemblyByName(String name,
-                                         out Assembly assembly);
+                                     out Assembly assembly);
 
         Type? TryGetConcreteType(Type interfaceType);
     }

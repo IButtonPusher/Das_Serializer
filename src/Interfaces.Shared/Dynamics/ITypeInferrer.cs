@@ -53,8 +53,10 @@ namespace Das.Serializer
 
         Boolean IsDefaultValue<T>(T value);
 
+        String ToCamelCase(String name);
+
         String ToClearName(Type type,
-                           TypeNameOption options = TypeNameOption.AssemblyName | 
+                           TypeNameOption options = TypeNameOption.AssemblyName |
                                                     TypeNameOption.Namespace);
 
         //String ToClearName(Type type,
@@ -67,8 +69,6 @@ namespace Das.Serializer
         ///     Pascal cases the string
         /// </summary>
         String ToPascalCase(String name);
-
-        String ToCamelCase(String name);
 
         String ToSnakeCase(String name);
     }

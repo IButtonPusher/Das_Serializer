@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    public interface IMultiSerializer : IJsonSerializer, 
+    public interface IMultiSerializer : IJsonSerializer,
                                         IBinarySerializer,
-                                        IXmlSerializer, 
+                                        IXmlSerializer,
                                         ISerializationState
     {
         IStateProvider StateProvider { get; }

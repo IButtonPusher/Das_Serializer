@@ -7,6 +7,19 @@ namespace Das.Serializer
 {
     public interface ITypeCore : ISettingsUser
     {
+        Boolean CanChangeType(Type from,
+                              Type to);
+
+        Object ConvertFromInvariantString(String str,
+                                          Type toType);
+
+        //TypeConverter GetTypeConverter(Type type);
+
+        Object? ConvertTo(Object obj,
+                          Type type);
+
+        String ConvertToInvariantString(Object obj);
+
         /// <summary>
         ///     Searches base classes/interfaces more easily than using Type.GetProperty with
         ///     a labyrinth of BindingFlags
@@ -22,19 +35,6 @@ namespace Das.Serializer
 
         IEnumerable<PropertyInfo> GetPublicProperties(Type type,
                                                       Boolean numericFirst = true);
-
-        //TypeConverter GetTypeConverter(Type type);
-
-        Object? ConvertTo(Object obj,
-                          Type type);
-
-        String ConvertToInvariantString(Object obj);
-
-        Object ConvertFromInvariantString(String str,
-                                          Type toType);
-
-        Boolean CanChangeType(Type from,
-                              Type to);
 
         Boolean HasEmptyConstructor(Type t);
 
@@ -77,6 +77,5 @@ namespace Das.Serializer
         //Boolean TryGetPropertiesConstructor(Type type,
         //                                    Object[] additionalCtorValues,
         //                                    out ConstructorInfo constr);
-
     }
 }

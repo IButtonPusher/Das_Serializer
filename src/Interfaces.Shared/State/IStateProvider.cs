@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    public interface IStateProvider : ISerializationCore, 
+    public interface IStateProvider : ISerializationCore,
                                       IConverterProvider
     {
         //IBinaryContext BinaryContext { get; }

@@ -27,9 +27,9 @@ namespace Das.Serializer
         public abstract IEnumerable<T> DeserializeMany<T>(String txt);
 
         [MethodImpl(256)]
-        protected Boolean AdvanceUntil(Char target,
-                                       ref Int32 currentIndex,
-                                       String txt)
+        protected Boolean AdvanceUntil(ref Int32 currentIndex,
+                                       String txt,
+                                       Char target)
         {
             for (; currentIndex < txt.Length; currentIndex++)
             {
@@ -38,7 +38,7 @@ namespace Das.Serializer
                 if (current == target)
                     return true;
 
-                if (current == _endArrayChar || current == _endBlockChar)
+                if (current == _endBlockChar || current == _endArrayChar)
                     return false;
             }
 

@@ -59,11 +59,11 @@ namespace Das.Serializer.Json
                 {
                     root = _instantiator.BuildDefault(type, true) ?? throw new InvalidOperationException();
                     DeserializeImpl<Object>(ref root, ref currentIndex, json, type,
-                        ref root, ctorValues, true, settings);
+                        ref root, ctorValues, true, settings, sb);
                     return root!;
                 }
 
-                AdvanceUntil('{', ref currentIndex, json);
+                AdvanceUntil(ref currentIndex, json, '{');
                 currentIndex++;
 
                 return GetValue(ref currentIndex, json,
@@ -118,7 +118,7 @@ namespace Das.Serializer.Json
                                             Object[] ctorValues,
                                             ISerializerSettings settings)
         {
-            AdvanceUntil('{', ref currentIndex, json);
+            AdvanceUntil(ref currentIndex, json, '{');
 
             while (TryGetNextString(ref currentIndex, json, stringBuilder))
             {
@@ -164,7 +164,7 @@ namespace Das.Serializer.Json
                 root ??= child;
 
                 DeserializeImpl(ref child, ref currentIndex, json, type,
-                    ref root, ctorValues, isRootLevel, settings);
+                    ref root, ctorValues, isRootLevel, settings, stringBuilder);
             }
             else if (_typeInference.TryGetPropertiesConstructor(type, out var ctor))
             {
@@ -183,11 +183,11 @@ namespace Das.Serializer.Json
                 root ??= child;
 
                 DeserializeImpl(ref child, ref currentIndex, json, type,
-                    ref root, ctorValues, isRootLevel, settings);
+                    ref root, ctorValues, isRootLevel, settings,  stringBuilder);
             }
             else throw new InvalidOperationException();
 
-            AdvanceUntil('}', ref currentIndex, json);
+            AdvanceUntil(ref currentIndex, json, '}');
             currentIndex++;
 
             return child;
@@ -200,11 +200,12 @@ namespace Das.Serializer.Json
                                         ref Object? root,
                                         Object[] ctorValues,
                                         Boolean isRootLevel,
-                                        ISerializerSettings settings)
+                                        ISerializerSettings settings,
+                                        StringBuilder stringBuilder)
         {
-            var stringBuilder = new StringBuilder();
+            //var stringBuilder = new StringBuilder();
 
-            AdvanceUntil('{', ref currentIndex, json);
+            AdvanceUntil(ref currentIndex, json, '{');
 
             while (TryGetNextString(ref currentIndex, json, stringBuilder))
             {
@@ -401,14 +402,14 @@ namespace Das.Serializer.Json
 
                     collection.Add(current);
 
-                    if (!AdvanceUntil(',', ref currentIndex, json))
+                    if (!AdvanceUntil(ref currentIndex, json, ','))
                         break;
 
                     currentIndex++;
                 }
             }
 
-            AdvanceUntil(']', ref currentIndex, json);
+            AdvanceUntil(ref currentIndex, json, ']');
             currentIndex++;
 
             if (type.IsArray)
@@ -658,7 +659,7 @@ namespace Das.Serializer.Json
                                          String json,
                                          StringBuilder sbString)
         {
-            if (!AdvanceUntil('"', ref currentIndex, json))
+            if (!AdvanceUntil(ref currentIndex, json, '"'))
                 return false;
 
             for (currentIndex++; currentIndex < json.Length; currentIndex++)

@@ -45,5 +45,7 @@ namespace Das.Serializer
 
         Boolean TryGetPropertiesConstructor(Type type,
                                             out ConstructorInfo constr);
+
+        //InstantiationType GetInstantiationType(Type type);
     }
 }

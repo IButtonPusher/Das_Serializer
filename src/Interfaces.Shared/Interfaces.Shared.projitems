@@ -92,6 +92,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)State\IStateProvider.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="$(MSBuildThisFileDirectory)ObjectPools\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Types\" />
   </ItemGroup>
 </Project>

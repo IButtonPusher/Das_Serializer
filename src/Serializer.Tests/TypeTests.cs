@@ -144,7 +144,7 @@ namespace Serializer.Tests
         {
             for (var c = 0; c < 5; c++)
             {
-                var getter = TypeManipulator.CreateDynamicPropertyGetter(typeof(ISimpleClass),
+                var getter = Das.Types.TypeManipulator.CreateDynamicPropertyGetter(typeof(ISimpleClass),
                     nameof(ISimpleClass.Name));
 
                 var inst = new SimpleClass2 {Name = "bobbith"};
@@ -154,7 +154,7 @@ namespace Serializer.Tests
 
                 var ezProp = typeof(TestCompositeClass).GetProperty(
                     nameof(TestCompositeClass.SimpleLeft));
-                var func = TypeManipulator.CreateDynamicPropertyGetter(typeof(TestCompositeClass),
+                var func = Das.Types.TypeManipulator.CreateDynamicPropertyGetter(typeof(TestCompositeClass),
                     ezProp!);
 
                 var obj = TestCompositeClass.Init();
@@ -163,7 +163,7 @@ namespace Serializer.Tests
                 Assert.Equal(res, obj.SimpleLeft);
 
 
-                var func2 = TypeManipulator.CreateDynamicPropertyGetter(typeof(TestCompositeClass),
+                var func2 = Das.Types.TypeManipulator.CreateDynamicPropertyGetter(typeof(TestCompositeClass),
                     nameof(TestCompositeClass.SimpleLeft) + "." +
                     nameof(SimpleClassObjectProperty.Name));
 
@@ -196,7 +196,7 @@ namespace Serializer.Tests
             var inst2 = TestCompositeClass.Init();
             Object instance2 = inst2;
 
-            var func2 = TypeManipulator.CreateDynamicSetter(typeof(TestCompositeClass),
+            var func2 = Das.Types.TypeManipulator.CreateDynamicSetter(typeof(TestCompositeClass),
                 nameof(TestCompositeClass.SimpleLeft) + "." +
                 nameof(SimpleClassObjectProperty.Name));
 
