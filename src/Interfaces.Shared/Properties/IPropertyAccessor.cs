@@ -11,6 +11,11 @@ namespace Das.Serializer
 
         Type DeclaringType { get; }
 
+        Type PropertyType { get; }
+
+        /// <summary>
+        /// The property's name under most circumstances.  Can also be ParentType.PropertyName etc
+        /// </summary>
         String PropertyPath { get; }
 
         Object? GetPropertyValue(Object obj);
@@ -18,8 +23,8 @@ namespace Das.Serializer
         Boolean SetPropertyValue(ref Object targetObj,
                                  Object? propVal);
 
-        Boolean SetPropertyValue<TTarget>(ref TTarget targetObj,
-                                          Object? propVal);
+        //Boolean SetPropertyValue<TTarget>(ref TTarget targetObj,
+        //                                  Object? propVal);
 
         Boolean TryGetPropertyValue(Object obj,
                                     out Object result);

@@ -34,15 +34,18 @@ namespace Das.Serializer.ProtoBuf
 
 
             #if NET45 || NET40
+
             access = AssemblyBuilderAccess.RunAndSave;
 
             _asmBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, access);
             _moduleBuilder = _asmBuilder.DefineDynamicModule(AssemblyName, SaveFile);
 
             #else
+
             access = AssemblyBuilderAccess.Run;
             _asmBuilder = AssemblyBuilder.DefineDynamicAssembly(asmName, access);
             _moduleBuilder = _asmBuilder.DefineDynamicModule(AssemblyName);
+
             #endif
 
             var writer = typeof(ProtoBufWriter);
@@ -217,10 +220,6 @@ namespace Das.Serializer.ProtoBuf
 
 
         #if DEBUG
-        #if NET45 || NET40
-
-        #endif
-
 
         public void DumpProxies()
         {

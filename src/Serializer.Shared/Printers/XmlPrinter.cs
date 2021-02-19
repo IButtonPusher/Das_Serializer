@@ -302,6 +302,36 @@ namespace Das.Printers
         //    PrintSeries(series, PrintProperty);
         //}
 
+        protected sealed override void PrintString(String str)
+        {
+            var parent = _formatStack.Pop();
+
+            if (!IsPrintingLeaf && parent.IsTagOpen)
+            {
+                Writer.Append(CloseAttributes);
+                parent.IsTagOpen = false;
+            }
+
+            Writer.Append(SecurityElement.Escape(str)!);
+
+            _formatStack.Push(parent);
+        }
+
+        protected override void PrintChar(Char c)
+        {
+            var parent = _formatStack.Pop();
+
+            if (!IsPrintingLeaf && parent.IsTagOpen)
+            {
+                Writer.Append(CloseAttributes);
+                parent.IsTagOpen = false;
+            }
+
+            Writer.Append(c);
+
+            _formatStack.Push(parent);
+        }
+
         protected override void PrintString(String input,
                                             Boolean isInQuotes)
         {
@@ -314,6 +344,31 @@ namespace Das.Printers
             }
 
             Writer.Append(SecurityElement.Escape(input)!);
+
+            _formatStack.Push(parent);
+        }
+
+        protected override void PrintInteger(Object val)
+        {
+            PrintStringWithoutEscaping(val.ToString());
+        }
+
+        protected override void PrintReal(String str)
+        {
+            PrintStringWithoutEscaping(str);
+        }
+
+        protected sealed override void PrintStringWithoutEscaping(String str)
+        {
+            var parent = _formatStack.Pop();
+
+            if (!IsPrintingLeaf && parent.IsTagOpen)
+            {
+                Writer.Append(CloseAttributes);
+                parent.IsTagOpen = false;
+            }
+
+            Writer.Append(str);
 
             _formatStack.Push(parent);
         }

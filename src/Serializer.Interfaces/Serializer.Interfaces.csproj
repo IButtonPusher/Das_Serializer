@@ -45,11 +45,11 @@
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
     <NoWarn>1701;1702;CS1591</NoWarn>
-    <DefineConstants>TRACE;ALWAYS_EXPRESS</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
-    <DefineConstants>TRACE;ALWAYS_EXPRESS</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
 
 

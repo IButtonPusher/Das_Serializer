@@ -1,34 +1,36 @@
 ﻿using System;
+using System.Reflection;
 using System.Threading.Tasks;
 
-namespace Das.Serializer
+namespace Das.Serializer.Properties
 {
-    public class SimplePropertyAccessor : IPropertyAccessor
+    public class SimplePropertyAccessor : PropertyAccessorBase,
+                                          IPropertyAccessor
     {
         public SimplePropertyAccessor(Type declaringType,
                                       String propertyName,
                                       Func<object, object>? getter,
-                                      PropertySetter? setter)
+                                      PropertySetter? setter,
+                                      PropertyInfo propInfo)
+        : base(declaringType, propertyName, getter, propInfo)
         {
-            DeclaringType = declaringType;
-            PropertyPath = propertyName;
-            _getter = getter;
+            //DeclaringType = declaringType;
+            //PropertyPath = propertyName;
+            //PropertyType = propInfo.PropertyType;
+            //_getter = getter;
             _setter = setter;
+            //_propInfo = propInfo;
 
-            CanRead = _getter != null;
+            //CanRead = _getter != null;
             CanWrite = _setter != null;
         }
 
-        public Boolean CanRead { get; }
+        
 
-        public Boolean CanWrite { get; }
+        public override Boolean CanWrite { get; }
 
-        public Type DeclaringType { get; }
-
-        public String PropertyPath { get; }
-
-        public bool SetPropertyValue(ref Object targetObj,
-                                     Object? propVal)
+        public Boolean SetPropertyValue(ref Object targetObj,
+                                        Object? propVal)
         {
             if (_setter == null)
                 return false;
@@ -36,46 +38,8 @@ namespace Das.Serializer
             return true;
         }
 
-        public bool SetPropertyValue<TTarget>(ref TTarget targetObj,
-                                              Object? propVal)
-        {
-            if (_setter == null)
-                return false;
-
-            Object? oTarget = targetObj;
-
-            _setter(ref oTarget, propVal);
-            return true;
-        }
-
-        public bool TryGetPropertyValue(Object obj,
-                                        out Object result)
-        {
-            if (_getter == null)
-            {
-                result = default!;
-                return false;
-            }
-
-            result = _getter(obj);
-            return true;
-        }
-
-        public object? GetPropertyValue(Object obj)
-        {
-            if (!(_getter is { } getter))
-                throw new MemberAccessException();
-
-            return getter(obj);
-        }
-
-        public override string ToString()
-        {
-            return DeclaringType.Name + "->" + PropertyPath + "( read: "
-                   + CanRead + " write: " + CanWrite + " )";
-        }
-
-        private readonly Func<object, object>? _getter;
-        private readonly PropertySetter? _setter;
+        //private readonly Func<object, object>? _getter;
+        protected readonly PropertySetter? _setter;
+        //private readonly PropertyInfo _propInfo;
     }
 }

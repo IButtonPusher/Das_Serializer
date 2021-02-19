@@ -26,6 +26,11 @@
                 Returns all the assemblies that are referenced by the running process
             </summary>
         </member>
+        <member name="P:Das.Serializer.IPropertyAccessor.PropertyPath">
+            <summary>
+            The property's name under most circumstances.  Can also be ParentType.PropertyName etc
+            </summary>
+        </member>
         <member name="M:Das.Serializer.IDynamicTypes.GetDynamicType(System.String,System.Collections.Generic.IEnumerable{Das.Serializer.DasProperty},System.Boolean,System.Collections.Generic.IEnumerable{System.Reflection.EventInfo},System.Collections.Generic.IDictionary{System.Reflection.MethodInfo,System.Reflection.MethodInfo},System.Type[])">
             <summary>
                 Gets a dynamic type in a wrapper that allows for properties to be accessed quickly

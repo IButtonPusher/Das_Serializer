@@ -57,9 +57,11 @@ namespace Das.Serializer.Json
             {
                 if (settings.TypeSpecificity == TypeSpecificity.All)
                 {
-                    root = _instantiator.BuildDefault(type, true) ?? throw new InvalidOperationException();
-                    DeserializeImpl<Object>(ref root, ref currentIndex, json, type,
-                        ref root, ctorValues, true, settings, sb);
+                    //root = _instantiator.BuildDefault(type, true) ?? throw new InvalidOperationException();
+                    root = DeserializeImpl(ref root, ref currentIndex, json, type, sb, ctorValues, //true, 
+                        settings);
+                    //DeserializeImpl<Object>(ref root, ref currentIndex, json, type,
+                    //    ref root, ctorValues, true, settings, sb);
                     return root!;
                 }
 
@@ -67,12 +69,14 @@ namespace Das.Serializer.Json
                 currentIndex++;
 
                 return GetValue(ref currentIndex, json,
-                    type, sb, null, null, ref root, ctorValues, settings)
+                    type, sb, null, null, 
+                    ref root, ctorValues, settings)
                        ?? throw new InvalidOperationException();
             }
 
             var res = DeserializeImpl(ref root, ref currentIndex, json, type, 
-                sb, ctorValues, true, settings);
+                sb, ctorValues, //true, 
+                settings);
 
             if (settings.TypeNotFoundBehavior == TypeNotFoundBehavior.GenerateRuntime &&
                 res is RuntimeObject robj &&
@@ -133,10 +137,13 @@ namespace Das.Serializer.Json
 
                     AdvanceUntilFieldStart(ref currentIndex, json);
 
-                    var fieldValue = GetValue(ref currentIndex, json,
-                        ctorParams[c].ParameterType, stringBuilder, null, null,
-                        ref root, ctorValues, settings);
-                    instance[c] = fieldValue ?? throw new ArgumentNullException(ctorParams[c].Name);
+                    //var fieldValue = GetValue(ref currentIndex, json,
+                    //    ctorParams[c].ParameterType, stringBuilder, null, null,
+                    //    ref root, ctorValues, settings);
+                    instance[c] = GetValue(ref currentIndex, json,
+                            ctorParams[c].ParameterType, stringBuilder, null, null,
+                            ref root, ctorValues, settings) //fieldValue 
+                                  ?? throw new ArgumentNullException(ctorParams[c].Name);
                     stringBuilder.Clear();
                     break;
                 }
@@ -149,7 +156,7 @@ namespace Das.Serializer.Json
                                        Type type,
                                        StringBuilder stringBuilder,
                                        Object[] ctorValues,
-                                       Boolean isRootLevel,
+                                       //Boolean isRootLevel,
                                        ISerializerSettings settings)
         {
             Object child;
@@ -163,8 +170,8 @@ namespace Das.Serializer.Json
 
                 root ??= child;
 
-                DeserializeImpl(ref child, ref currentIndex, json, type,
-                    ref root, ctorValues, isRootLevel, settings, stringBuilder);
+                //DeserializeImpl(ref child, ref currentIndex, json, type,
+                //    ref root, ctorValues, isRootLevel, settings, stringBuilder);
             }
             else if (_typeInference.TryGetPropertiesConstructor(type, out var ctor))
             {
@@ -175,6 +182,8 @@ namespace Das.Serializer.Json
 
                 child = ctor.Invoke(arr);
                 root ??= child;
+                goto endOfObject;
+                
             }
             
             else if (type == typeof(RuntimeObject))
@@ -182,38 +191,32 @@ namespace Das.Serializer.Json
                 child = new RuntimeObject(_types);
                 root ??= child;
 
-                DeserializeImpl(ref child, ref currentIndex, json, type,
-                    ref root, ctorValues, isRootLevel, settings,  stringBuilder);
+                //DeserializeImpl(ref child, ref currentIndex, json, type,
+                //    ref root, ctorValues, isRootLevel, settings,  stringBuilder);
             }
+            else if (_typeInference.IsLeaf(type, true))
+            {
+                child = _instantiator.BuildDefault(type, true) ?? throw new InvalidOperationException();
+                //DeserializeImpl(ref child, ref currentIndex, json, type,
+                //    ref root, ctorValues, true, settings, stringBuilder);
+            }
+
             else throw new InvalidOperationException();
 
-            AdvanceUntil(ref currentIndex, json, '}');
-            currentIndex++;
-
-            return child;
-        }
-
-        private void DeserializeImpl<T>(ref T instance,
-                                        ref Int32 currentIndex,
-                                        String json,
-                                        Type type,
-                                        ref Object? root,
-                                        Object[] ctorValues,
-                                        Boolean isRootLevel,
-                                        ISerializerSettings settings,
-                                        StringBuilder stringBuilder)
-        {
-            //var stringBuilder = new StringBuilder();
+            ////////////////////////////////
 
             AdvanceUntil(ref currentIndex, json, '{');
+
+            var typeStruct = _types.GetTypeStructure(type, settings);
 
             while (TryGetNextString(ref currentIndex, json, stringBuilder))
             {
 
                 var attributeKey = stringBuilder.ToString();
-                var prop = GetProperty(type, attributeKey);
+                //var prop = GetProperty(type, attributeKey);
 
-                if (prop == null)
+                //if (prop == null)
+                if (!typeStruct.TryGetPropertyAccessor(attributeKey, out var prop))
                     switch (attributeKey)
                     {
                         case Const.TypeWrap:
@@ -227,12 +230,13 @@ namespace Das.Serializer.Json
                         case Const.Val:
                             AdvanceUntilFieldStart(ref currentIndex, json);
                             stringBuilder.Clear();
-                            var val = GetValue(ref currentIndex, json,
-                                type, stringBuilder, instance, null!, ref root, ctorValues, settings);
-                            instance = (T) val!;
+                            child = GetValue(ref currentIndex, json,
+                                type, stringBuilder, child, null!, 
+                                ref root, ctorValues, settings)!;
+                            //instance = (T) val!;
                             stringBuilder.Clear();
 
-                            return;
+                            goto endOfObject;
 
                         case Const.RefAttr:
                             //circular dependency
@@ -248,19 +252,19 @@ namespace Das.Serializer.Json
                                 current = _objectManipulator.GetPropertyValue(current, tokens[c])
                                           ?? throw new InvalidOperationException();
 
-                            instance = (T) current;
-                            return;
+                            //instance = (T) current;
+                            goto endOfObject;
 
 
                         default:
                             //todo: ignore the value?
 
-                            if (instance is RuntimeObject robj)
+                            if (child is RuntimeObject robj)
                             {
                                 var propName = stringBuilder.GetConsumingString();
                                 var anonymousVal = GetValue(ref currentIndex, json,
-                                    Const.ObjectType, stringBuilder, instance, null, ref root,
-                                    ctorValues, settings);
+                                    Const.ObjectType, stringBuilder, child, null, 
+                                    ref root, ctorValues, settings);
 
                                 stringBuilder.Clear();
 
@@ -276,7 +280,8 @@ namespace Das.Serializer.Json
                                 {
                                     case PropertyNotFoundBehavior.Ignore:
                                         GetValue(ref currentIndex, json,
-                                            Const.ObjectType, stringBuilder, instance, null, ref root,
+                                            Const.ObjectType, stringBuilder, child, null, 
+                                            ref root,
                                             ctorValues, settings);
                                         continue;
 
@@ -288,33 +293,48 @@ namespace Das.Serializer.Json
                                 }
                             }
 
-                            return;
+                            goto endOfObject;
                     }
 
                 stringBuilder.Clear();
 
                 AdvanceUntilFieldStart(ref currentIndex, json);
 
-                var fieldValue = GetValue(ref currentIndex, json,
-                    prop.PropertyType, stringBuilder, instance, prop, ref root,
-                    ctorValues, settings);
-                prop.SetValue(instance, fieldValue, null);
+                //var fieldValue = GetValue(ref currentIndex, json,
+                //    prop.PropertyType, stringBuilder, child, prop, ref root,
+                //    ctorValues, settings);
+
+                prop.SetPropertyValue(ref child, 
+                    GetValue(ref currentIndex, json, prop.PropertyType, stringBuilder, child, prop, 
+                        ref root, ctorValues, settings));
+                
+                //typeStruct.TrySetPropertyValue(prop.Name, ref child, GetValue(ref currentIndex, json,
+                //    prop.Type, stringBuilder, child, prop, ref root,
+                //    ctorValues, settings));
+                //prop.SetValue(child, fieldValue, null);
 
                 stringBuilder.Clear();
             }
 
-            if (isRootLevel && currentIndex < json.Length - 2)
-            {
-            }
+            ////////////////////////////////
+
+            endOfObject:
+            AdvanceUntil(ref currentIndex, json, '}');
+            currentIndex++;
+
+            return child;
         }
+
+       
 
         [MethodImpl(256)]
         private IList GetCollection(Type type,
-                                    PropertyInfo? prop,
+                                    IPropertyAccessor? prop,
+                                    //PropertyInfo? prop,
                                     Object? parent)
         {
-            if (!type.IsArray && prop != null)
-                if (prop.GetValue(parent, null) is IList list)
+            if (!type.IsArray && prop != null && parent != null)
+                if (prop.GetPropertyValue(parent) is IList list)
                     return list;
 
             var res = type.IsArray
@@ -335,7 +355,8 @@ namespace Das.Serializer.Json
                                            Type type,
                                            StringBuilder stringBuilder,
                                            Object? parent,
-                                           PropertyInfo? prop,
+                                           IPropertyAccessor? prop,
+                                           //PropertyInfo? prop,
                                            ref Object? root,
                                            Object[] ctorValues,
                                            ISerializerSettings settings)
@@ -373,8 +394,8 @@ namespace Das.Serializer.Json
                             AdvanceUntilFieldStart(ref currentIndex, json);
                             stringBuilder.Clear();
                             var val = GetValue(ref currentIndex, json,
-                                type, stringBuilder, parent, prop, ref root,
-                                ctorValues, settings);
+                                type, stringBuilder, parent, prop, 
+                                ref root, ctorValues, settings);
 
                             stringBuilder.Clear();
 
@@ -394,7 +415,8 @@ namespace Das.Serializer.Json
                 while (true)
                 {
                     var current = GetValue(ref currentIndex, json, germane,
-                        stringBuilder, parent, prop, ref root, ctorValues, settings);
+                        stringBuilder, parent, prop, 
+                        ref root, ctorValues, settings);
                     if (current == null)
                         break;
 
@@ -484,13 +506,6 @@ namespace Das.Serializer.Json
             return stringBuilder.ToString();
         }
 
-        [MethodImpl(256)]
-        private PropertyInfo? GetProperty(Type type,
-                                          String name)
-        {
-            return type.GetProperty(name) ?? type.GetProperty(
-                _typeInference.ToPascalCase(name));
-        }
 
         /// <summary>
         ///     Leaves the StringBuilder dirty!
@@ -500,21 +515,18 @@ namespace Das.Serializer.Json
                                  Type type,
                                  StringBuilder stringBuilder,
                                  Object? parent,
-                                 PropertyInfo? prop,
+                                 IPropertyAccessor? prop,
+                                 //PropertyInfo? prop,
                                  ref Object? root,
                                  Object[] ctorValues,
                                  ISerializerSettings settings)
         {
-            if (type.IsEnum)
-                return Enum.Parse(type,
-                    GetNextString(ref currentIndex, json, stringBuilder));
-
             var code = Type.GetTypeCode(type);
 
             switch (code)
             {
                 case TypeCode.Int16:
-                case TypeCode.UInt16:
+                case TypeCode.UInt16: 
                 case TypeCode.Int32:
                 case TypeCode.UInt32:
                 case TypeCode.Int64:
@@ -524,6 +536,10 @@ namespace Das.Serializer.Json
                 case TypeCode.Decimal:
                 case TypeCode.SByte:
                 case TypeCode.Byte:
+
+                    if (type.IsEnum)
+                        return Enum.Parse(type,
+                            GetNextString(ref currentIndex, json, stringBuilder));
 
                     GetNextPrimitive(ref currentIndex, json, stringBuilder);
 
@@ -545,7 +561,8 @@ namespace Das.Serializer.Json
 
                     if (_types.IsCollection(type))
                         return GetCollectionValue(ref currentIndex, json, type,
-                            stringBuilder, parent, prop, ref root, ctorValues, settings);
+                            stringBuilder, parent, prop, 
+                            ref root, ctorValues, settings);
 
                     var next = AdvanceUntilAny(_objectOrStringOrNull, ref currentIndex, json);
 
@@ -607,7 +624,8 @@ namespace Das.Serializer.Json
                     else
                         // nested object
                         return DeserializeImpl(ref root, ref currentIndex,
-                            json, type, stringBuilder, ctorValues, false, settings);
+                            json, type, stringBuilder, ctorValues, //false, 
+                            settings);
 
                 case TypeCode.DBNull:
                     break;
@@ -624,7 +642,11 @@ namespace Das.Serializer.Json
                     return stringBuilder[0];
 
                 case TypeCode.DateTime:
-                    return DateTime.Parse(GetNextString(ref currentIndex, json, stringBuilder));
+                    
+                    //return DateTime.ParseExact(GetNextString(ref currentIndex, json, stringBuilder), 
+                    //    CultureInfo.InvariantCulture));
+                    return DateTime.Parse(GetNextString(ref currentIndex, json, stringBuilder),
+                        CultureInfo.InvariantCulture);
 
                 case TypeCode.String:
                     return !TryGetNextString(ref currentIndex, json, stringBuilder)

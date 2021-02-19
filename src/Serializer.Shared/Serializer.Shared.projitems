@@ -43,6 +43,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Printers\StackFormat.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Printers\TextPrinter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Printers\XmlPrinter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Properties\PropertyAccessorBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Properties\PropertyAccessor{T}.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\SimplePropertyAccessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Proto\CoreProtoProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Proto\IValueExtractor.cs" />
@@ -99,11 +101,11 @@
     <Compile Include="$(MSBuildThisFileDirectory)TextCommon\StringAccessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TextCommon\StringBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TypeStructure.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Types\BaseTypeManipulator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\DasCodeGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\DasType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\DasTypeBuilder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\DoubleDictionary.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Types\DynamicTypeManipulator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\ExpressionTypeManipulator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\InstantiationType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\InvalidCollection.cs" />

@@ -521,21 +521,20 @@ namespace Das.Extensions
                 propertyName, out result);
         }
 
-        ///// <summary>
-        ///// Gets property name/type/values including nulls.
-        ///// Specify a base class or interface for the generic parameter to get a subset
-        ///// </summary>
-        //public static Dictionary<String, IProperty> GetPropertyValues<T>(this T obj)
-        //{
-        //    var node = new ValueNode(obj, typeof(T));
-        //    var walues = SerializationCore.ObjectManipulator.GetPropertyResults(node, Settings);
-        //    return walues.ToDictionary(w => w.Name, w => w);
-        //    //var res = new Dictionary<String, IProperty>();
-        //    //foreach (var kvp in walues)
-        //    //    res[kvp.Name] = kvp;
+       public static Type GetMemberType(this MemberInfo memberInfo)
+       {
+           switch (memberInfo)
+           {
+               case PropertyInfo pi:
+                   return pi.PropertyType;
 
-        //    //return res;
-        //}
+               case FieldInfo fi:
+                   return fi.FieldType;
+
+               default:
+                   throw new ArgumentOutOfRangeException();
+           }
+       }
 
         public static Boolean TrySetPropertyValue(this Object obj,
                                                   String propertyName,

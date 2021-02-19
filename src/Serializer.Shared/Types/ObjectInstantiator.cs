@@ -125,20 +125,20 @@ namespace Das.Serializer
                 $"Type '{type.Name}' doesn't have the requested constructor.");
         }
 
-        public bool TryGetConstructorDelegate<TDelegate>(Type type,
-                                                         out TDelegate result)
-            where TDelegate : Delegate
-        {
-            if (TryGetConstructorDelegate(type, typeof(TDelegate), out var maybe)
-                && maybe is TDelegate td)
-            {
-                result = td;
-                return true;
-            }
+        //public bool TryGetConstructorDelegate<TDelegate>(Type type,
+        //                                                 out TDelegate result)
+        //    where TDelegate : Delegate
+        //{
+        //    if (TryGetConstructorDelegate(type, typeof(TDelegate), out var maybe)
+        //        && maybe is TDelegate td)
+        //    {
+        //        result = td;
+        //        return true;
+        //    }
 
-            result = default!;
-            return false;
-        }
+        //    result = default!;
+        //    return false;
+        //}
 
         public void OnDeserialized(IValueNode node,
                                    ISerializationDepth depth)
@@ -383,6 +383,63 @@ namespace Das.Serializer
             #endif
         }
 
+        public bool TryGetConstructorDelegate<TDelegate>(Type type,
+                                                                 out TDelegate result)
+        where TDelegate : Delegate
+        {
+            var delegateType = typeof(TDelegate);
+
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
+            if (delegateType == null)
+                throw new ArgumentNullException(nameof(delegateType));
+
+            var genericArguments = delegateType.GetGenericArguments();
+            var constructor = GetConstructor(type, genericArguments, out var argTypes);
+
+            if (constructor == null)
+            {
+                result = default!;
+                return false;
+            }
+
+            #if GENERATECODE
+
+            var ownerType = type.IsGenericType
+                ? typeof(ObjectInstantiator)
+                : type;
+
+            var dynamicMethod = new DynamicMethod("DM$_" + type.Name, type, argTypes, ownerType);
+
+            var ilGen = dynamicMethod.GetILGenerator();
+
+            for (var i = 0; i < argTypes.Length; i++)
+                ilGen.Emit(OpCodes.Ldarg, i);
+
+            ilGen.Emit(OpCodes.Newobj, constructor);
+
+
+            ilGen.Emit(OpCodes.Ret);
+            
+            result = (TDelegate)dynamicMethod.CreateDelegate(delegateType);
+            return true;
+
+            #else
+            if (argTypes.Length == 0)
+            {
+                result = CreateConstructor<TDelegate>(constructor, type);
+                return true;
+            }
+            else
+            {
+                result = CreateConstructor<TDelegate>(constructor, argTypes);
+                return true;
+            }
+
+            #endif
+        }
+
         #if !GENERATECODE
         private static Func<Object[], Object> CreateConstructor(ConstructorInfo cInfo, 
                                                                 Type[] paramArguments)
@@ -434,8 +491,77 @@ namespace Das.Serializer
             var finalBlock = Expression.Block(checkLengthExpression, Expression.Convert(newExpr, typeof(Object)));
 
             var ctor = (Func<Object[], Object>)
-                
                 Expression.Lambda(finalBlock, new[] {parameterExpression}).Compile();
+
+            return ctor;
+        }
+
+        private static TDelegate CreateConstructor<TDelegate>(ConstructorInfo cInfo,
+                                                              Type[] paramArguments)
+            where TDelegate : Delegate
+        {
+            // compile the call
+
+            var parameterExpression = Expression.Parameter(typeof(object[]), "arguments");
+
+            List<Expression> argumentsExpressions = new List<Expression>();
+            for (var i = 0; i < paramArguments.Length; i++)
+            {
+
+                var indexedAcccess = Expression.ArrayIndex(parameterExpression, Expression.Constant(i));
+
+                // it is NOT a reference type!
+                if (paramArguments[i].IsClass == false && paramArguments[i].IsInterface == false)
+                {
+                    // it might be the case when I receive null and must convert to a structure. In  this case I must put default (ThatStructure).
+                    var localVariable = Expression.Variable(paramArguments[i], "localVariable");
+
+                    var block = Expression.Block(new[] {localVariable},
+                        Expression.IfThenElse(Expression.Equal(indexedAcccess, Expression.Constant(null)),
+                            Expression.Assign(localVariable, Expression.Default(paramArguments[i])),
+                            Expression.Assign(localVariable, Expression.Convert(indexedAcccess, paramArguments[i]))
+                        ),
+                        localVariable
+                    );
+
+                    argumentsExpressions.Add(block);
+
+                }
+                else
+                    argumentsExpressions.Add(Expression.Convert(indexedAcccess,
+                        paramArguments[i])); // do a convert to that reference type. If null, the convert is FINE.
+            }
+
+            // check if parameters length maches the length of constructor parameters!
+            var lengthProperty = typeof(Object[]).GetProperty("Length") ?? throw new InvalidOperationException();
+            var len = Expression.Property(parameterExpression, lengthProperty);
+
+            var checkLengthExpression = Expression.IfThen(
+                Expression.NotEqual(len, Expression.Constant(paramArguments.Length)),
+                Expression.Throw(Expression.New(typeof(ArgumentException).GetConstructor(new[] {typeof(string)})!,
+                    Expression.Constant("The length does not match parameters number")))
+            );
+
+            var newExpr = Expression.New(cInfo, argumentsExpressions);
+
+            var finalBlock = Expression.Block(checkLengthExpression, Expression.Convert(newExpr, typeof(Object)));
+
+            var ctor = (TDelegate)
+                Expression.Lambda(finalBlock, new[] {parameterExpression}).Compile();
+
+            return ctor;
+        }
+
+
+        private static TDelegate CreateConstructor<TDelegate>(ConstructorInfo cInfo,
+                                                              Type forType)
+        where TDelegate : Delegate
+        {
+            var newExpr = Expression.New(cInfo);
+
+            var finalBlock = Expression.Block(Expression.Convert(newExpr, forType));
+
+            var ctor = (TDelegate) Expression.Lambda(finalBlock).Compile();
 
             return ctor;
         }
@@ -446,12 +572,12 @@ namespace Das.Serializer
 
             var finalBlock = Expression.Block(Expression.Convert(newExpr, typeof(Object)));
 
-            var ctor = (Func<Object>) Expression.Lambda(finalBlock).Compile();
+            var ctor = (Func<Object>)Expression.Lambda(finalBlock).Compile();
 
             return ctor;
         }
 
-        #endif
+#endif
 
 
         private static readonly ConcurrentDictionary<Type, InstantiationType> InstantionTypes;

@@ -1,6 +1,7 @@
 ﻿#if !GENERATECODE
 using System;
 using System.Threading.Tasks;
+using Das.Serializer;
 using Das.Types;
 using Xunit;
 
@@ -29,7 +30,7 @@ namespace Serializer.Tests
 
             var func2 = TypeManipulator.CreateExpressionPropertyGetter(typeof(TestCompositeClass),
                 nameof(TestCompositeClass.SimpleLeft) + "." +
-                nameof(SimpleClassObjectProperty.Name));
+                nameof(SimpleClassObjectProperty.Name), out _);
 
 
             var res2 = func2(obj);

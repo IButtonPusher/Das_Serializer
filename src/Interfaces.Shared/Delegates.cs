@@ -9,4 +9,7 @@ namespace Das.Serializer
 
     public delegate void PropertySetter(ref Object? target,
                                         Object? value);
+
+    public delegate void PropertySetter<T>(ref T? target,
+                                        Object? value);
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
@@ -26,7 +27,7 @@ namespace Das.Serializer
 
             Depth = depth.SerializationDepth;
             _types = state;
-            //_nodePool = nodePool;
+            
 
             if (type.IsDefined(typeof(SerializeAsTypeAttribute), false))
             {
@@ -37,13 +38,16 @@ namespace Das.Serializer
                     type = serAs.TargetType;
             }
 
+            _propertyAccessors = new Dictionary<string, IPropertyAccessor>();
+            
+
             _getOnly = new Dictionary<String, Func<Object, Object>>();
             _propGetters = new Dictionary<String, Func<Object, Object>>();
             _propGetterList = new List<KeyValuePair<String, Func<Object, Object>>>();
             _getDontSerialize = new Dictionary<String, Func<Object, Object>>();
             _fieldGetters = new Dictionary<String, Func<Object, Object>>();
             _propertyAttributes = new DoubleDictionary<String, Type, Object>();
-            _propertyInfos = new Dictionary<string, PropertyInfo>();
+            _propertyInfos = new Dictionary<String, PropertyInfo>();
 
             _fieldSetters = new SortedList<String, Action<Object, Object?>>();
 
@@ -57,9 +61,18 @@ namespace Das.Serializer
 
 
             if (_types.IsLeaf(type, true) || IsCollection(type))
+            {
+                Properties = new IPropertyAccessor[0];
                 return;
+            }
 
-            CreatePropertyDelegates(type, depth);
+            CreatePropertyDelegates(type, depth, state);
+
+            Properties = new IPropertyAccessor[_propertyAccessors.Count];
+            var current = 0;
+            foreach (var kvp in _propertyAccessors)
+                Properties[current++] = kvp.Value;
+
             CreateFieldDelegates(type, depth);
 
             foreach (var meth in type.GetMethods())
@@ -75,6 +88,8 @@ namespace Das.Serializer
         }
 
         public Type Type { get; }
+
+        public IPropertyAccessor[] Properties { get; }
 
         public SerializationDepth Depth { get; }
 
@@ -237,6 +252,19 @@ namespace Das.Serializer
             return true;
         }
 
+        [MethodImpl(256)]
+        public bool TryGetPropertyInfo(String propName,
+                                       out PropertyInfo propInfo)
+        {
+            return _propertyInfos.TryGetValue(propName, out propInfo);
+        }
+
+        public Boolean TryGetPropertyAccessor(String propName,
+                                           out IPropertyAccessor accessor)
+        {
+            return _propertyAccessors.TryGetValue(propName, out accessor);
+        }
+
         public void SetPropertyValueUnsafe(String propName,
                                            ref Object targetObj,
                                            Object propVal)
@@ -317,10 +345,20 @@ namespace Das.Serializer
         }
 
         private void CreatePropertyDelegates(Type type,
-                                             ISerializationDepth depth)
+                                             ISerializationDepth depth,
+                                             ITypeManipulator state)
         {
             foreach (var pi in _types.GetPublicProperties(type))
             {
+                if (pi.GetIndexParameters().Length > 0)
+                {
+                    // index properties don't fit into the current Func<Object, Object> paradigm...
+                    continue;
+                }
+
+                var propAccessor = state.GetPropertyAccessor(type, pi.Name);
+                _propertyAccessors.Add(pi.Name, propAccessor);
+
                 _propertyInfos.Add(pi.Name, pi);
                 if (!pi.CanRead)
                     continue;
@@ -366,7 +404,7 @@ namespace Das.Serializer
                     _propGetters.Add(pi.Name, dele);
 
                     var sm = _types.CreateSetMethod(pi);
-                    //if (sm != null)
+                    if (sm != null)
                     {
                         reallyWrite = true;
                         _propertySetters.Add(pi.Name, sm);
@@ -447,7 +485,8 @@ namespace Das.Serializer
             if (pi.CanWrite)
             {
                 var sp = _types.CreateSetMethod(pi);
-                _propertySetters.Add(pi.Name, sp);
+                if (sp != null)
+                    _propertySetters.Add(pi.Name, sp);
             }
 
             var member = new DasMember(pi.Name, pi.PropertyType);
@@ -460,8 +499,8 @@ namespace Das.Serializer
         private readonly Dictionary<String, Func<Object, Object>> _getDontSerialize;
 
         private readonly Dictionary<String, Func<Object, Object>> _getOnly;
-        //protected readonly INodePool _nodePool;
 
+        
         private readonly String? _onDeserializedMethodName;
 
         private readonly DoubleDictionary<String, Type, Object> _propertyAttributes;
@@ -474,6 +513,8 @@ namespace Das.Serializer
 
         private readonly Dictionary<String, Func<Object, Object>> _propGetters;
         private readonly SortedList<String, Action<Object, Object?>> _readOnlySetters;
+
+        private readonly Dictionary<String, IPropertyAccessor> _propertyAccessors;
 
         private readonly ITypeManipulator _types;
         private readonly HashSet<String> _xmlIgnores;

@@ -32,7 +32,7 @@ namespace Serializer.Benchmarks
             //if (false)
             {
                 BenchmarkRunner.Run<JsonBenchmarks>();
-                BenchmarkRunner.Run<ProtoBufTests>();
+                //BenchmarkRunner.Run<ProtoBufTests>();
             }
             else
                RunManyTimes();
@@ -42,11 +42,11 @@ namespace Serializer.Benchmarks
         private static void RunJsonManyTimes()
         {
             var bm = new JsonBenchmarks();
-            var wafl = bm.JsonNetPrimitivePropertiesJson();
+            //var wafl = bm.JsonNetPrimitivePropertiesJson();
 
             for (var c = 0; c < 10000; c++)
             {
-                bm.DasPrimitivePropertiesJson();
+                bm.DasPrimitiveProperties();
                 //bm.PrimitivePropertiesJsonBaseline();
                 //bm.PrimitivePropertiesJsonExpress();
             }

@@ -31,7 +31,13 @@ namespace Das.Serializer
                                        String txt,
                                        Char target)
         {
-            for (; currentIndex < txt.Length; currentIndex++)
+            if (currentIndex >= txt.Length)
+                return false;
+
+            if (txt[currentIndex] == target)
+                return true;
+
+            for (++currentIndex; currentIndex < txt.Length; currentIndex++)
             {
                 var current = txt[currentIndex];
 

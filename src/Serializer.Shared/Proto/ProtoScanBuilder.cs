@@ -111,7 +111,7 @@ namespace Das.Serializer.ProtoBuf
         }
 
         /// <summary>
-        ///     1
+        ///     1. Creates a method to deserialize from a stream
         /// </summary>
         private void AddScanMethod(Type parentType,
                                    TypeBuilder bldr,

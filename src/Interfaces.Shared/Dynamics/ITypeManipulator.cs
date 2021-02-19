@@ -21,9 +21,12 @@ namespace Das.Serializer
                                                   PropertyInfo propertyInfo);
 
         Func<Object, Object>? CreatePropertyGetter(Type targetType,
-                                                   String propertyName);
+                                                   String propertyName,
+                                                   out PropertyInfo propInfo);
 
-        PropertySetter CreateSetMethod(MemberInfo memberInfo);
+        PropertySetter? CreateSetMethod(MemberInfo memberInfo);
+
+        PropertySetter<T>? CreateSetMethod<T>(String memberName);
 
         PropertySetter? CreateSetMethod(Type declaringType,
                                         String memberName);

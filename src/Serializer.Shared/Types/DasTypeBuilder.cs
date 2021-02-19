@@ -489,7 +489,9 @@ namespace Das.Types
                 if (propInfo == null)
                     throw new TypeLoadException(prop.Name);
 
-                dt.PublicSetters.Add(prop.Name, _typeManipulator.CreateSetMethod(propInfo));
+                var setter = _typeManipulator.CreateSetMethod(propInfo);
+                if (setter != null)
+                    dt.PublicSetters.Add(prop.Name, setter);
                 dt.PublicGetters.Add(prop.Name, _typeManipulator.CreatePropertyGetter(created, propInfo));
             }
 

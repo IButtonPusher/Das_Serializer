@@ -27,30 +27,12 @@ namespace Das.Serializer
             return JsonExpress.Deserialize(json, type, Settings, _empty);
         }
 
-        //public T FromJsonEx<T>(String json)
-        //{
-        //    return JsonExpress.Deserialize<T>(json, Settings, _empty);
-        //}
-
-        //public T FromJsonEx<T>(String json,
-        //                       Object[] ctorValues)
-        //{
-        //    return JsonExpress.Deserialize<T>(json, Settings, ctorValues);
-        //}
 
         public T FromJson<T>(FileInfo file)
         {
-            //#if ALWAYS_EXPRESS
-
             String txt = GetTextFromFileInfo(file);
 
             return JsonExpress.Deserialize<T>(txt, Settings, _empty);
-            //#else
-            //using (var fs = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
-            //{
-            //    return FromJson<T>(fs);
-            //}
-            //#endif
         }
 
         public virtual T FromJson<T>(Stream stream)

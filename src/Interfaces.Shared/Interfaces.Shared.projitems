@@ -15,9 +15,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)DtoExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IAssemblyList.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IConverterProvider.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IPropertyAccessor.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IPropertyProvider.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IPropertyType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Properties\IPropertyAccessor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Properties\IPropertyAccessor{T}.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Properties\IPropertyProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Properties\IPropertyType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IDynamicTypes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IInstantiator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IObjectConverter.cs" />

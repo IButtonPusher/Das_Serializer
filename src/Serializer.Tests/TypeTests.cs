@@ -137,15 +137,19 @@ namespace Serializer.Tests
             Assert.Equal(type, type2);
         }
 
-        #if !TEST_NO_CODEGENERATION
+      //  #if !TEST_NO_CODEGENERATION
 
         [Fact]
         public void PropertyGetters()
         {
             for (var c = 0; c < 5; c++)
             {
-                var getter = Das.Types.TypeManipulator.CreateDynamicPropertyGetter(typeof(ISimpleClass),
-                    nameof(ISimpleClass.Name));
+#if !TEST_NO_CODEGENERATION
+
+                var getter = TypeManipulator.CreateDynamicPropertyGetter(
+                    typeof(ISimpleClass),
+                    nameof(ISimpleClass.Name),
+                    out _);
 
                 var inst = new SimpleClass2 {Name = "bobbith"};
 
@@ -154,7 +158,7 @@ namespace Serializer.Tests
 
                 var ezProp = typeof(TestCompositeClass).GetProperty(
                     nameof(TestCompositeClass.SimpleLeft));
-                var func = Das.Types.TypeManipulator.CreateDynamicPropertyGetter(typeof(TestCompositeClass),
+                var func = TypeManipulator.CreateDynamicPropertyGetter(typeof(TestCompositeClass),
                     ezProp!);
 
                 var obj = TestCompositeClass.Init();
@@ -163,19 +167,24 @@ namespace Serializer.Tests
                 Assert.Equal(res, obj.SimpleLeft);
 
 
-                var func2 = Das.Types.TypeManipulator.CreateDynamicPropertyGetter(typeof(TestCompositeClass),
+                var func2 = TypeManipulator.CreateDynamicPropertyGetter(typeof(TestCompositeClass),
                     nameof(TestCompositeClass.SimpleLeft) + "." +
-                    nameof(SimpleClassObjectProperty.Name));
+                    nameof(SimpleClassObjectProperty.Name),
+                    out _);
 
 
                 var res2 = func2(obj);
                 Assert.Equal(res2, obj.SimpleLeft.Name);
+
+
 
                 var accessor = Serializer.TypeManipulator.GetPropertyAccessor(typeof(TestCompositeClass),
                     nameof(TestCompositeClass.SimpleLeft));
 
                 var res3 = accessor.GetPropertyValue(obj);
                 Assert.Equal(res3, obj.SimpleLeft);
+
+#endif
             }
         }
 
@@ -184,27 +193,42 @@ namespace Serializer.Tests
         [Fact]
         public void PropertySetters()
         {
-            //var nameProp = typeof(SimpleClass).GetProperty(nameof(SimpleClass.Name));
-            //var setter = TypeManipulator.CreateDynamicSetter(nameProp);
+            var inst = SimpleClass.GetExample();
+            var nameProp = typeof(SimpleClass).GetProperty(nameof(SimpleClass.Name));
 
-            //var inst = SimpleClass.GetExample();
-            //Object instance = inst;
+#if !TEST_NO_CODEGENERATION
 
-            //setter(ref instance, "suzy slammer");
-            //Assert.Equal("suzy slammer", inst.Name);
+            
+            var setter = TypeManipulator.CreateDynamicSetter<SimpleClass>(nameProp.Name);
 
+            setter(ref inst, "suzy slammer");
+            Assert.Equal("suzy slammer", inst.Name);
+
+            //////////////
+            
             var inst2 = TestCompositeClass.Init();
             Object instance2 = inst2;
 
-            var func2 = Das.Types.TypeManipulator.CreateDynamicSetter(typeof(TestCompositeClass),
+            var setter2 = TypeManipulator.CreateDynamicSetter(typeof(TestCompositeClass),
                 nameof(TestCompositeClass.SimpleLeft) + "." +
                 nameof(SimpleClassObjectProperty.Name));
 
-            func2(ref instance2!, "wiley wamboozle");
-            
+            setter2(ref instance2!, "wiley wamboozle");
             Assert.Equal("wiley wamboozle", inst2.SimpleLeft.Name);
+
+            //////////////
+
+#endif
+
+            var inst3 = SimpleClass.GetExample();
+            Object oInst3 = inst3;
+
+            var typem = new TypeManipulator(DasSettings.CloneDefault());
+            var setter3 = typem.CreateSetMethod(nameProp);
+            setter3(ref oInst3!, "henry howler");
+            Assert.Equal("henry howler", inst3.Name);
         }
 
-        #endif
+      //  #endif
     }
 }

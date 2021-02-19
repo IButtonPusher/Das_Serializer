@@ -57,7 +57,7 @@ o = serializer.FromJson(json);</Description>
 <Import Project="..\Serializer.Shared\Serializer.Shared.projitems" Label="Shared" />
 
 <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.1|AnyCPU'">
-  <DefineConstants>GENERATECODE;ALWAYS_EXPRESS</DefineConstants>
+  <DefineConstants>GENERATECODE</DefineConstants>
   <DebugType>none</DebugType>
   <DebugSymbols>false</DebugSymbols>
   <DocumentationFile>E:\src\Das\Serializer\Das.Serializer.Split\Das.Serializer.xml</DocumentationFile>
@@ -66,7 +66,7 @@ o = serializer.FromJson(json);</Description>
 </PropertyGroup>
 
 <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.1|AnyCPU'">
-  <DefineConstants>TRACE;DEBUG;GENERATECODE;ALWAYS_EXPRESS</DefineConstants>
+  <DefineConstants>TRACE;DEBUG;GENERATECODE</DefineConstants>
 </PropertyGroup>
 
 <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net45|AnyCPU'">

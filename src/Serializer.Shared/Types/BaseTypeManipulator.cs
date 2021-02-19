@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
+using Das.Serializer.Properties;
 using Das.Serializer.Types;
 
 namespace Das.Serializer
@@ -20,10 +21,9 @@ namespace Das.Serializer
         }
 
         protected BaseTypeManipulator(ISerializerSettings settings)
-                                      //INodePool nodePool) 
             : base(settings)
         {
-            //_nodePool = nodePool;
+            
         }
 
         public override Boolean HasSettableProperties(Type type)
@@ -45,7 +45,8 @@ namespace Das.Serializer
                                                                   PropertyInfo propertyInfo);
 
         public abstract Func<object, object> CreatePropertyGetter(Type targetType,
-                                                                  String propertyName);
+                                                                  String propertyName,
+                                                                  out PropertyInfo propInfo);
 
         public abstract PropertySetter CreateSetMethod(MemberInfo memberInfo);
 
@@ -144,9 +145,31 @@ namespace Das.Serializer
                 if (_cachedPropertyAccessors.TryGetValue(declaringType, propertyName, out var accessor))
                     return accessor;
 
-                var getter = CreatePropertyGetter(declaringType, propertyName);
+                var getter = CreatePropertyGetter(declaringType, propertyName, out var propInfo);
                 var setter = CreateSetMethod(declaringType, propertyName);
-                accessor = new SimplePropertyAccessor(declaringType, propertyName, getter, setter);
+                accessor = new SimplePropertyAccessor(declaringType, propertyName, 
+                    getter, setter, propInfo);
+
+                _cachedPropertyAccessors.Add(declaringType, propertyName, accessor);
+
+                return accessor;
+            }
+        }
+
+        public IPropertyAccessor<T> GetPropertyAccessor<T>(String propertyName)
+        {
+            var declaringType = typeof(T);
+
+            lock (_lockNewType)
+            {
+                if (_cachedPropertyAccessors.TryGetValue(declaringType, propertyName, out var accessor) &&
+                    accessor is IPropertyAccessor<T> accessor2)
+                    return accessor2;
+
+                var getter = CreatePropertyGetter(declaringType, propertyName, out var propInfo);
+                var setter = CreateSetMethod(declaringType, propertyName);
+                accessor = new SimplePropertyAccessor(declaringType, propertyName, 
+                    getter, setter, propInfo);
 
                 _cachedPropertyAccessors.Add(declaringType, propertyName, accessor);
 
@@ -169,16 +192,6 @@ namespace Das.Serializer
                 type = parent;
             }
         }
-
-        //protected static MemberInfo GetMemberOrDie(Type declaringType,
-        //                                           String propName)
-        //{
-        //    var membersOnly = GetMembersOrDie(declaringType, propName);
-        //    if (membersOnly.Length != 1)
-        //        throw new AmbiguousMatchException(nameof(propName));
-
-        //    return membersOnly[0];
-        //}
 
         protected static MemberInfo[] GetMembersOrDie(Type declaringType,
                                                       String propertyName)

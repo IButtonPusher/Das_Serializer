@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Threading.Tasks;
 using Das.Serializer;
@@ -40,7 +41,7 @@ namespace Das.Printers
             Writer.Append(_newLine + Tabs);
         }
 
-        protected override void PrintFallback(Object? o,
+        protected sealed override void PrintFallback(Object? o,
                                               Type propType)
         {
             PrintPrimitive(o, o!.GetType());
@@ -50,22 +51,95 @@ namespace Das.Printers
         protected override void PrintPrimitive(Object? o,
                                                Type propType)
         {
-            switch (o)
+            if (ReferenceEquals(null, o))
             {
-                case Boolean b:
-                    Writer.Append(b ? "true" : "false");
+                Writer.Append("null");
+                return;
+            }
+
+            var typeCode = Type.GetTypeCode(propType);
+
+            switch (typeCode)
+            {
+                case TypeCode.Boolean:
+                    Writer.Append((Boolean)o ? "true" : "false");
                     break;
-                
+
+                case TypeCode.String:
+                    PrintString(o.ToString());
+                    break;
+
+               
+                case TypeCode.Char:
+                    PrintChar((Char)o);
+                    break;
+                    
+                case TypeCode.SByte:
+                case TypeCode.Byte:
+                case TypeCode.Int16:
+                case TypeCode.UInt16:
+                case TypeCode.Int32:
+                case TypeCode.UInt32:
+                case TypeCode.Int64:
+                case TypeCode.UInt64:
+
+                    if (propType.IsEnum)
+                        PrintStringWithoutEscaping(o.ToString());
+                    else
+                        PrintInteger(o);
+
+                    break;
+
+
+                case TypeCode.Single:
+                    
+                    PrintReal(((Single)o).ToString(CultureInfo.InvariantCulture));
+                    break;
+                    
+                case TypeCode.Double:
+                    PrintReal(((Double)o).ToString(CultureInfo.InvariantCulture));
+                    break;
+                    
+                case TypeCode.Decimal:
+                    PrintReal(((Decimal)o).ToString(CultureInfo.InvariantCulture));
+                    break;
+                    
+                case TypeCode.DateTime:
+                    PrintString(((DateTime)o).ToString(CultureInfo.InvariantCulture));
+                    break;
+
                 default:
-                    var isRequiresQuotes = IsRequiresQuotes(o);
-                    var str = _typeInferrer.ConvertToInvariantString(o!);
-                    PrintString(str!, isRequiresQuotes);
+                    var str = _typeInferrer.ConvertToInvariantString(o);
+                    PrintString(str);
                     break;
             }
+
+            //switch (o)
+            //{
+            //    case Boolean b:
+            //        Writer.Append(b ? "true" : "false");
+            //        break;
+                
+            //    default:
+            //        var isRequiresQuotes = IsRequiresQuotes(o);
+            //        var str = _typeInferrer.ConvertToInvariantString(o!);
+            //        PrintString(str!, isRequiresQuotes);
+            //        break;
+            //}
         }
+
+        protected abstract void PrintString(String str);
+
+        protected abstract void PrintStringWithoutEscaping(String str);
+
+        protected abstract void PrintChar(Char c);
 
         protected abstract void PrintString(String str,
                                             Boolean isInQuotes);
+
+        protected abstract void PrintInteger(Object val);
+
+        protected abstract void PrintReal(String str);
 
         protected virtual void TabIn()
         {

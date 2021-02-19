@@ -22,7 +22,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NET45;GENERATECODE;TEST_NO_CODEGENERATION;ALWAYS_EXPRESS</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NET45;GENERATECODE;TEST_NO_CODEGENERATION</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>..\Serializer.ruleset</CodeAnalysisRuleSet>
@@ -32,7 +32,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;NET45;GENERATECODE;ALWAYS_EXPRESS</DefineConstants>
+    <DefineConstants>TRACE;NET45;GENERATECODE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>..\Serializer.ruleset</CodeAnalysisRuleSet>
@@ -42,18 +42,7 @@
     <OutputPath>bin\TEST_NO_CODEGENERATION\</OutputPath>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <CodeAnalysisRuleSet>..\Serializer.ruleset</CodeAnalysisRuleSet>
-    <DefineConstants>PARTIALTRUST;TEST_NO_CODEGENERATION</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TEST_ALWAYS_EXPRESS|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\TEST_ALWAYS_EXPRESS\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NET45;GENERATECODE;ALWAYS_EXPRESS;TEST_NO_CODEGENERATION</DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <LangVersion>9.0</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>..\Serializer.ruleset</CodeAnalysisRuleSet>
+    <DefineConstants>PARTIALTRUST;TEST_NO_CODEGENERATION;NET45</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

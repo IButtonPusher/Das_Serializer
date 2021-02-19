@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    public interface INamedField //: IStronglyTyped
+    public interface INamedField 
     {
         String Name { get; }
 

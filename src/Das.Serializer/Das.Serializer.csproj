@@ -46,7 +46,7 @@ o = serializer.FromJson(json);</Description>
 </PropertyGroup>
 
 <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.1|AnyCPU'">
-  <DefineConstants>GENERATECODE;ALWAYS_EXPRESS</DefineConstants>
+  <DefineConstants>GENERATECODE</DefineConstants>
   <DocumentationFile>E:\src\Das\Serializer\Das.Serializer\Das.Serializer.xml</DocumentationFile>
   <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
   <NoWarn>1701;1702;CS1591</NoWarn>
@@ -56,7 +56,7 @@ o = serializer.FromJson(json);</Description>
 
 
 <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.1|AnyCPU'">
-  <DefineConstants>TRACE;DEBUG;GENERATECODE;ALWAYS_EXPRESS</DefineConstants>
+  <DefineConstants>TRACE;DEBUG;GENERATECODE</DefineConstants>
   <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 </PropertyGroup>
 

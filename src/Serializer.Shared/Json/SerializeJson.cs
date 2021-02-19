@@ -72,9 +72,9 @@ namespace Das.Serializer
             {
                 var jp = new JsonPrinter(sp,
                     Settings, StateProvider.TypeInferrer, StateProvider.NodeTypeProvider,
-                    StateProvider.ObjectManipulator);
+                    StateProvider.ObjectManipulator, StateProvider.TypeManipulator);
 
-                jp.PrintNode(string.Empty, asType, obj);
+                jp.PrintNode(String.Empty, asType, obj);
 
                 return sp.ToString();
             }

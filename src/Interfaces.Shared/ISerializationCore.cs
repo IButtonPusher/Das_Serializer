@@ -16,8 +16,6 @@ namespace Das.Serializer
 
         IObjectManipulator ObjectManipulator { get; }
 
-        //INodePool PrintNodePool { get; }
-
         INodeManipulator ScanNodeManipulator { get; }
 
         IDictionary<Type, Type> Surrogates { get; }

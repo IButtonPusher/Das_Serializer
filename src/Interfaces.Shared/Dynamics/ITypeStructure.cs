@@ -8,8 +8,9 @@ using System.Threading.Tasks;
 namespace Das.Serializer
 {
     public interface ITypeStructure : ITypeStructureBase
-        //IValueSetter
     {
+        IPropertyAccessor[] Properties { get; }
+
         SerializationDepth Depth { get; }
 
         Dictionary<String, INamedField> MemberTypes { get; }
@@ -48,5 +49,11 @@ namespace Das.Serializer
                                     ref Object targetObj,
                                     Object? propVal,
                                     SerializationDepth depth = SerializationDepth.AllProperties);
+
+        Boolean TryGetPropertyInfo(String propName,
+                                   out PropertyInfo propInfo);
+
+        Boolean TryGetPropertyAccessor(String propName,
+                                       out IPropertyAccessor accessor);
     }
 }

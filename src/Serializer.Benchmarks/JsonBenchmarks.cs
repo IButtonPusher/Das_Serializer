@@ -4,6 +4,7 @@ using BenchmarkDotNet.Attributes;
 using Das.Serializer;
 using Newtonsoft.Json;
 using Serializer.Tests;
+// ReSharper disable All
 
 namespace Serializer.Benchmarks
 {
@@ -11,10 +12,12 @@ namespace Serializer.Benchmarks
     {
         static JsonBenchmarks()
         {
-            Serializer = new DasSerializer();
+            var settings = DasSettings.CloneDefault();
+            settings.CircularReferenceBehavior = CircularReference.NoValidation;
+            Serializer = new DasSerializer(settings);
 
             NullPayload = SimpleClassObjectProperty.GetNullPayload();
-            
+            NullPayloadJson = Serializer.ToJson(NullPayload);
         }
 
 
@@ -24,24 +27,29 @@ namespace Serializer.Benchmarks
         //    return Serializer.FromJson<SimpleClassObjectProperty>(NullPayloadJson);
         //}
 
-        [Benchmark]
-        public SimpleClassObjectProperty DasPrimitivePropertiesJson()
+        public String DasPrintPrimitiveProperties()
         {
-            var NullPayloadJson = Serializer.ToJson(NullPayload);
-            return Serializer.FromJson<SimpleClassObjectProperty>(NullPayloadJson);
+            return Serializer.ToJson(NullPayload);
+        }
+
+        [Benchmark]
+        public SimpleClassObjectProperty DasPrimitiveProperties()
+        {
+            var nullPayloadJson = Serializer.ToJson(NullPayload);
+            return Serializer.FromJson<SimpleClassObjectProperty>(nullPayloadJson);
         }
 
         [Benchmark]
         public SimpleClassObjectProperty JsonNetPrimitivePropertiesJson()
         {
-            var NullPayloadJson = JsonConvert.SerializeObject(NullPayload);
-            return JsonConvert.DeserializeObject<SimpleClassObjectProperty>(NullPayloadJson);
-            //return Serializer.FromJson<SimpleClassObjectProperty>(NullPayloadJson);
+            var nullPayloadJson = JsonConvert.SerializeObject(NullPayload);
+            return JsonConvert.DeserializeObject<SimpleClassObjectProperty>(nullPayloadJson);
+            
         }
 
         private static readonly DasSerializer Serializer;
         private static readonly SimpleClassObjectProperty NullPayload;
 
-        //private static readonly String NullPayloadJson;
+        private static readonly String NullPayloadJson;
     }
 }
