@@ -24,6 +24,7 @@ namespace Das.Serializer
             IsUseAttributesInXml = true;
             PrintJsonPropertiesFormat = PrintPropertyFormat.Default;
             PropertyNotFoundBehavior = PropertyNotFoundBehavior.Ignore;
+            CircularReferenceBehavior = CircularReference.NoValidation;
         }
 
         /// <summary>

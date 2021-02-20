@@ -44,6 +44,20 @@ namespace Das.Serializer
         IEnumerable<MethodInfo> GetInterfaceMethods(Type type);
 
         /// <summary>
+        /// Searches the type including explicit implementations 
+        /// </summary>
+        MethodInfo? FindInvocableMethod(Type type,
+                                        String methodName,
+                                        Type[] paramTypes);
+
+        /// <summary>
+        /// Searches the type including explicit implementations 
+        /// </summary>
+        MethodInfo? FindInvocableMethod(Type type,
+                                        ICollection<String> possibleMethodNames,
+                                        Type[] paramTypes);
+
+        /// <summary>
         ///     Recursive through base types without duplicates
         /// </summary>
         IEnumerable<INamedField> GetPropertiesToSerialize(Type type,

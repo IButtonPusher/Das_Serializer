@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
+//using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 using Das.Serializer;
@@ -52,7 +52,7 @@ namespace Das.Printers
             var bytes = new Byte[len];
             fixed (void* ptr = str)
             {
-                Marshal.Copy(new IntPtr(ptr), bytes, 0, len);
+                System.Runtime.InteropServices.Marshal.Copy(new IntPtr(ptr), bytes, 0, len);
             }
 
             return bytes;

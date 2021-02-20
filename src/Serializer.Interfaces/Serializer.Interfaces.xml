@@ -1,598 +1,596 @@
 <?xml version="1.0"?>
-
 <doc>
-  <assembly>
-    <name>Serializer.Interfaces</name>
-  </assembly>
-  <members>
-    <member name="T:Das.Serializer.NotNullAttribute">
-      <summary>
-        Indicates that the value of the marked element could never be <c>null</c>.
-      </summary>
-      <example>
-        <code>
-          [NotNull] object Foo() {
-          return null; // Warning: Possible 'null' assignment
-          }
-        </code>
-      </example>
-    </member>
-    <member name="T:Das.Serializer.IAssemblyList">
-      <summary>
-        To find aspecific Assembly or to iterate all in the current app domain
-      </summary>
-    </member>
-    <member
-      name="M:Das.Serializer.IDynamicTypes.GetDynamicType(System.String,System.Collections.Generic.IEnumerable{Das.Serializer.DasProperty},System.Boolean,System.Collections.Generic.IEnumerable{System.Reflection.EventInfo},System.Collections.Generic.IDictionary{System.Reflection.MethodInfo,System.Reflection.MethodInfo},System.Type[])">
-      <summary>
-        Gets a dynamic type in a wrapper that allows for properties to be accessed quickly
-      </summary>
-    </member>
-    <member name="M:Das.Serializer.IObjectManipulator.CastDynamic``1(System.Object)">
-      <summary>
-        Tries to cast or convert as IConvertible or via an implicit type conversion.
-      </summary>
-      <exception cref="T:System.InvalidCastException">
-        The object was not IConvertible and no implicit
-        conversion exists
-      </exception>
-    </member>
-    <member
-      name="M:Das.Serializer.IObjectManipulator.CastDynamic``1(System.Object,Das.IObjectConverter,Das.Serializer.ISerializerSettings)">
-      <summary>
-        Tries to cast or convert as IConvertible. Otherwise creates a new T
-        and deep copies all compatible property values
-      </summary>
-    </member>
-    <member
-      name="M:Das.Serializer.IObjectManipulator.SetMutableProperties(System.Collections.Generic.IEnumerable{System.Reflection.PropertyInfo},System.Object,System.Object)">
-      <summary>
-        Shallow copies property values from source to object
-      </summary>
-    </member>
-    <member name="M:Das.Serializer.IObjectManipulator.TryCastDynamic``1(System.Object,``0@)">
-      <summary>
-        Tries to cast or convert as IConvertible. Otherwise returns false
-      </summary>
-    </member>
-    <member
-      name="M:Das.Serializer.ITypeStructureBase.SetPropertyValueUnsafe(System.String,System.Object@,System.Object)">
-      <exception cref="T:System.Collections.Generic.KeyNotFoundException"></exception>
-    </member>
-    <member name="M:Das.Serializer.ProtoBuf.IProtoProvider.GetAutoProtoProxy``1(System.Boolean)">
-      <summary>
-        Builds a scan and/or print proxy for type T using all public properties that have setter methods
-        and/or are instantiated in the constructor via arguments
-        can be
-        specified in the applicable ProtoBufOptions{TPropertyAttribute} instance
-      </summary>
-      <typeparam name="T">The type of the class to serialize </typeparam>
-      <param name="allowReadOnly">skips generating a scan method if no usable constructor is found</param>
-      <exception cref="T:System.MissingMethodException">If allowReadOnly is false and no default constructor is found</exception>
-    </member>
-    <member name="M:Das.Serializer.ProtoBuf.IProtoProvider.GetProtoProxy``1(System.Boolean)">
-      <summary>
-        Builds a scan and/or print proxy for type T where properties with the attribute
-        specified in the applicable ProtoBufOptions{TPropertyAttribute} instance
-      </summary>
-      <typeparam name="T">The type of the class to serialize </typeparam>
-      <param name="allowReadOnly">skips generating a scan method if no usable constructor is found</param>
-      <exception cref="T:System.MissingMethodException">If allowReadOnly is false and no default constructor is found</exception>
-    </member>
-    <member name="P:Das.Serializer.ProtoBuf.IStreamAccessor.CopyMemoryStream">
-      <summary>
-        public static void ProtoDynamicBase.CopyMemoryStream(
-        MemoryStream copyFrom,  Stream  destination)
-      </summary>
-    </member>
-    <member name="P:Das.Serializer.ProtoBuf.IStreamAccessor.GetPositiveInt32">
-      <summary>
-        public static Int32 ProtoDynamicBase.GetPositiveInt32(
-        Stream stream);
-      </summary>
-    </member>
-    <member name="P:Das.Serializer.ProtoBuf.IStreamAccessor.GetStreamLength">
-      <summary>
-        public long Stream.Length { get; }
-      </summary>
-    </member>
-    <member name="P:Das.Serializer.ProtoBuf.IStreamAccessor.GetStringFromBytes">
-      <summary>
-        public string Encoding.GetString(
-        byte[] bytes, int index, int count)
-      </summary>
-    </member>
-    <member name="P:Das.Serializer.ProtoBuf.IStreamAccessor.ReadStreamBytes">
-      <summary>
-        public int Stream.Read(byte[] buffer, int offset, int count);
-      </summary>
-    </member>
-    <member name="P:Das.Serializer.ProtoBuf.IStreamAccessor.SetStreamLength">
-      <summary>
-        public void Stream.SetLength(long value);
-      </summary>
-    </member>
-    <member name="P:Das.Serializer.ProtoBuf.IStreamAccessor.SetStreamPosition">
-      <summary>
-        public long Stream.Position { set; }
-      </summary>
-    </member>
-    <member name="P:Das.Serializer.ProtoBuf.IStreamAccessor.Utf8">
-      <summary>
-        protected static Encoding ProtoDynamicBase.Utf8;
-      </summary>
-    </member>
-    <member name="P:Das.Serializer.ProtoBuf.IStreamAccessor.WriteInt64">
-      <summary>
-        public static void ProtoBufWriter.WriteInt64(
-        Int64 value, Stream outStream)
-      </summary>
-    </member>
-    <member name="M:Das.Serializer.Remunerators.IProtoWriter.GetVarIntLength(System.Int32)">
-      <summary>
-        The amount of bytes the int would need for serialization
-      </summary>
-      <param name="varInt"></param>
-      <returns></returns>
-    </member>
-    <member name="M:Das.Serializer.ITypeCore.FindPublicProperty(System.Type,System.String)">
-      <summary>
-        Searches base classes/interfaces more easily than using Type.GetProperty with
-        a labyrinth of BindingFlags
-      </summary>
-    </member>
-    <member name="M:Das.Serializer.ITypeCore.GetGermaneType(System.Type)">
-      <summary>
-        if this is a generic collection of T or T[] it will return typeof(T)
-        otherwise returns the same type
-      </summary>
-    </member>
-    <member name="M:Das.Serializer.ITypeCore.HasSettableProperties(System.Type)">
-      <summary>
-        read/write properties that can be set after object instantiation
-      </summary>
-    </member>
-    <member
-      name="M:Das.Serializer.ITypeCore.TryGetPropertiesConstructor(System.Type,System.Reflection.ConstructorInfo@)">
-      <summary>
-        Attempts to find a constructor that has parameters that match the name and type of
-        all properties with public get methods
-      </summary>
-    </member>
-    <member name="M:Das.Serializer.ITypeInferrer.GetTypeFromClearName(System.String,System.Boolean)">
-      <summary>
-        Leaves no stone unturned in searching for a type from a String without having to be
-        as specific as with Type.GetType()
-      </summary>
-      <example>String</example>
-      <example>System.String</example>
-      <example>MyProduct.MyNamespace.MyTypeName</example>
-      <example>
-        MyAssembly.dll, MyProduct.MyNamespace.MyTypeName which would be faster than
-        not specifying the assembly name
-      </example>
-    </member>
-    <member
-      name="M:Das.Serializer.ITypeInferrer.GetTypeFromClearName(System.String,System.Collections.Generic.IDictionary{System.String,System.String},System.Boolean)">
-      <summary>
-        Leaves no stone unturned in searching for a type from a String without having to be
-        as specific as with Type.GetType()
-      </summary>
-      <param name="clearName">A string that can be a simple name or include namespaces.  See examples</param>
-      <param name="nameSpaceAssemblySearch">
-        Keys are namespaces, values are assembly names.
-        These can make searching for runtime known types much faster and safer
-      </param>
-      <param name="isTryGeneric">
-        Tries to parse the type name as a generic.  If it's known not
-        to be, it's faster to set this to false
-      </param>
-      <returns></returns>
-      <example>String</example>
-      <example>System.String</example>
-      <example>List[String]</example>
-      <example>MyProduct.MyNamespace.MyTypeName</example>
-      <example>
-        MyAssembly.dll, MyProduct.MyNamespace.MyTypeName which would be faster than
-        not specifying the assembly name
-      </example>
-    </member>
-    <member name="M:Das.Serializer.ITypeInferrer.ToPropertyStyle(System.String)">
-      <summary>
-        Pascal cases the string
-      </summary>
-    </member>
-    <member
-      name="M:Das.Serializer.ITypeManipulator.GetPropertiesToSerialize(System.Type,Das.Serializer.ISerializationDepth)">
-      <summary>
-        Recursive through base types without duplicates
-      </summary>
-    </member>
-    <member name="M:Das.Serializer.ITypeStructure.GetMembersToSerialize(Das.Serializer.ISerializationDepth)">
-      <summary>
-        Returns properties and/or fields depending on specified depth
-      </summary>
-    </member>
-    <member name="M:Das.Serializer.ITypeStructure.GetPropertyValues(System.Object,Das.Serializer.ISerializationDepth)">
-      <summary>
-        For a collection, returns the values.  Otherwise returns the property values
-      </summary>
-    </member>
-    <member name="M:Das.Serializer.IBinarySerializer.ToBytes(System.Object,System.Type)">
-      <summary>
-        Serialize up or down.  For example if TypeB inherits from TypeA
-        and object obj is TypeB, passing the second parameter as typeof(TypeB)
-        will create a byte array that cannot be deserialized as TypeB but
-        can as TypeA
-      </summary>
-    </member>
-    <member name="T:Das.Serializer.IByteArray">
-      <summary>
-        Allows for different types like a Stream or an actual array to be accessed the same way
-      </summary>
-    </member>
-    <member name="M:Das.Serializer.IByteArray.IncludeBytes(System.Int32)">
-      <summary>
-        Reuses a threadlocal array whose size will be larger than the amount that is requested.
-        Only use when the count is tracked and the bytes will be converted to something else
-        zb not to set a property of type Byte[]
-      </summary>
-    </member>
-    <member name="M:Das.Serializer.IJsonSerializer.ToJson(System.Object)">
-      <summary>
-        Create a Json string from any object.  For more options set the Settings
-        property of the serializer instance or the factory on which this is invoked
-      </summary>
-      <param name="o">The object to serialize</param>
-    </member>
-    <member name="M:Das.Serializer.IJsonSerializer.ToJson``1(System.Object)">
-      <summary>
-        Serialize up or down.  Only the properties of TTarget will be serialized
-      </summary>
-    </member>
-    <member name="M:Das.Serializer.IJsonSerializer.ToJson``1(System.Object,System.IO.FileInfo)">
-      <summary>
-        Serialize up or down.  Only the properties of TTarget will be serialized
-      </summary>
-    </member>
-    <member name="M:Das.Serializer.IXmlSerializer.ToXml(System.Object)">
-      <summary>
-        Create an XML string from any object.  For more options set the Settings
-        property of the serializer instance or the factory on which this is invoked
-      </summary>
-      <param name="o">The object to serialize</param>
-    </member>
-    <member name="M:Das.Serializer.IXmlSerializer.ToXml``1(System.Object)">
-      <summary>
-        Serialize up or down.  Only the properties of TTarget will be serialized
-      </summary>
-    </member>
-    <member name="M:Das.Serializer.IXmlSerializer.ToXml(System.Object,System.IO.FileInfo)">
-      <summary>
-        User friendly/less performant save to disk.  Keeps whole serialized string in memory then
-        dumps to file when ready.  Creates the directory for the file if it doesn't
-        already exist
-      </summary>
-    </member>
-    <member name="M:Das.Serializer.IXmlSerializer.ToXml``1(System.Object,System.IO.FileInfo)">
-      <summary>
-        Tries to ensure no empty files if the process cuts off during invocation.
-        Recommended for small files like config
-        The downside is that if this is a big object then it's all going into memory.
-        For a lighter, more dangerous way of saving xml to disk use XmlToStream
-        with a FileStream
-      </summary>
-    </member>
-    <member name="F:Das.Serializer.NodeTypes.Fallback">
-      <summary>
-        Serialize using BinaryFormatter or ToString()
-      </summary>
-    </member>
-    <member name="F:Das.Serializer.NodeTypes.PropertiesToConstructor">
-      <summary>
-        have to use default serialization for binary and string methods for text
-      </summary>
-    </member>
-    <member name="T:Das.Serializer.Objects.NamedValueNode">
-      <summary>
-        A named type/value association
-      </summary>
-    </member>
-    <member name="T:Das.Serializer.Objects.ValueNode">
-      <summary>
-        A type/value association
-      </summary>
-    </member>
-    <member name="P:Das.Serializer.IProtoField.Header">
-      <summary>
-        Wire Type | Index bit shift left 3
-      </summary>
-    </member>
-    <member name="P:Das.Serializer.IProtoFieldAccessor.HeaderBytes">
-      <summary>
-        Wire type | field index
-      </summary>
-    </member>
-    <member name="M:Das.Serializer.INumberExtractor.GetCurrency(System.String)">
-      <summary>
-        Tries to turn the whole string into the number using 0.00 formatting
-      </summary>
-      <returns>0 if it's a completely invalid input</returns>
-    </member>
-    <member name="M:Das.Serializer.INumberExtractor.GetDouble(System.String)">
-      <summary>
-        tries to infer in which format the text is (e.g 1.23 | 1,234.56 etc)
-      </summary>
-    </member>
-    <member name="M:Das.Serializer.INumberExtractor.TryGetCurrency(System.String,System.Double@)">
-      <summary>
-        Tries to find some currency but if nothing found returns false
-      </summary>
-    </member>
-    <member name="T:Das.Serializer.ITextAccessor">
-      <summary>
-        Abstraction for reading one character at a time for a string/builder etc
-      </summary>
-    </member>
-    <member name="M:Das.Serializer.ITextParser.After(System.String,System.String)">
-      <summary>
-        From the end of afterFound till the end of the text. If afterFound is not found,
-        returns inText
-      </summary>
-      <returns></returns>
-    </member>
-    <member
-      name="M:Das.Serializer.ITextParser.AppendAsUsCommaString(System.Text.StringBuilder,System.Collections.Generic.IEnumerable{System.Double},System.Int32,System.Int32)">
-      <summary>
-        Comma delimited
-      </summary>
-      <returns>true if any items were in the amountList</returns>
-    </member>
-    <member name="M:Das.Serializer.ITextParser.ContainsOrdinal(System.String,System.String)">
-      <summary>
-        Ordinal not case sensitive
-      </summary>
-      <param name="checkingString"></param>
-      <param name="value"></param>
-      <returns></returns>
-    </member>
-    <member name="M:Das.Serializer.ITextParser.EndsWithOrdinal(System.String,System.String)">
-      <summary>
-        Ordinal not case sensitive
-      </summary>
-      <param name="checkingString"></param>
-      <param name="value"></param>
-      <returns></returns>
-    </member>
-    <member name="M:Das.Serializer.ITextParser.EnumerateJsonValues(System.String,System.String)">
-      <summary>
-        Returns all values for the given key
-      </summary>
-    </member>
-    <member name="M:Das.Serializer.ITextParser.GetThreadsStringBuilder(System.String)">
-      <summary>
-        Not safe for async code.  Use BorrowStringBuilder if there will be an await in the 'using' block
-      </summary>
-    </member>
-    <member name="M:Das.Serializer.ITextParser.GetThreadsStringBuilder">
-      <summary>
-        Not safe for async code.  Use BorrowStringBuilder if there will be an await in the 'using' block
-      </summary>
-    </member>
-    <member name="M:Das.Serializer.ITextParser.IndexOfEnd(System.String,System.String)">
-      <summary>
-        returns index of searchFor + its length using ordinal rules
-      </summary>
-    </member>
-    <member
-      name="M:Das.Serializer.ITextParser.TryFindTextSurrounding(System.String,System.String[],System.String[]@,System.Int32)">
-      <summary>
-        The text before and after the first delimeter, before and after the second, etc
-      </summary>
-      <returns>delimiters.Length - 1 items</returns>
-    </member>
-    <member name="M:Das.Serializer.ITextParser.TryFindTextWithin(System.String,System.String[],System.String[]@)">
-      <summary>
-        The text after the first delimeter and before the second, between second and third, etc
-      </summary>
-      <returns>delimiters.Length - 1 items</returns>
-    </member>
-    <member name="F:Das.Serializer.CircularReference.IgnoreObject">
-      <summary>
-        For XML and Json, does not include the guilty tag.  For binary pretends it was null
-      </summary>
-    </member>
-    <member name="F:Das.Serializer.CircularReference.SerializePath">
-      <summary>
-        For Json, makes an attribute with a Json path like <code>"$ref": "$.Root.Ref1.Ref2</code>
-        which allows the reference to be restored upon deserialization.  Binary does the same.
-        XML uses an XPath
-      </summary>
-    </member>
-    <member name="F:Das.Serializer.CircularReference.ThrowException">
-      <summary>
-        Throws an exception and the serialization fails
-      </summary>
-    </member>
-    <member name="P:Das.Serializer.ISerializerSettings.CacheTypeConstructors">
-      <summary>
-        Specifies whether ConstructorInfo methods will be turned into delegates and cached
-        for faster object instantiation.  This can cause issues with anonymous types
-        and is automatically disabled in contexts where one is being deserialized
-      </summary>
-    </member>
-    <member name="P:Das.Serializer.ISerializerSettings.Indentation">
-      <summary>
-        Allows control over how much nested elements in json and xml are indented.
-        Use whitespace like spaces and tabs only
-      </summary>
-    </member>
-    <member name="P:Das.Serializer.ISerializerSettings.IsPropertyNamesCaseSensitive">
-      <summary>
-        Particularly for Json pascal case is often used.  Setting this to false
-        and having multiple properties with the "same" name will be problematic
-      </summary>
-    </member>
-    <member name="P:Das.Serializer.ISerializerSettings.NotFoundBehavior">
-      <summary>
-        If an unknown type is in the serialized data, a dynamic type can be built
-        at runtime including properties.
-      </summary>
-    </member>
-    <member name="P:Das.Serializer.ISerializerSettings.PropertySearchDepth">
-      <summary>
-        Defines the depth of the search to resolve elements to their types when
-        deserializing text as JSON or XML
-      </summary>
-    </member>
-    <member name="P:Das.Serializer.ISerializerSettings.TypeSearchNameSpaces">
-      <summary>
-        Types from xml/json that are not namespace or assembly qualified will be
-        searched for in this collection of namespaces. Defaults to just System
-      </summary>
-    </member>
-    <member name="P:Das.Serializer.ISerializerSettings.TypeSpecificity">
-      <summary>
-        Specifies under which circumstances the serializer will embed type information for
-        properties.  For xml the type of the root object is always the root node.  Choosing
-        All will cause the Json and binary formats to wrap their output in an extra node
-        which may make it impossible for other deserializers or services to understand the data
-      </summary>
-    </member>
-    <member name="P:Das.Serializer.ISerializationDepth.IsOmitDefaultValues">
-      <summary>
-        In Xml/Json only.  0 for integers, false for booleans, and any
-        val == default will be ommitted from the markup
-      </summary>
-    </member>
-    <member name="P:Das.Serializer.ISerializationDepth.SerializationDepth">
-      <summary>
-        Allows to set whether properties without setters and whether private fields
-        will be serialized.  Default is GetSetProperties
-      </summary>
-    </member>
-    <member name="T:Das.Serializer.TextPropertySearchDepths">
-      <summary>
-        For text deserialization, the amount of effort that should be
-        expended to resolve properties.  For most use cases, the JSON name
-        should map to an easily mappable property
-        as should the or the XML node or tag.  When dealing with markup
-        whose format is externally defined, it may produce better results
-        to broaden these parameters.
-      </summary>
-    </member>
-    <member name="F:Das.Serializer.TextPropertySearchDepths.ResolveByPropertyName">
-      <summary>
-        Searches only in the type being deserialized (assuming it's known).  Does not provide
-        enough flexibility to deserialize something like HTML where the tags like "label"
-        refer to what are type names rather than properties.
-      </summary>
-    </member>
-    <member name="F:Das.Serializer.TextPropertySearchDepths.AsTypeInNamespacesAndSystem">
-      <summary>
-        Searches as property names but also as types within a predefined collection of
-        namespaces.  This is an appropriate option for markup deserialization
-      </summary>
-      <see cref="P:Das.Serializer.ISerializerSettings.TypeSearchNameSpaces" />
-    </member>
-    <member name="F:Das.Serializer.TextPropertySearchDepths.AsTypeInLoadedModules">
-      <summary>
-        Will search all loaded modules for a type that matches by name alone.  Sensible
-        when producing dynamic types where flexbility is important.  For example
-        custom reporting where the dynamic type will be bound against grid columns
-      </summary>
-    </member>
-    <member name="F:Das.Serializer.SerializationDepth.GetSetProperties">
-      <summary>
-        Considers only properties with getters and setters. Private fields and properties without
-        setters are not serialized/deserialized.
-      </summary>
-    </member>
-    <member name="F:Das.Serializer.TypeNotFound.GenerateRuntime">
-      <summary>
-        Attempt to generate a dynamic type at runtime
-      </summary>
-    </member>
-    <member name="F:Das.Serializer.TypeNotFound.ThrowException">
-      <summary>
-        Throw an exception if no type can be determined from any piece of data
-      </summary>
-    </member>
-    <member name="F:Das.Serializer.TypeSpecificity.None">
-      <summary>
-        Selecting this option will cause type specifications to never be included in
-        serialized data.  Doing this may make it impossible to deserialize your data if your
-        classes have properties of type Object, abstract classes, or interfaces.
-      </summary>
-    </member>
-    <member name="F:Das.Serializer.TypeSpecificity.Discrepancy">
-      <summary>
-        Selecting this option will embed type data only for data that is typed as Object or
-        as an interface/abstract class.  Selecting this option will create somewhat of a
-        proprietary data format that may cause problems being consumed by other applications
-        but is necessary in most cases to deserialize.  This is the default setting
-      </summary>
-    </member>
-    <member name="F:Das.Serializer.TypeSpecificity.All">
-      <summary>
-        Selecting this option will embed type information into every piece of data.
-        This option will generate the largest amount of bytes and be the slowest. However,
-        choosing this option allows for deserialization under nearly all circumstances -
-        even when dynamic types have to be generated.
-      </summary>
-    </member>
-    <member name="T:Das.Serializer.IBinaryContext">
-      <summary>
-        Stateless facade for binary deserialization
-      </summary>
-    </member>
-    <member name="T:Das.Serializer.ISerializationState">
-      <summary>
-        A stateful, non threadsafe context that forms the basis of serialization/deserialization
-        transactions
-      </summary>
-    </member>
-    <member name="T:Das.Serializer.ITextContext">
-      <summary>
-        Stateless facade for text based deserialization
-      </summary>
-    </member>
-    <member name="T:Das.Serializer.ITextState">
-      <summary>
-        Stateful and not thread safe
-      </summary>
-    </member>
-    <member name="M:Das.IObjectConverter.ConvertEx``1(System.Object,Das.Serializer.ISerializerSettings)">
-      <summary>
-        If obj is of type T, returns (T)obj.  Otherwise, instantiates an
-        object of T then does a memberwise deep copy from obj's members that match T's
-      </summary>
-    </member>
-    <member name="M:Das.Streamers.IBinaryFeeder.GetNextBlockSize">
-      <summary>
-        Returns the amount of bytes that the next object will use.  Advances
-        the byte index forward by 4 bytes
-      </summary>
-    </member>
-    <member name="M:Das.Streamers.IBinaryFeeder.GetNextType">
-      <summary>
-        takes the next 4 bytes for length then the next N bytes and turns them into a Type
-      </summary>
-    </member>
-    <member name="M:Das.Streamers.IBinaryFeeder.IncludeBytes(System.Int32)">
-      <summary>
-        Reuses a threadlocal array whose size will be larger than the amount that is requested.
-        Only use when the count is tracked and the bytes will be converted to something else
-        zb not to set a property of type Byte[]
-      </summary>
-    </member>
-    <member name="M:Das.Streamers.IBinaryFeeder.PeekInt32(System.Int32)">
-      <summary>
-        Gets the next Int32 value.  If the value matches the parameter, the index is moved up,
-        otherwise it is restored and this method will not have altered the state of the feeder
-      </summary>
-      <param name="advanceIf"></param>
-      <returns></returns>
-    </member>
-  </members>
+    <assembly>
+        <name>Serializer.Interfaces</name>
+    </assembly>
+    <members>
+        <member name="T:Das.Serializer.NotNullAttribute">
+            <summary>
+                Indicates that the value of the marked element could never be <c>null</c>.
+            </summary>
+            <example>
+                <code>
+            [NotNull] object Foo() {
+              return null; // Warning: Possible 'null' assignment
+            }
+            </code>
+            </example>
+        </member>
+        <member name="T:Das.Serializer.IAssemblyList">
+            <summary>
+                To find aspecific Assembly or to iterate all in the current app domain
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.IAssemblyList.GetAll">
+            <summary>
+                Returns all the assemblies that are referenced by the running process
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.IPropertyAccessor.PropertyPath">
+            <summary>
+            The property's name under most circumstances.  Can also be ParentType.PropertyName etc
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.IDynamicTypes.GetDynamicType(System.String,System.Collections.Generic.IEnumerable{Das.Serializer.DasProperty},System.Boolean,System.Collections.Generic.IEnumerable{System.Reflection.EventInfo},System.Collections.Generic.IDictionary{System.Reflection.MethodInfo,System.Reflection.MethodInfo},System.Type[])">
+            <summary>
+                Gets a dynamic type in a wrapper that allows for properties to be accessed quickly
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.IObjectConverter.ConvertEx``1(System.Object,Das.Serializer.ISerializerSettings)">
+            <summary>
+                If obj is of type T, returns (T)obj.  Otherwise, instantiates an
+                object of T then does a memberwise deep copy from obj's members that match T's
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.IObjectManipulator.CastDynamic``1(System.Object)">
+            <summary>
+                Tries to cast or convert as IConvertible or via an implicit type conversion.
+            </summary>
+            <exception cref="T:System.InvalidCastException">
+                The object was not IConvertible and no implicit
+                conversion exists
+            </exception>
+        </member>
+        <member name="M:Das.Serializer.IObjectManipulator.CastDynamic``1(System.Object,Das.Serializer.IObjectConverter,Das.Serializer.ISerializerSettings)">
+            <summary>
+                Tries to cast or convert as IConvertible. Otherwise creates a new T
+                and deep copies all compatible property values
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.IObjectManipulator.SetMutableProperties(System.Collections.Generic.IEnumerable{System.Reflection.PropertyInfo},System.Object,System.Object)">
+            <summary>
+                Shallow copies property values from source to object
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.IObjectManipulator.TryCastDynamic``1(System.Object,``0@)">
+            <summary>
+                Tries to cast or convert as IConvertible. Otherwise returns false
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.ITypeStructureBase.SetPropertyValueUnsafe(System.String,System.Object@,System.Object)">
+            <exception cref="T:System.Collections.Generic.KeyNotFoundException"></exception>
+        </member>
+        <member name="M:Das.Serializer.ProtoBuf.IProtoProvider.GetAutoProtoProxy``1(System.Boolean)">
+            <summary>
+                Builds a scan and/or print proxy for type T using all public properties that have setter methods
+                and/or are instantiated in the constructor via arguments
+                can be
+                specified in the applicable ProtoBufOptions{TPropertyAttribute} instance
+            </summary>
+            <typeparam name="T">The type of the class to serialize </typeparam>
+            <param name="allowReadOnly">skips generating a scan method if no usable constructor is found</param>
+            <exception cref="T:System.MissingMethodException">If allowReadOnly is false and no default constructor is found</exception>
+        </member>
+        <member name="M:Das.Serializer.ProtoBuf.IProtoProvider.GetProtoProxy``1(System.Boolean)">
+            <summary>
+                Builds a scan and/or print proxy for type T where properties with the attribute
+                specified in the applicable ProtoBufOptions{TPropertyAttribute} instance
+            </summary>
+            <typeparam name="T">The type of the class to serialize </typeparam>
+            <param name="allowReadOnly">skips generating a scan method if no usable constructor is found</param>
+            <exception cref="T:System.MissingMethodException">If allowReadOnly is false and no default constructor is found</exception>
+        </member>
+        <member name="P:Das.Serializer.ProtoBuf.IStreamAccessor.CopyMemoryStream">
+            <summary>
+                public static void ProtoDynamicBase.CopyMemoryStream(
+                MemoryStream copyFrom,  Stream  destination)
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.ProtoBuf.IStreamAccessor.GetPositiveInt32">
+            <summary>
+                public static Int32 ProtoDynamicBase.GetPositiveInt32(
+                Stream stream);
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.ProtoBuf.IStreamAccessor.GetStreamLength">
+            <summary>
+                public long Stream.Length { get; }
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.ProtoBuf.IStreamAccessor.GetStringFromBytes">
+            <summary>
+                public string Encoding.GetString(
+                byte[] bytes, int index, int count)
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.ProtoBuf.IStreamAccessor.ReadStreamBytes">
+            <summary>
+                public int Stream.Read(byte[] buffer, int offset, int count);
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.ProtoBuf.IStreamAccessor.SetStreamLength">
+            <summary>
+                public void Stream.SetLength(long value);
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.ProtoBuf.IStreamAccessor.SetStreamPosition">
+            <summary>
+                public long Stream.Position { set; }
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.ProtoBuf.IStreamAccessor.Utf8">
+            <summary>
+                protected static Encoding ProtoDynamicBase.Utf8;
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.ProtoBuf.IStreamAccessor.WriteInt64">
+            <summary>
+                public static void ProtoBufWriter.WriteInt64(
+                Int64 value, Stream outStream)
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.ProtoBuf.IStreamAccessor.WriteUInt64">
+            <summary>
+                public static void ProtoBufWriter.WriteUInt64(
+                Int64 value, Stream outStream)
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.Remunerators.IProtoWriter.GetVarIntLength(System.Int32)">
+            <summary>
+                The amount of bytes the int would need for serialization
+            </summary>
+            <param name="varInt"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Das.Serializer.ITypeCore.FindPublicProperty(System.Type,System.String)">
+            <summary>
+                Searches base classes/interfaces more easily than using Type.GetProperty with
+                a labyrinth of BindingFlags
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.ITypeCore.GetGermaneType(System.Type)">
+            <summary>
+                if this is a generic collection of T or T[] it will return typeof(T)
+                otherwise returns the same type
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.ITypeCore.HasSettableProperties(System.Type)">
+            <summary>
+                read/write properties that can be set after object instantiation
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.ITypeCore.TryGetPropertiesConstructor(System.Type,System.Reflection.ConstructorInfo@)">
+            <summary>
+                Attempts to find a constructor that has parameters that match the name and type of
+                all properties with public get methods
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.ITypeInferrer.GetTypeFromClearName(System.String,System.Boolean)">
+            <summary>
+                Leaves no stone unturned in searching for a type from a String without having to be
+                as specific as with Type.GetType()
+            </summary>
+            <example>String</example>
+            <example>System.String</example>
+            <example>MyProduct.MyNamespace.MyTypeName</example>
+            <example>
+                MyAssembly.dll, MyProduct.MyNamespace.MyTypeName which would be faster than
+                not specifying the assembly name
+            </example>
+        </member>
+        <member name="M:Das.Serializer.ITypeInferrer.GetTypeFromClearName(System.String,System.Collections.Generic.IDictionary{System.String,System.String},System.Boolean)">
+            <summary>
+                Leaves no stone unturned in searching for a type from a String without having to be
+                as specific as with Type.GetType()
+            </summary>
+            <param name="clearName">A string that can be a simple name or include namespaces.  See examples</param>
+            <param name="nameSpaceAssemblySearch">
+                Keys are namespaces, values are assembly names.
+                These can make searching for runtime known types much faster and safer
+            </param>
+            <param name="isTryGeneric">
+                Tries to parse the type name as a generic.  If it's known not
+                to be, it's faster to set this to false
+            </param>
+            <returns></returns>
+            <example>String</example>
+            <example>System.String</example>
+            <example>List[String]</example>
+            <example>MyProduct.MyNamespace.MyTypeName</example>
+            <example>
+                MyAssembly.dll, MyProduct.MyNamespace.MyTypeName which would be faster than
+                not specifying the assembly name
+            </example>
+        </member>
+        <member name="M:Das.Serializer.ITypeInferrer.ToPascalCase(System.String)">
+            <summary>
+                Pascal cases the string
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.ITypeManipulator.GetPropertiesToSerialize(System.Type,Das.Serializer.ISerializationDepth)">
+            <summary>
+                Recursive through base types without duplicates
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.ITypeStructure.GetMembersToSerialize(Das.Serializer.ISerializationDepth)">
+            <summary>
+                Returns properties and/or fields depending on specified depth
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.IBinarySerializer.ToBytes(System.Object,System.Type)">
+            <summary>
+                Serialize up or down.  For example if TypeB inherits from TypeA
+                and object obj is TypeB, passing the second parameter as typeof(TypeB)
+                will create a byte array that cannot be deserialized as TypeB but
+                can as TypeA
+            </summary>
+        </member>
+        <member name="T:Das.Serializer.IByteArray">
+            <summary>
+                Allows for different types like a Stream or an actual array to be accessed the same way
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.IByteArray.IncludeBytes(System.Int32)">
+            <summary>
+                Reuses a threadlocal array whose size will be larger than the amount that is requested.
+                Only use when the count is tracked and the bytes will be converted to something else
+                zb not to set a property of type Byte[]
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.IJsonSerializer.ToJson(System.Object)">
+            <summary>
+                Create a Json string from any object.  For more options set the Settings
+                property of the serializer instance or the factory on which this is invoked
+            </summary>
+            <param name="o">The object to serialize</param>
+        </member>
+        <member name="M:Das.Serializer.IJsonSerializer.ToJson``1(System.Object)">
+            <summary>
+                Serialize up or down.  Only the properties of TTarget will be serialized
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.IJsonSerializer.ToJson``1(System.Object,System.IO.FileInfo)">
+            <summary>
+                Serialize up or down.  Only the properties of TTarget will be serialized
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.IXmlSerializer.ToXml(System.Object)">
+            <summary>
+                Create an XML string from any object.  For more options set the Settings
+                property of the serializer instance or the factory on which this is invoked
+            </summary>
+            <param name="o">The object to serialize</param>
+        </member>
+        <member name="M:Das.Serializer.IXmlSerializer.ToXml``1(System.Object)">
+            <summary>
+                Serialize up or down.  Only the properties of TTarget will be serialized
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.IXmlSerializer.ToXmlAsync(System.Object,System.IO.FileInfo)">
+            <summary>
+                User friendly/less performant save to disk.  Keeps whole serialized string in memory then
+                dumps to file when ready.  Creates the directory for the file if it doesn't
+                already exist
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.IXmlSerializer.ToXmlAsync``1(System.Object,System.IO.FileInfo)">
+            <summary>
+                Tries to ensure no empty files if the process cuts off during invocation.
+                Recommended for small files like config
+                The downside is that if this is a big object then it's all going into memory.
+                For a lighter, more dangerous way of saving xml to disk use XmlToStream
+                with a FileStream
+            </summary>
+        </member>
+        <member name="F:Das.Serializer.NodeTypes.Fallback">
+            <summary>
+                Serialize using BinaryFormatter or ToString()
+            </summary>
+        </member>
+        <member name="F:Das.Serializer.NodeTypes.PropertiesToConstructor">
+            <summary>
+                have to use default serialization for binary and string methods for text
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.IProtoField.Header">
+            <summary>
+                Wire Type | Index bit shift left 3
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.IProtoFieldAccessor.HeaderBytes">
+            <summary>
+                Wire type | field index
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.INumberExtractor.GetCurrency(System.String)">
+            <summary>
+                Tries to turn the whole string into the number using 0.00 formatting
+            </summary>
+            <returns>0 if it's a completely invalid input</returns>
+        </member>
+        <member name="M:Das.Serializer.INumberExtractor.GetDouble(System.String)">
+            <summary>
+                tries to infer in which format the text is (e.g 1.23 | 1,234.56 etc)
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.INumberExtractor.TryGetCurrency(System.String,System.Double@)">
+            <summary>
+                Tries to find some currency but if nothing found returns false
+            </summary>
+        </member>
+        <member name="T:Das.Serializer.ITextAccessor">
+            <summary>
+                Abstraction for reading one character at a time for a string/builder etc
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.ITextParser.After(System.String,System.String)">
+            <summary>
+                From the end of afterFound till the end of the text. If afterFound is not found,
+                returns inText
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Das.Serializer.ITextParser.AppendAsUsCommaString(System.Text.StringBuilder,System.Collections.Generic.IEnumerable{System.Double},System.Int32,System.Int32)">
+            <summary>
+                Comma delimited
+            </summary>
+            <returns>true if any items were in the amountList</returns>
+        </member>
+        <member name="M:Das.Serializer.ITextParser.ContainsOrdinal(System.String,System.String)">
+            <summary>
+                Ordinal not case sensitive
+            </summary>
+            <param name="checkingString"></param>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Das.Serializer.ITextParser.EndsWithOrdinal(System.String,System.String)">
+            <summary>
+                Ordinal not case sensitive
+            </summary>
+            <param name="checkingString"></param>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Das.Serializer.ITextParser.EnumerateJsonValues(System.String,System.String)">
+            <summary>
+                Returns all values for the given key
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.ITextParser.GetThreadsStringBuilder(System.String)">
+            <summary>
+                Not safe for async code.  Use BorrowStringBuilder if there will be an await in the 'using' block
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.ITextParser.GetThreadsStringBuilder">
+            <summary>
+                Not safe for async code.  Use BorrowStringBuilder if there will be an await in the 'using' block
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.ITextParser.IndexOfEnd(System.String,System.String)">
+            <summary>
+                returns index of searchFor + its length using ordinal rules
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.ITextParser.TryFindTextSurrounding(System.String,System.String[],System.String[]@,System.Int32)">
+            <summary>
+                The text before and after the first delimeter, before and after the second, etc
+            </summary>
+            <returns>delimiters.Length - 1 items</returns>
+        </member>
+        <member name="M:Das.Serializer.ITextParser.TryFindTextWithin(System.String,System.String[],System.String[]@)">
+            <summary>
+                The text after the first delimeter and before the second, between second and third, etc
+            </summary>
+            <returns>delimiters.Length - 1 items</returns>
+        </member>
+        <member name="F:Das.Serializer.CircularReference.IgnoreObject">
+            <summary>
+                For XML and Json, does not include the guilty tag.  For binary pretends it was null
+            </summary>
+        </member>
+        <member name="F:Das.Serializer.CircularReference.SerializePath">
+            <summary>
+                For Json, makes an attribute with a Json path like <code>"$ref": "$.Root.Ref1.Ref2</code>
+                which allows the reference to be restored upon deserialization.  Binary does the same.
+                XML uses an XPath
+            </summary>
+        </member>
+        <member name="F:Das.Serializer.CircularReference.ThrowException">
+            <summary>
+                Throws an exception and the serialization fails
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.ISerializerSettings.CacheTypeConstructors">
+            <summary>
+                Specifies whether ConstructorInfo methods will be turned into delegates and cached
+                for faster object instantiation.  This can cause issues with anonymous types
+                and is automatically disabled in contexts where one is being deserialized
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.ISerializerSettings.Indentation">
+            <summary>
+                Allows control over how much nested elements in json and xml are indented.
+                Use whitespace like spaces and tabs only
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.ISerializerSettings.IsPropertyNamesCaseSensitive">
+            <summary>
+                Particularly for Json pascal case is often used.  Setting this to false
+                and having multiple properties with the "same" name will be problematic
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.ISerializerSettings.IsUseAttributesInXml">
+            <summary>
+                Using attributes can make the markup smaller but can limit compatibility with other serializers
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.ISerializerSettings.PropertyNotFoundBehavior">
+            <summary>
+                If data exists in markup but no property can be found for the known type that is being
+                deserialized to.
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.ISerializerSettings.PropertySearchDepth">
+            <summary>
+                Defines the depth of the search to resolve elements to their types when
+                deserializing text as JSON or XML
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.ISerializerSettings.TypeNotFoundBehavior">
+            <summary>
+                If an unknown type is in the serialized data, a dynamic type can be built
+                at runtime including properties.
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.ISerializerSettings.TypeSearchNameSpaces">
+            <summary>
+                Types from xml/json that are not namespace or assembly qualified will be
+                searched for in this collection of namespaces. Defaults to just System
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.ISerializerSettings.TypeSpecificity">
+            <summary>
+                Specifies under which circumstances the serializer will embed type information for
+                properties.  For xml the type of the root object is always the root node.  Choosing
+                All will cause the Json and binary formats to wrap their output in an extra node
+                which may make it impossible for other deserializers or services to understand the data
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.ISerializationDepth.IsOmitDefaultValues">
+            <summary>
+                In Xml/Json only.  0 for integers, false for booleans, and any
+                val == default will be ommitted from the markup
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.ISerializationDepth.SerializationDepth">
+            <summary>
+                Allows to set whether properties without setters and whether private fields
+                will be serialized.  Default is GetSetProperties
+            </summary>
+        </member>
+        <member name="T:Das.Serializer.ISettingsUser">
+            <summary>
+                Base interface for any type with a public property of type ISerializerSettings
+            </summary>
+            <see cref="T:Das.Serializer.ISerializerSettings" />
+        </member>
+        <member name="T:Das.Serializer.TextPropertySearchDepths">
+            <summary>
+                For text deserialization, the amount of effort that should be
+                expended to resolve properties.  For most use cases, the JSON name
+                should map to an easily mappable property
+                as should the or the XML node or tag.  When dealing with markup
+                whose format is externally defined, it may produce better results
+                to broaden these parameters.
+            </summary>
+        </member>
+        <member name="F:Das.Serializer.TextPropertySearchDepths.ResolveByPropertyName">
+            <summary>
+                Searches only in the type being deserialized (assuming it's known).  Does not provide
+                enough flexibility to deserialize something like HTML where the tags like "label"
+                refer to what are type names rather than properties.
+            </summary>
+        </member>
+        <member name="F:Das.Serializer.TextPropertySearchDepths.AsTypeInNamespacesAndSystem">
+            <summary>
+                Searches as property names but also as types within a predefined collection of
+                namespaces.  This is an appropriate option for markup deserialization
+            </summary>
+            <see cref="P:Das.Serializer.ISerializerSettings.TypeSearchNameSpaces" />
+        </member>
+        <member name="F:Das.Serializer.TextPropertySearchDepths.AsTypeInLoadedModules">
+            <summary>
+                Will search all loaded modules for a type that matches by name alone.  Sensible
+                when producing dynamic types where flexbility is important.  For example
+                custom reporting where the dynamic type will be bound against grid columns
+            </summary>
+        </member>
+        <member name="F:Das.Serializer.SerializationDepth.GetSetProperties">
+            <summary>
+                Considers only properties with getters and setters. Private fields and properties without
+                setters are not serialized/deserialized.
+            </summary>
+        </member>
+        <member name="F:Das.Serializer.TypeNotFoundBehavior.GenerateRuntime">
+            <summary>
+                Attempt to generate a dynamic type at runtime
+            </summary>
+        </member>
+        <member name="F:Das.Serializer.TypeNotFoundBehavior.ThrowException">
+            <summary>
+                Throw an exception if no type can be determined from any piece of data
+            </summary>
+        </member>
+        <member name="F:Das.Serializer.TypeSpecificity.None">
+            <summary>
+                Selecting this option will cause type specifications to never be included in
+                serialized data.  Doing this may make it impossible to deserialize your data if your
+                classes have properties of type Object, abstract classes, or interfaces.
+            </summary>
+        </member>
+        <member name="F:Das.Serializer.TypeSpecificity.Discrepancy">
+            <summary>
+                Selecting this option will embed type data only for data that is typed as Object or
+                as an interface/abstract class.  Selecting this option will create somewhat of a
+                proprietary data format that may cause problems being consumed by other applications
+                but is necessary in most cases to deserialize.  This is the default setting
+            </summary>
+        </member>
+        <member name="F:Das.Serializer.TypeSpecificity.All">
+            <summary>
+                Selecting this option will embed type information into every piece of data.
+                This option will generate the largest amount of bytes and be the slowest. However,
+                choosing this option allows for deserialization under nearly all circumstances -
+                even when dynamic types have to be generated.
+            </summary>
+        </member>
+        <member name="T:Das.Serializer.IBinaryContext">
+            <summary>
+                Stateless facade for binary deserialization
+            </summary>
+        </member>
+        <member name="T:Das.Serializer.ISerializationState">
+            <summary>
+                A stateful, non threadsafe context that forms the basis of serialization/deserialization
+                transactions
+            </summary>
+        </member>
+        <member name="M:Das.Streamers.IBinaryFeeder.GetNextBlockSize">
+            <summary>
+                Returns the amount of bytes that the next object will use.  Advances
+                the byte index forward by 4 bytes
+            </summary>
+        </member>
+        <member name="M:Das.Streamers.IBinaryFeeder.GetNextType">
+            <summary>
+                takes the next 4 bytes for length then the next N bytes and turns them into a Type
+            </summary>
+        </member>
+        <member name="M:Das.Streamers.IBinaryFeeder.IncludeBytes(System.Int32)">
+            <summary>
+                Reuses a threadlocal array whose size will be larger than the amount that is requested.
+                Only use when the count is tracked and the bytes will be converted to something else
+                zb not to set a property of type Byte[]
+            </summary>
+        </member>
+        <member name="M:Das.Streamers.IBinaryFeeder.PeekInt32(System.Int32)">
+            <summary>
+                Gets the next Int32 value.  If the value matches the parameter, the index is moved up,
+                otherwise it is restored and this method will not have altered the state of the feeder
+            </summary>
+            <param name="advanceIf"></param>
+            <returns></returns>
+        </member>
+    </members>
 </doc>

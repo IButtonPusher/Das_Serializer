@@ -31,11 +31,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)NodeBuilders\BaseNodeSealer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NodeBuilders\BinaryNodeProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NodeBuilders\BinaryNodeSealer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)NodeBuilders\JsonNodeTypeProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NodeBuilders\NodeManipulator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NodeBuilders\NodeProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NodeBuilders\NodeTypeProvider.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)NodeBuilders\XmlNodeTypeProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ObjectConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Printers\BinaryPrinter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Printers\JsonPrinter.cs" />

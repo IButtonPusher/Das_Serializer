@@ -4,6 +4,8 @@ using BenchmarkDotNet.Attributes;
 using Das.Serializer;
 using Newtonsoft.Json;
 using Serializer.Tests;
+using Serializer.Tests.ProtocolBuffers;
+
 // ReSharper disable All
 
 namespace Serializer.Benchmarks
@@ -12,12 +14,12 @@ namespace Serializer.Benchmarks
     {
         static JsonBenchmarks()
         {
-            var settings = DasSettings.CloneDefault();
-            settings.CircularReferenceBehavior = CircularReference.NoValidation;
-            Serializer = new DasSerializer(settings);
+            //var settings = DasSettings.CloneDefault();
+            //settings.CircularReferenceBehavior = CircularReference.NoValidation;
+            Serializer = new DasSerializer();
 
             NullPayload = SimpleClassObjectProperty.GetNullPayload();
-            NullPayloadJson = Serializer.ToJson(NullPayload);
+            //NullPayloadJson = Serializer.ToJson(NullPayload);
         }
 
 
@@ -35,8 +37,8 @@ namespace Serializer.Benchmarks
         [Benchmark]
         public SimpleClassObjectProperty DasPrimitiveProperties()
         {
-            var nullPayloadJson = Serializer.ToJson(NullPayload);
-            return Serializer.FromJson<SimpleClassObjectProperty>(nullPayloadJson);
+            var json = Serializer.ToJson(NullPayload);
+            return Serializer.FromJson<SimpleClassObjectProperty>(json);
         }
 
         [Benchmark]
@@ -44,12 +46,30 @@ namespace Serializer.Benchmarks
         {
             var nullPayloadJson = JsonConvert.SerializeObject(NullPayload);
             return JsonConvert.DeserializeObject<SimpleClassObjectProperty>(nullPayloadJson);
-            
+        }
+
+
+        [Benchmark]
+        public DictionaryPropertyMessage DasDictionary()
+        {
+            var mc1 = DictionaryPropertyMessage.DefaultValue;
+            var json = Serializer.ToJson(mc1);
+
+            return Serializer.FromJson<DictionaryPropertyMessage>(json);
+        }
+
+        [Benchmark]
+        public DictionaryPropertyMessage JsonNetDictionary()
+        {
+            var mc1 = DictionaryPropertyMessage.DefaultValue;
+            var json = JsonConvert.SerializeObject(mc1);
+
+            return JsonConvert.DeserializeObject<DictionaryPropertyMessage>(json);
         }
 
         private static readonly DasSerializer Serializer;
         private static readonly SimpleClassObjectProperty NullPayload;
 
-        private static readonly String NullPayloadJson;
+        //private static readonly String NullPayloadJson;
     }
 }
