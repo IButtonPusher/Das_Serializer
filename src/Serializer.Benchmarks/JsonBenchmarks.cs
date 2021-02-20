@@ -48,7 +48,6 @@ namespace Serializer.Benchmarks
             return JsonConvert.DeserializeObject<SimpleClassObjectProperty>(nullPayloadJson);
         }
 
-
         [Benchmark]
         public DictionaryPropertyMessage DasDictionary()
         {
@@ -65,6 +64,24 @@ namespace Serializer.Benchmarks
             var json = JsonConvert.SerializeObject(mc1);
 
             return JsonConvert.DeserializeObject<DictionaryPropertyMessage>(json);
+        }
+
+        [Benchmark]
+        public MultiPropMessage DasMultiProperties()
+        {
+            var msg = MultiPropMessage.GetTestOne();
+            var json = Serializer.ToJson(msg);
+
+            return Serializer.FromJson<MultiPropMessage>(json);
+        }
+
+        [Benchmark]
+        public MultiPropMessage JsonNetMultiProperties()
+        {
+            var msg = MultiPropMessage.GetTestOne();
+            var json = JsonConvert.SerializeObject(msg);
+
+            return JsonConvert.DeserializeObject<MultiPropMessage>(json);
         }
 
         private static readonly DasSerializer Serializer;

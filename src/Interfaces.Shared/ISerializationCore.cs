@@ -20,7 +20,7 @@ namespace Das.Serializer
 
         IDictionary<Type, Type> Surrogates { get; }
 
-        ITextParser TextParser { get; }
+        //ITextParser TextParser { get; }
 
         ITypeInferrer TypeInferrer { get; }
 

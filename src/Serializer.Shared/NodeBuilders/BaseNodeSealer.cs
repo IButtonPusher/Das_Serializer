@@ -141,11 +141,13 @@ namespace Das.Serializer
                     return;
 
                 var addDelegate = node.DynamicProperties.Values.First() is { } valid
-                    ? _facade.TypeManipulator.GetAdder(node.Type,
-                        valid)
+                    ? _facade.TypeManipulator.GetAdder(node.Type, valid)
                     : default;
                 if (addDelegate == null && node.Value is IEnumerable ienum)
-                    addDelegate = _facade.TypeManipulator.GetAdder(ienum);
+                {
+                    _facade.TypeManipulator.TryGetAdder(ienum, out addDelegate);
+                    //addDelegate = _facade.TypeManipulator.GetAdder(ienum);
+                }
 
 
                 if (addDelegate == null)

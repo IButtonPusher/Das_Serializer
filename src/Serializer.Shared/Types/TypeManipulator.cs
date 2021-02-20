@@ -26,12 +26,14 @@ namespace Das.Serializer
             _knownSensitive = new ConcurrentDictionary<Type, ITypeStructure>();
             _knownInsensitive = new ConcurrentDictionary<Type, ITypeStructure>();
             _cachedPropertyAccessors = new DoubleDictionary<Type, string, IPropertyAccessor>();
+
+            _cachedAdders = new ConcurrentDictionary<Type, VoidMethod?>();
         }
 
         public TypeManipulator(ISerializerSettings settings)
             : base(settings)
         {
-            _cachedAdders = new ConcurrentDictionary<Type, VoidMethod>();
+            
         }
 
         public override Boolean HasSettableProperties(Type type)
@@ -58,6 +60,8 @@ namespace Das.Serializer
 
             return (Func<Object, Object[], Object>) Delegate.CreateDelegate(delegateType, null, method);
         }
+
+       
 
         /// <summary>
         ///     Detects the Add, Enqueue, Push etc method for generic collections
@@ -164,32 +168,52 @@ namespace Das.Serializer
         public VoidMethod? GetAdder(Type collectionType,
                                     Object exampleValue)
         {
-            if (_cachedAdders.TryGetValue(collectionType, out var res))
-                return res;
+            return _cachedAdders.GetOrAdd(collectionType, t => GetAdderImpl(t, exampleValue.GetType()));
 
-            var eType = exampleValue.GetType();
+            //var eType = exampleValue.GetType();
 
-            var addMethod = collectionType.GetMethod("Add", new[] {eType});
+            //if (_cachedAdders.TryGetValue(collectionType, out var res))
+            //    return res;
 
-            if (addMethod == null)
-            {
-                var interfaces = (from i in collectionType.GetInterfaces()
-                    let args = i.GetGenericArguments()
-                    where args.Length == 1
-                          && args[0] == eType
-                    select i).FirstOrDefault();
+            //var addMethod = FindInvocableMethod(collectionType, _addMethodNames, new[] {eType});
 
-                if (interfaces != null)
-                    addMethod = interfaces.GetMethod("Add", new[] {eType});
-            }
+            ////var addMethod = collectionType.GetMethod("Add", new[] {eType});
 
+            ////if (addMethod == null)
+            ////{
+            ////    var interfaces = (from i in collectionType.GetInterfaces()
+            ////        let args = i.GetGenericArguments()
+            ////        where args.Length == 1
+            ////              && args[0] == eType
+            ////        select i).FirstOrDefault();
+
+            ////    if (interfaces != null)
+            ////        addMethod = interfaces.GetMethod("Add", new[] {eType});
+            ////}
+
+            //if (addMethod == null)
+            //    return default;
+
+            //return CreateMethodCaller(addMethod);
+        }
+
+        public Boolean TryGetAdder(IEnumerable collection,
+                                out VoidMethod adder)
+        {
+            adder = _cachedAdders.GetOrAdd(collection.GetType(), GetAdderImpl)!;
+            return adder != null;
+            //   return TODO_IMPLEMENT_ME;
+        }
+
+        private VoidMethod? GetAdderImpl(Type collectionType,
+                                         Type germaneType)
+        {
+            var addMethod = FindInvocableMethod(collectionType, _addMethodNames, new[] {germaneType});
             if (addMethod == null)
                 return default;
 
             return CreateMethodCaller(addMethod);
         }
-
-        private static Object _tempLock = new object();
 
         /// <summary>
         ///     Gets a delegate to add an object to a non-generic collection
@@ -197,77 +221,55 @@ namespace Das.Serializer
         public VoidMethod GetAdder(IEnumerable collection,
                                    Type? type = null)
         {
-            lock (_tempLock)
+            if (type == null)
+                type = collection.GetType();
+
+            return _cachedAdders.GetOrAdd(type, GetAdderImpl) ?? 
+                   throw new MissingMethodException(type.Name, nameof(IList.Add));
+        }
+
+        private VoidMethod? GetAdderImpl(Type type)
+        {
+            #if NET40 || NET45
+            if (type.IsGenericType)
             {
-                if (type == null)
-                    type = collection.GetType();
+                var gargs = type.GetGenericArguments();
+                MethodInfo? addMethod;
 
-                if (_cachedAdders.TryGetValue(type, out var res))
-                    return res;
-
-
-                #if NET40 || NET45
-                if (type.IsGenericType)
+                switch (gargs.Length)
                 {
-                    var gargs = type.GetGenericArguments();
-                    MethodInfo? addMethod;
+                    case 1:
+                        addMethod = FindInvocableMethod(type, _addMethodNames, new[] {gargs[0]});
+                        break;
 
-                    switch (gargs.Length)
-                    {
-                        case 1:
-                            addMethod = FindInvocableMethod(type, _addMethodNames, new[] {gargs[0]});
-                            //var genericIEnumerable = typeof(IEnumerable<>).MakeGenericType(gargs[0]);
-                            //if (!genericIEnumerable.IsAssignableFrom(type))
-                            //    break;
+                    case 2:
+                        var kvp = typeof(KeyValuePair<,>).MakeGenericType(gargs[0], gargs[1]);
+                        addMethod = FindInvocableMethod(type, nameof(IList.Add), new[] {kvp});
+                        break;
 
-                            //var createAddOpen = typeof(TypeManipulator).GetMethod(
-                            //    nameof(CreateAddDelegate))//, new[] {typeof(IEnumerable<>)})
-                            //    ?? throw new MissingMethodException(nameof(CreateAddDelegate));
-
-                            //var closed = createAddOpen.MakeGenericMethod(genericIEnumerable);
-                            //res = (VoidMethod)closed.Invoke(this, new Object[] {genericIEnumerable});
-                            //return res;
-                            break;
-                            
-
-                        case 2:
-                            var kvp = typeof(KeyValuePair<,>).MakeGenericType(gargs[0], gargs[1]);
-                            addMethod = FindInvocableMethod(type, nameof(IList.Add), new[] {kvp});
-                           
-                            //type.GetMethod()
-                            break;
-
-                        default:
-                            throw new NotImplementedException();
-                    }
-
-                    if (addMethod != null)
-                    {
-                        res = CreateAddDelegateImpl(addMethod);
-                        return res;
-                    }
-
-                    throw new MissingMethodException(nameof(IList.Add));
-
-                    //dynamic dCollection = collection;
-                    //res = CreateAddDelegate(dCollection);
-                    //return res;
-                    //no need to cache here since it will be added to the cache in the other method
-                }
-                #endif
-
-                if (collection is ICollection icol)
-                {
-                    res = CreateAddDelegate(icol, type);
-                    return res;
+                    default:
+                        throw new NotImplementedException();
                 }
 
-                var boxList = new List<Object>(collection.OfType<Object>());
-                res = CreateAddDelegate(boxList, type);
+                if (addMethod != null)
+                {
+                    return CreateAddDelegateImpl(addMethod);
+                }
 
-
-                return res;
+                return default;
+                //throw new MissingMethodException(nameof(IList.Add));
             }
+            #endif
+
+            //if (collection is ICollection icol)
+            //{
+            //    return CreateAddDelegate(//icol, 
+            //        type);
+            //}
+
+            //var boxList = new List<Object>(collection.OfType<Object>());
+            return CreateAddDelegate(//boxList, 
+                type);
         }
 
         public Boolean TryCreateReadOnlyPropertySetter(PropertyInfo propertyInfo,
@@ -305,93 +307,47 @@ namespace Das.Serializer
                                                String methodName,
                                                Type[] paramTypes)
         {
-            var res = FindInvocableMethodImpl(type, methodName, paramTypes, _localTypeSearch ??= new HashSet<Type>());
+            _singleStringFairy ??= new String[1];
+            _singleStringFairy[0] = methodName;
+
+            var res = FindInvocableMethodImpl(type, _singleStringFairy, paramTypes,
+                _localTypeSearch ??= new HashSet<Type>());
             _localTypeSearch.Clear();
             return res;
         }
 
-        
 
-        private static MethodInfo? FindInvocableMethodImpl(Type type,
-                                                           String methodName,
-                                                           Type[] paramTypes,
-                                                           HashSet<Type> typeSearch)
-        {
-            var res = type.GetMethod(methodName, paramTypes);
-            if (res != null)
-                return res;
+        //private static MethodInfo? FindInvocableMethodImpl(Type type,
+        //                                                   String methodName,
+        //                                                   Type[] paramTypes,
+        //                                                   HashSet<Type> typeSearch)
+        //{
+        //    var res = type.GetMethod(methodName, paramTypes);
+        //    if (res != null)
+        //        return res;
 
-            foreach (var implements in type.GetInterfaces())
-            {
-                if (!typeSearch.Add(implements))
-                    continue;
+        //    foreach (var implements in type.GetInterfaces())
+        //    {
+        //        if (!typeSearch.Add(implements))
+        //            continue;
 
-                res = FindInvocableMethodImpl(implements, methodName, paramTypes, typeSearch);
-                if (res != null)
-                    return res;
-            }
+        //        res = FindInvocableMethodImpl(implements, methodName, paramTypes, typeSearch);
+        //        if (res != null)
+        //            return res;
+        //    }
 
-            return default;
-        }
+        //    return default;
+        //}
 
         public MethodInfo? FindInvocableMethod(Type type,
                                                ICollection<String> possibleMethodNames,
                                                Type[] paramTypes)
         {
-            //var rdrr = new[] {"hello"};
-            //ICollection<String> bob = rdrr;
-
-            var res = FindInvocableMethodImpl(type, possibleMethodNames, paramTypes, 
+            var res = FindInvocableMethodImpl(type, possibleMethodNames, paramTypes,
                 _localTypeSearch ??= new HashSet<Type>());
             _localTypeSearch.Clear();
 
             return res;
-        }
-
-        private static MethodInfo? FindInvocableMethodImpl(Type type,
-                                                           ICollection<String> possibleMethodNames,
-                                                           Type[] paramTypes,
-                                                           HashSet<Type> typeSearch)
-        {
-            //MethodInfo? res = null;
-
-            var methods = type.GetMethods();
-
-            foreach (var m in methods)
-            {
-                if (!possibleMethodNames.Contains(m.Name))
-                    continue;
-
-                var mParams = m.GetParameters();
-                if (mParams.Length != paramTypes.Length)
-                    continue;
-
-                var c = 0;
-
-                for (; c < mParams.Length; c++)
-                {
-                    if (mParams[c].ParameterType != paramTypes[c])
-                        break;
-                }
-
-                if (c < mParams.Length - 1)
-                    continue;
-
-                return m;
-            }
-
-           
-            foreach (var implements in type.GetInterfaces())
-            {
-                if (!typeSearch.Add(implements))
-                    continue;
-
-                var res = FindInvocableMethodImpl(implements, possibleMethodNames, paramTypes, typeSearch);
-                if (res != null)
-                    return res;
-            }
-
-            return default;
         }
 
         public IEnumerable<INamedField> GetPropertiesToSerialize(Type type,
@@ -492,54 +448,6 @@ namespace Das.Serializer
             }
         }
 
-        #if NET40 || NET45
-
-        /// <summary>
-        ///     Gets a delegate to add an object to a generic collection
-        /// </summary>
-        public VoidMethod CreateAddDelegate<T>(IEnumerable<T> collection)
-        {
-            var colType = collection.GetType();
-
-            if (_cachedAdders.TryGetValue(colType, out var res))
-                return res;
-
-            var method = GetAddMethod(collection);
-
-            if (method != null)
-            {
-                res = CreateAddDelegateImpl(method);
-                //#if GENERATECODE
-
-                //var dynam = CreateMethodCaller(method, true);
-                //res = (VoidMethod) dynam.CreateDelegate(typeof(VoidMethod));
-
-                //#else
-                //res = CreateMethodCaller(method);
-
-                //#endif
-            }
-
-            _cachedAdders.TryAdd(colType, res!);
-
-            return res!;
-        }
-
-        private static VoidMethod CreateAddDelegateImpl(MethodInfo method)
-        {
-            #if GENERATECODE
-
-            var dynam = CreateMethodCaller(method, true);
-            return (VoidMethod) dynam.CreateDelegate(typeof(VoidMethod));
-
-            #else
-                return CreateMethodCaller(method);
-
-            #endif
-        }
-
-        #endif
-
         public static IEnumerable<FieldInfo> GetRecursivePrivateFields(Type type)
         {
             while (true)
@@ -582,13 +490,15 @@ namespace Das.Serializer
             return membersOnly.Length > 0;
         }
 
-        private VoidMethod CreateAddDelegate(ICollection collection,
-                                             Type type)
+        private static VoidMethod CreateAddDelegate(//ICollection collection,
+                                                    Type type)
         {
-            var colType = collection.GetType();
+            //var colType = collection.GetType();
 
-            if (_cachedAdders.TryGetValue(colType, out var res))
-                return res;
+            //if (_cachedAdders.TryGetValue(colType, out var res))
+            //    return res;
+
+            VoidMethod? res;
 
             //super sophisticated
             var method = type.GetMethod(nameof(IList.Add));
@@ -604,10 +514,103 @@ namespace Das.Serializer
 
                 #endif
             }
+            else res = default;
 
-            _cachedAdders.TryAdd(colType, res!);
+            //_cachedAdders.TryAdd(colType, res!);
 
             return res!;
+        }
+
+        #if NET40 || NET45
+
+        ///// <summary>
+        /////     Gets a delegate to add an object to a generic collection
+        ///// </summary>
+        //public VoidMethod CreateAddDelegate<T>(IEnumerable<T> collection)
+        //{
+        //    var colType = collection.GetType();
+
+        //    if (_cachedAdders.TryGetValue(colType, out var res))
+        //        return res;
+
+        //    var method = GetAddMethod(collection);
+
+        //    if (method != null)
+        //    {
+        //        res = CreateAddDelegateImpl(method);
+        //        //#if GENERATECODE
+
+        //        //var dynam = CreateMethodCaller(method, true);
+        //        //res = (VoidMethod) dynam.CreateDelegate(typeof(VoidMethod));
+
+        //        //#else
+        //        //res = CreateMethodCaller(method);
+
+        //        //#endif
+        //    }
+
+        //    _cachedAdders.TryAdd(colType, res!);
+
+        //    return res!;
+        //}
+
+        private static VoidMethod CreateAddDelegateImpl(MethodInfo method)
+        {
+            #if GENERATECODE
+
+            var dynam = CreateMethodCaller(method, true);
+            return (VoidMethod) dynam.CreateDelegate(typeof(VoidMethod));
+
+            #else
+                return CreateMethodCaller(method);
+
+            #endif
+        }
+
+        #endif
+
+        private static MethodInfo? FindInvocableMethodImpl(Type type,
+                                                           ICollection<String> possibleMethodNames,
+                                                           Type[] paramTypes,
+                                                           HashSet<Type> typeSearch)
+        {
+            //MethodInfo? res = null;
+
+            var methods = type.GetMethods();
+
+            foreach (var m in methods)
+            {
+                if (!possibleMethodNames.Contains(m.Name))
+                    continue;
+
+                var mParams = m.GetParameters();
+                if (mParams.Length != paramTypes.Length)
+                    continue;
+
+                var c = 0;
+
+                for (; c < mParams.Length; c++)
+                    if (mParams[c].ParameterType != paramTypes[c])
+                        break;
+
+                if (c < mParams.Length - 1)
+                    continue;
+
+                return m;
+            }
+
+
+            foreach (var implements in type.GetInterfaces())
+            {
+                if (!typeSearch.Add(implements))
+                    continue;
+
+                var res = FindInvocableMethodImpl(implements, possibleMethodNames, paramTypes, typeSearch);
+                if (res != null)
+                    return res;
+            }
+
+            return default;
         }
 
         private MethodInfo? GetAddMethodImpl(Type cType)
@@ -749,7 +752,8 @@ namespace Das.Serializer
         private static readonly ConcurrentDictionary<Type, ITypeStructure> _knownInsensitive;
         private static readonly DoubleDictionary<Type, String, IPropertyAccessor> _cachedPropertyAccessors;
 
-        private static readonly String[] _addMethodNames = {
+        private static readonly String[] _addMethodNames =
+        {
             nameof(IList.Add),
             nameof(BlockingCollection<Object>.TryAdd),
             nameof(Queue.Enqueue),
@@ -768,6 +772,6 @@ namespace Das.Serializer
         [ThreadStatic]
         private static HashSet<Type>? _localTypeSearch;
 
-        private readonly ConcurrentDictionary<Type, VoidMethod> _cachedAdders;
+        private static readonly ConcurrentDictionary<Type, VoidMethod?> _cachedAdders;
     }
 }

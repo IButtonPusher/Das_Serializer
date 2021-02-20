@@ -16,7 +16,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Concurrency\InvocationBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Concurrency\StaScheduler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Const.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)CoreNumeric.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DasCoreSerializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DasSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Exceptions.cs" />
@@ -94,8 +93,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Streamers\ByteArray.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Streamers\ByteStream.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Streamers\StreamStreamer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)TextCommon\CoreTextParser.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)TextCommon\ITextParserProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TextCommon\StringAccessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TextCommon\StringBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TypeStructure.cs" />

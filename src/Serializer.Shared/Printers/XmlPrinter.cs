@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Security;
 using System.Threading.Tasks;
 using Das.Serializer;
@@ -12,15 +13,15 @@ namespace Das.Printers
     public class XmlPrinter : TextPrinter
     {
         public XmlPrinter(ITextRemunerable writer,
-                          //ISerializationState stateProvider,
+                          
                           ISerializerSettings settings,
                           ITypeInferrer typeInferrer,
                           INodeTypeProvider nodeTypes,
                           IObjectManipulator objectManipulator)
-            : base(writer, //stateProvider, 
-                settings, typeInferrer, nodeTypes, objectManipulator)
+            : base(writer, settings, typeInferrer, 
+                nodeTypes, objectManipulator)
         {
-            //_stateProvider = stateProvider;
+            _formatStack = new Stack<StackFormat>();
             PathSeparator = '/';
             PathAttribute = Const.RefTag;
             _formatStack.Push(new StackFormat(-1, false));
@@ -387,6 +388,7 @@ namespace Das.Printers
         private const String CloseTag = ">\r\n";
         private const Char CloseAttributes = '>';
         private const Char OpenAttributes = '<';
+        protected readonly Stack<StackFormat> _formatStack;
 
         //private readonly ISerializationState _stateProvider;
 

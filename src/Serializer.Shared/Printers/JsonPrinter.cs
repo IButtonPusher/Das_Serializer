@@ -219,15 +219,6 @@ namespace Das.Printers
             PrintObject(o, propType, nodeType);
         }
 
-        //protected override void PrintFallback(Object? o,
-        //                                      Type propType)
-        //{
-        //    //Writer.Append(Const.Quote);
-
-        //    PrintPrimitive(o, o!.GetType());
-        //    //Writer.Append(Const.Quote);
-        //}
-
         protected override void PrintProperties(IEnumerable<KeyValuePair<PropertyInfo, object?>> values,
                                                 Action<PropertyInfo, object?> exe)
         {
@@ -321,8 +312,6 @@ namespace Das.Printers
                 for (var c = 0; c < properties.Length; c++)
                 {
                     var prop = properties[c];
-                    //if (!prop.CanWrite)
-                    //    continue;
 
                     var currentValue = prop.GetPropertyValue(value);
                     if (!ShouldPrintValue(currentValue))
@@ -338,7 +327,7 @@ namespace Das.Printers
                     printSep = true;
                 }
             }
-            //base.PrintReferenceType(value, valType);
+            
 
             if (wasAny)
             {

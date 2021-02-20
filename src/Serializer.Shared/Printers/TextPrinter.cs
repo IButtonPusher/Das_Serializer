@@ -19,7 +19,7 @@ namespace Das.Printers
             writer.Undispose();
             Writer = writer;
             _tabs = new StringBuilder();
-            _formatStack = new Stack<StackFormat>();
+            //_formatStack = new Stack<StackFormat>();
             _indenter = settings.Indentation;
             _newLine = settings.NewLine;
             _indentLength = _indenter.Length;
@@ -151,7 +151,7 @@ namespace Das.Printers
             _tabs.Append(_indenter);
         }
 
-        protected readonly Stack<StackFormat> _formatStack;
+        //protected readonly Stack<StackFormat> _formatStack;
 
         protected readonly String _indenter;
         private readonly Int32 _indentLength;

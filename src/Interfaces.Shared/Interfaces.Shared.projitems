@@ -65,13 +65,11 @@
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IBinaryFeeder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IBinaryPrimitiveScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IBinaryScanner.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Scanners\INumberExtractor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IPrimitiveScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IScannerBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IStreamWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IStringPrimitiveScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\ITextAccessor.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Scanners\ITextParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\CircularReference.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\DefaultValueOmission.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\IProtoBufOptions.cs" />

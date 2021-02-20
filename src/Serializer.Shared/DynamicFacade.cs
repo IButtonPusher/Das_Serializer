@@ -24,7 +24,7 @@ namespace Das.Serializer
 
             //PrintNodePool = new NodePool(settings, nodeTypeProvider);
 
-            TextParser = new CoreTextParser();
+            //TextParser = new CoreTextParser();
 
             var typeManipulator = new TypeManipulator(settings);//, PrintNodePool);
             TypeManipulator = typeManipulator;
@@ -57,7 +57,7 @@ namespace Das.Serializer
             ScanNodeManipulator = new NodeManipulator(this, settings);
         }
 
-        public ITextParser TextParser { get; }
+        //public ITextParser TextParser { get; }
 
 
         public IDynamicTypes DynamicTypes { get; }

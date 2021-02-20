@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
-
+using Microsoft.Diagnostics.Tracing.Parsers.FrameworkEventSource;
 using Serializer.Tests;
 using Serializer.Tests.ProtocolBuffers;
 
@@ -32,7 +32,7 @@ namespace Serializer.Benchmarks
             //if (false)
             {
                 BenchmarkRunner.Run<JsonBenchmarks>();
-                BenchmarkRunner.Run<ProtoBufTests>();
+                //BenchmarkRunner.Run<ProtoBufTests>();
             }
             else
                RunManyTimes();
@@ -47,6 +47,7 @@ namespace Serializer.Benchmarks
             for (var c = 0; c < 10000; c++)
             {
                 bm.DasDictionary();
+                bm.DasPrimitiveProperties();
                 //bm.PrimitivePropertiesJsonBaseline();
                 //bm.PrimitivePropertiesJsonExpress();
             }

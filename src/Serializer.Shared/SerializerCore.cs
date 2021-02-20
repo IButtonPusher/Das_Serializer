@@ -12,7 +12,7 @@ namespace Das.Serializer
                                  ISerializerSettings settings)
             : base(settings)
         {
-            TextParser = dynamicFacade.TextParser;
+            //TextParser = dynamicFacade.TextParser;
             DynamicTypes = dynamicFacade.DynamicTypes;
             ObjectInstantiator = dynamicFacade.ObjectInstantiator;
             TypeInferrer = dynamicFacade.TypeInferrer;
@@ -28,7 +28,7 @@ namespace Das.Serializer
                 : new ConcurrentDictionary<Type, Type>(dynamicFacade.Surrogates);
         }
 
-        public ITextParser TextParser { get; }
+        //public ITextParser TextParser { get; }
 
         public IDynamicTypes DynamicTypes { get; }
 

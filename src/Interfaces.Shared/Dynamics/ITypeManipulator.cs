@@ -37,6 +37,9 @@ namespace Das.Serializer
         VoidMethod GetAdder(IEnumerable collection,
                             Type? collectionType = null);
 
+        Boolean TryGetAdder(IEnumerable collection,
+                            out VoidMethod adder);
+
         MethodInfo? GetAddMethod<T>(IEnumerable<T> collection);
 
         MethodInfo GetAddMethod(Type collectionType);
