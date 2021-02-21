@@ -31,34 +31,31 @@ namespace Das.Serializer
         PropertySetter? CreateSetMethod(Type declaringType,
                                         String memberName);
 
-        VoidMethod? GetAdder(Type collectionType,
-                             Object exampleValue);
-
-        VoidMethod GetAdder(IEnumerable collection,
-                            Type? collectionType = null);
-
-        Boolean TryGetAdder(IEnumerable collection,
-                            out VoidMethod adder);
-
-        MethodInfo? GetAddMethod<T>(IEnumerable<T> collection);
-
-        MethodInfo GetAddMethod(Type collectionType);
-
-        IEnumerable<MethodInfo> GetInterfaceMethods(Type type);
-
         /// <summary>
-        /// Searches the type including explicit implementations 
+        ///     Searches the type including explicit implementations
         /// </summary>
         MethodInfo? FindInvocableMethod(Type type,
                                         String methodName,
                                         Type[] paramTypes);
 
         /// <summary>
-        /// Searches the type including explicit implementations 
+        ///     Searches the type including explicit implementations
         /// </summary>
         MethodInfo? FindInvocableMethod(Type type,
                                         ICollection<String> possibleMethodNames,
                                         Type[] paramTypes);
+
+        VoidMethod? GetAdder(Type collectionType,
+                             Object exampleValue);
+
+        VoidMethod GetAdder(IEnumerable collection,
+                            Type? collectionType = null);
+
+        MethodInfo? GetAddMethod<T>(IEnumerable<T> collection);
+
+        MethodInfo GetAddMethod(Type collectionType);
+
+        IEnumerable<MethodInfo> GetInterfaceMethods(Type type);
 
         /// <summary>
         ///     Recursive through base types without duplicates
@@ -81,6 +78,9 @@ namespace Das.Serializer
 
         Boolean TryCreateReadOnlyPropertySetter(PropertyInfo propertyInfo,
                                                 out Action<Object, Object?> setter);
+
+        Boolean TryGetAdder(IEnumerable collection,
+                            out VoidMethod adder);
 
         Boolean TryGetAddMethod(Type collectionType,
                                 out MethodInfo addMethod);

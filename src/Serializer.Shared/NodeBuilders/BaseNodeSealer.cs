@@ -144,10 +144,8 @@ namespace Das.Serializer
                     ? _facade.TypeManipulator.GetAdder(node.Type, valid)
                     : default;
                 if (addDelegate == null && node.Value is IEnumerable ienum)
-                {
                     _facade.TypeManipulator.TryGetAdder(ienum, out addDelegate);
-                    //addDelegate = _facade.TypeManipulator.GetAdder(ienum);
-                }
+                //addDelegate = _facade.TypeManipulator.GetAdder(ienum);
 
 
                 if (addDelegate == null)

@@ -74,5 +74,10 @@ namespace Das.Serializer
         ///     which may make it impossible for other deserializers or services to understand the data
         /// </summary>
         TypeSpecificity TypeSpecificity { get; set; }
+
+        /// <summary>
+        /// Setting this to false makes for less overall text due to no line breaks, indentation, etc
+        /// </summary>
+        Boolean IsFormatSerializedText { get; set; }
     }
 }

@@ -26,7 +26,7 @@ namespace Das.Serializer
 
             //TextParser = new CoreTextParser();
 
-            var typeManipulator = new TypeManipulator(settings);//, PrintNodePool);
+            var typeManipulator = new TypeManipulator(settings); //, PrintNodePool);
             TypeManipulator = typeManipulator;
 
             var manipulator = new ObjectManipulator(typeManipulator, settings);

@@ -11,5 +11,5 @@ namespace Das.Serializer
                                         Object? value);
 
     public delegate void PropertySetter<T>(ref T? target,
-                                        Object? value);
+                                           Object? value);
 }

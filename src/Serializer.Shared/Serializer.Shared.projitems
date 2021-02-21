@@ -12,6 +12,12 @@
     <Compile Include="$(MSBuildThisFileDirectory)Attributes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Binary\DeserializeBinary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Binary\SerializeBinary.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CircularReferences\BaseCircularReferenceHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CircularReferences\ExceptionCircularReferenceHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CircularReferences\IgnoringCircularReferenceHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CircularReferences\NullCircularReferenceHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CircularReferences\PathSerializingCircularReferenceHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Collections\DoubleConcurrentDictionary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Concurrency\ExclusiveSynchronizationContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Concurrency\InvocationBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Concurrency\StaScheduler.cs" />
@@ -65,8 +71,13 @@
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\BinaryWriterBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\BinaryWriterWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\ByteBuilder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Remunerators\CompactStringBuilderWrapper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Remunerators\CompactStringSaver.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\DeferredBinaryWriter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Remunerators\FormattingStringBuilderWrapper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Remunerators\FormattingStringSaver.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\ProtoBufWriter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Remunerators\StringBuilderWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\StringSaver.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RuntimeObject.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\BaseExpress.cs" />
@@ -99,7 +110,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Types\DasCodeGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\DasType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\DasTypeBuilder.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Types\DoubleDictionary.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Collections\DoubleDictionary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\DynamicTypeManipulator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\ExpressionTypeManipulator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\InstantiationType.cs" />

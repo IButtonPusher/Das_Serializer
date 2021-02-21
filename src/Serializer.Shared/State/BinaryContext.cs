@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    public class BinaryContext : SerializerCore, 
+    public class BinaryContext : SerializerCore,
                                  IBinaryContext
     {
         public BinaryContext(ISerializationCore dynamicFacade,

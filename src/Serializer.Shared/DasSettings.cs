@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Das.Extensions;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable UnusedMember.Global
@@ -20,7 +21,6 @@ namespace Das.Serializer
             SerializationDepth = SerializationDepth.GetSetProperties;
             TypeSearchNameSpaces = new[] {Const.Tsystem};
             CacheTypeConstructors = true;
-            //AttributeValueSurrogates = new NullAttributeValueSurrogates();
             IsUseAttributesInXml = true;
             PrintJsonPropertiesFormat = PrintPropertyFormat.Default;
             PropertyNotFoundBehavior = PropertyNotFoundBehavior.Ignore;
@@ -53,6 +53,8 @@ namespace Das.Serializer
         ///     which may make it impossible for other deserializers or services to understand the data
         /// </summary>
         public TypeSpecificity TypeSpecificity { get; set; }
+
+        public Boolean IsFormatSerializedText { get; set; }
 
         //public IAttributeValueSurrogates AttributeValueSurrogates { get; set; }
 
@@ -98,7 +100,15 @@ namespace Das.Serializer
         ///     Returns a mutable copy of the defaults. A new copy is generated each time
         ///     this property is accessed.
         /// </summary>
-        public static DasSettings CloneDefault() => (DasSettings) _default.MemberwiseClone();
+        public static DasSettings CloneDefault()
+        {
+            return (DasSettings) _default.MemberwiseClone();
+        }
+
+        public Boolean Equals(ISerializationDepth other)
+        {
+            return this.AreEqual(other);
+        }
 
 
         private static readonly DasSettings _default;

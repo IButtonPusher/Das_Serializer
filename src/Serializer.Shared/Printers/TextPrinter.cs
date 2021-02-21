@@ -1,31 +1,32 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Text;
 using System.Threading.Tasks;
 using Das.Serializer;
 
 namespace Das.Printers
 {
-    public abstract class TextPrinter : PrinterBase
+    public abstract class TextPrinter : PrinterBase<String, Char, ITextRemunerable>
     {
-        protected TextPrinter(ITextRemunerable writer,
-                              ISerializerSettings settings,
+        protected TextPrinter(//ITextRemunerable writer,
+                              //ISerializerSettings settings,
                               ITypeInferrer typeInferrer,
                               INodeTypeProvider nodeTypes,
-                              IObjectManipulator objectManipulator)
-            : base(settings, typeInferrer, nodeTypes, objectManipulator)
+                              IObjectManipulator objectManipulator,
+                              Char pathSeparator)
+            : base(//settings, 
+                typeInferrer, nodeTypes, 
+                objectManipulator, false, pathSeparator)
         {
-            writer.Undispose();
-            Writer = writer;
-            _tabs = new StringBuilder();
-            //_formatStack = new Stack<StackFormat>();
-            _indenter = settings.Indentation;
-            _newLine = settings.NewLine;
-            _indentLength = _indenter.Length;
+            //writer.Undispose();
+            //Writer = writer;
+            //_tabs = new StringBuilder();
+
+            //_indenter = settings.Indentation;
+            //_newLine = settings.NewLine;
+            //_indentLength = _indenter.Length;
         }
 
-        protected String Tabs => _tabs.ToString();
+        //protected String Tabs => _tabs.ToString();
 
 
         protected static Boolean IsRequiresQuotes(Object? o)
@@ -36,20 +37,31 @@ namespace Das.Printers
             return oType == Const.StrType || oType == typeof(DateTime) || oType.IsEnum;
         }
 
-        protected void NewLine()
-        {
-            Writer.Append(_newLine + Tabs);
-        }
+        //protected void NewLine(ITextRemunerable Writer)
+        //{
+        //    Writer.Append(_newLine);// + Tabs);
+        //    Writer.AppendRepeatedly('\t', _tabCount);
+        //}
+
+        protected abstract void PrintChar(ITextRemunerable writer,
+                                          Char c);
 
         protected sealed override void PrintFallback(Object? o,
-                                              Type propType)
+                                                     ITextRemunerable Writer,
+                                                     Type propType)
         {
-            PrintPrimitive(o, o!.GetType());
+            PrintPrimitive(o, Writer, o!.GetType());
         }
 
+        protected abstract void PrintInteger(Object val,
+                                             ITextRemunerable Writer);
 
-        protected override void PrintPrimitive(Object? o,
-                                               Type propType)
+
+       
+
+        protected sealed override void PrintPrimitive(Object? o,
+                                                      ITextRemunerable Writer,
+                                                      Type propType)
         {
             if (ReferenceEquals(null, o))
             {
@@ -62,18 +74,18 @@ namespace Das.Printers
             switch (typeCode)
             {
                 case TypeCode.Boolean:
-                    Writer.Append((Boolean)o ? "true" : "false");
+                    Writer.Append((Boolean) o ? "true" : "false");
                     break;
 
                 case TypeCode.String:
-                    PrintString(o.ToString());
+                    PrintString(o.ToString(), Writer);
                     break;
 
-               
+
                 case TypeCode.Char:
-                    PrintChar((Char)o);
+                    PrintChar(Writer, (Char) o);
                     break;
-                    
+
                 case TypeCode.SByte:
                 case TypeCode.Byte:
                 case TypeCode.Int16:
@@ -84,81 +96,72 @@ namespace Das.Printers
                 case TypeCode.UInt64:
 
                     if (propType.IsEnum)
-                        PrintStringWithoutEscaping(o.ToString());
+                        PrintStringWithoutEscaping(o.ToString(), Writer);
                     else
-                        PrintInteger(o);
+                        PrintInteger(o, Writer);
 
                     break;
 
 
                 case TypeCode.Single:
-                    
-                    PrintReal(((Single)o).ToString(CultureInfo.InvariantCulture));
+
+                    PrintReal(((Single) o).ToString(CultureInfo.InvariantCulture), Writer);
                     break;
-                    
+
                 case TypeCode.Double:
-                    PrintReal(((Double)o).ToString(CultureInfo.InvariantCulture));
+                    PrintReal(((Double) o).ToString(CultureInfo.InvariantCulture), Writer);
                     break;
-                    
+
                 case TypeCode.Decimal:
-                    PrintReal(((Decimal)o).ToString(CultureInfo.InvariantCulture));
+                    PrintReal(((Decimal) o).ToString(CultureInfo.InvariantCulture), Writer);
                     break;
-                    
+
                 case TypeCode.DateTime:
-                    PrintString(((DateTime)o).ToString(CultureInfo.InvariantCulture));
+                    PrintString(((DateTime) o).ToString(CultureInfo.InvariantCulture), Writer);
                     break;
 
                 default:
                     var str = _typeInferrer.ConvertToInvariantString(o);
-                    PrintString(str);
+                    PrintString(str, Writer);
                     break;
             }
-
-            //switch (o)
-            //{
-            //    case Boolean b:
-            //        Writer.Append(b ? "true" : "false");
-            //        break;
-                
-            //    default:
-            //        var isRequiresQuotes = IsRequiresQuotes(o);
-            //        var str = _typeInferrer.ConvertToInvariantString(o!);
-            //        PrintString(str!, isRequiresQuotes);
-            //        break;
-            //}
         }
 
-        protected abstract void PrintString(String str);
-
-        protected abstract void PrintStringWithoutEscaping(String str);
-
-        protected abstract void PrintChar(Char c);
+        protected abstract void PrintReal(String str,
+                                          ITextRemunerable Writer);
 
         protected abstract void PrintString(String str,
-                                            Boolean isInQuotes);
+                                            ITextRemunerable Writer);
 
-        protected abstract void PrintInteger(Object val);
+        protected abstract void PrintString(String str,
+                                            Boolean isInQuotes,
+                                            ITextRemunerable Writer);
 
-        protected abstract void PrintReal(String str);
+        protected abstract void PrintStringWithoutEscaping(String str,
+                                                           ITextRemunerable Writer);
 
-        protected virtual void TabIn()
-        {
-            _tabs.Remove(0, _indentLength);
-        }
+        //protected virtual void TabIn()
+        //{
+        //    _tabCount--;
+        //    //_tabs.Remove(0, _indentLength);
+        //}
 
-        protected virtual void TabOut()
-        {
-            _tabs.Append(_indenter);
-        }
+        //protected virtual void TabOut()
+        //{
+        //    _tabCount++;
+        //    //_tabs.Append(_indenter);
+        //}
 
         //protected readonly Stack<StackFormat> _formatStack;
 
-        protected readonly String _indenter;
-        private readonly Int32 _indentLength;
-        protected readonly String _newLine;
+        //protected readonly String _indenter;
+        //private readonly Int32 _indentLength;
+        //protected readonly String _newLine;
 
-        private readonly StringBuilder _tabs;
+        //protected Int32 _tabCount;
 
-        protected readonly ITextRemunerable Writer;
+        //private readonly StringBuilder _tabs;
+
+        //protected readonly ITextRemunerable Writer;
     }
 }

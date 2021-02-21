@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Das.Serializer.Types
+namespace Das.Serializer.Collections
 {
     public class DoubleDictionary<TKeyOne, TKeyTwo, TValue>
     {

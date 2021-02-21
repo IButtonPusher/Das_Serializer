@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Das.Serializer.Json;
 using Das.Serializer.ProtoBuf;
 using Das.Serializer.Xml;
+using Das.Printers;
 #if !NET40
 using System.Runtime.CompilerServices;
 
@@ -37,28 +38,22 @@ namespace Das.Serializer
                 jsonPrimitiveScanner,
                 DynamicTypes);
 
+            _jsonPrinter = new JsonPrinter(
+                StateProvider.TypeInferrer, StateProvider.NodeTypeProvider,
+                StateProvider.ObjectManipulator, StateProvider.TypeManipulator);
+
 
             XmlExpress = new XmlExpress2(ObjectInstantiator, TypeManipulator,
-                stateProvider.ObjectManipulator, 
+                stateProvider.ObjectManipulator,
                 xmlPrimitiveScanner,
-                //stateProvider.XmlContext.PrimitiveScanner,
                 TypeInferrer, _settings, DynamicTypes);
 
             AttributeParser = new XmlPrimitiveScanner(this);
         }
 
-        //public DasCoreSerializer(IStateProvider stateProvider,
-        //                         Func<TextWriter, String, Task> writeAsync,
-        //                         Func<TextReader, Task<String>> readToEndAsync,
-        //                         Func<Stream, Byte[], Int32, Int32, Task<Int32>> readAsync)
-        //    : this(stateProvider, stateProvider.Settings, writeAsync, readToEndAsync, readAsync)
-        //{
-        //}
-
+      
         public IStateProvider StateProvider { get; }
 
-        //public override IScanNodeProvider ScanNodeProvider
-        //    => StateProvider.BinaryContext.ScanNodeProvider;
 
         public void SetTypeSurrogate(Type looksLike,
                                      Type isReally)
@@ -73,16 +68,6 @@ namespace Das.Serializer
                    Surrogates.TryRemove(lookedLike, out var stillWas) && stillWas == wasReally;
         }
 
-        public override ISerializerSettings Settings
-        {
-            get => _settings;
-            set
-            {
-                _settings = value;
-                base.Settings = value;
-            }
-        }
-
         public virtual IProtoSerializer GetProtoSerializer<TPropertyAttribute>(
             IProtoBufOptions<TPropertyAttribute> options)
             where TPropertyAttribute : Attribute
@@ -92,6 +77,16 @@ namespace Das.Serializer
         }
 
         public IStringPrimitiveScanner AttributeParser { get; }
+
+        public override ISerializerSettings Settings
+        {
+            get => _settings;
+            set
+            {
+                _settings = value;
+                base.Settings = value;
+            }
+        }
 
         protected static String GetTextFromFileInfo(FileInfo fi)
         {

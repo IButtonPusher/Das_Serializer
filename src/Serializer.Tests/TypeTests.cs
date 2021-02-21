@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Das.Serializer;
+using Das.Serializer.Remunerators;
 using Xunit;
 
 #pragma warning disable 8602
@@ -18,7 +19,7 @@ namespace Serializer.Tests
         public void AssemblyType()
         {
             var type = typeof(DasSerializer);
-            
+
             var str = Serializer.TypeInferrer.ToClearName(type);
             var type2 = Serializer.TypeInferrer.GetTypeFromClearName(str);
             Assert.Equal(type, type2);
@@ -32,7 +33,7 @@ namespace Serializer.Tests
         [Fact]
         public void CastDynamicViaImplicitOperator()
         {
-            var saver = new StringSaver();
+            var saver = new CompactStringSaver();
             var sb = Serializer.ObjectManipulator.CastDynamic<StringBuilder>(saver);
         }
 
@@ -137,15 +138,14 @@ namespace Serializer.Tests
             Assert.Equal(type, type2);
         }
 
-      //  #if !TEST_NO_CODEGENERATION
+        //  #if !TEST_NO_CODEGENERATION
 
         [Fact]
         public void PropertyGetters()
         {
             for (var c = 0; c < 5; c++)
             {
-#if !TEST_NO_CODEGENERATION
-
+                #if !TEST_NO_CODEGENERATION
                 var getter = TypeManipulator.CreateDynamicPropertyGetter(
                     typeof(ISimpleClass),
                     nameof(ISimpleClass.Name),
@@ -184,11 +184,10 @@ namespace Serializer.Tests
                 var res3 = accessor.GetPropertyValue(obj);
                 Assert.Equal(res3, obj.SimpleLeft);
 
-#endif
+                #endif
             }
         }
 
-        
 
         [Fact]
         public void PropertySetters()
@@ -196,9 +195,7 @@ namespace Serializer.Tests
             var inst = SimpleClass.GetExample();
             var nameProp = typeof(SimpleClass).GetProperty(nameof(SimpleClass.Name));
 
-#if !TEST_NO_CODEGENERATION
-
-            
+            #if !TEST_NO_CODEGENERATION
             var setter = TypeManipulator.CreateDynamicSetter<SimpleClass>(nameProp.Name);
 
             setter(ref inst, "suzy slammer");
@@ -218,7 +215,7 @@ namespace Serializer.Tests
 
             //////////////
 
-#endif
+            #endif
 
             var inst3 = SimpleClass.GetExample();
             Object oInst3 = inst3;
@@ -229,6 +226,6 @@ namespace Serializer.Tests
             Assert.Equal("henry howler", inst3.Name);
         }
 
-      //  #endif
+        //  #endif
     }
 }

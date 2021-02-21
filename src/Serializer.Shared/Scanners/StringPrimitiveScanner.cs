@@ -27,9 +27,7 @@ namespace Das.Serializer
             }
 
             if (string.IsNullOrEmpty(input))
-            {
                 return default!;
-            }
 
             if (type == Const.ObjectType)
             {

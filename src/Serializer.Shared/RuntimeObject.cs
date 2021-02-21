@@ -20,8 +20,6 @@ namespace Das.Serializer
 
     public class RuntimeObject : IRuntimeObject
     {
-        private readonly ITypeManipulator _typeManipulator;
-
         public RuntimeObject(ITypeManipulator typeManipulator)
         {
             _typeManipulator = typeManipulator;
@@ -34,7 +32,7 @@ namespace Das.Serializer
             : this(typeManipulator)
         {
             PrimitiveValue = primitiveValue;
-            if (primitiveValue is {} notNull)
+            if (primitiveValue is { } notNull)
                 _hash = notNull.GetHashCode();
         }
 
@@ -52,8 +50,6 @@ namespace Das.Serializer
         public Object? PrimitiveValue { get; set; }
 
         public Dictionary<String, IRuntimeObject> Properties { get; }
-
-        private readonly Int32 _hash;
 
         public Type GetObjectType()
         {
@@ -107,7 +103,10 @@ namespace Das.Serializer
             }
         }
 
-        public override int GetHashCode() => _hash;
+        public override int GetHashCode()
+        {
+            return _hash;
+        }
 
         public override String ToString()
         {
@@ -116,5 +115,8 @@ namespace Das.Serializer
 
             return GetType().Name + " - " + Properties.Count + " properties";
         }
+
+        private readonly Int32 _hash;
+        private readonly ITypeManipulator _typeManipulator;
     }
 }

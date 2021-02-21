@@ -1,4 +1,5 @@
 ﻿// ReSharper disable RedundantUsingDirective
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,7 +9,6 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Das.Extensions;
 using Das.Serializer;
-
 
 
 namespace Das.Serializer
@@ -293,8 +293,6 @@ namespace Das.Serializer
 
         #if !GENERATECODE || TEST_NO_CODEGENERATION
 
-
-      
 
         #endif
     }

@@ -11,7 +11,7 @@ using Das.Serializer.ProtoBuf;
 namespace Das.Serializer
 {
     /// <summary>
-    /// Generates dynamic foreach code block
+    ///     Generates dynamic foreach code block
     /// </summary>
     public class ProtoEnumerator<TState> where TState : ProtoStateBase
     {

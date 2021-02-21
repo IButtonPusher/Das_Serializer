@@ -48,8 +48,8 @@ namespace Das.Serializer.ProtoBuf
             if (typeof(IEnumerable<Int16>).IsAssignableFrom(propertyType))
                 return TypeCode.Int16;
 
-            return typeof(IEnumerable<Int64>).IsAssignableFrom(propertyType) 
-                ? TypeCode.Int64 
+            return typeof(IEnumerable<Int64>).IsAssignableFrom(propertyType)
+                ? TypeCode.Int64
                 : TypeCode.Empty;
         }
 

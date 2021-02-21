@@ -9,11 +9,11 @@ namespace Das.Serializer
 {
     public interface ITypeStructure : ITypeStructureBase
     {
-        IPropertyAccessor[] Properties { get; }
-
         SerializationDepth Depth { get; }
 
         Dictionary<String, INamedField> MemberTypes { get; }
+
+        IPropertyAccessor[] Properties { get; }
 
         Int32 PropertyCount { get; }
 
@@ -45,15 +45,15 @@ namespace Das.Serializer
                                             out TAttribute value)
             where TAttribute : Attribute;
 
-        Boolean TrySetPropertyValue(String propName,
-                                    ref Object targetObj,
-                                    Object? propVal,
-                                    SerializationDepth depth = SerializationDepth.AllProperties);
+        Boolean TryGetPropertyAccessor(String propName,
+                                       out IPropertyAccessor accessor);
 
         Boolean TryGetPropertyInfo(String propName,
                                    out PropertyInfo propInfo);
 
-        Boolean TryGetPropertyAccessor(String propName,
-                                       out IPropertyAccessor accessor);
+        Boolean TrySetPropertyValue(String propName,
+                                    ref Object targetObj,
+                                    Object? propVal,
+                                    SerializationDepth depth = SerializationDepth.AllProperties);
     }
 }

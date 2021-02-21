@@ -187,6 +187,18 @@ namespace Serializer.Tests.Xml
         }
 
         [Fact]
+        public void EmptyStringIsNotNull()
+        {
+            var eg = SimpleClass.GetExample<SimpleClass>();
+            eg.Name = string.Empty;
+
+            var xml = Serializer.ToXml(eg);
+            var eg2 = Serializer.FromXml<SimpleClass>(xml);
+
+            Assert.NotNull(eg2.Name);
+        }
+
+        [Fact]
         public void EncodingNode()
         {
             var v = VersionContainer.TestInstance;
@@ -408,6 +420,24 @@ namespace Serializer.Tests.Xml
         }
 
         [Fact]
+        public async Task SuperfluousNamespaceAttribute()
+        {
+            var fi = new FileInfo(Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory,
+                "Xml", "ExtraAttributes.xml"));
+
+            //var eg = SimpleClass.GetExample<SimpleClass>();
+
+
+            //var xml = Serializer.ToXml(eg);
+
+            //xml = xml.Replace("<ShiftPreference>09:00:00</ShiftPreference>",
+            //    "<ShiftPreference xmlns=\"http://tempuri.org/\">09:00:00</ShiftPreference>");
+
+            var eg2 = await Serializer.FromXmlAsync<SimpleClass>(fi);
+        }
+
+        [Fact]
         public async Task SvgTestAsync()
         {
             var settings = DasSettings.CloneDefault();
@@ -427,36 +457,6 @@ namespace Serializer.Tests.Xml
             //    "book.svg"));
 
             //doc = await srl.FromXmlAsync<SvgDocument>(fi);
-        }
-
-        [Fact]
-        public void EmptyStringIsNotNull()
-        {
-            var eg = SimpleClass.GetExample<SimpleClass>();
-            eg.Name = string.Empty;
-
-            var xml = Serializer.ToXml(eg);
-            var eg2 = Serializer.FromXml<SimpleClass>(xml);
-
-            Assert.NotNull(eg2.Name);
-        }
-
-        [Fact]
-        public async Task SuperfluousNamespaceAttribute()
-        {
-            var fi = new FileInfo(Path.Combine(
-                AppDomain.CurrentDomain.BaseDirectory,
-                "Xml", "ExtraAttributes.xml"));
-            
-            //var eg = SimpleClass.GetExample<SimpleClass>();
-            
-
-            //var xml = Serializer.ToXml(eg);
-
-            //xml = xml.Replace("<ShiftPreference>09:00:00</ShiftPreference>",
-            //    "<ShiftPreference xmlns=\"http://tempuri.org/\">09:00:00</ShiftPreference>");
-
-            var eg2 = await Serializer.FromXmlAsync<SimpleClass>(fi);
         }
 
         [Fact]

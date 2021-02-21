@@ -1,4 +1,7 @@
-﻿#if !GENERATECODE
+﻿using System;
+using System.Threading.Tasks;
+
+#if !GENERATECODE
 using System;
 using System.Threading.Tasks;
 using Das.Serializer;
@@ -64,5 +67,3 @@ namespace Serializer.Tests
     }
 }
 #endif
-
-

@@ -44,6 +44,8 @@ namespace Das.Extensions
             return true;
         }
 
+      
+
         [MethodImpl(256)]
         public static Boolean AreEqualEnough(this Single f1,
                                              Single f2)
@@ -165,6 +167,21 @@ namespace Das.Extensions
         {
             return classType.GetField(fieldName, Const.NonPublic)
                    ?? DieBart(classType, fieldName);
+        }
+
+        public static Type GetMemberType(this MemberInfo memberInfo)
+        {
+            switch (memberInfo)
+            {
+                case PropertyInfo pi:
+                    return pi.PropertyType;
+
+                case FieldInfo fi:
+                    return fi.FieldType;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         public static MethodInfo GetMethodOrDie(this Type classType,
@@ -520,21 +537,6 @@ namespace Das.Extensions
             return SerializationCore.ObjectManipulator.TryGetPropertyValue(obj,
                 propertyName, out result);
         }
-
-       public static Type GetMemberType(this MemberInfo memberInfo)
-       {
-           switch (memberInfo)
-           {
-               case PropertyInfo pi:
-                   return pi.PropertyType;
-
-               case FieldInfo fi:
-                   return fi.FieldType;
-
-               default:
-                   throw new ArgumentOutOfRangeException();
-           }
-       }
 
         public static Boolean TrySetPropertyValue(this Object obj,
                                                   String propertyName,

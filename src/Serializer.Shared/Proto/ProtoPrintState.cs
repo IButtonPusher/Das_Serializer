@@ -94,7 +94,7 @@ namespace Das.Serializer.ProtoBuf
             // CALL THE PRINT METHOD ON THE PROXY WHICH
             // LEAVES THE CHILD STREAM WITH THE SERIALIZED BYTES
             /////////////////////////////////////////////////////
-            
+
             loadFieldValue(_il);
             _il.Emit(OpCodes.Ldloc, ChildObjectStream);
             _il.Emit(OpCodes.Call, printMethod);
@@ -102,7 +102,7 @@ namespace Das.Serializer.ProtoBuf
             ////////////////////////////////////////////
             // PRINT LENGTH OF CHILD STREAM
             ////////////////////////////////////////////
-            
+
             _il.Emit(OpCodes.Ldloc, ChildObjectStream);
             _il.Emit(OpCodes.Callvirt, _streamAccessor.GetStreamLength);
             _il.Emit(OpCodes.Ldarg_2);

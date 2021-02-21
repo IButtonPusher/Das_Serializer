@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace Das.Serializer.Remunerators
@@ -16,7 +17,6 @@ namespace Das.Serializer.Remunerators
         {
         }
 
-       
 
         IEnumerator IEnumerable.GetEnumerator()
         {
@@ -50,7 +50,7 @@ namespace Das.Serializer.Remunerators
             Write(pi, 1);
         }
 
-        [System.Runtime.CompilerServices.MethodImpl(256)]
+        [MethodImpl(256)]
         public sealed override unsafe void WriteInt32(Int32 val)
         {
             var pi = (Byte*) &val;
@@ -76,7 +76,6 @@ namespace Das.Serializer.Remunerators
         }
 
         #else
-
         public sealed override void WriteInt64(UInt64 val)
         {
             Write(BitConverter.GetBytes(val));
@@ -122,7 +121,7 @@ namespace Das.Serializer.Remunerators
         protected override DeferredBinaryWriter GetChildWriter(NodeTypes nodeType,
                                                                Boolean isWrapping)
         {
-            return new DeferredBinaryWriter(this, nodeType, isWrapping);
+            return new(this, nodeType, isWrapping);
         }
 
         //protected override DeferredBinaryWriter GetChildWriter(IPrintNode node)

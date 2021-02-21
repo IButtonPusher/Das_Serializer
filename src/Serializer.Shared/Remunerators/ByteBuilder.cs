@@ -70,9 +70,8 @@ namespace Das.Serializer.Remunerators
                 _backingList.Add(bytes[c]);
         }
 
-#else
-
-#endif
+        #else
+        #endif
 
 
         public void Clear()

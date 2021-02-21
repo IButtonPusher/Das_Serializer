@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Das.Serializer;
@@ -10,26 +8,27 @@ namespace Das.Printers
 {
     public class JsonPrinter : TextPrinter
     {
-        private readonly ITypeManipulator _typeManipulator;
-
-        public JsonPrinter(ITextRemunerable writer,
-                           ISerializerSettings settings,
+        public JsonPrinter(//ITextRemunerable writer,
+                           //ISerializerSettings settings,
                            ITypeInferrer typeInferrer,
                            INodeTypeProvider nodeTypes,
                            IObjectManipulator objectManipulator,
                            ITypeManipulator typeManipulator)
-            : base(writer, settings, typeInferrer, nodeTypes, objectManipulator)
+            : base(//writer, settings,
+                   typeInferrer, nodeTypes, objectManipulator, '.')
         {
             _typeManipulator = typeManipulator;
         }
 
-        public override Boolean IsRespectXmlIgnore => false;
+        public sealed  override Boolean IsRespectXmlIgnore => false;
 
         public static void AppendEscaped(String value,
                                          ITextRemunerable writer)
         {
-            if (String.IsNullOrEmpty(value))
+            if (ReferenceEquals(null, value))
                 return;
+            //if (String.IsNullOrEmpty(value))
+            //    return;
 
             var len = value.Length;
             var needEncode = false;
@@ -97,60 +96,74 @@ namespace Das.Printers
         }
 
 
-        public sealed override void PrintNode(String name,
-                                              Type? propType,
-                                              Object? val)
+        private static String GetNameOrTypeNameOrRoot(String name,
+                                                      Type? propType)
+        {
+            if (!String.IsNullOrWhiteSpace(name))
+                return name;
+            if (propType?.FullName != null)
+                return propType.FullName;
+
+            return Const.Root;
+        }
+
+        public sealed override void PrintNamedObject(String name,
+                                                     Type? propType,
+                                                     Object? val,
+                                                     NodeTypes valueNodeType,
+                                                     ITextRemunerable Writer,
+                                                     ISerializerSettings settings,
+                                                     ICircularReferenceHandler circularReferenceHandler)
         {
             if (val == null)
                 return;
 
-            if (!_isIgnoreCircularDependencies)
-            {
-                if (!String.IsNullOrWhiteSpace(name))
-                    PushStack(name);
-                else if (propType?.FullName != null)
-                    PushStack(propType.FullName);
-                else
-                    PushStack(Const.Root);
-            }
+            circularReferenceHandler.AddPathReference(name, propType, GetNameOrTypeNameOrRoot);
+
+            //if (!_isIgnoreCircularDependencies)
+            //{
+            //    if (!String.IsNullOrWhiteSpace(name))
+            //        PushStack(name);
+            //    else if (propType?.FullName != null)
+            //        PushStack(propType.FullName);
+            //    else
+            //        PushStack(Const.Root);
+            //}
 
             try
             {
                 var isCloseBlock = false;
                 var valType = val.GetType();
-                var isWrapping = IsWrapNeeded(propType!, valType);
-
-                var nodeType = _nodeTypes.GetNodeType(valType);
+                //var nodeType = _nodeTypes.GetNodeType(valType);
+                var isWrapping = IsWrapNeeded(propType!, valType, 
+                    valueNodeType, settings);
 
                 if (!String.IsNullOrEmpty(name))
                 {
                     if (name.Equals(PathAttribute))
                     {
                         Writer.Append(Const.OpenBrace);
-                        TabOut();
+                        Writer.TabOut();
                         isCloseBlock = true;
                     }
 
                     Writer.Append(Const.Quote, name);
                     Writer.Append("\":");
                 }
-                else if (!isWrapping)
-                {
-                    //var res = _nodeTypes.GetNodeType(valType);
-                    //root node, we have to wrap primitives
-                    if (nodeType == NodeTypes.Primitive || nodeType == NodeTypes.Fallback)
-                    {
-                        Writer.Append(Const.OpenBrace, _newLine);
-                        TabOut();
-                        isCloseBlock = true;
-                    }
-                }
+                //else if (!isWrapping)
+                //    //root node, we have to wrap primitives
+                //    if (nodeType == NodeTypes.Primitive || nodeType == NodeTypes.Fallback)
+                //    {
+                //        Writer.Append(Const.OpenBrace, _newLine);
+                //        TabOut();
+                //        isCloseBlock = true;
+                //    }
 
                 if (isWrapping)
                 {
                     Writer.Append(Const.OpenBrace);
-                    TabOut();
-                    NewLine();
+                    Writer.TabOut();
+                    Writer.NewLine();
                     var clear = _typeInferrer.ToClearName(valType);
 
                     Writer.Append(Const.StrQuote, Const.TypeWrap);
@@ -158,128 +171,40 @@ namespace Das.Printers
                     Writer.Append(Const.StrQuote, clear);
                     Writer.Append(Const.StrQuote, ",");
 
-                    NewLine();
+                    Writer.NewLine();
 
                     Writer.Append(Const.Quote, Const.Val);
                     Writer.Append(Const.Quote, ": ");
-                    TabIn();
+                    Writer.TabIn();
                     isCloseBlock = true;
                 }
 
                 propType = valType;
 
-                PrintObject(val, propType, nodeType);
+
+                //////////////////////////////
+                PrintObject(val, propType, valueNodeType, Writer, settings, circularReferenceHandler);
+                //////////////////////////////
 
                 if (!isCloseBlock)
                     return;
-                NewLine();
+                Writer.NewLine();
 
                 Writer.Append(Const.CloseBrace);
             }
             finally
             {
-                if (!_isIgnoreCircularDependencies)
-                    PopStack();
+                circularReferenceHandler.PopPathReference();
+                //if (!_isIgnoreCircularDependencies)
+                //    PopStack();
             }
         }
 
-
-        protected override void PrintCollection(Object? value,
-                                                Type valType,
-                                                Boolean knownEmpty)
-        {
-            if (ReferenceEquals(value, null))
-                return;
-
-            var serializeAs = value.GetType();
-
-            if (!_isIgnoreCircularDependencies)
-                PushStack($"[{serializeAs}]");
-
-            Writer.Append(Const.OpenBracket);
-            TabOut();
-
-            var germane = _typeInferrer.GetGermaneType(serializeAs);
-
-            PrintSeries(ExplodeIterator((value as IEnumerable)!, germane),
-                PrintCollectionObject);
-
-
-            TabIn();
-            Writer.Append(Const.CloseBracket);
-            if (!_isIgnoreCircularDependencies)
-                PopStack();
-        }
-
-        protected override void PrintCollectionObject(Object? o,
-                                                      Type propType,
-                                                      Int32 index)
-        {
-            var nodeType = _nodeTypes.GetNodeType(propType);
-            PrintObject(o, propType, nodeType);
-        }
-
-        protected override void PrintProperties(IEnumerable<KeyValuePair<PropertyInfo, object?>> values,
-                                                Action<PropertyInfo, object?> exe)
-        {
-            using (var itar = values.GetEnumerator())
-            {
-                if (!itar.MoveNext())
-                    return;
-
-                var current = itar.Current;
-
-                var printSep = ShouldPrintValue(current.Value);
-                if (printSep)
-                    exe(current.Key, current.Value);
-
-                while (itar.MoveNext())
-                {
-                    current = itar.Current;
-
-                    if (!ShouldPrintValue(current.Value))
-                        continue;
-
-                    if (printSep)
-                        Writer.Append(SequenceSeparator);
-
-                    exe(current.Key, current.Value);
-
-                    printSep = true;
-                }
-            }
-        }
-
-        protected sealed override void PrintProperty(Object? propValue,
-                                                     String name,
-                                                     Type propertyType)
-        {
-            switch (_settings.PrintJsonPropertiesFormat)
-            {
-                case PrintPropertyFormat.Default:
-                    break;
-
-                case PrintPropertyFormat.PascalCase:
-                    name = _typeInferrer.ToPascalCase(name);
-                    break;
-
-                case PrintPropertyFormat.CamelCase:
-                    name = _typeInferrer.ToCamelCase(name);
-                    break;
-
-                case PrintPropertyFormat.SnakeCase:
-                    name = _typeInferrer.ToSnakeCase(name);
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
-            base.PrintProperty(propValue, name, propertyType);
-        }
-
-        protected sealed override void PrintReferenceType(Object? value,
-                                                          Type valType)
+        public sealed override void PrintReferenceType(Object? value,
+                                                       Type valType,
+                                                       ITextRemunerable Writer,
+                                                       ISerializerSettings settings,
+                                                       ICircularReferenceHandler circularReferenceHandler)
         {
             if (value == null)
             {
@@ -291,115 +216,205 @@ namespace Das.Printers
 
             if (wasAny)
             {
-                TabOut();
-                NewLine();
+                Writer.TabOut();
+                Writer.NewLine();
 
                 Writer.Append(Const.OpenBrace);
 
-                TabOut();
-                NewLine();
+                Writer.TabOut();
+                Writer.NewLine();
             }
             else
                 Writer.Append(Const.OpenBrace);
 
 
-            var typeStruct = _typeManipulator.GetTypeStructure(valType, _settings);
+            var typeStruct = _typeManipulator.GetTypeStructure(valType, settings);
             var properties = typeStruct.Properties;
             if (properties.Length > 0)
             {
                 var printSep = false;
+                var format = settings.PrintJsonPropertiesFormat;
 
                 for (var c = 0; c < properties.Length; c++)
                 {
                     var prop = properties[c];
 
                     var currentValue = prop.GetPropertyValue(value);
-                    if (!ShouldPrintValue(currentValue))
-                    {
+                    if (!ShouldPrintValue(currentValue, settings))
                         continue;
-                    }
+
+                    var valueNodeType = _nodeTypes.GetNodeType(currentValue?.GetType() ?? prop.PropertyType);
 
                     if (printSep)
                         Writer.Append(SequenceSeparator);
 
+                    var propName = prop.PropertyPath;
 
-                    PrintProperty(currentValue, prop.PropertyPath, prop.PropertyType);
+                    switch (format)
+                    {
+                        case PrintPropertyFormat.Default:
+                            //propName = prop.PropertyPath;
+                            break;
+
+                        case PrintPropertyFormat.PascalCase:
+                            propName = _typeInferrer.ToPascalCase(propName);
+                            break;
+
+                        case PrintPropertyFormat.CamelCase:
+                            propName = _typeInferrer.ToCamelCase(propName);
+                            break;
+
+                        case PrintPropertyFormat.SnakeCase:
+                            propName = _typeInferrer.ToSnakeCase(propName);
+                            break;
+
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+
+                    if (valueNodeType != NodeTypes.Collection)
+                        PrintNamedObject(propName, prop.PropertyType, currentValue, 
+                            valueNodeType, Writer, settings, circularReferenceHandler);
+                    else
+                        PrintProperty(currentValue, propName, prop.PropertyType, 
+                            Writer, valueNodeType, settings, circularReferenceHandler);
                     printSep = true;
                 }
             }
-            
+
 
             if (wasAny)
             {
-                TabIn();
-                NewLine();
+                Writer.TabIn();
+                Writer.NewLine();
                 Writer.Append(Const.CloseBrace);
-                TabIn();
-                NewLine();
+                Writer.TabIn();
+                Writer.NewLine();
             }
             else
                 Writer.Append(Const.CloseBrace);
         }
 
-        protected override void PrintSeries(IEnumerable<KeyValuePair<object?, Type>> values,
-                                            Action<object?, Type, Int32> print)
+        protected bool ShouldPrintValue<T>(T item,
+                                           ISerializerSettings settings)
         {
-            var idx = 0;
-
-            using (var itar = values.GetEnumerator())
-            {
-                if (!itar.MoveNext())
-                    return;
-
-                var printSep = ShouldPrintValue(itar.Current);
-                if (printSep)
-                    print(itar.Current.Key, itar.Current.Value, idx++);
-
-
-                while (itar.MoveNext())
-                {
-                    var current = itar.Current;
-
-                    if (!ShouldPrintValue(current))
-                        continue;
-
-                    if (printSep)
-                        Writer.Append(SequenceSeparator);
-
-
-                    print(itar.Current.Key, itar.Current.Value, idx++);
-                    printSep = true;
-                }
-            }
+            return !ReferenceEquals(null, item) &&
+                   (!settings.IsOmitDefaultValues ||
+                    !_typeInferrer.IsDefaultValue(item));
         }
 
         [MethodImpl(256)]
-        protected sealed override void PrintString(String str)
-        {
-            Writer.Append(Const.Quote);
-            AppendEscaped(str, Writer);
-            Writer.Append(Const.Quote);
-        }
-
-        [MethodImpl(256)]
-        protected sealed override void PrintStringWithoutEscaping(String str)
-        {
-            Writer.Append(Const.Quote);
-            Writer.Append(str);
-            Writer.Append(Const.Quote);
-        }
-
-        [MethodImpl(256)]
-        protected sealed override void PrintChar(Char c)
+        protected sealed override void PrintChar(ITextRemunerable Writer,
+                                                 Char c)
         {
             Writer.Append(Const.Quote);
             Writer.Append(c);
             Writer.Append(Const.Quote);
         }
 
+        private static String GetCollectionReferenceText(Type serializeAs)
+            => $"[{serializeAs}]";
+
+
+        protected sealed override void PrintCollection(Object? value,
+                                                       Type valType,
+                                                       ITextRemunerable Writer,
+                                                       ISerializerSettings settings,
+                                                       ICircularReferenceHandler circularReferenceHandler)
+        {
+            if (ReferenceEquals(value, null))
+                return;
+
+            var serializeAs = value.GetType();
+            circularReferenceHandler.AddPathReference(serializeAs, GetCollectionReferenceText);
+
+            //if (!_isIgnoreCircularDependencies)
+            //    PushStack($"[{serializeAs}]");
+
+            Writer.Append(Const.OpenBracket);
+            Writer.TabOut();
+
+            var germane = _typeInferrer.GetGermaneType(serializeAs);
+            var germaneNodeType = _nodeTypes.GetNodeType(germane);
+
+            switch (value)
+            {
+                case IList list:
+                    if (list.Count == 0)
+                        break;
+
+                    PrintObject(list[0], germane, germaneNodeType, Writer, settings, circularReferenceHandler);
+
+                    for (var c = 1; c < list.Count; c++)
+                    {
+                        Writer.Append(SequenceSeparator);
+                        PrintObject(list[c], germane, germaneNodeType, Writer,settings, 
+                            circularReferenceHandler);
+                    }
+
+                    break;
+
+                case IEnumerable ienum:
+
+                    var printSep = false;
+
+                    foreach (var o in ienum)
+                    {
+                        if (printSep)
+                            Writer.Append(SequenceSeparator);
+                        printSep = true;
+                        PrintObject(o, germane, germaneNodeType, Writer,
+                            settings, circularReferenceHandler);
+                    }
+
+                    break;
+            }
+
+            Writer.TabIn();
+            Writer.Append(Const.CloseBracket);
+            circularReferenceHandler.PopPathReference();
+            
+            //if (!_isIgnoreCircularDependencies)
+            //    PopStack();
+        }
+
+        //protected override void PrintCollectionObject(Object? o,
+        //                                              Type propType,
+        //                                              Int32 index)
+        //{
+        //    var nodeType = _nodeTypes.GetNodeType(propType);
+        //    PrintObject(o, propType, nodeType);
+        //}
+
+        [MethodImpl(256)]
+        protected sealed override void PrintInteger(Object val,
+                                                    ITextRemunerable Writer)
+        {
+            Writer.Append(val.ToString());
+        }
+
+        
+
+        [MethodImpl(256)]
+        protected sealed override void PrintReal(String str,
+                                                 ITextRemunerable Writer)
+        {
+            Writer.Append(str);
+        }
+
         [MethodImpl(256)]
         protected sealed override void PrintString(String str,
-                                                   Boolean isInQuotes)
+                                                   ITextRemunerable Writer)
+        {
+            Writer.Append(Const.Quote);
+            AppendEscaped(str, Writer);
+            Writer.Append(Const.Quote);
+        }
+
+        [MethodImpl(256)]
+        protected sealed override void PrintString(String str,
+                                                   Boolean isInQuotes,
+                                                   ITextRemunerable Writer)
         {
             if (isInQuotes)
                 Writer.Append(Const.Quote);
@@ -411,18 +426,16 @@ namespace Das.Printers
         }
 
         [MethodImpl(256)]
-        protected sealed override void PrintInteger(Object val)
+        protected sealed override void PrintStringWithoutEscaping(String str,
+                                                                  ITextRemunerable Writer)
         {
-            Writer.Append(val.ToString());
-        }
-
-        [MethodImpl(256)]
-        protected sealed override void PrintReal(String str)
-        {
+            Writer.Append(Const.Quote);
             Writer.Append(str);
+            Writer.Append(Const.Quote);
         }
 
 
         private const Char SequenceSeparator = ',';
+        private readonly ITypeManipulator _typeManipulator;
     }
 }

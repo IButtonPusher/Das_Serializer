@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Das.Printers;
+using Das.Serializer.Remunerators;
 
 namespace Das.Serializer
 {
@@ -61,25 +62,32 @@ namespace Das.Serializer
 
         private static StringSaver NewStringSaver()
         {
-            return new();
+            return new CompactStringSaver();
         }
 
         [MethodImpl(256)]
         private String ToJson(Object obj,
                               Type asType)
         {
-            using (var sp = _escapeSaver.Value!)
+            //using (var sp = _escapeSaver.Value!)
+            using (var sp = GetTextWriter(Settings)) //new StringBuilderWrapper())
             {
-                var jp = new JsonPrinter(sp,
-                    Settings, StateProvider.TypeInferrer, StateProvider.NodeTypeProvider,
-                    StateProvider.ObjectManipulator, StateProvider.TypeManipulator);
+                //var jp = new JsonPrinter(//sp,Settings, 
+                //    StateProvider.TypeInferrer, StateProvider.NodeTypeProvider,
+                //    StateProvider.ObjectManipulator, StateProvider.TypeManipulator);
 
-                jp.PrintNode(String.Empty, asType, obj);
+                _jsonPrinter.PrintObject(obj, asType, 
+                    StateProvider.NodeTypeProvider.GetNodeType(asType),
+                    sp, Settings, GetCircularReferenceHandler(Settings));
+                //jp.PrintReferenceType(obj, asType);
+                //jp.PrintNamedObject(String.Empty, asType, obj);
 
                 return sp.ToString();
             }
         }
 
         private static readonly ThreadLocal<StringSaver> _escapeSaver = new(NewStringSaver);
+
+        protected readonly JsonPrinter _jsonPrinter;
     }
 }

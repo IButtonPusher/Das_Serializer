@@ -17,6 +17,9 @@ namespace Das.Serializer
 
         new void Append(Char item);
 
+        void AppendRepeatedly(Char item,
+                              Int32 count);
+
         Boolean Append<T>(IEnumerable<T> items,
                           Char separator)
             where T : IConvertible;
@@ -26,6 +29,16 @@ namespace Das.Serializer
 
         void Remove(Int32 startIndex,
                     Int32 length);
+
+        void PrintCurrentTabs();
+
+        void TabIn();
+
+        void TabOut();
+
+        void NewLine();
+
+        void IndentRepeatedly(Int32 count);
 
         ITextAccessor ToImmutable();
 

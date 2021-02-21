@@ -28,7 +28,7 @@ namespace Das.Serializer.ProtoBuf
         public abstract T Scan(Stream stream,
                                Int64 byteCount);
 
-       
+
         public virtual T BuildDefault()
         {
             throw new NotSupportedException();
@@ -220,23 +220,6 @@ namespace Das.Serializer.ProtoBuf
             }
         }
 
-        public static UInt32 GetUInt32(Stream stream)
-        {
-            UInt32 result = 0;
-            var push = 0;
-
-            while (true)
-            {
-                var currentByte = stream.ReadByte();
-
-                result += (UInt32)(currentByte & 0x7F) << push;
-
-                push += 7;
-                if ((currentByte & 0x80) == 0)
-                    return result;
-            }
-        }
-
         public static Int64 GetPositiveInt64(Stream stream)
         {
             var result = 0L;
@@ -254,6 +237,23 @@ namespace Das.Serializer.ProtoBuf
             }
         }
 
+        public static UInt32 GetUInt32(Stream stream)
+        {
+            UInt32 result = 0;
+            var push = 0;
+
+            while (true)
+            {
+                var currentByte = stream.ReadByte();
+
+                result += (UInt32) (currentByte & 0x7F) << push;
+
+                push += 7;
+                if ((currentByte & 0x80) == 0)
+                    return result;
+            }
+        }
+
         public static UInt64 GetUInt64(Stream stream)
         {
             UInt64 result = 0L;
@@ -263,7 +263,7 @@ namespace Das.Serializer.ProtoBuf
             {
                 var currentByte = stream.ReadByte();
 
-                result += (UInt64)(currentByte & 0x7F) << push;
+                result += (UInt64) (currentByte & 0x7F) << push;
 
                 push += 7;
                 if ((currentByte & 0x80) == 0)

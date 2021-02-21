@@ -37,7 +37,6 @@ namespace Das.Types
         //    return GetPropertyResults(node, _settings);
         //}
 
-       
 
         public T GetPropertyValue<T>(Object obj,
                                      String propertyName)
@@ -50,7 +49,6 @@ namespace Das.Types
 
                 default:
                     throw new InvalidCastException();
-
             }
 
             //return (T) GetPropertyResult(obj, obj.GetType(), propertyName)?.Value!;
@@ -120,12 +118,14 @@ namespace Das.Types
                 yield break;
 
             foreach (var kvp in GetPropertyResults(val, val.GetType(), _settings))
+            {
                 yield return kvp;
+            }
         }
 
         public IEnumerable<KeyValuePair<PropertyInfo, Object?>> GetPropertyResults(Object? val,
-                                                                                   Type valType,
-                                                                                   ISerializationDepth depth)
+            Type valType,
+            ISerializationDepth depth)
         {
             if (val == null)
                 yield break;
@@ -136,7 +136,9 @@ namespace Das.Types
 
             var typeStruct = _typeDelegates.GetTypeStructure(useType!, DepthConstants.AllProperties);
             foreach (var f in typeStruct.IteratePropertyValues(val, depth))
+            {
                 yield return f;
+            }
         }
 
         public Boolean SetFieldValue(Type classType,
@@ -169,9 +171,9 @@ namespace Das.Types
         ///     in a class of type classType
         /// </summary>
         public Boolean TrySetProperty(Type classType,
-                                   String propName,
-                                   ref Object targetObj,
-                                   Object? propVal)
+                                      String propName,
+                                      ref Object targetObj,
+                                      Object? propVal)
         {
             var str = _typeDelegates.GetTypeStructure(classType, DepthConstants.AllProperties);
             return str.TrySetPropertyValue(propName, ref targetObj, propVal);

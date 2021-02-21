@@ -35,5 +35,27 @@ namespace Das.Serializer
                 }
             }
         }
+
+        //public void PrintCurrentTabs()
+        //{
+        //    TODO_IMPLEMENT_ME();
+        //}
+
+        //public void TabIn()
+        //{
+        //    TODO_IMPLEMENT_ME();
+        //}
+
+        //public void TabOut()
+        //{
+        //    TODO_IMPLEMENT_ME();
+        //}
+
+        //public void NewLine()
+        //{
+        //    TODO_IMPLEMENT_ME();
+        //}
+
+        //protected Int32 _tabCount;
     }
 }

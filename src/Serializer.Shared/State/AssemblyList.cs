@@ -17,24 +17,52 @@ namespace Das.Serializer
             _assembliesByName = new ConcurrentDictionary<String, Assembly>(
                 StringComparer.OrdinalIgnoreCase);
 
+            _initialLoadCompletion = new TaskCompletionSource<bool>(
+
+                #if !NET40
+
+                TaskCreationOptions.RunContinuationsAsynchronously);
+                #else
+            );
+                #endif
+
             var appDomain = AppDomain.CurrentDomain;
             appDomain.AssemblyLoad += OnAssemblyLoaded;
 
+            Task.Factory.StartNew(LoadAllRunning, TaskCreationOptions.PreferFairness).ConfigureAwait(false);
+        }
+
+        private static void LoadAllRunning()
+        {
             foreach (var asm in GetRunning())
             {
                 Add(asm);
             }
+
+            _initialLoadCompletion.TrySetResult(true);
         }
 
         public Boolean TryGetAssemblyByFileName(String fileName,
                                                 out Assembly assembly)
         {
+            if (_assembliesByFileName.TryGetValue(fileName, out assembly))
+                return true;
+
+            if (!_initialLoadCompletion.Task.IsCompleted)
+                _initialLoadCompletion.Task.Wait();
+
             return _assembliesByFileName.TryGetValue(fileName, out assembly);
         }
 
         public bool TryGetAssemblyByName(String name,
                                          out Assembly assembly)
         {
+            if (_assembliesByName.TryGetValue(name, out assembly))
+                return true;
+
+            if (!_initialLoadCompletion.Task.IsCompleted)
+                _initialLoadCompletion.Task.Wait();
+
             return _assembliesByName.TryGetValue(name, out assembly);
         }
 
@@ -102,6 +130,7 @@ namespace Das.Serializer
             Add(args.LoadedAssembly);
         }
 
+        private static readonly TaskCompletionSource<Boolean> _initialLoadCompletion;
 
         private static readonly ConcurrentDictionary<String, Assembly> _assembliesByFileName;
         private static readonly ConcurrentDictionary<String, Assembly> _assembliesByName;

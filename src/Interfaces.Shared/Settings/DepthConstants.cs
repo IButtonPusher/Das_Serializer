@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Das.Extensions;
 
 namespace Das.Serializer
 {
@@ -25,5 +26,10 @@ namespace Das.Serializer
 
         public static readonly ISerializationDepth AllProperties =
             new DepthConstants(SerializationDepth.AllProperties, true, false);
+
+        public Boolean Equals(ISerializationDepth other)
+        {
+            return this.AreEqual(other);
+        }
     }
 }

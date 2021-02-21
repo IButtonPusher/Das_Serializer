@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Das.Serializer;
 
 namespace Das.Extensions
 {
@@ -54,6 +55,14 @@ namespace Das.Extensions
         public static Boolean IsZero(this Int32 d)
         {
             return d == 0;
+        }
+
+        public static Boolean AreEqual(this ISerializationDepth left,
+                                       ISerializationDepth right)
+        {
+            return left.SerializationDepth == right.SerializationDepth &&
+                   left.IsOmitDefaultValues == right.IsOmitDefaultValues &&
+                   left.IsRespectXmlIgnore == right.IsRespectXmlIgnore;
         }
 
         private const Double MyEpsilon = 0.00001;

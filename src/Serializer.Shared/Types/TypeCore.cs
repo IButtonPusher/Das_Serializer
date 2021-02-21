@@ -4,10 +4,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-//using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
+using System.Threading.Tasks; //using System.Linq;
 
 namespace Das.Serializer
 {
@@ -57,63 +56,105 @@ namespace Das.Serializer
 
         public Type GetGermaneType(Type ownerType)
         {
-            if (_cachedGermane.TryGetValue(ownerType, out var typ))
-                return typ;
+            return _cachedGermane.GetOrAdd(ownerType, GetGermaneTypeImpl);
 
-            try
-            {
-                if (!typeof(IEnumerable).IsAssignableFrom(ownerType) || ownerType == typeof(String))
-                    return ownerType;
+            //if (_cachedGermane.TryGetValue(ownerType, out var typ))
+            //    return typ;
 
-                if (ownerType.IsArray)
-                {
-                    typ = ownerType.GetElementType();
-                    return typ!;
-                }
+            //try
+            //{
+            //    if (!typeof(IEnumerable).IsAssignableFrom(ownerType) || ownerType == typeof(String))
+            //        return ownerType;
 
-                if (typeof(IDictionary).IsAssignableFrom(ownerType))
-                {
-                    typ = GetKeyValuePair(ownerType)!;
-                    if (typ != null)
-                        return typ;
-                }
+            //    if (ownerType.IsArray)
+            //    {
+            //        typ = ownerType.GetElementType();
+            //        return typ!;
+            //    }
 
-                var gargs = ownerType.GetGenericArguments();
+            //    if (typeof(IDictionary).IsAssignableFrom(ownerType))
+            //    {
+            //        typ = GetKeyValuePair(ownerType)!;
+            //        if (typ != null)
+            //            return typ;
+            //    }
 
-                switch (gargs.Length)
-                {
-                    case 1 when ownerType.IsGenericType:
-                        typ = gargs[0];
-                        return typ;
-                    case 2:
-                        var lastChanceDictionary = typeof(IDictionary<,>).MakeGenericType(gargs);
-                        typ = lastChanceDictionary.IsAssignableFrom(ownerType)
-                            ? GetKeyValuePair(lastChanceDictionary)!
-                            : ownerType;
-                        return typ;
-                    case 0:
-                        var gen0 = ownerType.GetInterfaces().FirstOrDefault(i =>
-                            i.IsGenericType);
+            //    var gargs = ownerType.GetGenericArguments();
+
+            //    switch (gargs.Length)
+            //    {
+            //        case 1 when ownerType.IsGenericType:
+            //            typ = gargs[0];
+            //            return typ;
+            //        case 2:
+            //            var lastChanceDictionary = typeof(IDictionary<,>).MakeGenericType(gargs);
+            //            typ = lastChanceDictionary.IsAssignableFrom(ownerType)
+            //                ? GetKeyValuePair(lastChanceDictionary)!
+            //                : ownerType;
+            //            return typ;
+            //        case 0:
+            //            var gen0 = ownerType.GetInterfaces().FirstOrDefault(i =>
+            //                i.IsGenericType);
 
 
-                        return gen0 != null ? GetGermaneType(gen0) : ownerType;
-                }
-            }
-            finally
-            {
-                if (typ != null)
-                    _cachedGermane.TryAdd(ownerType, typ);
-            }
+            //            return gen0 != null ? GetGermaneType(gen0) : ownerType;
+            //    }
+            //}
+            //finally
+            //{
+            //    if (typ != null)
+            //        _cachedGermane.TryAdd(ownerType, typ);
+            //}
 
-            throw new InvalidOperationException("Cannot load ");
+            //throw new InvalidOperationException("Cannot load ");
         }
 
-        private static TypeConverter GetTypeConverter(Type type)
+        private Type GetGermaneTypeImpl(Type ownerType)
         {
-            return _typeConverters.TryGetValue(type, out var found)
-                ? found
-                : _typeConverters.GetOrAdd(type, TypeDescriptor.GetConverter(type));
+            if (!typeof(IEnumerable).IsAssignableFrom(ownerType) || ownerType == typeof(String))
+                return ownerType;
+
+            Type? typ = null;
+
+            if (ownerType.IsArray)
+            {
+                typ = ownerType.GetElementType() ?? throw new InvalidOperationException();
+                return typ;
+            }
+
+            if (typeof(IDictionary).IsAssignableFrom(ownerType))
+            {
+                typ = GetKeyValuePair(ownerType)!;
+                if (typ != null)
+                    return typ;
+            }
+
+            var gargs = ownerType.GetGenericArguments();
+
+            switch (gargs.Length)
+            {
+                case 1 when ownerType.IsGenericType:
+                    typ = gargs[0];
+                    return typ;
+
+                case 2:
+                    var lastChanceDictionary = typeof(IDictionary<,>).MakeGenericType(gargs);
+                    typ = lastChanceDictionary.IsAssignableFrom(ownerType)
+                        ? GetKeyValuePair(lastChanceDictionary)!
+                        : ownerType;
+                    return typ;
+
+                case 0:
+                    var gen0 = ownerType.GetInterfaces().FirstOrDefault(i =>
+                        i.IsGenericType);
+
+
+                    return gen0 != null ? GetGermaneType(gen0) : ownerType;
+            }
+
+            return typ ?? throw new InvalidOperationException("Cannot load ");
         }
+
 
         public virtual Boolean HasSettableProperties(Type type)
         {
@@ -170,8 +211,6 @@ namespace Das.Serializer
         }
 
 
-       
-
         public Boolean HasEmptyConstructor(Type t)
         {
             return t.GetConstructor(Const.AnyInstance, null, Type.EmptyTypes, null) != null;
@@ -211,7 +250,7 @@ namespace Das.Serializer
                 byName.Add(r.Name);
             }
 
-            
+
             //var byName = new HashSet<String>(res.Select(p => p.Name));
 
             //todo: remove this and get it to work with explicits
@@ -266,11 +305,11 @@ namespace Das.Serializer
             return conv.ConvertFrom(obj);
         }
 
-        public bool CanChangeType(Type @from,
+        public bool CanChangeType(Type from,
                                   Type to)
         {
             var conv = GetTypeConverter(to);
-            return conv.CanConvertFrom(@from);
+            return conv.CanConvertFrom(from);
         }
 
         public string ConvertToInvariantString(Object obj)
@@ -313,8 +352,70 @@ namespace Das.Serializer
             return constr != null;
         }
 
-        [ThreadStatic]
-        private static Dictionary<String, Type>? _rProps;
+
+        public static Boolean IsLeaf(Type t,
+                                     Boolean isStringCounts)
+        {
+            if (isStringCounts)
+                return IsLeafImpl(t, true, LeavesYesString);
+
+            return IsLeafImpl(t, false, LeavesNotString);
+        }
+
+        public static Decimal ToDecimal(Byte[] bytes)
+        {
+            var bits = new Int32[4];
+            for (var i = 0; i <= 15; i += 4)
+                bits[i / 4] = BitConverter.ToInt32(bytes, i);
+
+            return new Decimal(bits);
+        }
+
+
+        public static Boolean IsAnonymousType(Type type)
+        {
+            return type.Namespace == null &&
+                   type.IsGenericType &&
+                   type.IsSealed && type.BaseType == Const.ObjectType &&
+                   Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false)
+                   && type.Name.Contains("AnonymousType")
+                   && (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))
+                   && (type.Attributes & TypeAttributes.Public) == TypeAttributes.NotPublic;
+        }
+
+        protected static Boolean IsString(Type t)
+        {
+            return t == Const.StrType;
+        }
+
+        // ReSharper disable once InconsistentNaming
+        private static Boolean AmIALeaf(Type t,
+                                        Boolean isStringCounts)
+        {
+            return // value type or a string if desired
+                (t.IsValueType || isStringCounts && t == Const.StrType)
+                // not an object unless it's a nullable
+                && Type.GetTypeCode(t) > TypeCode.DBNull;
+        }
+
+        private static Type? GetKeyValuePair(Type dicType)
+        {
+            var akas = dicType.GetInterfaces();
+            for (var c = 0; c < akas.Length; c++)
+            {
+                var interf = akas[c];
+                if (!interf.IsGenericType)
+                    continue;
+
+                var genericArgs = interf.GetGenericArguments();
+                if (genericArgs.Length != 1 || !genericArgs[0].IsValueType)
+                    continue;
+
+                return genericArgs[0];
+            }
+
+            return null;
+        }
 
         private static ConstructorInfo? GetPropertiesCtorImpl(Type type)
         {
@@ -341,13 +442,11 @@ namespace Das.Serializer
                     if (String.IsNullOrEmpty(p.Name) ||
                         !_rProps.TryGetValue(p.Name, out var propType) ||
                         !p.ParameterType.IsAssignableFrom(propType))
-                    {
                         goto fail;
-                    }
                 }
 
                 _rProps.Clear();
-              
+
                 return con;
 
                 fail: ;
@@ -357,71 +456,11 @@ namespace Das.Serializer
             return default;
         }
 
-
-      
-
-        public static Boolean IsLeaf(Type t,
-                                     Boolean isStringCounts)
+        private static TypeConverter GetTypeConverter(Type type)
         {
-            if (isStringCounts)
-                return IsLeafImpl(t, true, LeavesYesString);
-
-            return IsLeafImpl(t, false, LeavesNotString);
-        }
-
-        public static Decimal ToDecimal(Byte[] bytes)
-        {
-            var bits = new Int32[4];
-            for (var i = 0; i <= 15; i += 4)
-                bits[i / 4] = BitConverter.ToInt32(bytes, i);
-
-            return new Decimal(bits);
-        }
-
-
-        protected static Boolean IsAnonymousType(Type type)
-        {
-            return type.Namespace == null &&
-                   type.IsGenericType &&
-                   type.IsSealed && type.BaseType == Const.ObjectType &&
-                   Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false)
-                   && type.Name.Contains("AnonymousType")
-                   && (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))
-                   && (type.Attributes & TypeAttributes.Public) == TypeAttributes.NotPublic;
-        }
-
-        protected static Boolean IsString(Type t)
-        {
-            return t == Const.StrType;
-        }
-
-        // ReSharper disable once InconsistentNaming
-        private static Boolean AmIALeaf(Type t,
-                                        Boolean isStringCounts)
-        {
-            return // value type or a string if desired
-                (t.IsValueType || isStringCounts && t == Const.StrType)
-                // not an object unless it's a nullable
-                && Type.GetTypeCode(t) > TypeCode.DBNull; 
-        }
-
-        private static Type? GetKeyValuePair(Type dicType)
-        {
-            var akas = dicType.GetInterfaces();
-            for (var c = 0; c < akas.Length; c++)
-            {
-                var interf = akas[c];
-                if (!interf.IsGenericType)
-                    continue;
-
-                var genericArgs = interf.GetGenericArguments();
-                if (genericArgs.Length != 1 || !genericArgs[0].IsValueType)
-                    continue;
-
-                return genericArgs[0];
-            }
-
-            return null;
+            return _typeConverters.TryGetValue(type, out var found)
+                ? found
+                : _typeConverters.GetOrAdd(type, TypeDescriptor.GetConverter(type));
         }
 
         [MethodImpl(256)]
@@ -450,11 +489,17 @@ namespace Das.Serializer
             return true;
         }
 
+        [ThreadStatic]
+        private static Dictionary<String, Type>? _rProps;
+
 
         private static readonly ConcurrentDictionary<Type, Boolean> CollectionTypes;
 
         private static readonly ConcurrentDictionary<Type, Boolean> _typesKnownSettableProperties;
         private static readonly ConcurrentDictionary<Type, Type> _cachedGermane;
+        
+        
+        //private static readonly ConcurrentDictionary<Type, KeyValuePair<Type, Type>> _cachedGermaneEx;
 
         private static readonly ConcurrentDictionary<Type, ConstructorInfo?> CachedConstructors;
 

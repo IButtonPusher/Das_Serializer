@@ -53,7 +53,7 @@ namespace Das.Serializer.Xml
                     {
                         SkipUntil(ref currentIndex, txt, '>');
                         scanState = NodeScanState.None;
-                        
+
                         return AdvanceScanState(txt, ref currentIndex, stringBuilder, ref scanState);
                     }
 

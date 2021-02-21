@@ -12,7 +12,7 @@ namespace Das.Serializer.Properties
                                       Func<object, object>? getter,
                                       PropertySetter? setter,
                                       PropertyInfo propInfo)
-        : base(declaringType, propertyName, getter, propInfo)
+            : base(declaringType, propertyName, getter, propInfo)
         {
             //DeclaringType = declaringType;
             //PropertyPath = propertyName;
@@ -25,7 +25,6 @@ namespace Das.Serializer.Properties
             CanWrite = _setter != null;
         }
 
-        
 
         public override Boolean CanWrite { get; }
 

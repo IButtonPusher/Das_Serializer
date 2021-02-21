@@ -14,7 +14,7 @@ namespace Das.Serializer.Remunerators
         public DeferredBinaryWriter(IBinaryWriter parent,
                                     NodeTypes nodeType,
                                     Boolean isWrapping)
-        : base(parent)
+            : base(parent)
         {
             _backingList = new ByteBuilder();
             //_node = node;
@@ -102,15 +102,15 @@ namespace Das.Serializer.Remunerators
         public override String ToString()
         {
             return //_node +
-                   " Byte Count: " + _backingList.Count + " Length: " +
-                   Length + " Nodes: " + Children.Count;
+                " Byte Count: " + _backingList.Count + " Length: " +
+                Length + " Nodes: " + Children.Count;
         }
 
         #if !PARTIALTRUST
 
         [MethodImpl(256)]
         protected sealed override unsafe void Write(Byte* bytes,
-                                             Int32 count)
+                                                    Int32 count)
         {
             _backingList.Append(bytes, count);
         }
@@ -125,8 +125,7 @@ namespace Das.Serializer.Remunerators
                 _backingList[c] = pi[c];
         }
 
-#else
-
+        #else
 [MethodImpl(256)]
 private void SetLength(Int64 val)
 {
@@ -134,7 +133,7 @@ private void SetLength(Int64 val)
     _backingList.Append(bytes, 4);
 }
 
-#endif
+        #endif
 
         private readonly ByteBuilder _backingList;
         private readonly Boolean _isWrapPossible;

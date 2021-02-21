@@ -5,7 +5,9 @@ using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using Das.Serializer;
-using Xunit; //using Newtonsoft.Json;
+using Xunit;
+
+//using Newtonsoft.Json;
 
 // ReSharper disable All
 
@@ -34,38 +36,6 @@ namespace Serializer.Tests.Json
 
             var isOk = SlowEquality.AreEqual(res, vvq);
             Assert.True(isOk);
-        }
-
-        [Fact]
-        public void SpecifyRuntimeObject()
-        {
-            var vvq = GetAnonymousObject();
-
-            var json = _serializer.ToJson(vvq);
-            var res = _serializer.FromJson<RuntimeObject>(json);
-
-            var isOk = Equals(res["Id"], _serializer.ObjectManipulator.GetPropertyValue(vvq, "Id")) &&
-                       Equals(res["Name"], _serializer.ObjectManipulator.GetPropertyValue(vvq, "Name")) &&
-                       Equals(res["NumericString"], _serializer.ObjectManipulator.GetPropertyValue(vvq, "NumericString")) && 
-                       Equals(res["ZipCode"], _serializer.ObjectManipulator.GetPropertyValue(vvq, "ZipCode"));
-
-
-            //var isOk = SlowEquality.AreEqual(res, vvq);
-            Assert.True(isOk);
-        }
-
-
-        
-        [Fact]
-        public void EmptyStringIsNotNull()
-        {
-            var eg = SimpleClass.GetExample<SimpleClass>();
-            eg.Name = string.Empty;
-
-            var json = Serializer.ToJson(eg);
-            var eg2 = Serializer.FromJson<SimpleClass>(json);
-
-            Assert.NotNull(eg2.Name);
         }
 
         [Fact]
@@ -183,6 +153,19 @@ namespace Serializer.Tests.Json
 
 
         [Fact]
+        public void EmptyStringIsNotNull()
+        {
+            var eg = SimpleClass.GetExample<SimpleClass>();
+            eg.Name = string.Empty;
+
+            var json = Serializer.ToJson(eg);
+            var eg2 = Serializer.FromJson<SimpleClass>(json);
+
+            Assert.NotNull(eg2.Name);
+        }
+
+
+        [Fact]
         public void ExcludeDefaultValuesJson()
         {
             var sc = SimpleClassObjectProperty.GetNullPayload();
@@ -229,48 +212,49 @@ namespace Serializer.Tests.Json
             Assert.Equal(obj, yeti);
         }
 
-        [Fact]
-        public void GdiColorInferredJson()
-        {
-            Serializer.Settings.TypeNotFoundBehavior = TypeNotFoundBehavior.ThrowException;
+        //these are not legal json
+        //[Fact]
+        //public void GdiColorInferredJson()
+        //{
+        //    Serializer.Settings.TypeNotFoundBehavior = TypeNotFoundBehavior.ThrowException;
 
-            var clr = Color.Purple;
-            Serializer.Settings.TypeSpecificity = TypeSpecificity.All;
-            var json = Serializer.ToJson(clr);
-            var diesel = Serializer.FromJson(json);
-            var yeti = (Color) diesel;
-            Serializer.Settings.TypeSpecificity = TypeSpecificity.Discrepancy;
-            Assert.True(clr.R == yeti.R && clr.G == yeti.G && clr.B == yeti.B);
-        }
+        //    var clr = Color.Purple;
+        //    Serializer.Settings.TypeSpecificity = TypeSpecificity.All;
+        //    var json = Serializer.ToJson(clr);
+        //    var diesel = Serializer.FromJson(json);
+        //    var yeti = (Color) diesel;
+        //    Serializer.Settings.TypeSpecificity = TypeSpecificity.Discrepancy;
+        //    Assert.True(clr.R == yeti.R && clr.G == yeti.G && clr.B == yeti.B);
+        //}
 
-        [Fact]
-        public void Int32asInt16Json()
-        {
-            var someInt = 55;
+        //[Fact]
+        //public void Int32asInt16Json()
+        //{
+        //    var someInt = 55;
 
-            var srl = new DasSerializer();
-            srl.Settings.TypeSpecificity = TypeSpecificity.All;
-            var json = srl.ToJson<Int16>(someInt);
+        //    var srl = new DasSerializer();
+        //    srl.Settings.TypeSpecificity = TypeSpecificity.All;
+        //    var json = srl.ToJson<Int16>(someInt);
 
-            var int2 = srl.FromJson<Int16>(json);
+        //    var int2 = srl.FromJson<Int16>(json);
 
-            var int3 = srl.FromJson<Int32>(json);
+        //    var int3 = srl.FromJson<Int32>(json);
 
-            var int4 = (Int16) srl.FromJson(json);
+        //    var int4 = (Int16) srl.FromJson(json);
 
-            Assert.True(someInt == int2 && int2 == int3 && int2 == int4);
-        }
+        //    Assert.True(someInt == int2 && int2 == int3 && int2 == int4);
+        //}
 
-        [Fact]
-        public void IntExplicitJson()
-        {
-            var someInt = 55;
-            var srl = new DasSerializer();
-            var json = srl.ToJson(someInt);
+        //[Fact]
+        //public void IntExplicitJson()
+        //{
+        //    var someInt = 55;
+        //    var srl = new DasSerializer();
+        //    var json = srl.ToJson(someInt);
 
-            var int2 = srl.FromJson<Int32>(json);
-            Assert.True(someInt == int2);
-        }
+        //    var int2 = srl.FromJson<Int32>(json);
+        //    Assert.True(someInt == int2);
+        //}
 
         [Fact]
         public void ListJson()
@@ -414,6 +398,25 @@ namespace Serializer.Tests.Json
             var sc2 = srl.FromJson<SimpleClassObjectProperty>(json);
             var badProp = "";
             Assert.True(SlowEquality.AreEqual(sc, sc2, ref badProp));
+        }
+
+        [Fact]
+        public void SpecifyRuntimeObject()
+        {
+            var vvq = GetAnonymousObject();
+
+            var json = _serializer.ToJson(vvq);
+            var res = _serializer.FromJson<RuntimeObject>(json);
+
+            var isOk = Equals(res["Id"], _serializer.ObjectManipulator.GetPropertyValue(vvq, "Id")) &&
+                       Equals(res["Name"], _serializer.ObjectManipulator.GetPropertyValue(vvq, "Name")) &&
+                       Equals(res["NumericString"],
+                           _serializer.ObjectManipulator.GetPropertyValue(vvq, "NumericString")) &&
+                       Equals(res["ZipCode"], _serializer.ObjectManipulator.GetPropertyValue(vvq, "ZipCode"));
+
+
+            //var isOk = SlowEquality.AreEqual(res, vvq);
+            Assert.True(isOk);
         }
 
 

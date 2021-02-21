@@ -28,7 +28,7 @@
         </member>
         <member name="P:Das.Serializer.IPropertyAccessor.PropertyPath">
             <summary>
-            The property's name under most circumstances.  Can also be ParentType.PropertyName etc
+                The property's name under most circumstances.  Can also be ParentType.PropertyName etc
             </summary>
         </member>
         <member name="M:Das.Serializer.IDynamicTypes.GetDynamicType(System.String,System.Collections.Generic.IEnumerable{Das.Serializer.DasProperty},System.Boolean,System.Collections.Generic.IEnumerable{System.Reflection.EventInfo},System.Collections.Generic.IDictionary{System.Reflection.MethodInfo,System.Reflection.MethodInfo},System.Type[])">
@@ -219,12 +219,12 @@
         </member>
         <member name="M:Das.Serializer.ITypeManipulator.FindInvocableMethod(System.Type,System.String,System.Type[])">
             <summary>
-            Searches the type including explicit implementations 
+                Searches the type including explicit implementations
             </summary>
         </member>
         <member name="M:Das.Serializer.ITypeManipulator.FindInvocableMethod(System.Type,System.Collections.Generic.ICollection{System.String},System.Type[])">
             <summary>
-            Searches the type including explicit implementations 
+                Searches the type including explicit implementations
             </summary>
         </member>
         <member name="M:Das.Serializer.ITypeManipulator.GetPropertiesToSerialize(System.Type,Das.Serializer.ISerializationDepth)">

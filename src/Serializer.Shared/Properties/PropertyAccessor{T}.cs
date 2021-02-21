@@ -1,18 +1,16 @@
 ﻿using System;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Das.Serializer.Properties
 {
     public class PropertyAccessor<T> : PropertyAccessorBase,
                                        IPropertyAccessor<T>
     {
-        private readonly PropertySetter<T>? _setter;
-
-
         public PropertyAccessor(String propertyName,
                                 Func<object, object>? getter,
                                 PropertySetter<T>? setter,
-                                PropertyInfo propInfo) 
+                                PropertyInfo propInfo)
             : base(typeof(T), propertyName, getter, propInfo)
         {
             _setter = setter;
@@ -38,5 +36,7 @@ namespace Das.Serializer.Properties
 
             return SetPropertyValue(ref valid, propVal);
         }
+
+        private readonly PropertySetter<T>? _setter;
     }
 }

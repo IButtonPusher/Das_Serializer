@@ -6,11 +6,11 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
-using Das.Serializer.Types;
+using Das.Serializer.Collections;
 
 namespace Das.Serializer
 {
-    public class TypeStructure : TypeCore,
+    public class TypeStructure : //TypeCore,
                                  ITypeStructure
     {
         public TypeStructure(Type type,
@@ -18,7 +18,7 @@ namespace Das.Serializer
                              ISerializationDepth depth,
                              ITypeManipulator state)
             //INodePool nodePool)
-            : base(state.Settings)
+            //: base(state.Settings)
         {
             Type = type;
             _xmlIgnores = new HashSet<String>();
@@ -27,7 +27,7 @@ namespace Das.Serializer
 
             Depth = depth.SerializationDepth;
             _types = state;
-            
+
 
             if (type.IsDefined(typeof(SerializeAsTypeAttribute), false))
             {
@@ -39,7 +39,7 @@ namespace Das.Serializer
             }
 
             _propertyAccessors = new Dictionary<string, IPropertyAccessor>();
-            
+
 
             _getOnly = new Dictionary<String, Func<Object, Object>>();
             _propGetters = new Dictionary<String, Func<Object, Object>>();
@@ -60,7 +60,7 @@ namespace Das.Serializer
             MemberTypes = new Dictionary<String, INamedField>(cmp);
 
 
-            if (_types.IsLeaf(type, true) || IsCollection(type))
+            if (_types.IsLeaf(type, true) || _types.IsCollection(type))
             {
                 Properties = new IPropertyAccessor[0];
                 return;
@@ -71,7 +71,9 @@ namespace Das.Serializer
             Properties = new IPropertyAccessor[_propertyAccessors.Count];
             var current = 0;
             foreach (var kvp in _propertyAccessors)
+            {
                 Properties[current++] = kvp.Value;
+            }
 
             CreateFieldDelegates(type, depth);
 
@@ -260,7 +262,7 @@ namespace Das.Serializer
         }
 
         public Boolean TryGetPropertyAccessor(String propName,
-                                           out IPropertyAccessor accessor)
+                                              out IPropertyAccessor accessor)
         {
             return _propertyAccessors.TryGetValue(propName, out accessor);
         }
@@ -351,10 +353,8 @@ namespace Das.Serializer
             foreach (var pi in _types.GetPublicProperties(type))
             {
                 if (pi.GetIndexParameters().Length > 0)
-                {
                     // index properties don't fit into the current Func<Object, Object> paradigm...
                     continue;
-                }
 
                 var propAccessor = state.GetPropertyAccessor(type, pi.Name);
                 _propertyAccessors.Add(pi.Name, propAccessor);
@@ -500,8 +500,10 @@ namespace Das.Serializer
 
         private readonly Dictionary<String, Func<Object, Object>> _getOnly;
 
-        
+
         private readonly String? _onDeserializedMethodName;
+
+        private readonly Dictionary<String, IPropertyAccessor> _propertyAccessors;
 
         private readonly DoubleDictionary<String, Type, Object> _propertyAttributes;
         private readonly Dictionary<String, PropertyInfo> _propertyInfos;
@@ -513,8 +515,6 @@ namespace Das.Serializer
 
         private readonly Dictionary<String, Func<Object, Object>> _propGetters;
         private readonly SortedList<String, Action<Object, Object?>> _readOnlySetters;
-
-        private readonly Dictionary<String, IPropertyAccessor> _propertyAccessors;
 
         private readonly ITypeManipulator _types;
         private readonly HashSet<String> _xmlIgnores;

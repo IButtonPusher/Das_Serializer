@@ -11,12 +11,12 @@ namespace Das.Serializer
 
         Type DeclaringType { get; }
 
-        Type PropertyType { get; }
-
         /// <summary>
-        /// The property's name under most circumstances.  Can also be ParentType.PropertyName etc
+        ///     The property's name under most circumstances.  Can also be ParentType.PropertyName etc
         /// </summary>
         String PropertyPath { get; }
+
+        Type PropertyType { get; }
 
         Object? GetPropertyValue(Object obj);
 

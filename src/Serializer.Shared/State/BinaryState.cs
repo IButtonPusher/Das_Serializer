@@ -12,7 +12,7 @@ namespace Das.Serializer
                              BinaryScanner binaryScanner,
                              IBinaryNodeProvider binaryNodeProvider,
                              IBinaryPrimitiveScanner primitiveScanner)
-                             //Func<ISerializationCore, ISerializerSettings, IBinaryPrimitiveScanner> getPrimitiveScanner)
+            //Func<ISerializationCore, ISerializerSettings, IBinaryPrimitiveScanner> getPrimitiveScanner)
             : base(stateProvider, settings)
         {
             _settings = settings;
@@ -33,6 +33,11 @@ namespace Das.Serializer
 
         IBinaryNodeProvider IBinaryContext.ScanNodeProvider => _nodeProvider;
 
+        public override void Dispose()
+        {
+            Scanner.Invalidate();
+        }
+
         //public override IScanNodeProvider ScanNodeProvider => _nodeProvider;
 
         public override ISerializerSettings Settings
@@ -43,11 +48,6 @@ namespace Das.Serializer
                 _settings = value;
                 _scanner.Settings = value;
             }
-        }
-
-        public override void Dispose()
-        {
-            Scanner.Invalidate();
         }
 
         private readonly IBinaryNodeProvider _nodeProvider;

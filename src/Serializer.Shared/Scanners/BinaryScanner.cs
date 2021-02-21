@@ -202,10 +202,12 @@ namespace Das.Serializer
         private static readonly NullNode NullNode = NullNode.Instance;
         private readonly INodeManipulator _nodeManipulator;
         protected readonly IBinaryNodeProvider _nodes;
+        private readonly IInstantiator _objectInstantiator;
+
+        private readonly IObjectManipulator _objectManipulator;
+
         //protected readonly IBinaryContext _state;
         private readonly ITypeManipulator _typeManipulator;
-        private readonly IObjectManipulator _objectManipulator;
-        private readonly IInstantiator _objectInstantiator;
         private IBinaryFeeder? _feeder;
         private IBinaryNode? _rootNode;
     }

@@ -7,7 +7,7 @@ using Das.Serializer.Types;
 namespace Das.Serializer
 {
     public class NullNode : //ITextNode, 
-                            IBinaryNode, IEquatable<INode>
+        IBinaryNode, IEquatable<INode>
     {
         static NullNode()
         {
@@ -38,11 +38,6 @@ namespace Das.Serializer
         public Int32 BlockStart { get; set; }
 
         public IList<IBinaryNode> PendingReferences { get; }
-
-        public Boolean Equals(INode other)
-        {
-            return ReferenceEquals(Instance, other);
-        }
 
         INode INode.Parent => Instance;
 
@@ -109,16 +104,9 @@ namespace Das.Serializer
             yield break;
         }
 
-        public Boolean IsOmitDefaultValues => true;
-
-        public SerializationDepth SerializationDepth => SerializationDepth.None;
-
-        public Boolean IsRespectXmlIgnore => true;
-
-        public void Set(String name,
-                        ISerializationDepth depth,
-                        INodeManipulator nodeManipulator)
+        public Boolean Equals(INode other)
         {
+            return ReferenceEquals(Instance, other);
         }
 
         //public String Text => String.Empty;
@@ -146,6 +134,12 @@ namespace Das.Serializer
 
         public static NullNode Instance { get; }
 
+        public Boolean IsOmitDefaultValues => true;
+
+        public Boolean IsRespectXmlIgnore => true;
+
+        public SerializationDepth SerializationDepth => SerializationDepth.None;
+
         public override Boolean Equals(Object? other)
         {
             return ReferenceEquals(Instance, other);
@@ -166,6 +160,12 @@ namespace Das.Serializer
                                           INode node)
         {
             return !ReferenceEquals(node, nn);
+        }
+
+        public void Set(String name,
+                        ISerializationDepth depth,
+                        INodeManipulator nodeManipulator)
+        {
         }
 
         // ReSharper disable once CollectionNeverUpdated.Local

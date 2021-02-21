@@ -7,7 +7,7 @@ namespace Das.Serializer
 {
     public class JsonPrimitiveScanner : StringPrimitiveScanner
     {
-        public JsonPrimitiveScanner(ITypeInferrer typeInferrer) 
+        public JsonPrimitiveScanner(ITypeInferrer typeInferrer)
             : base(typeInferrer)
         {
         }

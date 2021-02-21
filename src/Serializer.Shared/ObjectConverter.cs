@@ -54,7 +54,7 @@ namespace Das.Serializer
         {
             var newObject = _dynamicFacade.ObjectInstantiator.BuildDefault(newObjectType,
                 settings.CacheTypeConstructors) ?? throw new NullReferenceException(newObjectType.Name);
-            
+
             return ConvertEx(obj, newObject, settings);
         }
 
@@ -78,9 +78,8 @@ namespace Das.Serializer
                             ref T to,
                             ISerializerSettings settings) where T : class
         {
-            
             to ??= FromType(from, settings);
-            
+
             _currentNodeType = _nodeTypes.GetNodeType(typeof(T));
             var o = (Object) to;
 
@@ -174,7 +173,9 @@ namespace Das.Serializer
                     var addDelegate = _dynamicFacade.TypeManipulator.GetAdder(ienum);
 
                     foreach (var child in objects)
+                    {
                         addDelegate(val, child);
+                    }
 
                     return val;
 
@@ -276,7 +277,7 @@ namespace Das.Serializer
             {
                 var toItem = _instantiate.BuildDefault(toListType,
                     settings.CacheTypeConstructors);
-                
+
                 toItem = Copy(fromItem, ref toItem, references, settings);
                 if (toItem != null)
                     tempTo.Add(toItem);

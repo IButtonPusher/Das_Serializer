@@ -14,12 +14,12 @@ namespace Das.Serializer
         public const String WutXml = "?xml";
         public const String XmlType = "xsi:type";
         public const String XmlXsiAttribute = "xmlns:xsi";
+
         public const String XmlXsiNamespace = " " + XmlXsiAttribute + "=\"http://www.w3.org/2001/XMLSchema-instance\"";
+
         //public const String XmlXsiNamespace = " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"";
         public const String XmlNull = "xsi:nil";
         public const String Empty = "";
-
-        public static readonly List<Type> EmptyTypeList = new(0);
 
         public const String RefAttr = "$ref";
         public const String RefTag = "__ref";
@@ -59,6 +59,8 @@ namespace Das.Serializer
         public const BindingFlags PublicInstance = BindingFlags.Instance | BindingFlags.Public;
 
         public const BindingFlags AnyInstance = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+
+        public static readonly List<Type> EmptyTypeList = new(0);
         public static readonly Type StrType = typeof(String);
         public static Type DbNull = typeof(DBNull);
         public static readonly Type IConvertible = typeof(IConvertible);

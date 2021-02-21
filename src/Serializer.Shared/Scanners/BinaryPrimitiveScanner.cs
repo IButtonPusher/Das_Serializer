@@ -89,8 +89,6 @@ namespace Das.Serializer
         }
 
         #else
-
-
         public Int32 GetInt32(Byte[] value)
         {
             return BitConverter.ToInt32(value, 0);

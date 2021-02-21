@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Das.Serializer.Properties
 {
@@ -16,7 +17,6 @@ namespace Das.Serializer.Properties
             _getter = getter;
 
             CanRead = _getter != null;
-
         }
 
         public Boolean CanRead { get; }
@@ -25,11 +25,28 @@ namespace Das.Serializer.Properties
 
         public Type DeclaringType { get; }
 
-        public Type PropertyType { get; }
-
         public String PropertyPath { get; }
 
-        public bool TryGetPropertyValue(Object obj,
+        public Type PropertyType { get; }
+
+        public Object? GetPropertyValue(Object obj)
+        {
+            if (!CanRead)
+                throw new MemberAccessException();
+
+            //if (!(_getter is { } getter))
+            //    throw new MemberAccessException();
+
+            return _getter!(obj);
+        }
+
+        public override string ToString()
+        {
+            return DeclaringType.Name + "->" + PropertyPath + "( read: "
+                   + CanRead + " write: " + CanWrite + " )";
+        }
+
+        public Boolean TryGetPropertyValue(Object obj,
                                         out Object result)
         {
             if (_getter == null)
@@ -40,20 +57,6 @@ namespace Das.Serializer.Properties
 
             result = _getter(obj);
             return true;
-        }
-
-        public object? GetPropertyValue(Object obj)
-        {
-            if (!(_getter is { } getter))
-                throw new MemberAccessException();
-
-            return getter(obj);
-        }
-
-        public override string ToString()
-        {
-            return DeclaringType.Name + "->" + PropertyPath + "( read: "
-                   + CanRead + " write: " + CanWrite + " )";
         }
 
         private readonly Func<object, object>? _getter;

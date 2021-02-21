@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    public interface ISerializationDepth
+    public interface ISerializationDepth : IEquatable<ISerializationDepth>
     {
         /// <summary>
         ///     In Xml/Json only.  0 for integers, false for booleans, and any

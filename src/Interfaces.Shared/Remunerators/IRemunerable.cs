@@ -4,10 +4,10 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    public interface IRemunerable<in T, in E> : IRemunerable<T>,
-                                                IDisposable where T : IEnumerable<E>
+    public interface IRemunerable<in T, in TE> : IRemunerable<T>,
+                                                IDisposable where T : IEnumerable<TE>
     {
-        void Append(E data);
+        void Append(TE data);
     }
 
     public interface IRemunerable<in T> : IRemunerable

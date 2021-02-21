@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    public class ProtoBufOptions<TPropertyAttribute> : IProtoBufOptions<TPropertyAttribute> 
+    public class ProtoBufOptions<TPropertyAttribute> : IProtoBufOptions<TPropertyAttribute>
         where TPropertyAttribute : Attribute
     {
         public ProtoBufOptions(Func<TPropertyAttribute, Int32> getIndex)
@@ -16,10 +16,10 @@ namespace Das.Serializer
 
     public class ProtoBufOptions : ProtoBufOptions<IndexedMemberAttribute>
     {
-        public static readonly ProtoBufOptions Default = new ProtoBufOptions();
-
         private ProtoBufOptions() : base(p => p.Index)
         {
         }
+
+        public static readonly ProtoBufOptions Default = new();
     }
 }

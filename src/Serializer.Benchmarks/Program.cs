@@ -1,10 +1,10 @@
 ﻿// ReSharper disable once RedundantUsingDirective
+
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
-using Microsoft.Diagnostics.Tracing.Parsers.FrameworkEventSource;
 using Serializer.Tests;
 using Serializer.Tests.ProtocolBuffers;
 
@@ -22,12 +22,11 @@ namespace Serializer.Benchmarks
             RunJsonManyTimes();
             //var jb = new JsonBenchmarks();
             //var rdrr = jb.JsonNetPrimitivePropertiesJson();
-            
+
 
             //RunXmlManyTimes();
 
             #else
-
             if (args == null || args.Length == 0)
             //if (false)
             {
@@ -46,8 +45,11 @@ namespace Serializer.Benchmarks
 
             for (var c = 0; c < 10000; c++)
             {
-                bm.DasDictionary();
-                bm.DasPrimitiveProperties();
+                //bm.JsonNetDictionary();
+                bm.PrintDasDictionary();
+                
+                //bm.DasDictionary();
+                //bm.DasPrimitiveProperties();
                 //bm.PrimitivePropertiesJsonBaseline();
                 //bm.PrimitivePropertiesJsonExpress();
             }

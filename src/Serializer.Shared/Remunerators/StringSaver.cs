@@ -9,7 +9,7 @@ using Das.Extensions;
 
 namespace Das.Serializer
 {
-    public class StringSaver : StringBase,
+    public abstract class StringSaver : StringBase,
                                ITextRemunerable,
                                ITextAccessor
     {
@@ -193,6 +193,15 @@ namespace Das.Serializer
             _sb.Append(txt);
         }
 
+        public void AppendRepeatedly(Char item,
+                                     Int32 count)
+        {
+            if (count <= 0)
+                return;
+            EnsureCapacity(count);
+            _sb.Append(item, count);
+        }
+
         public Boolean Append<T>(IEnumerable<T> items,
                                  Char separator)
             where T : IConvertible
@@ -236,6 +245,10 @@ namespace Das.Serializer
             _sb.Insert(index, str);
         }
 
+        public abstract void NewLine();
+
+        public abstract void IndentRepeatedly(Int32 count);
+
         public ITextAccessor ToImmutable()
         {
             return new StringAccessor(_sb.ToString());
@@ -268,6 +281,12 @@ namespace Das.Serializer
             _sb.Remove(startIndex, length);
         }
 
+        public abstract void PrintCurrentTabs();
+
+        public abstract void TabIn();
+
+        public abstract void TabOut();
+
         // ReSharper disable once ConditionIsAlwaysTrueOrFalse
         public Boolean IsEmpty => _sb == null || _sb.Length == 0;
 
@@ -285,16 +304,8 @@ namespace Das.Serializer
         {
             // ReSharper disable once ConstantNullCoalescingCondition
             _sb ??= GetBackingBuilder();
-            
-            _sb.Clear();
-        }
 
-        public String GetConsumingString()
-        {
-            _sb ??= GetBackingBuilder();
-            var res = _sb.ToString();
             _sb.Clear();
-            return res;
         }
 
         [MethodImpl(256)]
@@ -351,6 +362,14 @@ namespace Das.Serializer
             }
 
             _sb.Append(datas[datas.Length - 1]);
+        }
+
+        public String GetConsumingString()
+        {
+            _sb ??= GetBackingBuilder();
+            var res = _sb.ToString();
+            _sb.Clear();
+            return res;
         }
 
 
@@ -518,6 +537,6 @@ namespace Das.Serializer
         private static readonly Object _sbLock;
         private static readonly List<StringBuilder> _sbPool;
         private readonly Action<StringSaver>? _notifyDispose;
-        private StringBuilder _sb;
+        protected StringBuilder _sb;
     }
 }

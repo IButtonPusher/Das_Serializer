@@ -6,7 +6,7 @@ using Das.Serializer.State;
 
 namespace Das.Serializer
 {
-    public class StateProvider : SerializerCore, 
+    public class StateProvider : SerializerCore,
                                  IStateProvider
     {
         public StateProvider(ISerializationCore dynamicFacade,
@@ -14,7 +14,6 @@ namespace Das.Serializer
                              //ITextContext jsonContext,
                              IBinaryContext binaryContext,
                              ISerializerSettings settings)
-            
             : base(dynamicFacade, settings)
         {
             //XmlContext = xmlContext;
@@ -22,12 +21,6 @@ namespace Das.Serializer
             BinaryContext = binaryContext;
             ObjectConverter = new ObjectConverter(this, settings);
         }
-
-        //public ITextContext XmlContext { get; }
-
-        //public ITextContext JsonContext { get; }
-
-        public IBinaryContext BinaryContext { get; }
 
         //public override IScanNodeProvider ScanNodeProvider => BinaryContext.ScanNodeProvider;
 
@@ -39,35 +32,21 @@ namespace Das.Serializer
             var state = buffer.Count > 0
                 ? buffer.Dequeue()
                 : GetNewBinaryBorrowable(settings);
-                //: new BinaryBorrawable(ReturnToLibrary, settings, this, GetNewBinaryScanner(),
-                //    //() => new BinaryScanner(BinaryContext, TypeManipulator, ObjectManipulator,
-                //    //    ObjectInstantiator), 
-                //    BinaryContext.ScanNodeProvider,
-                //    GetNewBinaryPrimitiveScanner());
-                    //(c, s) => new BinaryPrimitiveScanner(c, s));
+            //: new BinaryBorrawable(ReturnToLibrary, settings, this, GetNewBinaryScanner(),
+            //    //() => new BinaryScanner(BinaryContext, TypeManipulator, ObjectManipulator,
+            //    //    ObjectInstantiator), 
+            //    BinaryContext.ScanNodeProvider,
+            //    GetNewBinaryPrimitiveScanner());
+            //(c, s) => new BinaryPrimitiveScanner(c, s));
             state.UpdateSettings(settings);
             return state;
         }
 
-        private BinaryBorrawable GetNewBinaryBorrowable(ISerializerSettings settings)
-        {
-            return new(ReturnToLibrary, settings, this, GetNewBinaryScanner(),
-                //() => new BinaryScanner(BinaryContext, TypeManipulator, ObjectManipulator,
-                //    ObjectInstantiator), 
-                BinaryContext.ScanNodeProvider,
-                GetNewBinaryPrimitiveScanner());
-        }
+        //public ITextContext XmlContext { get; }
 
-        private BinaryScanner GetNewBinaryScanner()
-        {
-            return new(BinaryContext, Settings, TypeManipulator, 
-                ObjectManipulator, ObjectInstantiator);
-        }
+        //public ITextContext JsonContext { get; }
 
-        private BinaryPrimitiveScanner GetNewBinaryPrimitiveScanner()
-        {
-            return new(BinaryContext, _settings);
-        }
+        public IBinaryContext BinaryContext { get; }
 
         //public IXmlLoaner BorrowXml(ISerializerSettings settings)
         //{
@@ -90,6 +69,26 @@ namespace Das.Serializer
         //}
 
         private static Queue<IBinaryLoaner> BinaryBuffer => _binaryBuffer.Value;
+
+        private BinaryBorrawable GetNewBinaryBorrowable(ISerializerSettings settings)
+        {
+            return new(ReturnToLibrary, settings, this, GetNewBinaryScanner(),
+                //() => new BinaryScanner(BinaryContext, TypeManipulator, ObjectManipulator,
+                //    ObjectInstantiator), 
+                BinaryContext.ScanNodeProvider,
+                GetNewBinaryPrimitiveScanner());
+        }
+
+        private BinaryPrimitiveScanner GetNewBinaryPrimitiveScanner()
+        {
+            return new(BinaryContext, _settings);
+        }
+
+        private BinaryScanner GetNewBinaryScanner()
+        {
+            return new(BinaryContext, Settings, TypeManipulator,
+                ObjectManipulator, ObjectInstantiator);
+        }
 
         //private static Queue<IJsonLoaner> JsonBuffer => _jsonBuffer.Value;
 

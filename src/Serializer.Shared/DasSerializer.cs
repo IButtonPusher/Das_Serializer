@@ -1,6 +1,8 @@
 ﻿//using Das.Serializer.ProtoBuf;
+
 using System;
 using System.Threading.Tasks;
+using Das.Serializer.ProtoBuf;
 
 #if !NET40
 
@@ -18,7 +20,7 @@ namespace Das.Serializer
         #if !NET40
         // ReSharper disable once UnusedMember.Global
         public DasSerializer(IStateProvider stateProvider)
-            : base(stateProvider, DasSettings.CloneDefault(), 
+            : base(stateProvider, DasSettings.CloneDefault(),
                 WriteAsync, ReadToEndAsync, ReadAsync)
         {
         }
@@ -29,7 +31,7 @@ namespace Das.Serializer
         {
         }
 
-        public DasSerializer() : 
+        public DasSerializer() :
             base(new DefaultStateProvider(), DasSettings.CloneDefault(),
                 WriteAsync, ReadToEndAsync, ReadAsync)
         {
@@ -76,18 +78,20 @@ namespace Das.Serializer
         #if GENERATECODE
 
         /// <summary>
-        /// Returns a protocol buffers serializer that uses TPropertyAttribute as the attribute
-        /// for determining member tags/indexes
+        ///     Returns a protocol buffers serializer that uses TPropertyAttribute as the attribute
+        ///     for determining member tags/indexes
         /// </summary>
-        /// <seealso cref="ProtoBufOptions.Default">Default implementation that uses
-        /// Das.Serializer.IndexedMemberAttribute and its 'Index' Property</seealso>
+        /// <seealso cref="ProtoBufOptions.Default">
+        ///     Default implementation that uses
+        ///     Das.Serializer.IndexedMemberAttribute and its 'Index' Property
+        /// </seealso>
         public override IProtoSerializer GetProtoSerializer<TPropertyAttribute>(
             IProtoBufOptions<TPropertyAttribute> options)
         {
-            var protoProv = new ProtoBuf.ProtoDynamicProvider<TPropertyAttribute>(options, TypeManipulator,
+            var protoProv = new ProtoDynamicProvider<TPropertyAttribute>(options, TypeManipulator,
                 ObjectInstantiator, ObjectManipulator);
 
-            return new ProtoBuf.ProtoBufSerializer(StateProvider, Settings,
+            return new ProtoBufSerializer(StateProvider, Settings,
                 protoProv);
         }
 

@@ -15,6 +15,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)DtoExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IAssemblyList.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IConverterProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ICircularReferenceHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\IPropertyAccessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\IPropertyAccessor{T}.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\IPropertyProvider.cs" />
@@ -32,6 +33,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\IProtoProxy.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProtoBuf\IStreamAccessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\IBinaryWriter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Remunerators\IObjectPrinter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\IProtoWriter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\IRemunerable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\ITypeCore.cs" />
@@ -71,7 +73,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\IStringPrimitiveScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\ITextAccessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\CircularReference.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Settings\DefaultValueOmission.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\IProtoBufOptions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\ISerializerSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\DepthConstants.cs" />

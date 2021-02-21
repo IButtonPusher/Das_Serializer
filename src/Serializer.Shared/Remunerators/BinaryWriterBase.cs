@@ -174,13 +174,11 @@ namespace Das.Serializer.Remunerators
         }
 
         #else
-
         public override void Write(Byte[] bytes)
         {
             for (var c = 0; c < bytes.Length; c++)
                 OutStream.WriteByte(bytes[c]);
         }
-
 
 
         #endif

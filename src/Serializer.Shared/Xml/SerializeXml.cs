@@ -2,6 +2,8 @@
 using System.IO;
 using System.Threading.Tasks;
 using Das.Printers;
+using Das.Serializer.CircularReferences;
+using Das.Serializer.Remunerators;
 
 // ReSharper disable UnusedMember.Global
 
@@ -12,19 +14,19 @@ namespace Das.Serializer
         public String ToXml(Object o)
         {
             var oType = o.GetType();
-            return ObjectToTypedXml(o, oType);
+            return ObjectToTypedXml(o, oType, Settings);
         }
 
         public String ToXml<TObject>(TObject o)
         {
             var oType = typeof(TObject);
-            return ObjectToTypedXml(o!, oType);
+            return ObjectToTypedXml(o!, oType, Settings);
         }
 
         public String ToXml<TTarget>(Object o)
         {
             var obj = ObjectManipulator.CastDynamic<TTarget>(o);
-            return ObjectToTypedXml(obj!, typeof(TTarget));
+            return ObjectToTypedXml(obj!, typeof(TTarget), Settings);
         }
 
         public async Task ToXmlAsync(Object o,
@@ -44,17 +46,18 @@ namespace Das.Serializer
         public async Task ToXmlAsync<TObject>(TObject o,
                                               FileInfo fileName)
         {
-            var xml = ObjectToTypedXml(o!, typeof(TObject));
+            var xml = ObjectToTypedXml(o!, typeof(TObject), Settings);
             await WriteTextToFileInfoAsync(xml, fileName);
         }
 
         private String ObjectToTypedXml(Object o,
-                                        Type asType)
+                                        Type asType,
+                                        ISerializerSettings settings)
         {
-            var settings = Settings;
+            //var settings = Settings;
             var nodeType = NodeTypeProvider.GetNodeType(asType);
 
-            using (var writer = new StringSaver())
+            using (var writer = GetTextWriter(settings))
             {
                 var doCopy = true;
                 var amAnonymous = IsAnonymousType(asType);
@@ -63,7 +66,6 @@ namespace Das.Serializer
                 {
                     doCopy = false;
 
-                    
 
                     settings = StateProvider.ObjectConverter.Copy(settings, settings);
                     settings.TypeSpecificity = TypeSpecificity.All;
@@ -78,22 +80,70 @@ namespace Das.Serializer
                     settings.CacheTypeConstructors = false;
                 }
 
-                //using (var state = StateProvider.BorrowXml(settings))
-                {
-                    var printer = new XmlPrinter(writer, //state, 
-                        settings, StateProvider.TypeInferrer, StateProvider.NodeTypeProvider,
-                        StateProvider.ObjectManipulator);
 
-                    var rootText = TypeInferrer.ToClearName(asType, TypeNameOption.OmitGenericArguments);
-                    //var rootText = !asType.IsGenericType && !IsCollection(asType)
-                    //    ? TypeInferrer.ToClearName(asType, true)
-                    //    : asType.Name;
 
-                    printer.PrintNode(rootText, asType, o);
+                var printer = new XmlPrinter(//writer, //state, settings, 
+                    StateProvider.TypeInferrer, StateProvider.NodeTypeProvider,
+                    StateProvider.ObjectManipulator);
 
-                    return writer.ToString();
-                }
+                var rootText = TypeInferrer.ToClearName(asType, TypeNameOption.OmitGenericArguments);
+                //var rootText = !asType.IsGenericType && !IsCollection(asType)
+                //    ? TypeInferrer.ToClearName(asType, true)
+                //    : asType.Name;
+
+                printer.PrintNamedObject(rootText, asType, o, 
+                    StateProvider.NodeTypeProvider.GetNodeType(asType),
+                    writer, settings,
+                    GetCircularReferenceHandler(settings));
+
+                return writer.ToString();
+
             }
         }
+
+        protected ITextRemunerable GetTextWriter(ISerializerSettings settings)
+        {
+            //return new FormattingStringBuilderWrapper(settings);
+            return settings.IsFormatSerializedText
+                ? new FormattingStringBuilderWrapper(settings)
+                : new CompactStringBuilderWrapper();
+        }
+
+        protected static ICircularReferenceHandler GetCircularReferenceHandler(ISerializerSettings s)
+        {
+            switch (s.CircularReferenceBehavior)
+            {
+                case CircularReference.IgnoreObject:
+                    _ignoringCircularReferenceHandler ??= new IgnoringCircularReferenceHandler();
+                    _ignoringCircularReferenceHandler.Clear();
+                    return _ignoringCircularReferenceHandler;
+
+                case CircularReference.SerializePath:
+                    _pathSerializingCircularReferenceHandler ??= 
+                        new PathSerializingCircularReferenceHandler();
+                    _pathSerializingCircularReferenceHandler.Clear();
+                    return _pathSerializingCircularReferenceHandler;
+
+                case CircularReference.ThrowException:
+                    _exceptionCircularReferenceHandler ??= new ExceptionCircularReferenceHandler();
+                    _exceptionCircularReferenceHandler.Clear();
+                    return _exceptionCircularReferenceHandler;
+
+                case CircularReference.NoValidation:
+                    return NullCircularReferenceHandler.Instance;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        [ThreadStatic]
+        private static PathSerializingCircularReferenceHandler? _pathSerializingCircularReferenceHandler;
+
+        [ThreadStatic]
+        private static ExceptionCircularReferenceHandler? _exceptionCircularReferenceHandler;
+
+        [ThreadStatic]
+        private static IgnoringCircularReferenceHandler? _ignoringCircularReferenceHandler;
     }
 }

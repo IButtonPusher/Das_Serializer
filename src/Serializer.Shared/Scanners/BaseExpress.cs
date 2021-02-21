@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Das.Extensions;
 
-
 namespace Das.Serializer
 {
     public abstract class BaseExpress
@@ -37,7 +36,8 @@ namespace Das.Serializer
             if (txt[currentIndex] == target)
                 return true;
 
-            for (++currentIndex; currentIndex < txt.Length; currentIndex++)
+            //++currentIndex <-- this assumes there are spaces which fails when we print compact
+            for (; currentIndex < txt.Length; currentIndex++)
             {
                 var current = txt[currentIndex];
 

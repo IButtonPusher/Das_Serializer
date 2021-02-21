@@ -384,8 +384,8 @@ namespace Das.Serializer
         }
 
         public bool TryGetConstructorDelegate<TDelegate>(Type type,
-                                                                 out TDelegate result)
-        where TDelegate : Delegate
+                                                         out TDelegate result)
+            where TDelegate : Delegate
         {
             var delegateType = typeof(TDelegate);
 
@@ -421,8 +421,8 @@ namespace Das.Serializer
 
 
             ilGen.Emit(OpCodes.Ret);
-            
-            result = (TDelegate)dynamicMethod.CreateDelegate(delegateType);
+
+            result = (TDelegate) dynamicMethod.CreateDelegate(delegateType);
             return true;
 
             #else
@@ -577,7 +577,7 @@ namespace Das.Serializer
             return ctor;
         }
 
-#endif
+        #endif
 
 
         private static readonly ConcurrentDictionary<Type, InstantiationType> InstantionTypes;

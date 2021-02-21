@@ -128,7 +128,6 @@ namespace Das.Serializer.Scanners
                     case NodeTypes.Primitive:
 
                         if (nodeScanState == NodeScanState.AttributeNameRead)
-                        {
                             switch (stringBuilder.GetConsumingString())
                             {
                                 //case Const.XmlXsiAttribute:
@@ -140,7 +139,6 @@ namespace Das.Serializer.Scanners
                                 //default:
                                 //    throw new NotImplementedException();
                             }
-                        }
 
                         var code = Type.GetTypeCode(specifiedType);
 
@@ -202,9 +200,7 @@ namespace Das.Serializer.Scanners
                                 LoadNextPrimitive(ref currentIndex, txt, stringBuilder);
                                 if (DateTime.TryParse(stringBuilder.GetConsumingString(),
                                     out var dtGood))
-                                {
                                     child = dtGood;
-                                }
                                 else child = DateTime.MinValue;
 
                                 return child;
@@ -232,7 +228,7 @@ namespace Das.Serializer.Scanners
                             NodeScanState.StartOfNodeClose, ref nodeScanState);
 
                         return _types.ConvertTo(stringBuilder.GetConsumingString(), specifiedType);
-                        //return conv.ConvertFrom(stringBuilder.GetConsumingString());
+                    //return conv.ConvertFrom(stringBuilder.GetConsumingString());
 
                     default:
                         throw new NotImplementedException();

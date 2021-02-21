@@ -23,10 +23,13 @@ namespace Das.Serializer
                 var bWriter = new BinaryWriterWrapper(ms);
 
                 //using (var state = StateProvider.BorrowBinary(Settings))
-                using (var bp = new BinaryPrinter(bWriter, //state))
-                    Settings, TypeInferrer, NodeTypeProvider, ObjectManipulator))
+                using (var bp = new BinaryPrinter(//bWriter, //state))
+                    //Settings, 
+                    TypeInferrer, NodeTypeProvider, ObjectManipulator))
                 {
-                    bp.PrintNode(Const.Root, asType, o);
+                    bp.PrintNamedObject(Const.Root, asType, o, 
+                        NodeTypeProvider.GetNodeType(asType), bWriter, Settings,
+                        GetCircularReferenceHandler(Settings));
                 }
 
                 bob = ms.ToArray();

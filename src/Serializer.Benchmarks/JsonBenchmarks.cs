@@ -22,6 +22,12 @@ namespace Serializer.Benchmarks
             //NullPayloadJson = Serializer.ToJson(NullPayload);
         }
 
+      
+
+      
+
+       
+
 
         //[Benchmark]
         //public SimpleClassObjectProperty PrimitivePropertiesJsonBaseline()
@@ -34,18 +40,12 @@ namespace Serializer.Benchmarks
             return Serializer.ToJson(NullPayload);
         }
 
-        [Benchmark]
-        public SimpleClassObjectProperty DasPrimitiveProperties()
-        {
-            var json = Serializer.ToJson(NullPayload);
-            return Serializer.FromJson<SimpleClassObjectProperty>(json);
-        }
+       
 
-        [Benchmark]
-        public SimpleClassObjectProperty JsonNetPrimitivePropertiesJson()
+        public String PrintDasDictionary()
         {
-            var nullPayloadJson = JsonConvert.SerializeObject(NullPayload);
-            return JsonConvert.DeserializeObject<SimpleClassObjectProperty>(nullPayloadJson);
+            var mc1 = DictionaryPropertyMessage.DefaultValue;
+            return Serializer.ToJson(mc1);
         }
 
         [Benchmark]
@@ -82,6 +82,20 @@ namespace Serializer.Benchmarks
             var json = JsonConvert.SerializeObject(msg);
 
             return JsonConvert.DeserializeObject<MultiPropMessage>(json);
+        }
+
+        [Benchmark]
+        public SimpleClassObjectProperty DasPrimitiveProperties()
+        {
+            var json = Serializer.ToJson(NullPayload);
+            return Serializer.FromJson<SimpleClassObjectProperty>(json);
+        }
+
+        [Benchmark]
+        public SimpleClassObjectProperty JsonNetPrimitivePropertiesJson()
+        {
+            var nullPayloadJson = JsonConvert.SerializeObject(NullPayload);
+            return JsonConvert.DeserializeObject<SimpleClassObjectProperty>(nullPayloadJson);
         }
 
         private static readonly DasSerializer Serializer;

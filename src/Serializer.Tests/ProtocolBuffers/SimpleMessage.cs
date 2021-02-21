@@ -40,6 +40,27 @@ namespace Serializer.Tests.ProtocolBuffers
     [ProtoContract]
     public class MultiPropMessage
     {
+        [ProtoMember(2)]
+        public Int32 A { get; set; }
+
+        [ProtoMember(3)]
+        public Int64 BigInt { get; set; }
+
+        [ProtoMember(4)]
+        public Byte LittleIntian { get; set; }
+
+        [ProtoMember(1)]
+        public String S { get; set; }
+
+        [ProtoMember(7)]
+        public Boolean TrueOrFalse { get; set; }
+
+        [ProtoMember(5)]
+        public UInt32 U32 { get; set; }
+
+        [ProtoMember(6)]
+        public UInt64 U64 { get; set; }
+
         public static MultiPropMessage GetTestOne()
         {
             return new MultiPropMessage
@@ -49,7 +70,7 @@ namespace Serializer.Tests.ProtocolBuffers
                 BigInt = (Int64) Int32.MaxValue + 1,
                 LittleIntian = 63,
                 U32 = Int32.MaxValue - 5,
-                U64 = (Int64)Int32.MaxValue + 5,
+                U64 = (Int64) Int32.MaxValue + 5,
                 TrueOrFalse = true
             };
         }
@@ -63,30 +84,9 @@ namespace Serializer.Tests.ProtocolBuffers
                 BigInt = -33,
                 LittleIntian = 0,
                 U32 = 1,
-                U64 = (Int64)Int32.MaxValue + 5000
+                U64 = (Int64) Int32.MaxValue + 5000
             };
         }
-
-        [ProtoMember(4)]
-        public Byte LittleIntian { get; set; }
-
-        [ProtoMember(2)]
-        public Int32 A { get; set; }
-
-        [ProtoMember(7)]
-        public Boolean TrueOrFalse { get; set; }
-
-        [ProtoMember(1)]
-        public String S { get; set; }
-
-        [ProtoMember(5)]
-        public UInt32 U32 { get;set; }
-
-        [ProtoMember(3)]
-        public Int64 BigInt { get; set; }
-
-        [ProtoMember(6)]
-        public UInt64 U64 { get; set; }
     }
 
     [ProtoContract]

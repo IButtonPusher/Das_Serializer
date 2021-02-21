@@ -217,7 +217,7 @@ namespace Serializer.Tests.ProtocolBuffers
         private static void PrintMemoryStream(MemoryStream ms)
         {
             Debug.WriteLine(string.Join(",", ms.ToArray()) + "\r\n");
-            
+
             //for (var c = 0; c < arr.Length; c++)
             //    Debug.WriteLine(arr[c]);
         }
@@ -253,8 +253,8 @@ namespace Serializer.Tests.ProtocolBuffers
         public MultiPropMessage DasMultiProperties()
         {
             var msg = MultiPropMessage.GetTestOne();
-            
-           
+
+
             var o = TypeProvider.GetProtoProxy<MultiPropMessage>();
 
             using (var ms = new MemoryStream())

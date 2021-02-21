@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Das.Extensions;
 using Das.Serializer;
-using Das.Serializer.Types;
+using Das.Serializer.Collections;
 
 namespace Das.Types
 {
@@ -89,7 +89,6 @@ namespace Das.Types
             _assemblies = assemblyList;
         }
 
-       
 
         /// <summary>
         ///     Returns the name in PascalCase
@@ -121,7 +120,6 @@ namespace Das.Types
             }
 
             for (; c < name.Length; c++)
-            {
                 if (name[c] == '_')
                 {
                     if (c < name.Length - 1)
@@ -129,9 +127,7 @@ namespace Das.Types
                 }
                 else
                     res.Append(name[c]);
-                
-            }
-            
+
 
             return res.ToString();
         }
@@ -160,7 +156,6 @@ namespace Das.Types
             }
 
             for (; c < name.Length; c++)
-            {
                 if (name[c] == '_')
                 {
                     if (c < name.Length - 1)
@@ -168,9 +163,7 @@ namespace Das.Types
                 }
                 else
                     res.Append(name[c]);
-                
-            }
-            
+
 
             return res.ToString();
         }
@@ -199,7 +192,6 @@ namespace Das.Types
             }
 
             for (; c < name.Length; c++)
-            {
                 if (char.IsUpper(name[c]))
                 {
                     res.Append('_');
@@ -207,7 +199,6 @@ namespace Das.Types
                 }
                 else
                     res.Append(char.ToLower(name[c]));
-            }
 
             return res.ToString();
         }
@@ -219,8 +210,8 @@ namespace Das.Types
         //}
 
         public string ToClearName(Type type,
-                                  TypeNameOption options= TypeNameOption.AssemblyName | 
-                                                          TypeNameOption.Namespace)
+                                  TypeNameOption options = TypeNameOption.AssemblyName |
+                                                           TypeNameOption.Namespace)
         {
             lock (_lockCachedTypeNames)
             {
@@ -234,9 +225,7 @@ namespace Das.Types
             String name;
 
             if (type.IsGenericType)
-            {
                 name = GetClearGeneric(type, options, isOmitAssemblyName, isPrintGenericArgs);
-            }
 
             //if (!isOmitAssemblyName && _cachedTypeNames.TryGetValue(type, out var name))
             //    return name;
@@ -255,10 +244,8 @@ namespace Das.Types
                 name = type.AssemblyQualifiedName!;
 
             if (name == null)
-            {
                 name = type.Name;
-                //return type.Name;
-            }
+            //return type.Name;
             //return name;
 
             lock (_lockCachedTypeNames)
@@ -733,12 +720,10 @@ namespace Das.Types
             //sb.Remove(sb.Length - 2, 2);
 
             if (isPrintGenericArgs)
-            {
                 foreach (var subType in gargs)
                 {
                     sb.Append($"[{ToClearName(subType, options)}]");
                 }
-            }
 
             return sb.ToString();
         }
