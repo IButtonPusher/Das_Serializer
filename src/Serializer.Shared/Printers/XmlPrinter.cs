@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using System.Security;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 using Das.Serializer;
 
 #pragma warning disable 8604
@@ -16,10 +18,11 @@ namespace Das.Printers
                           //ISerializerSettings settings,
                           ITypeInferrer typeInferrer,
                           INodeTypeProvider nodeTypes,
-                          IObjectManipulator objectManipulator)
+                          IObjectManipulator objectManipulator,
+                          ITypeManipulator typeManipulator)
             : base(//writer, settings, 
                 typeInferrer,
-                nodeTypes, objectManipulator, '/')
+                nodeTypes, objectManipulator, '/', typeManipulator)
         {
             _formatStack = new Stack<StackFormat>();
             //PathSeparator = '/';
@@ -27,7 +30,7 @@ namespace Das.Printers
             _formatStack.Push(new StackFormat(-1, false));
         }
 
-        public override Boolean IsRespectXmlIgnore => true;
+        //public override Boolean IsRespectXmlIgnore => true;
 
 
         //public override void PrintNamedObject(String nodeName,
@@ -486,6 +489,24 @@ namespace Das.Printers
             
             //if (!_isIgnoreCircularDependencies)
             //    PopStack();
+        }
+
+        protected sealed override bool ShouldPrintValue(Object obj,
+                                                        NodeTypes nodeType,
+                                                 IPropertyAccessor prop,
+                                                 ISerializerSettings settings,
+                                                 out Object? value)
+        {
+            if (!prop.TryGetAttribute<XmlIgnoreAttribute>(out _) &&
+                !prop.TryGetAttribute<IgnoreDataMemberAttribute>(out _))
+            {
+                value = prop.GetPropertyValue(obj);
+                return !settings.IsOmitDefaultValues ||
+                    !_typeInferrer.IsDefaultValue(value);
+            }
+
+            value = default;
+            return false;
         }
 
         protected override void PrintInteger(Object val,

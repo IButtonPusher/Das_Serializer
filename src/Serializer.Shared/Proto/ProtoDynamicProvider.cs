@@ -80,7 +80,7 @@ namespace Das.Serializer.ProtoBuf
             var protoDynBase = typeof(ProtoDynamicBase);
 
 
-            Utf8 = protoDynBase.GetStaticFieldOrDie("Utf8");
+            Utf8 = protoDynBase.GetPrivateStaticFieldOrDie("Utf8");
 
             _proxyProviderField = protoDynBase.GetInstanceFieldOrDie("_proxyProvider");
             _getProtoProxy = typeof(IProtoProvider).GetMethodOrDie(nameof(IProtoProvider.GetProtoProxy));
@@ -141,7 +141,7 @@ namespace Das.Serializer.ProtoBuf
             _debugWriteline = typeof(ProtoDynamicBase).GetMethodOrDie(
                 nameof(ProtoDynamicBase.DebugWriteline));
 
-            _readBytesField = protoDynBase.GetStaticFieldOrDie("_readBytes");
+            _readBytesField = protoDynBase.GetPrivateStaticFieldOrDie("_readBytes");
 
             _extractPackedInt16Itar = protoDynBase.GetPublicStaticMethodOrDie(
                 nameof(ProtoDynamicBase.ExtractPacked16));

@@ -11,6 +11,8 @@ namespace Das.Serializer
     {
         Func<Object, Object> CreateFieldGetter(FieldInfo fieldInfo);
 
+        Func<TParent, TField> CreateFieldGetter<TParent, TField>(FieldInfo fieldInfo);
+
         Action<Object, Object?> CreateFieldSetter(FieldInfo fieldInfo);
 
         Func<Object, Object[], Object> CreateFuncCaller(MethodInfo method);
@@ -19,6 +21,11 @@ namespace Das.Serializer
 
         Func<Object, Object> CreatePropertyGetter(Type targetType,
                                                   PropertyInfo propertyInfo);
+
+        Func<TObject, TProperty> CreatePropertyGetter<TObject, TProperty>(PropertyInfo propInfo);
+
+        Func<TObject, TProperty> CreatePropertyGetter<TObject, TProperty>(String propertyName,
+                                                                          out PropertyInfo propInfo);
 
         Func<Object, Object>? CreatePropertyGetter(Type targetType,
                                                    String propertyName,
@@ -61,7 +68,7 @@ namespace Das.Serializer
         ///     Recursive through base types without duplicates
         /// </summary>
         IEnumerable<INamedField> GetPropertiesToSerialize(Type type,
-                                                          ISerializationDepth depth);
+                                                          SerializationDepth depth);
 
         Type? GetPropertyType(Type classType,
                               String propName);
@@ -69,10 +76,12 @@ namespace Das.Serializer
         IEnumerable<FieldInfo> GetRecursivePrivateFields(Type type);
 
         // ReSharper disable once UnusedMember.Global
-        ITypeStructure GetStructure<T>(ISerializationDepth depth);
+        ITypeStructure<T> GetTypeStructure<T>();
 
-        ITypeStructure GetTypeStructure(Type type,
-                                        ISerializationDepth depth);
+        ITypeStructure GetTypeStructure(Type type);
+
+        //ITypeStructure GetTypeStructure(Type type,
+        //                                ISerializationDepth depth);
 
         Type InstanceMemberType(MemberInfo info);
 

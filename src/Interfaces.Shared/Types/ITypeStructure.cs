@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 
-// ReSharper disable UnusedMemberInSuper.Global
+
 
 namespace Das.Serializer
 {
     public interface ITypeStructure : ITypeStructureBase
     {
-        SerializationDepth Depth { get; }
+        //SerializationDepth Depth { get; }
 
-        Dictionary<String, INamedField> MemberTypes { get; }
+        //Dictionary<String, INamedField> MemberTypes { get; }
 
         IPropertyAccessor[] Properties { get; }
 
@@ -20,10 +20,14 @@ namespace Das.Serializer
         /// <summary>
         ///     Returns properties and/or fields depending on specified depth
         /// </summary>
-        IEnumerable<INamedField> GetMembersToSerialize(ISerializationDepth depth);
+        IEnumerable<INamedField> GetMembersToSerialize(SerializationDepth depth);
+
+        TProperty GetPropertyValue<TObject, TProperty>(TObject o,
+                                                       String propertyName);
 
         Object? GetPropertyValue(Object o,
-                                 String propertyName);
+                                 String propertyName,
+                                 PropertyNameFormat format = PropertyNameFormat.Default);
 
 
         IEnumerable<KeyValuePair<PropertyInfo, Object?>> IteratePropertyValues(Object o,
@@ -42,18 +46,20 @@ namespace Das.Serializer
 
 
         Boolean TryGetAttribute<TAttribute>(String propertyName,
+                                            PropertyNameFormat format,
                                             out TAttribute value)
             where TAttribute : Attribute;
 
         Boolean TryGetPropertyAccessor(String propName,
+                                       PropertyNameFormat format,
                                        out IPropertyAccessor accessor);
 
-        Boolean TryGetPropertyInfo(String propName,
-                                   out PropertyInfo propInfo);
+        Boolean TryGetPropertyAccessor(String propName,
+                                       out IPropertyAccessor accessor);
 
         Boolean TrySetPropertyValue(String propName,
+                                    PropertyNameFormat format,
                                     ref Object targetObj,
-                                    Object? propVal,
-                                    SerializationDepth depth = SerializationDepth.AllProperties);
+                                    Object? propVal);
     }
 }

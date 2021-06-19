@@ -199,7 +199,7 @@ namespace Das.Serializer.ProtoBuf
             var isValuePreInitialized = exampleObject != null &&
                                         _types.IsCollection(s.CurrentField.Type) &&
                                         _objects.GetPropertyValue(exampleObject,
-                                            s.CurrentField.Name) != null;
+                                            s.CurrentField.Name, PropertyNameFormat.Default) != null;
 
             var il = s.IL;
             var currentProp = s.CurrentField;

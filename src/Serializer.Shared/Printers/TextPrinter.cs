@@ -7,27 +7,15 @@ namespace Das.Printers
 {
     public abstract class TextPrinter : PrinterBase<String, Char, ITextRemunerable>
     {
-        protected TextPrinter(//ITextRemunerable writer,
-                              //ISerializerSettings settings,
-                              ITypeInferrer typeInferrer,
+        protected TextPrinter(ITypeInferrer typeInferrer,
                               INodeTypeProvider nodeTypes,
                               IObjectManipulator objectManipulator,
-                              Char pathSeparator)
-            : base(//settings, 
-                typeInferrer, nodeTypes, 
-                objectManipulator, false, pathSeparator)
+                              Char pathSeparator,
+                              ITypeManipulator typeManipulator)
+            : base(typeInferrer, nodeTypes, 
+                objectManipulator, false, pathSeparator, typeManipulator)
         {
-            //writer.Undispose();
-            //Writer = writer;
-            //_tabs = new StringBuilder();
-
-            //_indenter = settings.Indentation;
-            //_newLine = settings.NewLine;
-            //_indentLength = _indenter.Length;
         }
-
-        //protected String Tabs => _tabs.ToString();
-
 
         protected static Boolean IsRequiresQuotes(Object? o)
         {
@@ -102,9 +90,7 @@ namespace Das.Printers
 
                     break;
 
-
                 case TypeCode.Single:
-
                     PrintReal(((Single) o).ToString(CultureInfo.InvariantCulture), Writer);
                     break;
 
@@ -139,29 +125,5 @@ namespace Das.Printers
 
         protected abstract void PrintStringWithoutEscaping(String str,
                                                            ITextRemunerable Writer);
-
-        //protected virtual void TabIn()
-        //{
-        //    _tabCount--;
-        //    //_tabs.Remove(0, _indentLength);
-        //}
-
-        //protected virtual void TabOut()
-        //{
-        //    _tabCount++;
-        //    //_tabs.Append(_indenter);
-        //}
-
-        //protected readonly Stack<StackFormat> _formatStack;
-
-        //protected readonly String _indenter;
-        //private readonly Int32 _indentLength;
-        //protected readonly String _newLine;
-
-        //protected Int32 _tabCount;
-
-        //private readonly StringBuilder _tabs;
-
-        //protected readonly ITextRemunerable Writer;
     }
 }

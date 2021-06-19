@@ -5,6 +5,26 @@ namespace Das.Serializer.Remunerators
 {
     public class CompactStringSaver : StringSaver
     {
+        public CompactStringSaver(String seed,
+                                  Action<StringSaver> notifyDispose)
+        : base(seed, notifyDispose)
+        {}
+
+        public CompactStringSaver(Int32 length)
+        {
+            Capacity = length;
+        }
+
+        public CompactStringSaver(String seed) : base(seed)
+        {
+            
+        }
+
+        public CompactStringSaver()
+        {
+            
+        }
+
         public sealed override void PrintCurrentTabs()
         {
             

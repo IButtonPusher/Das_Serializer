@@ -17,7 +17,8 @@ namespace Das.Serializer
     {
         public ProtoEnumerator(TState s,
                                Type ienumerableType,
-                               MethodInfo getMethod) : this(s, ienumerableType)
+                               MethodInfo getMethod) 
+            : this(s, ienumerableType)
         {
             _il = s.IL;
             _protoBuildState = s;

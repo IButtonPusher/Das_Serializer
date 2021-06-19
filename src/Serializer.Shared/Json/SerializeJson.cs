@@ -4,12 +4,15 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Das.Printers;
+using Das.Serializer.Printers;
 using Das.Serializer.Remunerators;
 
 namespace Das.Serializer
 {
     public partial class DasCoreSerializer
     {
+        
+
         public void ToJson(Object o,
                            FileInfo fileInfo)
         {
@@ -29,7 +32,7 @@ namespace Das.Serializer
         {
             using (var saver = _escapeSaver.Value!)
             {
-                JsonPrinter.AppendEscaped(str, saver);
+                JsonPrinter.AppendEscaped(saver, str);
                 var res = saver.ToString();
 
                 return res;
@@ -69,25 +72,46 @@ namespace Das.Serializer
         private String ToJson(Object obj,
                               Type asType)
         {
-            //using (var sp = _escapeSaver.Value!)
-            using (var sp = GetTextWriter(Settings)) //new StringBuilderWrapper())
+            using (var sp = GetTextWriter(Settings))
             {
-                //var jp = new JsonPrinter(//sp,Settings, 
-                //    StateProvider.TypeInferrer, StateProvider.NodeTypeProvider,
-                //    StateProvider.ObjectManipulator, StateProvider.TypeManipulator);
-
                 _jsonPrinter.PrintObject(obj, asType, 
                     StateProvider.NodeTypeProvider.GetNodeType(asType),
                     sp, Settings, GetCircularReferenceHandler(Settings));
-                //jp.PrintReferenceType(obj, asType);
-                //jp.PrintNamedObject(String.Empty, asType, obj);
 
                 return sp.ToString();
             }
         }
 
-        private static readonly ThreadLocal<StringSaver> _escapeSaver = new(NewStringSaver);
+        public String ToJsonEx<TObject>(TObject obj,
+                                        ISerializerSettings settings)
+        {
+            #if GENERATECODE
 
+            using (var sp = GetTextWriter(settings))
+            {
+                //var proxy = _proxyProvider.GetJsonProxy<TObject, String, Char, ITextRemunerable>(settings);
+                var proxy = _proxyProvider.GetJsonProxy<TObject>(settings);
+                proxy.Print(obj, sp);
+                return sp.ToString();
+            }
+
+            #else
+
+            return ToJson(obj, obj.GetType());
+
+            #endif
+        }
+
+        [MethodImpl(256)]
+        public String ToJsonEx<TObject>(TObject obj) => ToJsonEx(obj, _settings);
+
+        private static readonly ThreadLocal<StringSaver> _escapeSaver = new(NewStringSaver);
         protected readonly JsonPrinter _jsonPrinter;
+
+        #if GENERATECODE
+
+        private readonly DynamicPrinterProvider _proxyProvider;
+
+        #endif
     }
 }

@@ -74,7 +74,7 @@ namespace Das.Serializer
             return bob;
         }
 
-        public VoidMethod CreateMethodCaller(MethodInfo method)
+        public static VoidMethod CreateMethodCaller(MethodInfo method)
         {
             VoidMethod bobbith = (target, paramValues) =>
             {
@@ -85,6 +85,19 @@ namespace Das.Serializer
 
             return bobbith;
         }
+
+        //VoidMethod ITypeManipulator.CreateMethodCaller(MethodInfo method)
+        //{
+        //    return CreateMethodCaller(method);
+        //    //VoidMethod bobbith = (target, paramValues) =>
+        //    //{
+        //    //    method.Invoke(target, paramValues);
+        //    //    //bob.DynamicInvoke(target, paramValues);
+        //    //};
+
+
+        //    //return bobbith;
+        //}
 
 
           public static Func<object, object> CreateExpressionPropertyGetter(Type targetType,

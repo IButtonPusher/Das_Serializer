@@ -151,10 +151,18 @@ namespace Das.Serializer
             if (wasKnown && !dothProceed)
                 return;
 
-            var str = _typeManipulator.GetTypeStructure(node.Type, depth);
+            var str = _typeManipulator.GetTypeStructure(node.Type);//, depth);
             dothProceed = str.OnDeserialized(node.Value, _objectManipulator);
             if (!wasKnown)
                 KnownOnDeserialize.TryAdd(node.Type, dothProceed);
+        }
+
+        public void OnDeserialized<T>(T obj)
+        {
+            var str = _typeManipulator.GetTypeStructure(typeof(T));
+            var dothProceed = str.OnDeserialized(obj!, _objectManipulator);
+            
+            KnownOnDeserialize.TryAdd(typeof(T), dothProceed);
         }
 
 

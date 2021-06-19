@@ -295,7 +295,7 @@ namespace Das.Serializer
                                    ISerializerSettings settings)
         {
             foreach (var propInfo in _dynamicFacade.TypeManipulator.GetPropertiesToSerialize(toType,
-                settings))
+                settings.SerializationDepth))
             {
                 if (!_objects.TryGetPropertyValue(from, propInfo.Name, out var nextFrom))
                     continue;
@@ -316,14 +316,16 @@ namespace Das.Serializer
                 if (references.TryGetValue(nextFrom, out var found))
                 {
                     nextTo = found;
-                    ObjectManipulator.SetPropertyValue(ref to, propInfo.Name, nextTo);
+                    ObjectManipulator.SetPropertyValue(ref to, propInfo.Name, 
+                        PropertyNameFormat.Default, nextTo);
                     continue;
                 }
 
                 if (_currentNodeType == NodeTypes.Primitive)
                 {
                     if (pType.IsAssignableFrom(nextFrom.GetType()))
-                        ObjectManipulator.SetPropertyValue(ref to, propInfo.Name, nextFrom);
+                        ObjectManipulator.SetPropertyValue(ref to, propInfo.Name,
+                            PropertyNameFormat.Default, nextFrom);
                     continue;
                 }
 
@@ -335,7 +337,8 @@ namespace Das.Serializer
                 nextTo = Copy(nextFrom, ref nextTo!, references, settings);
                 references[nextFrom] = nextTo;
 
-                ObjectManipulator.SetPropertyValue(ref to, propInfo.Name, nextTo);
+                ObjectManipulator.SetPropertyValue(ref to, propInfo.Name, 
+                    PropertyNameFormat.Default, nextTo);
             }
 
             return to;

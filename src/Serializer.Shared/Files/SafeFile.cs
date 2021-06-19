@@ -28,14 +28,11 @@ namespace Das.Serializer
                 Path.DirectorySeparatorChar, '_'));
 
             _staScheduler.Invoke(() => _protector.WaitOne());
-
-            //var doth = _protector.WaitOne();
         }
 
         public void Dispose()
         {
             _staScheduler.Invoke(() => _protector.ReleaseMutex());
-            //_protector.ReleaseMutex();
         }
 
         private static readonly StaScheduler _staScheduler;

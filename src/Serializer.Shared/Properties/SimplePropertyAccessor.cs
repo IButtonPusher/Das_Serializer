@@ -14,14 +14,7 @@ namespace Das.Serializer.Properties
                                       PropertyInfo propInfo)
             : base(declaringType, propertyName, getter, propInfo)
         {
-            //DeclaringType = declaringType;
-            //PropertyPath = propertyName;
-            //PropertyType = propInfo.PropertyType;
-            //_getter = getter;
             _setter = setter;
-            //_propInfo = propInfo;
-
-            //CanRead = _getter != null;
             CanWrite = _setter != null;
         }
 
@@ -37,8 +30,6 @@ namespace Das.Serializer.Properties
             return true;
         }
 
-        //private readonly Func<object, object>? _getter;
         protected readonly PropertySetter? _setter;
-        //private readonly PropertyInfo _propInfo;
     }
 }

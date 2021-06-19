@@ -98,9 +98,6 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Serializer.Tests.ruleset" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Xml\cog.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

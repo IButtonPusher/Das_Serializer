@@ -120,11 +120,10 @@ namespace Das.Serializer.ProtoBuf
             }
         }
 
-        private static void PrintKeyValuePair(
-            LocalBuilder enumeratorCurrentValue,
-            ProtoPrintState s,
-            ILGenerator il,
-            Byte[] headerBytes)
+        private static void PrintKeyValuePair(LocalBuilder enumeratorCurrentValue,
+                                              ProtoPrintState s,
+                                              ILGenerator il,
+                                              Byte[] headerBytes)
         {
             s.PrintFieldViaProxy(s.CurrentField,
                 ilg => ilg.Emit(OpCodes.Ldloc, enumeratorCurrentValue));

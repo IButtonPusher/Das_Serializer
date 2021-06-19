@@ -15,6 +15,64 @@ namespace Das.Serializer.ProtoBuf
     // ReSharper disable once UnusedTypeParameter
     public partial class ProtoDynamicProvider<TPropertyAttribute>
     {
+        private void AddPrintMethod(Type parentType,
+                                    TypeBuilder bldr,
+                                    Type genericParent,
+                                    IEnumerable<IProtoFieldAccessor> fields,
+                                    IDictionary<Type, FieldBuilder> typeProxies)
+        {
+            var abstractMethod = genericParent.GetMethod(
+                                     nameof(ProtoDynamicBase<Object>.Print))
+                                 ?? throw new InvalidOperationException();
+
+            var method = bldr.DefineMethod(nameof(ProtoDynamicBase<Object>.Print),
+                MethodOverride, typeof(void), new[] {parentType, typeof(Stream)});
+
+            var il = method.GetILGenerator();
+
+            //var instruction = parentType.IsValueType
+            //    ? OpCodes.Ldarga
+            //    : OpCodes.Ldarg;
+            //Action<ILGenerator> loadDto = ilg => ilg.Emit(instruction, 1);
+            
+            Action <ILGenerator> loadDto = parentType.IsValueType
+                ? LoadValueDto
+                : LoadReferenceDto;
+
+            var fArr = fields.ToArray();
+
+            if (fArr.Length == 0)
+                goto endOfMethod;
+
+            var startField = fArr[0];
+
+            var state = new ProtoPrintState(il, false,
+                fArr, parentType,
+                loadDto, _types,
+                _writeInt32, this, startField,
+                typeProxies);
+
+
+            if (typeProxies.Count > 0)
+                state.EnsureChildObjectStream();
+
+            foreach (var protoField in state)
+            /////////////////////////////////////////
+            {
+                AddFieldToPrintMethod(protoField);
+            }
+            /////////////////////////////////////////
+
+            endOfMethod:
+            il.Emit(OpCodes.Ret);
+            bldr.DefineMethodOverride(method, abstractMethod);
+        }
+
+        private static void LoadReferenceDto(ILGenerator il) => il.Emit(OpCodes.Ldarg_1);
+
+        private static void LoadValueDto(ILGenerator il) => il.Emit(OpCodes.Ldarga, 1);
+
+
         private void AddFieldToPrintMethod(ProtoPrintState s)
         {
             var pv = s.CurrentField;
@@ -32,7 +90,7 @@ namespace Das.Serializer.ProtoBuf
                     break;
 
                 case ProtoFieldAction.String:
-                    PrintString(s, _s => _s.LoadCurrentFieldValueToStack()); //P_0.StringField);
+                    PrintString(s, _s => _s.LoadCurrentFieldValueToStack());
                     break;
 
                 case ProtoFieldAction.ByteArray:
@@ -59,7 +117,6 @@ namespace Das.Serializer.ProtoBuf
                     break;
 
                 case ProtoFieldAction.ChildObjectArray:
-                    //PrintCollection(s, PrintEnumeratorCurrent);
                     PrintArray(s, PrintEnumeratorCurrent);
                     break;
 
@@ -75,73 +132,18 @@ namespace Das.Serializer.ProtoBuf
             s.IL.MarkLabel(ifFalse2);
         }
 
-        private void AddPrintMethod(Type parentType,
-                                    TypeBuilder bldr,
-                                    Type genericParent,
-                                    IEnumerable<IProtoFieldAccessor> fields,
-                                    IDictionary<Type, FieldBuilder> typeProxies)
-        {
-            var abstractMethod = genericParent.GetMethod(
-                                     nameof(ProtoDynamicBase<Object>.Print))
-                                 ?? throw new InvalidOperationException();
+        
 
-            var method = bldr.DefineMethod(nameof(ProtoDynamicBase<Object>.Print),
-                MethodOverride, typeof(void), new[] {parentType, typeof(Stream)});
-
-            var il = method.GetILGenerator();
-
-            var instruction = parentType.IsValueType
-                ? OpCodes.Ldarga
-                : OpCodes.Ldarg;
-
-            Action<ILGenerator> loadDto = ilg => ilg.Emit(instruction, 1);
-
-
-            var fArr = fields.ToArray();
-
-            if (fArr.Length == 0)
-                goto endOfMethod;
-
-            var startField = fArr[0];
-
-            var state = new ProtoPrintState(il, false,
-                fArr, parentType,
-                loadDto, _types,
-                _writeInt32, this, startField,
-                typeProxies);
-
-
-            if (typeProxies.Count > 0)
-                state.EnsureChildObjectStream();
-
-            foreach (var protoField in state)
-                /////////////////////////////////////////
-            {
-                AddFieldToPrintMethod(protoField);
-            }
-            /////////////////////////////////////////
-
-            endOfMethod:
-            il.Emit(OpCodes.Ret);
-            bldr.DefineMethodOverride(method, abstractMethod);
-        }
-
-
-        private void PrintChildObject(
-            ProtoPrintState s,
-            Byte[] headerBytes,
-            Action<ILGenerator> loadObject,
-            Type fieldType)
+        private void PrintChildObject(ProtoPrintState s,
+                                      Byte[] headerBytes,
+                                      Action<ILGenerator> loadObject,
+                                      Type fieldType)
         {
             var il = s.IL;
 
             PrintHeaderBytes(headerBytes, s);
 
             var proxyField = s.GetProxy(fieldType);
-            //s.CurrentField.Type);
-
-
-            //var proxyField = s.ChildProxies[s.CurrentField];
             var proxyType = proxyField.FieldType;
 
             ////////////////////////////////////////////
@@ -186,7 +188,7 @@ namespace Das.Serializer.ProtoBuf
         }
 
         private void PrintConstByte(Byte constVal,
-                                    ILGenerator il) //, Boolean? isPushed)
+                                    ILGenerator il)
         {
             var noStackDepth = il.DefineLabel();
             var endOfPrintConst = il.DefineLabel();
@@ -194,7 +196,6 @@ namespace Das.Serializer.ProtoBuf
 
             //notPushed:
             il.MarkLabel(noStackDepth);
-            //il.Emit(OpCodes.Ldarg_0);
             il.Emit(OpCodes.Ldarg_2);
             il.Emit(OpCodes.Ldc_I4_S, constVal);
             il.Emit(OpCodes.Callvirt, _writeStreamByte);
@@ -238,7 +239,7 @@ namespace Das.Serializer.ProtoBuf
                 il.Emit(OpCodes.Call, _writeSomeBytes);
             }
             else
-                PrintConstByte(headerBytes[0], il); //, s.HasPushed);
+                PrintConstByte(headerBytes[0], il);
         }
 
 

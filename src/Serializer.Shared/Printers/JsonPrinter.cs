@@ -8,27 +8,31 @@ namespace Das.Printers
 {
     public class JsonPrinter : TextPrinter
     {
-        public JsonPrinter(//ITextRemunerable writer,
-                           //ISerializerSettings settings,
-                           ITypeInferrer typeInferrer,
+        public JsonPrinter(ITypeInferrer typeInferrer,
                            INodeTypeProvider nodeTypes,
                            IObjectManipulator objectManipulator,
                            ITypeManipulator typeManipulator)
-            : base(//writer, settings,
-                   typeInferrer, nodeTypes, objectManipulator, '.')
+            : base(typeInferrer, nodeTypes, objectManipulator, '.',
+                   typeManipulator)
         {
-            _typeManipulator = typeManipulator;
+            
         }
 
-        public sealed  override Boolean IsRespectXmlIgnore => false;
+        //public static void AppendDateTime<TWriter>(TWriter writer,
+        //                                           DateTime value)
+        //    where TWriter : ITextRemunerable
+        //{
+        //    writer.Append(value.Year.ToString());
+        //    writer.Append('-');
+        //}
 
-        public static void AppendEscaped(String value,
-                                         ITextRemunerable writer)
+
+        public static void AppendEscaped<TWriter>(TWriter writer,
+                                                  String value)
+            where TWriter : ITextRemunerable
         {
             if (ReferenceEquals(null, value))
                 return;
-            //if (String.IsNullOrEmpty(value))
-            //    return;
 
             var len = value.Length;
             var needEncode = false;
@@ -62,6 +66,7 @@ namespace Das.Printers
                 }
 
                 String cOut;
+                // ReSharper disable once RedundantCast
                 switch ((Int32) cIn)
                 {
                     case 8:
@@ -120,21 +125,11 @@ namespace Das.Printers
 
             circularReferenceHandler.AddPathReference(name, propType, GetNameOrTypeNameOrRoot);
 
-            //if (!_isIgnoreCircularDependencies)
-            //{
-            //    if (!String.IsNullOrWhiteSpace(name))
-            //        PushStack(name);
-            //    else if (propType?.FullName != null)
-            //        PushStack(propType.FullName);
-            //    else
-            //        PushStack(Const.Root);
-            //}
-
             try
             {
                 var isCloseBlock = false;
                 var valType = val.GetType();
-                //var nodeType = _nodeTypes.GetNodeType(valType);
+                
                 var isWrapping = IsWrapNeeded(propType!, valType, 
                     valueNodeType, settings);
 
@@ -150,14 +145,7 @@ namespace Das.Printers
                     Writer.Append(Const.Quote, name);
                     Writer.Append("\":");
                 }
-                //else if (!isWrapping)
-                //    //root node, we have to wrap primitives
-                //    if (nodeType == NodeTypes.Primitive || nodeType == NodeTypes.Fallback)
-                //    {
-                //        Writer.Append(Const.OpenBrace, _newLine);
-                //        TabOut();
-                //        isCloseBlock = true;
-                //    }
+                
 
                 if (isWrapping)
                 {
@@ -195,13 +183,12 @@ namespace Das.Printers
             finally
             {
                 circularReferenceHandler.PopPathReference();
-                //if (!_isIgnoreCircularDependencies)
-                //    PopStack();
             }
         }
 
         public sealed override void PrintReferenceType(Object? value,
                                                        Type valType,
+                                                       NodeTypes nodeType,
                                                        ITextRemunerable Writer,
                                                        ISerializerSettings settings,
                                                        ICircularReferenceHandler circularReferenceHandler)
@@ -228,12 +215,11 @@ namespace Das.Printers
                 Writer.Append(Const.OpenBrace);
 
 
-            var typeStruct = _typeManipulator.GetTypeStructure(valType, settings);
+            var typeStruct = _typeManipulator.GetTypeStructure(valType);
             var properties = typeStruct.Properties;
             if (properties.Length > 0)
             {
                 var printSep = false;
-                var format = settings.PrintJsonPropertiesFormat;
 
                 for (var c = 0; c < properties.Length; c++)
                 {
@@ -250,21 +236,20 @@ namespace Das.Printers
 
                     var propName = prop.PropertyPath;
 
-                    switch (format)
+                    switch (settings.PrintPropertyNameFormat)
                     {
-                        case PrintPropertyFormat.Default:
-                            //propName = prop.PropertyPath;
+                        case PropertyNameFormat.Default:
                             break;
 
-                        case PrintPropertyFormat.PascalCase:
+                        case PropertyNameFormat.PascalCase:
                             propName = _typeInferrer.ToPascalCase(propName);
                             break;
 
-                        case PrintPropertyFormat.CamelCase:
+                        case PropertyNameFormat.CamelCase:
                             propName = _typeInferrer.ToCamelCase(propName);
                             break;
 
-                        case PrintPropertyFormat.SnakeCase:
+                        case PropertyNameFormat.SnakeCase:
                             propName = _typeInferrer.ToSnakeCase(propName);
                             break;
 
@@ -295,10 +280,20 @@ namespace Das.Printers
                 Writer.Append(Const.CloseBrace);
         }
 
+        protected sealed override bool ShouldPrintValue(Object obj,
+                                                        NodeTypes nodeType,
+                                                 IPropertyAccessor prop,
+                                                 ISerializerSettings settings,
+                                                 out Object? value)
+        {
+            value = prop.GetPropertyValue(obj);
+            return ShouldPrintValue(value, settings);
+        }
+
         protected bool ShouldPrintValue<T>(T item,
                                            ISerializerSettings settings)
         {
-            return !ReferenceEquals(null, item) &&
+            return !ReferenceEquals(null, item) ||
                    (!settings.IsOmitDefaultValues ||
                     !_typeInferrer.IsDefaultValue(item));
         }
@@ -328,8 +323,6 @@ namespace Das.Printers
             var serializeAs = value.GetType();
             circularReferenceHandler.AddPathReference(serializeAs, GetCollectionReferenceText);
 
-            //if (!_isIgnoreCircularDependencies)
-            //    PushStack($"[{serializeAs}]");
 
             Writer.Append(Const.OpenBracket);
             Writer.TabOut();
@@ -373,18 +366,8 @@ namespace Das.Printers
             Writer.TabIn();
             Writer.Append(Const.CloseBracket);
             circularReferenceHandler.PopPathReference();
-            
-            //if (!_isIgnoreCircularDependencies)
-            //    PopStack();
         }
 
-        //protected override void PrintCollectionObject(Object? o,
-        //                                              Type propType,
-        //                                              Int32 index)
-        //{
-        //    var nodeType = _nodeTypes.GetNodeType(propType);
-        //    PrintObject(o, propType, nodeType);
-        //}
 
         [MethodImpl(256)]
         protected sealed override void PrintInteger(Object val,
@@ -393,7 +376,6 @@ namespace Das.Printers
             Writer.Append(val.ToString());
         }
 
-        
 
         [MethodImpl(256)]
         protected sealed override void PrintReal(String str,
@@ -407,7 +389,7 @@ namespace Das.Printers
                                                    ITextRemunerable Writer)
         {
             Writer.Append(Const.Quote);
-            AppendEscaped(str, Writer);
+            AppendEscaped(Writer, str);
             Writer.Append(Const.Quote);
         }
 
@@ -419,7 +401,7 @@ namespace Das.Printers
             if (isInQuotes)
                 Writer.Append(Const.Quote);
 
-            AppendEscaped(str, Writer);
+            AppendEscaped(Writer, str);
 
             if (isInQuotes)
                 Writer.Append(Const.Quote);
@@ -436,6 +418,5 @@ namespace Das.Printers
 
 
         private const Char SequenceSeparator = ',';
-        private readonly ITypeManipulator _typeManipulator;
     }
 }

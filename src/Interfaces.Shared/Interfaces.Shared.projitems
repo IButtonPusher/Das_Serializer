@@ -18,6 +18,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ICircularReferenceHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\IPropertyAccessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\IPropertyAccessor{T}.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Properties\IPropertyBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\IPropertyProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\IPropertyType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IDynamicTypes.cs" />
@@ -25,7 +26,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IObjectConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IObjectManipulator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IRuntimeObject.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Dynamics\ITypeStructureBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Types\ISerializerTypeProxy.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Types\ITypeStructureBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\TypeNameOption.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IProtoProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Nodes\AttributeValue.cs" />
@@ -39,7 +41,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\ITypeCore.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\ITypeInferrer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\ITypeManipulator.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Dynamics\ITypeStructure.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Types\ITypeStructure.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IBinarySerializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IByteArray.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IProtoSerializer.cs" />
@@ -78,7 +80,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Settings\DepthConstants.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\ISerializationDepth.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\ISettingsUser.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Settings\PrintPropertyFormat.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Settings\PropertyNameFormat.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\PropertyNotFoundBehavior.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\TextPropertySearchDepths.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings\SerializationDepth.cs" />
@@ -90,8 +92,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)State\IMutableState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\ISerializationState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\IStateProvider.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="$(MSBuildThisFileDirectory)Types\" />
+    <Compile Include="$(MSBuildThisFileDirectory)Types\ITypeStructure{T}.cs" />
   </ItemGroup>
 </Project>

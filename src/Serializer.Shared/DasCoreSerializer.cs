@@ -5,6 +5,7 @@ using Das.Serializer.Json;
 using Das.Serializer.ProtoBuf;
 using Das.Serializer.Xml;
 using Das.Printers;
+using Das.Serializer.Printers;
 #if !NET40
 using System.Runtime.CompilerServices;
 
@@ -49,6 +50,13 @@ namespace Das.Serializer
                 TypeInferrer, _settings, DynamicTypes);
 
             AttributeParser = new XmlPrimitiveScanner(this);
+
+            #if GENERATECODE
+
+            _proxyProvider = new DynamicPrinterProvider(TypeInferrer, StateProvider.NodeTypeProvider,
+                TypeManipulator);
+
+            #endif
         }
 
       
@@ -90,7 +98,7 @@ namespace Das.Serializer
 
         protected static String GetTextFromFileInfo(FileInfo fi)
         {
-            using (var _ = new SafeFile(fi))
+            //using (var _ = new SafeFile(fi))
             {
                 return File.ReadAllText(fi.FullName);
             }
@@ -98,7 +106,7 @@ namespace Das.Serializer
 
         protected async Task<String> GetTextFromFileInfoAsync(FileInfo fi)
         {
-            using (var _ = new SafeFile(fi))
+            //using (var _ = new SafeFile(fi))
             using (TextReader tr = new StreamReader(fi.FullName))
             {
                 var res = await _readToEndAsync(tr).ConfigureAwait(true);
@@ -109,7 +117,7 @@ namespace Das.Serializer
         protected static void WriteTextToFileInfo(FileInfo fi,
                                                   String txt)
         {
-            using (var _ = new SafeFile(fi))
+            //using (var _ = new SafeFile(fi))
             {
                 File.WriteAllText(fi.FullName, txt);
             }
@@ -119,7 +127,7 @@ namespace Das.Serializer
         private async Task WriteTextToFileInfoAsync(String text,
                                                     FileInfo fi)
         {
-            using (var _ = new SafeFile(fi))
+            //using (var _ = new SafeFile(fi))
             using (TextWriter tr = new StreamWriter(fi.FullName))
             {
                 await _writeAsync(tr, text);

@@ -4,38 +4,26 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer.Properties
 {
-    public abstract class PropertyAccessorBase
+    public abstract class PropertyAccessorBase : PropertyAccessorCore
     {
         protected PropertyAccessorBase(Type declaringType,
                                        String propertyName,
                                        Func<object, object>? getter,
                                        PropertyInfo propInfo)
+        : base(getter != null, declaringType, propInfo, propertyName)
         {
-            DeclaringType = declaringType;
-            PropertyPath = propertyName;
-            PropertyType = propInfo.PropertyType;
             _getter = getter;
+            
 
-            CanRead = _getter != null;
+           
         }
-
-        public Boolean CanRead { get; }
-
-        public abstract Boolean CanWrite { get; }
-
-        public Type DeclaringType { get; }
-
-        public String PropertyPath { get; }
-
-        public Type PropertyType { get; }
+      
 
         public Object? GetPropertyValue(Object obj)
         {
             if (!CanRead)
                 throw new MemberAccessException();
 
-            //if (!(_getter is { } getter))
-            //    throw new MemberAccessException();
 
             return _getter!(obj);
         }
@@ -59,6 +47,26 @@ namespace Das.Serializer.Properties
             return true;
         }
 
+      
+
+        public Boolean IsValidForSerialization(SerializationDepth depth)
+        {
+            switch (depth)
+            {
+                case SerializationDepth.AllProperties:
+                case SerializationDepth.GetOnlyProperties:
+                case SerializationDepth.Full:
+                    return true;
+
+                case SerializationDepth.GetSetProperties:
+                    return CanRead && CanWrite;
+
+                default:
+                    return false;
+            }
+        }
+
         private readonly Func<object, object>? _getter;
+        
     }
 }

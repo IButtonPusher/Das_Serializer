@@ -29,6 +29,12 @@ namespace Das.Extensions
         }
 
         [MethodImpl(256)]
+        public static Boolean IsNotZero(this Decimal d)
+        {
+           return d != 0;
+        }
+
+        [MethodImpl(256)]
         public static Boolean IsNotZero(this Double d)
         {
             return Math.Abs(d) >= MyEpsilon;

@@ -23,6 +23,13 @@ namespace Das.Serializer
             return CreateDynamicPropertyGetter(targetType, propertyInfo);
         }
 
+        public Func<TObject, TProperty> CreatePropertyGetter<TObject, TProperty>(PropertyInfo propInfo)
+        {
+            return CreateDynamicPropertyGetter<TObject, TProperty>(propInfo);
+        }
+
+       
+
         public Func<object, object> CreatePropertyGetter(Type targetType,
                                                          String propertyName,
                                                          out PropertyInfo propInfo)
@@ -73,6 +80,33 @@ namespace Das.Serializer
             return (Func<Object, Object>) dynam.CreateDelegate(typeof(Func<Object, Object>));
         }
 
+        public Func<TParent, TField> CreateFieldGetter<TParent, TField>(FieldInfo fieldInfo)
+        {
+            var dynam = new DynamicMethod(String.Empty, typeof(TField), 
+                new[] { typeof(TParent)},
+                typeof(Func<TParent, TField>), true);
+
+            var il = dynam.GetILGenerator();
+
+            if (!fieldInfo.IsStatic)
+            {
+                il.Emit(OpCodes.Ldarg_0);
+                
+                //if (typeof(TField).IsValueType)
+                //    il.Emit(OpCodes.Ldflda, fieldInfo);
+                //else
+                    il.Emit(OpCodes.Ldfld, fieldInfo);
+            }
+            else
+                il.Emit(OpCodes.Ldsfld, fieldInfo);
+
+            //if (fieldInfo.FieldType.IsValueType)
+            //    il.Emit(OpCodes.Box, fieldInfo.FieldType);
+
+            il.Emit(OpCodes.Ret);
+            return (Func<TParent, TField>) dynam.CreateDelegate(typeof(Func<TParent, TField>));
+        }
+
         public Action<Object, Object?> CreateFieldSetter(FieldInfo fieldInfo)
         {
             var dynam = new DynamicMethod(
@@ -103,7 +137,9 @@ namespace Das.Serializer
         }
 
 
-        public VoidMethod CreateMethodCaller(MethodInfo method)
+
+
+        public static VoidMethod CreateMethodCaller(MethodInfo method)
         {
             var dyn = CreateMethodCaller(method, true);
             return (VoidMethod) dyn.CreateDelegate(typeof(VoidMethod));
@@ -116,6 +152,21 @@ namespace Das.Serializer
         {
             var propChainArr = GetPropertyChain(targetType, propertyName).ToArray();
             return CreateDynamicPropertyGetter(targetType, propChainArr, out propInfo);
+        }
+
+        public Func<TObject, TProperty> CreatePropertyGetter<TObject, TProperty>(String propertyName,
+            out PropertyInfo propInfo)
+        {
+            var propChainArr = GetPropertyChain(typeof(TObject), propertyName).ToArray();
+            return CreateDynamicPropertyGetter<TObject, TProperty>(propChainArr, out propInfo);
+        }
+
+        public static Func<TObject, TProperty> CreateDynamicPropertyGetter<TObject, TProperty>(
+                                                                       PropertyInfo propertyInfo)
+        {
+            _singlePropFairy ??= new PropertyInfo[1];
+            _singlePropFairy[0] = propertyInfo;
+            return CreateDynamicPropertyGetter<TObject, TProperty>(_singlePropFairy, out _);
         }
 
         public static Func<Object, Object> CreateDynamicPropertyGetter(Type targetType,
@@ -306,6 +357,87 @@ namespace Das.Serializer
             il.Emit(OpCodes.Ret);
 
             return dynam;
+        }
+
+
+        private static Func<TObject, TProperty> CreateDynamicPropertyGetter<TObject, TProperty>(
+                                                                        PropertyInfo[] propChainArr,
+                                                                        out PropertyInfo propInfo)
+        {
+            var targetType = typeof(TObject);
+
+            var setParamType = targetType;
+            Type[] setParamTypes = {setParamType};
+            var setReturnType = typeof(TProperty);
+
+            var owner = typeof(DasType);
+
+            var getMethod = new DynamicMethod(String.Empty, setReturnType,
+                setParamTypes, owner, true);
+
+            var il = getMethod.GetILGenerator();
+
+            var ggLabel = il.DefineLabel();
+
+            il.Emit(OpCodes.Ldarg_0);
+
+            //il.Emit(targetType.IsValueType
+            //    ? OpCodes.Unbox
+            //    : OpCodes.Castclass, targetType);
+
+            //////////////////
+
+            MethodInfo? targetGetMethod = null;
+            propInfo = default!;
+
+
+            for (var c = 0; c < propChainArr.Length; c++)
+            {
+                propInfo = propChainArr[c];
+
+                //put the chain of prop get results onto the stack
+                targetGetMethod = propInfo.GetGetMethod();
+                var opCode = propInfo.DeclaringType!.IsValueType ? OpCodes.Call : OpCodes.Callvirt;
+                il.Emit(opCode, targetGetMethod!);
+
+
+                if (c >= propChainArr.Length - 1)
+                    continue;
+
+                // avoid calling property getters of null objects.  If we hit a null, return it
+                var propLocal = il.DeclareLocal(propInfo.PropertyType);
+                var nextLabel = il.DefineLabel();
+
+                il.Emit(OpCodes.Stloc, propLocal);
+
+
+                il.Emit(OpCodes.Ldloc, propLocal);
+                il.Emit(OpCodes.Ldnull);
+                il.Emit(OpCodes.Ceq);
+                il.Emit(OpCodes.Brfalse, nextLabel);
+
+                il.Emit(OpCodes.Ldloc, propLocal);
+                il.Emit(OpCodes.Br, ggLabel);
+
+
+                il.MarkLabel(nextLabel);
+                il.Emit(OpCodes.Ldloc, propLocal);
+            }
+
+            if (targetGetMethod == null)
+                throw new InvalidOperationException();
+
+            //var returnType = targetGetMethod.ReturnType;
+
+            il.MarkLabel(ggLabel);
+
+            //if (returnType.IsValueType)
+            //    il.Emit(OpCodes.Box, returnType);
+
+            il.Emit(OpCodes.Ret);
+
+            var del = getMethod.CreateDelegate(Expression.GetFuncType(setParamType, setReturnType));
+            return (Func<TObject, TProperty>) del;
         }
 
 
@@ -557,7 +689,7 @@ namespace Das.Serializer
         {
             if (!memberName.Contains("."))
             {
-                foreach (var m in GetMembersOrDie(declaringType, memberName))
+                foreach (var m in declaringType.GetMembersOrDie(memberName))
                 {
                     yield return m;
                 }
@@ -615,6 +747,8 @@ namespace Das.Serializer
         {
             Const.ObjectType.MakeByRefType(), Const.ObjectType
         };
+
+       
     }
 }
 

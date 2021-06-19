@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Das.Streamers;
 
@@ -88,9 +89,13 @@ namespace Das.Serializer
             }
 
             var propVals = _typeManipulator.GetPropertiesToSerialize(
-                node.Type!, Settings);
+                node.Type!, node.NodeType == NodeTypes.PropertiesToConstructor 
+                    ? SerializationDepth.GetOnlyProperties
+                    : Settings.SerializationDepth);
 
-            foreach (var prop in propVals)
+            var rdrr = propVals.ToArray();
+
+            foreach (var prop in rdrr)
             {
                 var propType = prop.Type;
 

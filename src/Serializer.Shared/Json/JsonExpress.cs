@@ -189,13 +189,14 @@ namespace Das.Serializer.Json
 
             AdvanceUntil(ref currentIndex, json, '{');
 
-            var typeStruct = _types.GetTypeStructure(type, settings);
+            var typeStruct = _types.GetTypeStructure(type);//, settings);
 
             while (TryGetNextString(ref currentIndex, json, stringBuilder))
             {
                 var attributeKey = stringBuilder.ToString();
 
-                if (!typeStruct.TryGetPropertyAccessor(attributeKey, out var prop))
+                if (!typeStruct.TryGetPropertyAccessor(attributeKey, settings.ScanPropertyNameFormat,
+                    out var prop))
                     switch (attributeKey)
                     {
                         case Const.TypeWrap:
@@ -228,7 +229,8 @@ namespace Das.Serializer.Json
                             var tokens = path.Split('/');
 
                             for (var c = 1; c < tokens.Length; c++)
-                                current = _objectManipulator.GetPropertyValue(current, tokens[c])
+                                current = _objectManipulator.GetPropertyValue(current, tokens[c],
+                                              settings.ScanPropertyNameFormat)
                                           ?? throw new InvalidOperationException();
 
                             goto endOfObject;
@@ -600,6 +602,8 @@ namespace Das.Serializer.Json
                     return stringBuilder[0];
 
                 case TypeCode.DateTime:
+
+                    
 
                     //return DateTime.ParseExact(GetNextString(ref currentIndex, json, stringBuilder), 
                     //    CultureInfo.InvariantCulture));

@@ -20,10 +20,11 @@ namespace Das.Printers
                              //ISerializerSettings settings,
                              ITypeInferrer typeInferrer,
                              INodeTypeProvider nodeTypes,
-                             IObjectManipulator objectManipulator)
+                             IObjectManipulator objectManipulator,
+                             ITypeManipulator typeManipulator)
             : base(//settings, 
                 typeInferrer, nodeTypes, objectManipulator,
-                true, '.')
+                true, '.', typeManipulator)
         {
             _fallbackFormatter = new BinaryFormatter();
             //IsPrintNullProperties = true;
@@ -43,7 +44,7 @@ namespace Das.Printers
         //SerializationDepth ISerializationDepth.SerializationDepth
         //    => _settings.SerializationDepth;
 
-        public override Boolean IsRespectXmlIgnore => false;
+        //public override Boolean IsRespectXmlIgnore => false;
 
         #if !PARTIALTRUST
 
@@ -426,6 +427,26 @@ namespace Das.Printers
 
                 return;
             }
+        }
+
+        protected sealed override bool ShouldPrintValue(Object obj,
+                                                    NodeTypes nodeType,
+                                                 IPropertyAccessor prop,
+                                                 ISerializerSettings settings,
+                                                 out Object? value)
+        {
+            if (!prop.CanWrite && nodeType != NodeTypes.PropertiesToConstructor)
+            {
+                value = default;
+                return false;
+            }
+
+            value = prop.GetPropertyValue(obj);
+            return true;
+
+            //value = (prop.CanWrite || nodeType == NodeTypes.PropertiesToConstructor) 
+            //    ? prop.GetPropertyValue(obj) : default;
+            //return prop.CanWrite;
         }
 
 

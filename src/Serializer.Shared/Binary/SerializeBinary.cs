@@ -25,7 +25,7 @@ namespace Das.Serializer
                 //using (var state = StateProvider.BorrowBinary(Settings))
                 using (var bp = new BinaryPrinter(//bWriter, //state))
                     //Settings, 
-                    TypeInferrer, NodeTypeProvider, ObjectManipulator))
+                    TypeInferrer, NodeTypeProvider, ObjectManipulator, TypeManipulator))
                 {
                     bp.PrintNamedObject(Const.Root, asType, o, 
                         NodeTypeProvider.GetNodeType(asType), bWriter, Settings,
@@ -61,7 +61,7 @@ namespace Das.Serializer
         {
             var bytes = ToBytes(o);
 
-            using (var _ = new SafeFile(fi))
+            //using (var _ = new SafeFile(fi))
             {
                 File.WriteAllBytes(fi.FullName, bytes);
             }

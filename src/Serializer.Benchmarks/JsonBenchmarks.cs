@@ -19,6 +19,7 @@ namespace Serializer.Benchmarks
             Serializer = new DasSerializer();
 
             NullPayload = SimpleClassObjectProperty.GetNullPayload();
+            SimpleClass = SimpleClass.GetExample<SimpleClass>();
             //NullPayloadJson = Serializer.ToJson(NullPayload);
         }
 
@@ -35,10 +36,6 @@ namespace Serializer.Benchmarks
         //    return Serializer.FromJson<SimpleClassObjectProperty>(NullPayloadJson);
         //}
 
-        public String DasPrintPrimitiveProperties()
-        {
-            return Serializer.ToJson(NullPayload);
-        }
 
        
 
@@ -84,22 +81,49 @@ namespace Serializer.Benchmarks
             return JsonConvert.DeserializeObject<MultiPropMessage>(json);
         }
 
+
         [Benchmark]
-        public SimpleClassObjectProperty DasPrimitiveProperties()
+        public SimpleClass DasPrimitiveProperties()
         {
-            var json = Serializer.ToJson(NullPayload);
-            return Serializer.FromJson<SimpleClassObjectProperty>(json);
+            var json = Serializer.ToJson(SimpleClass);
+            return Serializer.FromJson<SimpleClass>(json);
         }
 
         [Benchmark]
-        public SimpleClassObjectProperty JsonNetPrimitivePropertiesJson()
+        public SimpleClass DasPrimitiveProperties2()
         {
-            var nullPayloadJson = JsonConvert.SerializeObject(NullPayload);
-            return JsonConvert.DeserializeObject<SimpleClassObjectProperty>(nullPayloadJson);
+            var json = Serializer.ToJsonEx(SimpleClass);
+            return Serializer.FromJson<SimpleClass>(json);
+        }
+
+        [Benchmark]
+        public SimpleClass JsonNetPrimitiveProperties()
+        {
+            var json = JsonConvert.SerializeObject(SimpleClass);
+            return JsonConvert.DeserializeObject<SimpleClass>(json);
+        }
+
+        [Benchmark]
+        public String DasPrintPrimitiveProperties()
+        {
+            return Serializer.ToJson(SimpleClass);
+        }
+
+        [Benchmark]
+        public String DasPrintPrimitiveProperties2()
+        {
+            return Serializer.ToJsonEx(SimpleClass);
+        }
+
+        [Benchmark]
+        public String JsonNetPrintPrimitiveProperties()
+        {
+            return JsonConvert.SerializeObject(SimpleClass);
         }
 
         private static readonly DasSerializer Serializer;
         private static readonly SimpleClassObjectProperty NullPayload;
+        private static readonly SimpleClass SimpleClass;
 
         //private static readonly String NullPayloadJson;
     }

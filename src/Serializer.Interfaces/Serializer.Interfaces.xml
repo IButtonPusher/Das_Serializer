@@ -26,6 +26,42 @@
                 Returns all the assemblies that are referenced by the running process
             </summary>
         </member>
+        <member name="M:Das.Serializer.ICircularReferenceHandler.CanPrintObject(System.Object)">
+            <summary>
+            Either there is no known reference to this object or we
+            are handling circular dependencies
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.ICircularReferenceHandler.AddPathReference(System.String)">
+            <summary>
+            PushStack()
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.ICircularReferenceHandler.AddPathReference``1(``0,System.Func{``0,System.String})">
+            <summary>
+            PushStack()
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.ICircularReferenceHandler.AddPathReference``2(``0,``1,System.Func{``0,``1,System.String})">
+            <summary>
+            PushStack()
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.ICircularReferenceHandler.PopPathReference">
+            <summary>
+            PopStack()
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.ICircularReferenceHandler.PopPathObject">
+            <summary>
+            _pathObjects.RemoveAt(_pathObjects.Count - 1);
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.ICircularReferenceHandler.RemovePathReference(System.Object)">
+            <summary>
+            _pathReferences.Remove(obj);
+            </summary>
+        </member>
         <member name="P:Das.Serializer.IPropertyAccessor.PropertyPath">
             <summary>
                 The property's name under most circumstances.  Can also be ParentType.PropertyName etc
@@ -66,9 +102,6 @@
             <summary>
                 Tries to cast or convert as IConvertible. Otherwise returns false
             </summary>
-        </member>
-        <member name="M:Das.Serializer.ITypeStructureBase.SetPropertyValueUnsafe(System.String,System.Object@,System.Object)">
-            <exception cref="T:System.Collections.Generic.KeyNotFoundException"></exception>
         </member>
         <member name="M:Das.Serializer.ProtoBuf.IProtoProvider.GetAutoProtoProxy``1(System.Boolean)">
             <summary>
@@ -227,12 +260,12 @@
                 Searches the type including explicit implementations
             </summary>
         </member>
-        <member name="M:Das.Serializer.ITypeManipulator.GetPropertiesToSerialize(System.Type,Das.Serializer.ISerializationDepth)">
+        <member name="M:Das.Serializer.ITypeManipulator.GetPropertiesToSerialize(System.Type,Das.Serializer.SerializationDepth)">
             <summary>
                 Recursive through base types without duplicates
             </summary>
         </member>
-        <member name="M:Das.Serializer.ITypeStructure.GetMembersToSerialize(Das.Serializer.ISerializationDepth)">
+        <member name="M:Das.Serializer.ITypeStructure.GetMembersToSerialize(Das.Serializer.SerializationDepth)">
             <summary>
                 Returns properties and/or fields depending on specified depth
             </summary>
@@ -357,15 +390,15 @@
                 Use whitespace like spaces and tabs only
             </summary>
         </member>
-        <member name="P:Das.Serializer.ISerializerSettings.IsPropertyNamesCaseSensitive">
-            <summary>
-                Particularly for Json pascal case is often used.  Setting this to false
-                and having multiple properties with the "same" name will be problematic
-            </summary>
-        </member>
         <member name="P:Das.Serializer.ISerializerSettings.IsUseAttributesInXml">
             <summary>
                 Using attributes can make the markup smaller but can limit compatibility with other serializers
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.ISerializerSettings.PrintPropertyNameFormat">
+            <summary>
+                Particularly for Json pascal case is often used.  Setting this to false
+                and having multiple properties with the "same" name will be problematic
             </summary>
         </member>
         <member name="P:Das.Serializer.ISerializerSettings.PropertyNotFoundBehavior">
@@ -398,6 +431,22 @@
                 properties.  For xml the type of the root object is always the root node.  Choosing
                 All will cause the Json and binary formats to wrap their output in an extra node
                 which may make it impossible for other deserializers or services to understand the data
+            </summary>
+        </member>
+        <member name="P:Das.Serializer.ISerializerSettings.IsFormatSerializedText">
+            <summary>
+            Setting this to false makes for less overall text due to no line breaks, indentation, etc
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.ISerializerSettings.GetPrintScanSignature">
+            <summary>
+            Provides a unique integer value for the values of:
+            IsUseAttributesInXml,
+            TypeSpecificity,
+            IsFormatSerializedText,
+            PrintPropertyNameFormat,
+            ScanPropertyNameFormat,
+            IsOmitDefaultValues
             </summary>
         </member>
         <member name="P:Das.Serializer.ISerializationDepth.IsOmitDefaultValues">

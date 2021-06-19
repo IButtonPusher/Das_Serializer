@@ -22,7 +22,7 @@ namespace Das.Serializer
             TypeSearchNameSpaces = new[] {Const.Tsystem};
             CacheTypeConstructors = true;
             IsUseAttributesInXml = true;
-            PrintJsonPropertiesFormat = PrintPropertyFormat.Default;
+            PropertyNameFormat = PropertyNameFormat.Default;
             PropertyNotFoundBehavior = PropertyNotFoundBehavior.Ignore;
             CircularReferenceBehavior = CircularReference.NoValidation;
         }
@@ -33,6 +33,12 @@ namespace Das.Serializer
         /// </summary>
         public TypeNotFoundBehavior TypeNotFoundBehavior { get; set; }
 
+        public PropertyNameFormat ScanPropertyNameFormat
+        {
+            get => _scanPropertyNameFormat;
+            set => SetPrintScanProperty(ref _scanPropertyNameFormat, value);
+        }
+
         public PropertyNotFoundBehavior PropertyNotFoundBehavior { get; set; }
 
         /// <summary>
@@ -41,10 +47,14 @@ namespace Das.Serializer
         /// </summary>
         public Boolean IsPropertyNamesCaseSensitive { get; set; }
 
-        public PrintPropertyFormat PrintJsonPropertiesFormat { get; set; }
+        public PropertyNameFormat PropertyNameFormat { get; set; }
 
 
-        public Boolean IsUseAttributesInXml { get; set; }
+        public Boolean IsUseAttributesInXml
+        {
+            get => _isUseAttributesInXml;
+            set => SetPrintScanProperty(ref _isUseAttributesInXml, value);
+        }
 
         /// <summary>
         ///     Specifies under which circumstances the serializer will embed type information for
@@ -52,9 +62,55 @@ namespace Das.Serializer
         ///     All will cause the Json and binary formats to wrap their output in an extra node
         ///     which may make it impossible for other deserializers or services to understand the data
         /// </summary>
-        public TypeSpecificity TypeSpecificity { get; set; }
+        public TypeSpecificity TypeSpecificity
+        {
+            get => _typeSpecificity;
+            set => SetPrintScanProperty(ref _typeSpecificity, value);
+        }
 
-        public Boolean IsFormatSerializedText { get; set; }
+        public Boolean IsFormatSerializedText
+        {
+            get => _isFormatSerializedText;
+            set => SetPrintScanProperty(ref _isFormatSerializedText, value);
+        }
+
+        private void SetPrintScanProperty<TField>(ref TField current,
+                                                  TField newValue)
+        {
+            if (Equals(current, newValue))
+                return;
+
+            current = newValue;
+            ComputePrintScanSignature();
+        }
+
+        private void ComputePrintScanSignature()
+        {
+            _printScanSignature = GetI4(IsUseAttributesInXml, 0) +
+                                  GetI4(TypeSpecificity, 1) +
+                                  GetI4(IsFormatSerializedText, 3) +
+                                  GetI4(PrintPropertyNameFormat, 4) +
+                                  GetI4(ScanPropertyNameFormat, 6) +
+                                  GetI4(IsOmitDefaultValues, 8);
+        }
+
+        public Int32 GetPrintScanSignature()
+        {
+            return _printScanSignature;
+        }
+
+        private static Int32 GetI4(Boolean b,
+                                   Int32 push)
+        {
+            return (b ? 1 : 0) << push;
+        }
+
+        private static Int32 GetI4<TEnum>(TEnum val,
+                                          Int32 push)
+            where TEnum : Enum, IConvertible
+        {
+            return Convert.ToInt32(val) << push;
+        }
 
         //public IAttributeValueSurrogates AttributeValueSurrogates { get; set; }
 
@@ -64,7 +120,11 @@ namespace Das.Serializer
         ///     In Xml/Json only.  0 for integers, false for booleans, and any
         ///     val == default(ValsType) will be ommitted from the markup
         /// </summary>
-        public Boolean IsOmitDefaultValues { get; set; }
+        public Boolean IsOmitDefaultValues
+        {
+            get => _isOmitDefaultValues;
+            set => SetPrintScanProperty(ref _isOmitDefaultValues, value);
+        }
 
         /// <summary>
         ///     Allows to set whether properties without setters and whether private fields
@@ -94,6 +154,12 @@ namespace Das.Serializer
 
         public String NewLine { get; set; } = "\r\n";
 
+        public PropertyNameFormat PrintPropertyNameFormat
+        {
+            get => _printPropertyNameFormat;
+            set => SetPrintScanProperty(ref _printPropertyNameFormat, value);
+        }
+
         public Boolean CacheTypeConstructors { get; set; }
 
         /// <summary>
@@ -112,5 +178,12 @@ namespace Das.Serializer
 
 
         private static readonly DasSettings _default;
+        private Boolean _isUseAttributesInXml;
+        private TypeSpecificity _typeSpecificity;
+        private Boolean _isFormatSerializedText;
+        private PropertyNameFormat _printPropertyNameFormat;
+        private PropertyNameFormat _scanPropertyNameFormat;
+        private Boolean _isOmitDefaultValues;
+        private Int32 _printScanSignature;
     }
 }

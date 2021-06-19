@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
-using Das.Extensions;
 using Das.Serializer;
 using Xunit;
 
@@ -224,7 +223,10 @@ namespace Serializer.Tests.Binary
             var pt = new Point(1, 0);
             pt.Y = 1;
             pt.Y = 0;
-            pt.TrySetPropertyValue(nameof(Point.X), 2);
+            Object opt = pt;
+            this.srl.ObjectManipulator.SetPropertyValue(ref opt, nameof(Point.X),
+                PropertyNameFormat.Default, 2);
+            //pt.TrySetPropertyValue(nameof(Point.X), 2);
 
             var srl = Serializer;
 

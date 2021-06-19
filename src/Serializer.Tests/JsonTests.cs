@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
+using Das.Printers;
 using Das.Serializer;
 using Xunit;
 
@@ -353,6 +354,31 @@ namespace Serializer.Tests.Json
             Assert.True(rolf);
         }
 
+        private static void TestPrint(String str)
+        {}
+
+        [Fact]
+        public void DynamicPrintPrimitiveProperties()
+        {
+
+            var eg = SimpleClass.GetExample<SimpleClass>();
+            if (eg.DateOfBirth.HasValue)
+            {
+                var rdrr = eg.DateOfBirth.Value.ToString();
+                if (rdrr == null)
+                    throw new Exception();
+            }
+
+            var json = Serializer.ToJsonEx(eg, Serializer.Settings);
+            var eg2 = Serializer.FromJson<SimpleClass>(json);
+
+            Assert.NotNull(eg2.Name);
+
+            var badProp = "";
+            var rolf = SlowEquality.AreEqual(eg, eg2, ref badProp);
+            Assert.True(rolf);
+        }
+
         [Fact]
         public void PrimitivePropertiesJson()
         {
@@ -408,11 +434,11 @@ namespace Serializer.Tests.Json
             var json = _serializer.ToJson(vvq);
             var res = _serializer.FromJson<RuntimeObject>(json);
 
-            var isOk = Equals(res["Id"], _serializer.ObjectManipulator.GetPropertyValue(vvq, "Id")) &&
-                       Equals(res["Name"], _serializer.ObjectManipulator.GetPropertyValue(vvq, "Name")) &&
+            var isOk = Equals(res["Id"], _serializer.ObjectManipulator.GetPropertyValue(vvq, "Id", PropertyNameFormat.Default)) &&
+                       Equals(res["Name"], _serializer.ObjectManipulator.GetPropertyValue(vvq, "Name", PropertyNameFormat.Default)) &&
                        Equals(res["NumericString"],
-                           _serializer.ObjectManipulator.GetPropertyValue(vvq, "NumericString")) &&
-                       Equals(res["ZipCode"], _serializer.ObjectManipulator.GetPropertyValue(vvq, "ZipCode"));
+                           _serializer.ObjectManipulator.GetPropertyValue(vvq, "NumericString", PropertyNameFormat.Default)) &&
+                       Equals(res["ZipCode"], _serializer.ObjectManipulator.GetPropertyValue(vvq, "ZipCode", PropertyNameFormat.Default));
 
 
             //var isOk = SlowEquality.AreEqual(res, vvq);

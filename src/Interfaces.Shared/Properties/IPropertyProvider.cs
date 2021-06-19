@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Das.Serializer.Properties;
+
 
 namespace Das.Serializer
 {
@@ -11,5 +11,7 @@ namespace Das.Serializer
                                               String propertyName);
 
         IPropertyAccessor<T> GetPropertyAccessor<T>(String propertyName);
+
+        IPropertyAccessor<TObject, TProperty> GetPropertyAccessor<TObject, TProperty>(String propName);
     }
 }

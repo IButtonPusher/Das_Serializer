@@ -52,8 +52,12 @@ namespace Das.Serializer
         T GetPropertyValue<T>(Object obj,
                               String propertyName);
 
+        TProperty GetPropertyValue<TObject, TProperty>(TObject obj,
+                                                       String propertyName);
+
         Object? GetPropertyValue(Object obj,
-                                 String propertyName);
+                                 String propertyName,
+                                 PropertyNameFormat format);
 
 
         void Method(Object obj,
@@ -84,6 +88,7 @@ namespace Das.Serializer
 
         Boolean SetPropertyValue(ref Object targetObj,
                                  String propName,
+                                 PropertyNameFormat format,
                                  Object? propVal);
 
         /// <summary>
@@ -102,6 +107,7 @@ namespace Das.Serializer
 
         Boolean TrySetProperty(Type classType,
                                String propName,
+                               PropertyNameFormat format,
                                ref Object targetObj,
                                Object? propVal);
     }

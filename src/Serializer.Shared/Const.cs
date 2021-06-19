@@ -56,6 +56,8 @@ namespace Das.Serializer
 
         public const BindingFlags PublicStatic = BindingFlags.Static | BindingFlags.Public;
 
+        public const BindingFlags AnyStatic = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
+
         public const BindingFlags PublicInstance = BindingFlags.Instance | BindingFlags.Public;
 
         public const BindingFlags AnyInstance = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;

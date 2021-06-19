@@ -18,6 +18,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)CircularReferences\NullCircularReferenceHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CircularReferences\PathSerializingCircularReferenceHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Collections\DoubleConcurrentDictionary.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Collections\FastSemaphore.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Collections\UpgradableReadWriteLock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Concurrency\ExclusiveSynchronizationContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Concurrency\InvocationBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Concurrency\StaScheduler.cs" />
@@ -41,12 +43,17 @@
     <Compile Include="$(MSBuildThisFileDirectory)NodeBuilders\NodeTypeProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ObjectConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Printers\BinaryPrinter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Printers\DynamicJsonPrinterBuilder2.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Printers\DynamicPrinterBuilderBase2.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Printers\DynamicPrinterProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Printers\JsonPrinter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Printers\PrinterBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Printers\StackFormat.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Printers\TextPrinter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Printers\XmlPrinter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\PropertyAccessorBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Properties\PropertyAccessorCore.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Properties\PropertyAccessor{T2}.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\PropertyAccessor{T}.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\SimplePropertyAccessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Proto\CoreProtoProvider.cs" />
@@ -106,7 +113,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Streamers\StreamStreamer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TextCommon\StringAccessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TextCommon\StringBase.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)TypeStructure.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Types\PropertyDictionary.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Types\TypeStructure.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\DasCodeGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\DasType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\DasTypeBuilder.cs" />
@@ -122,6 +130,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Types\TypeCore.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\TypeInference.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\TypeManipulator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Types\TypeStructureBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Types\TypeStructure{T}.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Util.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xml\DeserializeXml.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xml\SerializeXml.cs" />

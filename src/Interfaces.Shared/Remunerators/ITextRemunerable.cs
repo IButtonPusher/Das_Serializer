@@ -1,69 +1,82 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    public interface ITextRemunerable : IRemunerable<String, Char>, IStringRemunerable
-    {
-        Int32 Capacity { get; set; }
+   public interface ITextRemunerable : IRemunerable<String, Char>, IStringRemunerable
+   {
+      void Append(Char data1,
+                  String data2);
 
-        Int32 Length { get; }
+      //void Append(ITextAccessor txt);
 
-        void Append(Char data1,
-                    String data2);
+      new void Append(Char item);
 
-        void Append(ITextAccessor txt);
+      void AppendRepeatedly(Char item,
+                            Int32 count);
 
-        new void Append(Char item);
+      Boolean Append<T>(IEnumerable<T> items,
+                        Char separator)
+         where T : IConvertible;
 
-        void AppendRepeatedly(Char item,
-                              Int32 count);
+      Boolean Append<T>(IEnumerable<T> items,
+                        Char separator,
+                        Int32 maxCount)
+         where T : IConvertible;
 
-        Boolean Append<T>(IEnumerable<T> items,
-                          Char separator)
-            where T : IConvertible;
+      void AppendRight<TCollection, TData>(TCollection items,
+                                           Char separator,
+                                           Int32 maxCount)
+         where TCollection : IEnumerable<TData>, ICollection;
 
-        void Insert(Int32 index,
-                    String str);
+      void Insert(Int32 index,
+                  String str);
 
-        void Remove(Int32 startIndex,
-                    Int32 length);
+      void Remove(Int32 startIndex,
+                  Int32 length);
 
-        void PrintCurrentTabs();
+      void PrintCurrentTabs();
 
-        void TabIn();
+      void TabIn();
 
-        void TabOut();
+      void TabOut();
 
-        void NewLine();
+      void NewLine();
 
-        void IndentRepeatedly(Int32 count);
+      void IndentRepeatedly(Int32 count);
 
-        ITextAccessor ToImmutable();
+      ITextAccessor ToImmutable();
 
-        void Undispose();
-    }
+      void Undispose();
 
-    public interface IStringRemunerable : IRemunerable<String>
-    {
-        Char this[Int32 index] { get; }
+      Int32 Capacity { get; set; }
 
-        String this[Int32 start,
-                    Int32 end] { get; }
+      Int32 Length { get; }
+   }
 
-        new void Append(String data);
+   public interface IStringRemunerable : IRemunerable<String>
+   {
+      new void Append(String data);
 
-        void Append(String data1,
-                    String data2);
+      void Append(String data1,
+                  String data2);
 
-        void Append(IEnumerable<String> datas);
+      void Append(DateTime dt);
 
-        void Append<T>(T data) where T : struct;
+      void Append(IEnumerable<String> datas);
 
-        void Clear();
+      void Append<T>(T data) where T : struct;
 
-        Int32 IndexOf(String str,
-                      Int32 startIndex);
-    }
+      void Clear();
+
+      Int32 IndexOf(String str,
+                    Int32 startIndex);
+
+      Char this[Int32 index] { get; }
+
+      String this[Int32 start,
+                  Int32 end] { get; }
+   }
 }

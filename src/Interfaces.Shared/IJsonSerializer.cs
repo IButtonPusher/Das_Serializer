@@ -50,6 +50,11 @@ namespace Das.Serializer
         /// </summary>
         String ToJson<TTarget>(Object o);
 
+        String ToJsonEx<TObject>(TObject obj,
+                                 ISerializerSettings settings);
+
+        String ToJsonEx<TObject>(TObject obj);
+
         void ToJson(Object o,
                     FileInfo fileInfo);
 

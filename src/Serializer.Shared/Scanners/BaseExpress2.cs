@@ -49,7 +49,9 @@ namespace Das.Serializer.Scanners
                           typeof(T), settings, ctorValues, ref noneState, null, null, null, true)
                       ?? throw new NullReferenceException();
 
-            return _objectManipulator.CastDynamic<T>(res);
+            var cooked = _objectManipulator.CastDynamic<T>(res);
+            _instantiator.OnDeserialized(cooked);
+            return cooked;
         }
 
         protected abstract Boolean AdvanceScanState(String txt,
@@ -290,7 +292,10 @@ namespace Das.Serializer.Scanners
                                     prop.PropertyType, false);
 
                                 if (isSetProps)
-                                    prop.SetValue(child, propVal, null);
+                                {
+                                    if (prop.CanWrite)
+                                        prop.SetValue(child, propVal, null);
+                                }
                                 else
                                     ((RuntimeObject) child!).Properties.Add(propName,
                                         new RuntimeObject(_types, propVal));
@@ -322,9 +327,6 @@ namespace Das.Serializer.Scanners
 
                             loadChildNode:
                             propName = stringBuilder.GetConsumingString();
-                            if (propName == "PlayerLabel")
-                            {
-                            }
 
                             Type? propType = null;
                             if (nodeType != NodeTypes.Dynamic)

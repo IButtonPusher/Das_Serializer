@@ -25,11 +25,11 @@ namespace Das.Serializer
         /// </summary>
         String Indentation { get; set; }
 
-        /// <summary>
-        ///     Particularly for Json pascal case is often used.  Setting this to false
-        ///     and having multiple properties with the "same" name will be problematic
-        /// </summary>
-        Boolean IsPropertyNamesCaseSensitive { get; set; }
+        ///// <summary>
+        /////     Particularly for Json pascal case is often used.  Setting this to false
+        /////     and having multiple properties with the "same" name will be problematic
+        ///// </summary>
+        //Boolean IsPropertyNamesCaseSensitive { get; set; }
 
         /// <summary>
         ///     Using attributes can make the markup smaller but can limit compatibility with other serializers
@@ -39,7 +39,13 @@ namespace Das.Serializer
         String NewLine { get; set; }
 
 
-        PrintPropertyFormat PrintJsonPropertiesFormat { get; set; }
+        /// <summary>
+        ///     Particularly for Json pascal case is often used.  Setting this to false
+        ///     and having multiple properties with the "same" name will be problematic
+        /// </summary>
+        PropertyNameFormat PrintPropertyNameFormat { get; set; }
+
+        PropertyNameFormat ScanPropertyNameFormat { get; set; }
 
 
         /// <summary>
@@ -79,5 +85,16 @@ namespace Das.Serializer
         /// Setting this to false makes for less overall text due to no line breaks, indentation, etc
         /// </summary>
         Boolean IsFormatSerializedText { get; set; }
+
+        /// <summary>
+        /// Provides a unique integer value for the values of:
+        /// IsUseAttributesInXml,
+        /// TypeSpecificity,
+        /// IsFormatSerializedText,
+        /// PrintPropertyNameFormat,
+        /// ScanPropertyNameFormat,
+        /// IsOmitDefaultValues
+        /// </summary>
+        Int32 GetPrintScanSignature();
     }
 }

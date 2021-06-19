@@ -46,10 +46,13 @@ namespace Serializer.Benchmarks
             for (var c = 0; c < 10000; c++)
             {
                 //bm.JsonNetDictionary();
-                bm.PrintDasDictionary();
+                //bm.PrintDasDictionary();
                 
                 //bm.DasDictionary();
                 //bm.DasPrimitiveProperties();
+                //bm.DasPrimitiveProperties2();
+                //bm.JsonNetPrimitiveProperties();
+                bm.DasPrintPrimitiveProperties2();
                 //bm.PrimitivePropertiesJsonBaseline();
                 //bm.PrimitivePropertiesJsonExpress();
             }

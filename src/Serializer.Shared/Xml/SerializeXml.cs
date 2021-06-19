@@ -46,15 +46,24 @@ namespace Das.Serializer
         public async Task ToXmlAsync<TObject>(TObject o,
                                               FileInfo fileName)
         {
-            var xml = ObjectToTypedXml(o!, typeof(TObject), Settings);
+            String xml;
+            if (!ReferenceEquals(null, o))
+            {
+                var ot = o.GetType();
+                xml = ObjectToTypedXml(o, ot, Settings);
+            }
+            else
+            {
+                xml = ObjectToTypedXml(o!, typeof(TObject), Settings);
+            }
+
             await WriteTextToFileInfoAsync(xml, fileName);
         }
 
-        private String ObjectToTypedXml(Object o,
+        private String ObjectToTypedXml(Object? o,
                                         Type asType,
                                         ISerializerSettings settings)
         {
-            //var settings = Settings;
             var nodeType = NodeTypeProvider.GetNodeType(asType);
 
             using (var writer = GetTextWriter(settings))
@@ -84,12 +93,10 @@ namespace Das.Serializer
 
                 var printer = new XmlPrinter(//writer, //state, settings, 
                     StateProvider.TypeInferrer, StateProvider.NodeTypeProvider,
-                    StateProvider.ObjectManipulator);
+                    StateProvider.ObjectManipulator, StateProvider.TypeManipulator);
 
                 var rootText = TypeInferrer.ToClearName(asType, TypeNameOption.OmitGenericArguments);
-                //var rootText = !asType.IsGenericType && !IsCollection(asType)
-                //    ? TypeInferrer.ToClearName(asType, true)
-                //    : asType.Name;
+                
 
                 printer.PrintNamedObject(rootText, asType, o, 
                     StateProvider.NodeTypeProvider.GetNodeType(asType),
@@ -101,7 +108,7 @@ namespace Das.Serializer
             }
         }
 
-        protected ITextRemunerable GetTextWriter(ISerializerSettings settings)
+        protected StringBuilderWrapper GetTextWriter(ISerializerSettings settings)
         {
             //return new FormattingStringBuilderWrapper(settings);
             return settings.IsFormatSerializedText

@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 using Das.Extensions;
 using Das.Serializer.Collections;
 using Das.Serializer.Properties;
-
+using Das.Serializer.Types;
 using TypeStructures = Das.Serializer.Collections.DoubleConcurrentDictionary<System.Type, Das.Serializer.ISerializationDepth, Das.Serializer.ITypeStructure>;
 
 namespace Das.Serializer
@@ -25,15 +25,13 @@ namespace Das.Serializer
         static TypeManipulator()
         {
             _lockNewType = new Object();
-            //_knownSensitive = new ConcurrentDictionary<Type, ITypeStructure>();
-            //_knownInsensitive = new ConcurrentDictionary<Type, ITypeStructure>();
-
-            _knownInsensitive2 = new TypeStructures();
-            _knownSensitive2 = new TypeStructures();
+            _knownSensitive = new ConcurrentDictionary<Type, ITypeStructure>();
 
             _cachedPropertyAccessors = new DoubleDictionary<Type, String, IPropertyAccessor>();
 
             _cachedAdders = new ConcurrentDictionary<Type, VoidMethod?>();
+
+            _knownGeneric = new ConcurrentDictionary<Type, ITypeStructure>();
         }
 
         public TypeManipulator(ISerializerSettings settings)
@@ -110,6 +108,14 @@ namespace Das.Serializer
 
             return null;
         }
+
+        VoidMethod ITypeManipulator.CreateMethodCaller(MethodInfo method)
+        {
+            return CreateMethodCaller(method);
+        }
+
+       
+
 
         ///// <summary>
         ///// Tries to get the Add method for a
@@ -267,28 +273,6 @@ namespace Das.Serializer
         }
 
 
-        //private static MethodInfo? FindInvocableMethodImpl(Type type,
-        //                                                   String methodName,
-        //                                                   Type[] paramTypes,
-        //                                                   HashSet<Type> typeSearch)
-        //{
-        //    var res = type.GetMethod(methodName, paramTypes);
-        //    if (res != null)
-        //        return res;
-
-        //    foreach (var implements in type.GetInterfaces())
-        //    {
-        //        if (!typeSearch.Add(implements))
-        //            continue;
-
-        //        res = FindInvocableMethodImpl(implements, methodName, paramTypes, typeSearch);
-        //        if (res != null)
-        //            return res;
-        //    }
-
-        //    return default;
-        //}
-
         public MethodInfo? FindInvocableMethod(Type type,
                                                ICollection<String> possibleMethodNames,
                                                Type[] paramTypes)
@@ -301,9 +285,9 @@ namespace Das.Serializer
         }
 
         public IEnumerable<INamedField> GetPropertiesToSerialize(Type type,
-                                                                 ISerializationDepth depth)
+                                                                 SerializationDepth depth)
         {
-            var str = GetTypeStructure(type, depth);
+            var str = GetTypeStructure(type);//, depth);
             foreach (var pi in str.GetMembersToSerialize(depth))
             {
                 yield return pi;
@@ -313,8 +297,12 @@ namespace Das.Serializer
         public Type? GetPropertyType(Type classType,
                                      String propName)
         {
-            var ts = GetTypeStructure(classType, DepthConstants.AllProperties);
-            return ts.MemberTypes.TryGetValue(propName, out var res) ? res.Type : default;
+            var ts = GetTypeStructure(classType);//, DepthConstants.AllProperties);
+            if (ts.TryGetPropertyAccessor(propName, PropertyNameFormat.Default, out var accessor))
+                return accessor.PropertyType;
+
+            return default;
+            //return ts.MemberTypes.TryGetValue(propName, out var res) ? res.Type : default;
         }
 
         IEnumerable<FieldInfo> ITypeManipulator.GetRecursivePrivateFields(Type type)
@@ -322,35 +310,95 @@ namespace Das.Serializer
             return GetRecursivePrivateFields(type);
         }
 
-        public ITypeStructure GetStructure<T>(ISerializationDepth depth)
+        public ITypeStructure GetTypeStructure(Type type)
         {
-            return GetTypeStructure(typeof(T), depth);
+            return _knownSensitive.GetOrAdd(type, BuildTypeStructureImpl);
         }
 
-        public ITypeStructure GetTypeStructure(Type type,
-                                               ISerializationDepth depth)
+        public ITypeStructure<T> GetTypeStructure<T>()
         {
-            return Settings.IsPropertyNamesCaseSensitive
-                ? _knownSensitive2.GetOrAdd(type, depth, BuildCaseSensitiveTypeStructure)
-                : _knownInsensitive2.GetOrAdd(type, depth, BuildCaseInsensitiveTypeStructure);
-
-            //if (Settings.IsPropertyNamesCaseSensitive)
-            //    return ValidateCollection(type, depth, true);
-
-            //return ValidateCollection(type, depth, false);
+            var res = _knownGeneric.GetOrAdd(typeof(T), _ => BuildTypeStructureImpl<T>());
+            return (ITypeStructure<T>)res;
         }
 
-        private ITypeStructure BuildCaseSensitiveTypeStructure(Type type,
-                                                               ISerializationDepth depth)
+        private ITypeStructure<T> BuildTypeStructureImpl<T>()
         {
-            return new TypeStructure(type, true, depth, this);
+            var accessors = BuildPropertyAccessors<T>();
+            return new TypeStructure<T>(typeof(T), this, accessors);
         }
 
-        private ITypeStructure BuildCaseInsensitiveTypeStructure(Type type,
-                                                               ISerializationDepth depth)
+        private ITypeStructure BuildTypeStructureImpl(Type type)
         {
-            return new TypeStructure(type, false, depth, this);
+            var accessors = BuildPropertyAccessors(type);
+            return new TypeStructure(type, this, accessors);
         }
+
+        private IEnumerable<IPropertyAccessor<T>> BuildPropertyAccessors<T>()
+        {
+            foreach (var pi in GetValidProperties(typeof(T)))
+            {
+                var propAccessor = GetPropertyAccessor<T>(pi.Name);
+                yield return propAccessor;
+            }
+        }
+
+        private IEnumerable<IPropertyAccessor> BuildPropertyAccessors(Type type)
+        {
+            foreach (var pi in GetValidProperties(type))
+            {
+                var propAccessor = GetPropertyAccessor(type, pi.Name);
+                yield return propAccessor;
+            }
+        }
+
+        private IEnumerable<PropertyInfo> GetValidProperties(Type type)
+        {
+            
+            if (type.IsDefined(typeof(SerializeAsTypeAttribute), false))
+            {
+                var serAs = type.GetCustomAttributes(typeof(SerializeAsTypeAttribute
+                ), false).First() as SerializeAsTypeAttribute;
+
+                if (serAs?.TargetType != null)
+                    type = serAs.TargetType;
+            }
+
+            foreach (var pi in GetPublicProperties(type))
+            {
+                if (pi.GetIndexParameters().Length > 0)
+                    // index properties don't fit into the current Func<Object, Object> paradigm...
+                    continue;
+
+                yield return pi;
+            }
+        }
+
+       
+
+        //public ITypeStructure GetTypeStructure(Type type,
+        //                                       ISerializationDepth depth)
+        //{
+        //    return Settings.IsPropertyNamesCaseSensitive
+        //        ? _knownSensitive2.GetOrAdd(type, depth, BuildCaseSensitiveTypeStructure)
+        //        : _knownInsensitive2.GetOrAdd(type, depth, BuildCaseInsensitiveTypeStructure);
+
+        //    if (Settings.IsPropertyNamesCaseSensitive)
+        //        return ValidateCollection(type, depth, true);
+
+        //    return ValidateCollection(type, depth, false);
+        //}
+
+        //private ITypeStructure BuildCaseSensitiveTypeStructure(Type type,
+        //                                                       ISerializationDepth depth)
+        //{
+        //    return new TypeStructure(type, this);// true, depth, this);
+        //}
+
+        //private ITypeStructure BuildCaseInsensitiveTypeStructure(Type type,
+        //                                                       ISerializationDepth depth)
+        //{
+        //    return new TypeStructure(type, false, depth, this);
+        //}
 
         public Type InstanceMemberType(MemberInfo info)
         {
@@ -393,6 +441,21 @@ namespace Das.Serializer
             }
         }
 
+
+        public IPropertyAccessor<TObject, TProperty> GetPropertyAccessor<TObject, TProperty>(String propName)
+        {
+            return PropertyDictionary<TObject, TProperty>.Properties.GetOrAdd(propName, 
+                BuildPropertyAccessor<TObject, TProperty>);
+
+            //return PropertyDictionary<TObject, TProperty>.Cached ??= BuildPropertyAccessor<TObject, TProperty>(propName);
+        }
+
+        private IPropertyAccessor<TObject, TProperty> BuildPropertyAccessor<TObject, TProperty>(String propName)
+        {
+            var getter = CreatePropertyGetter<TObject, TProperty>(propName, out var propInfo);
+            return new PropertyAccessor<TObject, TProperty>(propInfo, getter, null, propName);
+        }
+
         public IPropertyAccessor<T> GetPropertyAccessor<T>(String propertyName)
         {
             var declaringType = typeof(T);
@@ -430,22 +493,22 @@ namespace Das.Serializer
             }
         }
 
-        protected static MemberInfo[] GetMembersOrDie(Type declaringType,
-                                                      String propertyName)
-        {
-            var membersOnly = declaringType.GetMember(propertyName);
-            if (membersOnly.Length == 0)
-                throw new MissingMemberException(declaringType.FullName, propertyName);
+        //protected static MemberInfo[] GetMembersOrDie(Type declaringType,
+        //                                              String propertyName)
+        //{
+        //    var membersOnly = declaringType.GetMember(propertyName);
+        //    if (membersOnly.Length == 0)
+        //        throw new MissingMemberException(declaringType.FullName, propertyName);
 
-            return membersOnly;
-        }
+        //    return membersOnly;
+        //}
 
-        protected static PropertyInfo GetPropertyOrDie(Type declaringType,
-                                                       String propertyName)
-        {
-            return declaringType.GetProperty(propertyName) ??
-                   throw new MissingMemberException(declaringType.FullName, propertyName);
-        }
+        //protected static PropertyInfo GetPropertyOrDie(Type declaringType,
+        //                                               String propertyName)
+        //{
+        //    return declaringType.GetProperty(propertyName) ??
+        //           throw new MissingMemberException(declaringType.FullName, propertyName);
+        //}
 
 
         protected static Boolean TryGetMembers(Type declaringType,
@@ -697,17 +760,17 @@ namespace Das.Serializer
         {
             if (!propName.Contains("."))
             {
-                yield return GetPropertyOrDie(declaringType, propName);
+                yield return declaringType.GetPropertyOrDie(propName);
                 yield break;
             }
 
             var subPropTokens = propName.Split('.');
-            var propInfo = GetPropertyOrDie(declaringType, subPropTokens[0]);
+            var propInfo = declaringType.GetPropertyOrDie(subPropTokens[0]);
             yield return propInfo;
 
             for (var c = 1; c < subPropTokens.Length; c++)
             {
-                propInfo = GetPropertyOrDie(propInfo.PropertyType, subPropTokens[c]);
+                propInfo = propInfo.PropertyType.GetPropertyOrDie(subPropTokens[c]);
                 yield return propInfo;
             }
         }
@@ -765,12 +828,13 @@ namespace Das.Serializer
                                                              BindingFlags.Public | BindingFlags.NonPublic;
 
         private static readonly Object _lockNewType;
-        //private static readonly ConcurrentDictionary<Type, ITypeStructure> _knownSensitive;
-        //private static readonly ConcurrentDictionary<Type, ITypeStructure> _knownInsensitive;
+        private static readonly ConcurrentDictionary<Type, ITypeStructure> _knownSensitive;
+
+        private static readonly ConcurrentDictionary<Type, ITypeStructure> _knownGeneric;
 
 
-        private static readonly TypeStructures _knownInsensitive2;
-        private static readonly TypeStructures _knownSensitive2;
+        //private static readonly TypeStructures _knownInsensitive2;
+        //private static readonly TypeStructures _knownSensitive2;
 
         private static readonly DoubleDictionary<Type, String, IPropertyAccessor> _cachedPropertyAccessors;
 

@@ -31,6 +31,8 @@ namespace Das.Serializer
         void OnDeserialized(IValueNode node,
                             ISerializationDepth depth);
 
+        void OnDeserialized<T>(T obj);
+
         Boolean TryGetConstructorDelegate<TDelegate>(Type type,
                                                      out TDelegate result)
             where TDelegate : Delegate;

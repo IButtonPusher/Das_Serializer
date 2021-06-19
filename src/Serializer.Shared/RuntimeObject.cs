@@ -85,7 +85,7 @@ namespace Das.Serializer
                     if (PrimitiveValue != null)
                         return Equals(PrimitiveValue, obj);
 
-                    var ts = _typeManipulator.GetTypeStructure(obj.GetType(), DepthConstants.AllProperties);
+                    var ts = _typeManipulator.GetTypeStructure(obj.GetType());//, DepthConstants.AllProperties);
 
                     if (ts.PropertyCount != Properties.Count)
                         return false;

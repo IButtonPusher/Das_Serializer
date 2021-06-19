@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Das.Serializer.Remunerators
 {
-    public interface IObjectPrinter<TMany, TFew, TWriter> : IObjectPrinter
+    public interface IObjectPrinter<TMany, TFew, in TWriter> : IObjectPrinter
         where TMany : IEnumerable<TFew>
         where TWriter : IRemunerable<TMany, TFew>
     {
@@ -24,6 +24,7 @@ namespace Das.Serializer.Remunerators
 
         void PrintReferenceType(Object? value,
                                 Type valType,
+                                NodeTypes nodeType,
                                 TWriter writer,
                                 ISerializerSettings settings,
                                 ICircularReferenceHandler circularReferenceHandler);
@@ -37,17 +38,6 @@ namespace Das.Serializer.Remunerators
 
     public interface IObjectPrinter
     {
-        //Boolean PrintObject(Object? o,
-        //                    Type propType,
-        //                    NodeTypes nodeType,
-        //                    ISerializerSettings settings,
-        //                    ICircularReferenceHandler circularReferenceHandler);
-
-        //void PrintCircularDependency(Int32 index,
-        //                             ISerializerSettings settings,
-        //                             IEnumerable<String> pathStack,
-        //                             ICircularReferenceHandler circularReferenceHandler);
-
         Char PathSeparator {get;}
 
         Boolean IsPrintNullProperties {get;}

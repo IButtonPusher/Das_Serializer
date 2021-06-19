@@ -41,7 +41,7 @@ namespace Das.Types
         public T GetPropertyValue<T>(Object obj,
                                      String propertyName)
         {
-            var res = GetPropertyValue(obj, propertyName);
+            var res = GetPropertyValue(obj, propertyName, PropertyNameFormat.Default);
             switch (res)
             {
                 case T good:
@@ -54,12 +54,20 @@ namespace Das.Types
             //return (T) GetPropertyResult(obj, obj.GetType(), propertyName)?.Value!;
         }
 
-        public Object? GetPropertyValue(Object obj,
-                                        String propertyName)
+        public TProperty GetPropertyValue<TObject, TProperty>(TObject obj,
+                                                              String propertyName)
         {
-            var str = _typeDelegates.GetTypeStructure(obj.GetType(), DepthConstants.AllProperties);
-            return str.GetPropertyValue(obj, propertyName);
-            //return GetPropertyResult(obj, obj.GetType(), propertyName)?.Value;
+            var str = _typeDelegates.GetTypeStructure(typeof(TObject));
+
+            return str.GetPropertyValue<TObject, TProperty>(obj, propertyName);
+        }
+
+        public Object? GetPropertyValue(Object obj,
+                                        String propertyName,
+                                        PropertyNameFormat format)
+        {
+            var str = _typeDelegates.GetTypeStructure(obj.GetType());
+            return str.GetPropertyValue(obj, propertyName, format);
         }
 
         public Boolean TryGetPropertyValue(Object obj,
@@ -74,7 +82,7 @@ namespace Das.Types
 
             var oType = obj is Type t ? t : obj.GetType();
 
-            var str = _typeDelegates.GetTypeStructure(oType, DepthConstants.AllProperties);
+            var str = _typeDelegates.GetTypeStructure(oType);//, DepthConstants.AllProperties);
             result = str.GetPropertyValue(obj, propertyName)!;
 
             //var propRes = GetPropertyResult(obj, oType, propertyName);
@@ -134,7 +142,7 @@ namespace Das.Types
                 ? val.GetType()
                 : valType;
 
-            var typeStruct = _typeDelegates.GetTypeStructure(useType!, DepthConstants.AllProperties);
+            var typeStruct = _typeDelegates.GetTypeStructure(useType);//!, DepthConstants.AllProperties);
             foreach (var f in typeStruct.IteratePropertyValues(val, depth))
             {
                 yield return f;
@@ -146,7 +154,7 @@ namespace Das.Types
                                      Object targetObj,
                                      Object propVal)
         {
-            var str = _typeDelegates.GetTypeStructure(classType, DepthConstants.Full);
+            var str = _typeDelegates.GetTypeStructure(classType);//, DepthConstants.Full);
             return str.SetFieldValue(fieldName, targetObj, propVal);
         }
 
@@ -155,14 +163,14 @@ namespace Das.Types
                                         Object targetObj,
                                         Object fieldVal)
         {
-            var str = _typeDelegates.GetTypeStructure(classType, DepthConstants.Full);
+            var str = _typeDelegates.GetTypeStructure(classType);//, DepthConstants.Full);
             return str.SetFieldValue<T>(fieldName, targetObj, fieldVal);
         }
 
         public void SetFieldValues<TObject>(TObject obj,
                                             Action<ITypeStructure, TObject> action)
         {
-            var s = _typeDelegates.GetTypeStructure(typeof(TObject), DepthConstants.Full);
+            var s = _typeDelegates.GetTypeStructure(typeof(TObject));//, DepthConstants.Full);
             action(s, obj);
         }
 
@@ -172,11 +180,12 @@ namespace Das.Types
         /// </summary>
         public Boolean TrySetProperty(Type classType,
                                       String propName,
+                                      PropertyNameFormat format,
                                       ref Object targetObj,
                                       Object? propVal)
         {
-            var str = _typeDelegates.GetTypeStructure(classType, DepthConstants.AllProperties);
-            return str.TrySetPropertyValue(propName, ref targetObj, propVal);
+            var str = _typeDelegates.GetTypeStructure(classType);//, DepthConstants.AllProperties);
+            return str.TrySetPropertyValue(propName, format, ref targetObj, propVal);
         }
 
         public void SetMutableProperties(IEnumerable<PropertyInfo> mutable,
@@ -188,15 +197,16 @@ namespace Das.Types
                 if (!TryGetPropertyValue(source, m.Name, out var propVal))
                     continue;
 
-                TrySetProperty(target.GetType(), m.Name, ref target, propVal);
+                TrySetProperty(target.GetType(), m.Name, PropertyNameFormat.Default, ref target, propVal);
             }
         }
 
         public Boolean SetPropertyValue(ref Object targetObj,
                                         String propName,
+                                        PropertyNameFormat format,
                                         Object? propVal)
         {
-            return TrySetProperty(targetObj.GetType(), propName, ref targetObj!, propVal);
+            return TrySetProperty(targetObj.GetType(), propName, format, ref targetObj!, propVal);
         }
 
         public void Method(Object obj,

@@ -38,5 +38,7 @@ namespace Das.Serializer.Properties
         }
 
         private readonly PropertySetter<T>? _setter;
+
+        
     }
 }

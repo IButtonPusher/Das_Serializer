@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading.Tasks; //using System.Linq;
 
 namespace Das.Serializer
@@ -352,6 +353,141 @@ namespace Das.Serializer
             return constr != null;
         }
 
+        public string ChangePropertyNameFormat(String str,
+                                               PropertyNameFormat newFormat)
+        {
+            switch (newFormat)
+            {
+                case PropertyNameFormat.Default:
+                    return str;
+
+                case PropertyNameFormat.PascalCase:
+                    return ToPascalCase(str);
+
+                case PropertyNameFormat.CamelCase:
+                    return ToCamelCase(str);
+
+                case PropertyNameFormat.SnakeCase:
+                    return ToSnakeCase(str);
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(newFormat), newFormat, null);
+            }
+
+            
+        }
+
+        
+
+        /// <summary>
+        ///     Returns the name in PascalCase
+        /// </summary>
+        public static String ToPascalCase(String name)
+        {
+            switch (name.Length)
+            {
+                case 0:
+                    return name;
+
+                case 1:
+                    return name.ToUpper();
+            }
+
+            var res = new StringBuilder();
+
+            var c = 0;
+            for (; c < name.Length; c++)
+            {
+                if (name[c] == '_')
+                    continue;
+
+                res.Append(Char.ToUpper(name[c++]));
+                break;
+            }
+
+            for (; c < name.Length; c++)
+                if (name[c] == '_')
+                {
+                    if (c < name.Length - 1)
+                        res.Append(Char.ToUpper(name[++c]));
+                }
+                else
+                    res.Append(name[c]);
+
+
+            return res.ToString();
+        }
+
+        public static String ToCamelCase(String name)
+        {
+            switch (name.Length)
+            {
+                case 0:
+                    return name;
+
+                case 1:
+                    return name.ToLower();
+            }
+
+            var res = new StringBuilder();
+
+            var c = 0;
+            for (; c < name.Length; c++)
+            {
+                if (name[c] == '_')
+                    continue;
+
+                res.Append(char.ToLower(name[c++]));
+                break;
+            }
+
+            for (; c < name.Length; c++)
+                if (name[c] == '_')
+                {
+                    if (c < name.Length - 1)
+                        res.Append(char.ToUpper(name[++c]));
+                }
+                else
+                    res.Append(name[c]);
+
+
+            return res.ToString();
+        }
+
+        public static String ToSnakeCase(String name)
+        {
+            switch (name.Length)
+            {
+                case 0:
+                    return name;
+
+                case 1:
+                    return name.ToLower();
+            }
+
+            var res = new StringBuilder();
+
+            var c = 0;
+            for (; c < name.Length; c++)
+            {
+                if (name[c] == '_')
+                    continue;
+
+                res.Append(char.ToLower(name[c++]));
+                break;
+            }
+
+            for (; c < name.Length; c++)
+                if (char.IsUpper(name[c]))
+                {
+                    res.Append('_');
+                    res.Append(char.ToLower(name[c]));
+                }
+                else
+                    res.Append(char.ToLower(name[c]));
+
+            return res.ToString();
+        }
 
         public static Boolean IsLeaf(Type t,
                                      Boolean isStringCounts)
