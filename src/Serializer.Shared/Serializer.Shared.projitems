@@ -10,8 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Attributes.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Binary\DeserializeBinary.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Binary\SerializeBinary.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BaseDynamicFacade.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CircularReferences\BaseCircularReferenceHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CircularReferences\ExceptionCircularReferenceHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CircularReferences\IgnoringCircularReferenceHandler.cs" />
@@ -34,15 +33,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Json\SerializeJson.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NaiveMemoryStream.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DasSerializer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)DynamicFacade.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)NodeBuilders\BaseNodeSealer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)NodeBuilders\BinaryNodeProvider.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)NodeBuilders\BinaryNodeSealer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)NodeBuilders\NodeManipulator.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)NodeBuilders\NodeProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NodeBuilders\NodeTypeProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ObjectConverter.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Printers\BinaryPrinter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Printers\DynamicJsonPrinterBuilder2.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Printers\DynamicPrinterBuilderBase2.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Printers\DynamicPrinterProvider.cs" />
@@ -75,12 +67,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoStateBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoVarIntBuilder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Proto\ProxyLookup.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Remunerators\BinaryWriterBase.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Remunerators\BinaryWriterWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\ByteBuilder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\CompactStringBuilderWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\CompactStringSaver.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Remunerators\DeferredBinaryWriter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\FormattingStringBuilderWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\FormattingStringSaver.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\ProtoBufWriter.cs" />
@@ -89,25 +78,14 @@
     <Compile Include="$(MSBuildThisFileDirectory)RuntimeObject.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\BaseExpress.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\BaseExpress2.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Scanners\BaseNode.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Scanners\BinaryNode.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Scanners\BinaryPrimitiveScanner.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Scanners\BinaryScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\JsonPrimitiveScanner.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Scanners\NullNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\NodeScanState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\StringPrimitiveScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\XmlPrimitiveScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SerializerCore.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\AssemblyList.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\BaseState.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)State\BinaryBorrawable.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)State\BinaryContext.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)State\BinaryState.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)State\DefaultStateProvider.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)State\StateProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\ValueCollectionWrapper.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Streamers\BinaryFeeder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Streamers\ByteArray.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Streamers\ByteStream.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Streamers\StreamStreamer.cs" />

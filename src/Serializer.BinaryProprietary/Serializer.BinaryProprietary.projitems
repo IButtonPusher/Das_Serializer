@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>ad1bd953-9174-4080-af16-bc244f1f9189</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Serializer.BinaryProprietary</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)BaseNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BaseNodeSealer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BinaryBorrawable.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BinaryContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BinaryFeeder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BinaryNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BinaryNodeProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BinaryNodeSealer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BinaryPrimitiveScanner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BinaryPrinter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BinaryScanner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BinaryState.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BinaryWriterBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BinaryWriterWrapper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DefaultStateProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DeferredBinaryWriter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DeserializeBinary.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DynamicFacade.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NodeManipulator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NodeProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NullNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SerializeBinary.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)StateProvider.cs" />
+  </ItemGroup>
+</Project>

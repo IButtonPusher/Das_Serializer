@@ -119,5 +119,6 @@
   </ItemGroup>
   <Import Project="..\Interfaces.Shared\Interfaces.Shared.projitems" Label="Shared" />
   <Import Project="..\Serializer.Shared\Serializer.Shared.projitems" Label="Shared" />
+  <Import Project="..\Serializer.BinaryProprietary\Serializer.BinaryProprietary.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
