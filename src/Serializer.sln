@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28803.452
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31919.166
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Serializer.Interfaces", "Serializer.Interfaces\Serializer.Interfaces.csproj", "{C6E56268-9045-4DBB-B83A-F14C009A5944}"
 EndProject
@@ -19,16 +19,24 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serializer.Tests", "Seriali
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Serializer.BinaryProprietary", "Serializer.BinaryProprietary\Serializer.BinaryProprietary.shproj", "{AD1BD953-9174-4080-AF16-BC244F1F9189}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Reflection.Common", "Reflection.Common\Reflection.Common.shproj", "{D76598FA-95A2-49E4-9458-F7461685B873}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Serializer.Shared\Serializer.Shared.projitems*{228fd1e5-7105-4531-804e-d0b97a2b58cb}*SharedItemsImports = 13
 		Interfaces.Shared\Interfaces.Shared.projitems*{a9d2ef65-4059-4c0a-b513-d49ac3d66cf2}*SharedItemsImports = 5
+		Reflection.Common\Reflection.Common.projitems*{a9d2ef65-4059-4c0a-b513-d49ac3d66cf2}*SharedItemsImports = 5
+		Serializer.BinaryProprietary\Serializer.BinaryProprietary.projitems*{a9d2ef65-4059-4c0a-b513-d49ac3d66cf2}*SharedItemsImports = 5
 		Serializer.Shared\Serializer.Shared.projitems*{a9d2ef65-4059-4c0a-b513-d49ac3d66cf2}*SharedItemsImports = 5
 		Serializer.BinaryProprietary\Serializer.BinaryProprietary.projitems*{ad1bd953-9174-4080-af16-bc244f1f9189}*SharedItemsImports = 13
 		Interfaces.Shared\Interfaces.Shared.projitems*{aeb86a21-7287-4a27-b467-1a0d1c66fa9f}*SharedItemsImports = 13
+		Reflection.Common\Reflection.Common.projitems*{b631f449-68dd-4f5f-bd04-c2f2e5bf124d}*SharedItemsImports = 5
+		Serializer.BinaryProprietary\Serializer.BinaryProprietary.projitems*{b631f449-68dd-4f5f-bd04-c2f2e5bf124d}*SharedItemsImports = 5
 		Serializer.Shared\Serializer.Shared.projitems*{b631f449-68dd-4f5f-bd04-c2f2e5bf124d}*SharedItemsImports = 5
 		Interfaces.Shared\Interfaces.Shared.projitems*{c6e56268-9045-4dbb-b83a-f14c009a5944}*SharedItemsImports = 5
+		Reflection.Common\Reflection.Common.projitems*{d76598fa-95a2-49e4-9458-f7461685b873}*SharedItemsImports = 13
 		Interfaces.Shared\Interfaces.Shared.projitems*{ecb2b428-c066-4d2b-b891-711b83951c65}*SharedItemsImports = 4
+		Reflection.Common\Reflection.Common.projitems*{ecb2b428-c066-4d2b-b891-711b83951c65}*SharedItemsImports = 4
 		Serializer.BinaryProprietary\Serializer.BinaryProprietary.projitems*{ecb2b428-c066-4d2b-b891-711b83951c65}*SharedItemsImports = 4
 		Serializer.Shared\Serializer.Shared.projitems*{ecb2b428-c066-4d2b-b891-711b83951c65}*SharedItemsImports = 4
 	EndGlobalSection

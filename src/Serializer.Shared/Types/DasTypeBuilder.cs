@@ -329,7 +329,7 @@ namespace Das.Types
             var eventName = eve.Name;
             var eventType = eve.EventHandlerType ?? throw new NullReferenceException(eve.Name);
 
-            var fieldBuilder = tb.DefineField("_" + eventName, eventType!, FieldAttributes.Private);
+            var fieldBuilder = tb.DefineField("_" + eventName, eventType, FieldAttributes.Private);
             var theEvent = tb.DefineEvent(eve.Name, EventAttributes.None, eventType);
 
             var addMethod = tb.DefineMethod($"add_{eventName}",

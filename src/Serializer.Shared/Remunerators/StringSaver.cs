@@ -463,7 +463,7 @@ namespace Das.Serializer
                return;
 
             var half = _sbPool.Count / 2.0;
-            if (half.IsZero())
+            if (half.IsCloseToZero())
             {
                _sbPool.Add(sb);
                return;
@@ -510,7 +510,9 @@ namespace Das.Serializer
          lock (_sbLock)
          {
             var half = _sbPool.Count / 2.0;
-            if (half.IsZero())
+
+            
+            if (half.IsCloseToZero())
                return false;
             var i = Convert.ToInt32(half);
             var current = _sbPool[i];

@@ -231,45 +231,15 @@ namespace Das.Serializer.Printers
 
                 case TypeCode.DateTime:
 
-                    //var dtTmp = il.DeclareLocal(typeof(DateTime));
-
-                    il.Emit(OpCodes.Ldarga, 2);
+                   il.Emit(OpCodes.Ldarga, 2);
 
                     loadPrimitiveValue(il);
-
-                    //il.Emit(OpCodes.Stloc, dtTmp);
-                    //il.Emit(OpCodes.Ldloca, dtTmp);
-
-
-                    //il.Emit(OpCodes.Ldstr, "s");
-                    //il.Emit(OpCodes.Ldsfld, invariantCulture);
-
-                    //il.Emit(OpCodes.Call, typeof(DateTime).GetMethod(nameof(ToString), new[]
-                    //    {typeof(String), typeof(CultureInfo)})!);
 
                     il.Emit(OpCodes.Constrained, tWriter);
                     il.Emit(OpCodes.Callvirt, _printDateTime);
 
-                    //var dtTmp = il.DeclareLocal(typeof(DateTime));
 
-                    //il.Emit(OpCodes.Ldarga, 2);
-
-                    //loadPrimitiveValue(il);
-
-                    //il.Emit(OpCodes.Stloc, dtTmp);
-                    //il.Emit(OpCodes.Ldloca, dtTmp);
-
-
-                    //il.Emit(OpCodes.Ldstr, "s");
-                    //il.Emit(OpCodes.Ldsfld, invariantCulture);
-
-                    //il.Emit(OpCodes.Call, typeof(DateTime).GetMethod(nameof(ToString), new[]
-                    //    {typeof(String), typeof(CultureInfo)})!);
-
-                    //il.Emit(OpCodes.Constrained, tWriter);
-                    //il.Emit(OpCodes.Callvirt, _printStringMethod);
-
-                    res = "\"";
+                   res = "\"";
 
                     break;
 
@@ -279,8 +249,6 @@ namespace Das.Serializer.Printers
 
                     loadPrimitiveValue(il);
 
-                    //var appendEscaped = typeof(JsonPrinter).GetMethod(nameof(JsonPrinter.AppendEscaped),
-                    //    BindingFlags.Static | BindingFlags.Public)!;
                     var gAppendEscaped = _appendEscaped.MakeGenericMethod(tWriter);
 
                     il.Emit(OpCodes.Call, gAppendEscaped);

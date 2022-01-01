@@ -72,7 +72,7 @@ namespace Das.Serializer
             }
 
             if (type == Const.ObjectType)
-                return input!;
+                return input;
 
             //todo: this is probably not good
             if (input == "null")

@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Das.Serializer
@@ -35,11 +34,13 @@ namespace Das.Serializer
             var outObj = _instantiate.BuildDefault(outType, settings.CacheTypeConstructors);
             _currentNodeType = _nodeTypes.GetNodeType(outType);
 
-            var refs = References.Value;
+            //var refs = References.Value;
+            var refs = new Dictionary<Object, Object>();
             refs.Clear();
 
             outObj = Copy(obj, ref outObj, refs, settings);
 
+            refs.Clear();
             return (T) outObj;
         }
 
@@ -71,7 +72,7 @@ namespace Das.Serializer
 #pragma warning disable 8634
             Copy(from, ref to, settings);
 #pragma warning restore 8634
-            return to!;
+            return to;
         }
 
         public void Copy<T>(T from,
@@ -83,10 +84,13 @@ namespace Das.Serializer
             _currentNodeType = _nodeTypes.GetNodeType(typeof(T));
             var o = (Object) to;
 
-            var refs = References.Value;
+            //var refs = References.Value;
+            var refs = new Dictionary<Object, Object>();
             refs.Clear();
 
             Copy(from, ref o, refs, settings);
+
+            refs.Clear();
 
             if (o is T good)
                 to = good;
@@ -226,7 +230,7 @@ namespace Das.Serializer
                     var props = new Dictionary<String, Object>();
                     foreach (var prop in _types.GetPublicProperties(toType))
                     {
-                        if (!_objects.TryGetPropertyValue(from, prop.Name, out var fromProp))
+                        if (!_objects.TryGetPropertyValue(from, prop, out var fromProp))
                             continue;
 
                         _currentNodeType = _nodeTypes.GetNodeType(prop.PropertyType);
@@ -353,8 +357,8 @@ namespace Das.Serializer
             return ObjectInstantiator.BuildDefault<T>(settings.CacheTypeConstructors);
         }
 
-        private static readonly ThreadLocal<Dictionary<Object, Object>> References
-            = new(() => new Dictionary<Object, Object>());
+        //private static readonly ThreadLocal<Dictionary<Object, Object>> References
+        //    = new(() => new Dictionary<Object, Object>());
 
         [ThreadStatic]
         private static NodeTypes _currentNodeType;

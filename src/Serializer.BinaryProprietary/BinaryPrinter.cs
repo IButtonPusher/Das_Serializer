@@ -385,7 +385,7 @@ namespace Das.Printers
             if (o == null)
                 //specify that the actual object is 0 bytes
                 bWriter.WriteInt32(0);
-            else if (_typeInferrer.IsLeaf(useType!, true))
+            else if (_typeInferrer.IsLeaf(useType, true))
                 //node.Type = useType;
                 PrintPrimitive(o, bWriter, useType);
             else
@@ -411,7 +411,7 @@ namespace Das.Printers
                 if (Print(o, code, _bWriter))
                     return;
 
-                if (!_typeInferrer.TryGetNullableType(type!, out var primType))
+                if (!_typeInferrer.TryGetNullableType(type, out var primType))
                     throw new NotSupportedException($"Type {type} cannot be printed as a primitive");
 
                 if (o == null)

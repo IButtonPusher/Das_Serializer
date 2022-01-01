@@ -288,7 +288,7 @@ namespace Serializer.Tests.Xml
         public void IntExplicitXml()
         {
             var someInt = 55;
-            //var srl = new DasSerializer();
+            
             var xml = srl.ToXml(someInt);
 
             var int2 = srl.FromXml<Int32>(xml);
@@ -325,8 +325,7 @@ namespace Serializer.Tests.Xml
         public void NoEmptyConstructorNullValueTypeValue()
         {
             var dto = new ArticleDto(1, "bob", "low", 2, null, 12344, "hello", -500);
-            //var srl = Serializer;
-            //var srl = new DasSerializer();
+            
             var xml = srl.ToXml(dto);
             var dto2 = srl.FromXml<ArticleDto>(xml);
 
@@ -352,17 +351,6 @@ namespace Serializer.Tests.Xml
             var sc = SimpleClassObjectProperty.GetNullPayload();
             sc.Payload = SimpleClassObjectProperty.GetPrimitivePayload();
 
-            //{
-            //    var srl = new DasCoreSerializer();
-            //    var xml = srl.ToXml(sc);
-
-            //    var sc2 = srl.FromXml<SimpleClassObjectProperty>(xml);
-            //    var badProp = "";
-            //    Assert.True(SlowEquality.AreEqual(sc, sc2, ref badProp));
-            //}
-
-
-            //var srl = new DasSerializer();
             var xml = srl.ToXml(sc);
 
             var sc2 = srl.FromXml<SimpleClassObjectProperty>(xml);

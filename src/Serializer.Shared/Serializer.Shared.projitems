@@ -16,7 +16,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)CircularReferences\IgnoringCircularReferenceHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CircularReferences\NullCircularReferenceHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CircularReferences\PathSerializingCircularReferenceHandler.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Collections\DoubleConcurrentDictionary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Collections\FastSemaphore.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Collections\UpgradableReadWriteLock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Concurrency\ExclusiveSynchronizationContext.cs" />
@@ -83,8 +82,11 @@
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\StringPrimitiveScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\XmlPrimitiveScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SerializerCore.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Settings\DepthConstants.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\AssemblyList.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\BaseState.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)State\GenericCollectionWrapper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)State\ICollectionWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\ValueCollectionWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Streamers\ByteArray.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Streamers\ByteStream.cs" />
@@ -92,6 +94,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)TextCommon\StringAccessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TextCommon\StringBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\PropertyDictionary.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Types\TypeAccessorDictionary.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Types\TypePropertiesAccessor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Types\TypePropertiesAccessor{T}.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\TypeStructure.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\DasCodeGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\DasType.cs" />

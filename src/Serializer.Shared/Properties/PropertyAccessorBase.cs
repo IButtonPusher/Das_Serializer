@@ -13,11 +13,7 @@ namespace Das.Serializer.Properties
         : base(getter != null, declaringType, propInfo, propertyName)
         {
             _getter = getter;
-            
-
-           
         }
-      
 
         public Object? GetPropertyValue(Object obj)
         {

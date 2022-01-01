@@ -62,7 +62,7 @@
             _pathReferences.Remove(obj);
             </summary>
         </member>
-        <member name="P:Das.Serializer.IPropertyAccessor.PropertyPath">
+        <member name="P:Das.Serializer.IPropertyBase.PropertyPath">
             <summary>
                 The property's name under most circumstances.  Can also be ParentType.PropertyName etc
             </summary>

@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Das.Extensions;
+using Das.Serializer.State;
 
 namespace Das.Serializer.Scanners
 {
@@ -297,7 +298,7 @@ namespace Das.Serializer.Scanners
                                         prop.SetValue(child, propVal, null);
                                 }
                                 else
-                                    ((RuntimeObject) child!).Properties.Add(propName,
+                                    ((RuntimeObject) child).Properties.Add(propName,
                                         new RuntimeObject(_types, propVal));
 
                                 propsSet++;
@@ -345,7 +346,7 @@ namespace Das.Serializer.Scanners
                                     p.SetValue(child, nodePropVal, null);
                             }
                             else
-                                ((RuntimeObject) child!).Properties.Add(propName,
+                                ((RuntimeObject) child).Properties.Add(propName,
                                     new RuntimeObject(_types, nodePropVal!));
 
                             propsSet++;
@@ -365,7 +366,7 @@ namespace Das.Serializer.Scanners
                 switch (nodeType)
                 {
                     case NodeTypes.Dynamic:
-                        return _dynamicTypes.BuildDynamicObject((RuntimeObject) child!);
+                        return _dynamicTypes.BuildDynamicObject((RuntimeObject) child);
 
                     case NodeTypes.PropertiesToConstructor:
                         _typeInference.TryGetPropertiesConstructor(specifiedType, out var ctor);
@@ -458,6 +459,13 @@ namespace Das.Serializer.Scanners
                 if (nodeScanState == NodeScanState.StartOfNodeClose)
                     break;
 
+                //var refWas = currentIndex;
+                //var scanStateWas = nodeScanState;
+
+                //if (prop != null && _typeInference.IsCollection(germane))
+                //{}
+                
+
                 var current = DeserializeNode(txt, ref currentIndex, stringBuilder, germane, settings,
                     _emptyCtorValues, ref nodeScanState, parent, prop, root, false);
 
@@ -478,7 +486,7 @@ namespace Das.Serializer.Scanners
                 return arr;
             }
 
-            if (collection is ValueCollectionWrapper wrapper)
+            if (collection is ICollectionWrapper wrapper)
                 return wrapper.GetBaseCollection();
 
             return collection;
@@ -489,23 +497,30 @@ namespace Das.Serializer.Scanners
                                          PropertyInfo? collectionIsProperty,
                                          Object? parent)
         {
-            if (!collectionType.IsArray && collectionIsProperty != null)
+            if (!collectionType.IsArray && collectionIsProperty != null && 
+                parent != null && parent is not IRuntimeObject)
             {
                 var pVal = collectionIsProperty.GetValue(parent, null);
 
-                if (pVal is IList list)
+                if (pVal is IList list && collectionType.IsAssignableFrom(pVal.GetType()))
                     return list;
             }
 
             var res = collectionType.IsArray
                 ? _instantiator.BuildGenericList(_types.GetGermaneType(collectionType))
                 : _instantiator.BuildDefault(collectionType, true);
+            
             if (res is IList good)
                 return good;
 
             if (res is ICollection collection &&
                 _types.GetAdder(collection, collectionType) is { } adder)
                 return new ValueCollectionWrapper(collection, adder);
+
+
+            if (collectionType.IsGenericType)
+               return GenericCollectionWrapper.Get(collectionType);
+
 
             throw new InvalidOperationException();
         }

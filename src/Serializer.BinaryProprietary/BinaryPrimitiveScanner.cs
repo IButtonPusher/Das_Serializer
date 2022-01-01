@@ -51,7 +51,7 @@ namespace Das.Serializer
                     }
                     else if (IsLeaf(type, false))
                         res = _instantiator.CreatePrimitiveObject(input, type);
-                    else if (TryGetNullableType(type, out type!))
+                    else if (TryGetNullableType(type, out type))
                         res = GetValue(input, type, wasInputInQuotes);
                     else
                         using (var ms = new MemoryStream(input))

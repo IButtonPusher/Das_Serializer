@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Das.Serializer;
 
@@ -17,14 +18,6 @@ namespace Das.Printers
         {
             
         }
-
-        //public static void AppendDateTime<TWriter>(TWriter writer,
-        //                                           DateTime value)
-        //    where TWriter : ITextRemunerable
-        //{
-        //    writer.Append(value.Year.ToString());
-        //    writer.Append('-');
-        //}
 
 
         public static void AppendEscaped<TWriter>(TWriter writer,
@@ -225,6 +218,9 @@ namespace Das.Printers
                 {
                     var prop = properties[c];
 
+                    if (prop.TryGetAttribute<IgnoreDataMemberAttribute>(out _))
+                       continue;
+
                     var currentValue = prop.GetPropertyValue(value);
                     if (!ShouldPrintValue(currentValue, settings))
                         continue;
@@ -286,7 +282,13 @@ namespace Das.Printers
                                                  ISerializerSettings settings,
                                                  out Object? value)
         {
-            value = prop.GetPropertyValue(obj);
+           if (prop.TryGetAttribute<IgnoreDataMemberAttribute>(out _))
+           {
+              value = default;
+              return false;
+           }
+
+           value = prop.GetPropertyValue(obj);
             return ShouldPrintValue(value, settings);
         }
 

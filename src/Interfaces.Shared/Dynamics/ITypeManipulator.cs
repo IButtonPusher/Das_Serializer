@@ -13,6 +13,8 @@ namespace Das.Serializer
 
         Func<TParent, TField> CreateFieldGetter<TParent, TField>(FieldInfo fieldInfo);
 
+        Action<TParent, TField> CreateFieldSetter<TParent, TField>(FieldInfo fieldInfo);
+
         Action<Object, Object?> CreateFieldSetter(FieldInfo fieldInfo);
 
         Func<Object, Object[], Object> CreateFuncCaller(MethodInfo method);
@@ -27,13 +29,8 @@ namespace Das.Serializer
         Func<TObject, TProperty> CreatePropertyGetter<TObject, TProperty>(String propertyName,
                                                                           out PropertyInfo propInfo);
 
-        Func<Object, Object>? CreatePropertyGetter(Type targetType,
-                                                   String propertyName,
-                                                   out PropertyInfo propInfo);
 
         PropertySetter? CreateSetMethod(MemberInfo memberInfo);
-
-        PropertySetter<T>? CreateSetMethod<T>(String memberName);
 
         PropertySetter? CreateSetMethod(Type declaringType,
                                         String memberName);
@@ -79,9 +76,6 @@ namespace Das.Serializer
         ITypeStructure<T> GetTypeStructure<T>();
 
         ITypeStructure GetTypeStructure(Type type);
-
-        //ITypeStructure GetTypeStructure(Type type,
-        //                                ISerializationDepth depth);
 
         Type InstanceMemberType(MemberInfo info);
 

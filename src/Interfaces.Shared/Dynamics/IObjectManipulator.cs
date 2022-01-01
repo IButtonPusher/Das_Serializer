@@ -105,6 +105,10 @@ namespace Das.Serializer
                                     String propertyName,
                                     out Object result);
 
+        Boolean TryGetPropertyValue(Object obj,
+                                    PropertyInfo property,
+                                    out Object result);
+
         Boolean TrySetProperty(Type classType,
                                String propName,
                                PropertyNameFormat format,

@@ -1,42 +1,42 @@
-﻿using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-using Das.Serializer.Concurrency;
+﻿//using System;
+//using System.IO;
+//using System.Threading;
+//using System.Threading.Tasks;
+//using Das.Serializer.Concurrency;
 
-namespace Das.Serializer
-{
-    /// <summary>
-    ///     Creates a system wide mutex on a string based on the file's name
-    /// </summary>
-    public class SafeFile : IDisposable
-    {
-        static SafeFile()
-        {
-            _staScheduler = new StaScheduler("SafeFile synchronization");
-        }
+//namespace Das.Serializer
+//{
+//    /// <summary>
+//    ///     Creates a system wide mutex on a string based on the file's name
+//    /// </summary>
+//    public class SafeFile : IDisposable
+//    {
+//        static SafeFile()
+//        {
+//            _staScheduler = new StaScheduler("SafeFile synchronization");
+//        }
 
-        public SafeFile(FileInfo fi)
-        {
-            if (fi.DirectoryName == null)
-                throw new InvalidDataException("Path of specified file is not valid");
+//        public SafeFile(FileInfo fi)
+//        {
+//            if (fi.DirectoryName == null)
+//                throw new InvalidDataException("Path of specified file is not valid");
 
-            if (!Directory.Exists(fi.DirectoryName))
-                Directory.CreateDirectory(fi.DirectoryName);
+//            if (!Directory.Exists(fi.DirectoryName))
+//                Directory.CreateDirectory(fi.DirectoryName);
 
-            _protector = new Mutex(false, fi.FullName.Replace(
-                Path.DirectorySeparatorChar, '_'));
+//            _protector = new Mutex(false, fi.FullName.Replace(
+//                Path.DirectorySeparatorChar, '_'));
 
-            _staScheduler.Invoke(() => _protector.WaitOne());
-        }
+//            _staScheduler.Invoke(() => _protector.WaitOne());
+//        }
 
-        public void Dispose()
-        {
-            _staScheduler.Invoke(() => _protector.ReleaseMutex());
-        }
+//        public void Dispose()
+//        {
+//            _staScheduler.Invoke(() => _protector.ReleaseMutex());
+//        }
 
-        private static readonly StaScheduler _staScheduler;
+//        private static readonly StaScheduler _staScheduler;
 
-        private readonly Mutex _protector;
-    }
-}
+//        private readonly Mutex _protector;
+//    }
+//}

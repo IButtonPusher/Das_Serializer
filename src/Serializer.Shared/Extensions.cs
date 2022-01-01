@@ -23,6 +23,37 @@ namespace Das.Extensions
             set => _settings = value;
         }
 
+        public static Boolean TryGetCustomAttribute<TEnum, TAttribute>(this TEnum val,
+                                                                       out TAttribute attrib)
+           where TEnum : Enum
+           where TAttribute : Attribute
+        {
+           var vStr = val.ToString();
+           var fi = typeof(TEnum).GetField(vStr);
+           if (fi != null && fi.TryGetCustomAttribute(out attrib))
+           {
+              return true;
+           }
+
+           attrib = default!;
+           return false;
+        }
+
+        public static Boolean TryGetCustomAttribute<TAttribute>(this MemberInfo m,
+                                                                out TAttribute value)
+           where TAttribute : Attribute
+        {
+           var attributes = m.GetCustomAttributes(typeof(TAttribute), true);
+           if (attributes.Length == 0)
+           {
+              value = default!;
+              return false;
+           }
+
+           value = (attributes[0] as TAttribute)!;
+           return value != null;
+        }
+
         public static Boolean AreCongruent<T>(this IReadOnlyList<T> left,
                                               IReadOnlyList<T> right)
         {
@@ -156,20 +187,9 @@ namespace Das.Extensions
             return res;
         }
 
-        public static ConstructorInfo GetConstructorOrDie(this Type t,
-                                                          Type[] argTypes)
-        {
-            return t.GetConstructor(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance,
-                null, argTypes, null) ?? throw new MissingMethodException(t.Name, "ctor");
-        }
+       
 
-        public static ConstructorInfo GetDefaultConstructorOrDie(this Type classType)
-        {
-            return classType.GetConstructor(BindingFlags.Instance | BindingFlags.Public
-                                                                  | BindingFlags.NonPublic,
-                null, Type.EmptyTypes, null) ?? throw new MissingMethodException(
-                classType.FullName, "ctor");
-        }
+      
 
         public static Encoding GetEncoding(this Byte[] bom)
         {
@@ -219,42 +239,7 @@ namespace Das.Extensions
             return wot ?? throw new MissingMemberException(classType.FullName, propertyName);
         }
 
-        public static MethodInfo GetPropertyGetterOrDie(this Type classType,
-                                                        String propertyName)
-        {
-            return GetPropertyGetterOrDie(classType, propertyName, Const.PublicInstance);
-        }
-
-        public static MethodInfo GetPropertyGetterOrDie(this Type classType,
-                                                        String propertyName,
-                                                        BindingFlags flags)
-        {
-            var prop = GetPropertyOrDie(classType, propertyName, flags);
-            return prop.GetGetMethod();
-        }
-
-        public static PropertyInfo GetPropertyOrDie(this Type classType,
-                                                    String propertyName)
-        {
-            return GetPropertyOrDie(classType, propertyName, Const.PublicInstance);
-        }
-
-        public static PropertyInfo GetPropertyOrDie(this Type classType,
-                                                    String propertyName,
-                                                    BindingFlags flags)
-        {
-            var wot = classType.GetProperty(propertyName);
-            if (wot == null && classType.IsInterface)
-                foreach (var @interface in classType.GetInterfaces())
-                {
-                    wot = @interface.GetProperty(propertyName, flags);
-                    if (wot != null)
-                        break;
-                }
-
-            return wot ?? throw new MissingMemberException(classType.FullName, propertyName);
-        }
-
+      
         public static MemberInfo[] GetMembersOrDie(this Type classType,
                                                    String memberName)
         {
@@ -277,106 +262,16 @@ namespace Das.Extensions
             return wot ?? throw new MissingMemberException(classType.FullName, memberName);
         }
 
-        public static MethodInfo GetMethodOrDie(this Type classType,
-                                                string name,
-                                                BindingFlags bindingAttr,
-                                                Binder? binder,
-                                                Type[] types,
-                                                ParameterModifier[]? modifiers)
+
+        public static Boolean AreEqual(this ISerializationDepth left,
+                                       ISerializationDepth right)
         {
-            return classType.GetMethod(name, bindingAttr, binder, types, modifiers)
-                   ?? throw new MissingMethodException();
+        return left.SerializationDepth == right.SerializationDepth &&
+               left.IsOmitDefaultValues == right.IsOmitDefaultValues &&
+               left.IsRespectXmlIgnore == right.IsRespectXmlIgnore;
         }
 
-        public static MethodInfo GetMethodOrDie(this Type classType,
-                                                String methodName)
-        {
-            var wot = classType.GetMethod(methodName, Type.EmptyTypes) ??
-                      classType.GetMethod(methodName);
-            if (wot == null && classType.IsInterface)
-                foreach (var @interface in classType.GetInterfaces())
-                {
-                    wot = @interface.GetMethod(methodName);
-                    if (wot != null)
-                        break;
-                }
 
-            return wot ?? throw new MissingMethodException(classType.FullName, methodName);
-        }
-
-        public static MethodInfo GetMethodOrDie(this Type classType,
-                                                String methodName,
-                                                BindingFlags flags)
-        {
-            return classType.GetMethod(methodName, flags) ?? Die(classType, methodName);
-        }
-
-        public static MethodInfo GetMethodOrDie(this Type classType,
-                                                String methodName,
-                                                BindingFlags flags,
-                                                Type[] parameters)
-        {
-            return classType.GetMethod(methodName, flags, null,
-                       parameters, null)
-                   ?? Die(classType, methodName);
-        }
-
-        public static MethodInfo GetMethodOrDie(this Type classType,
-                                                String methodName,
-                                                BindingFlags flags,
-                                                Type p1)
-        {
-            return classType.GetMethod(methodName, flags, null,
-                       new[] {p1}, null)
-                   ?? Die(classType, methodName);
-        }
-
-        public static MethodInfo GetMethodOrDie(this Type classType,
-                                                String methodName,
-                                                BindingFlags flags,
-                                                Type p1,
-                                                Type p2)
-        {
-            return classType.GetMethod(methodName, flags, null,
-                       new[] {p1, p2}, null)
-                   ?? Die(classType, methodName);
-        }
-
-        public static MethodInfo GetMethodOrDie(this Type classType,
-                                                String methodName,
-                                                Type[] parameters)
-        {
-            return GetMethodOrDie(classType, methodName,
-                BindingFlags.Instance | BindingFlags.Public, parameters);
-        }
-
-        public static MethodInfo GetMethodOrDie(this Type classType,
-                                                String methodName,
-                                                Type p1)
-        {
-            return GetMethodOrDie(classType, methodName,
-                BindingFlags.Instance | BindingFlags.Public, new[] {p1});
-        }
-
-        public static MethodInfo GetMethodOrDie(this Type classType,
-                                                String methodName,
-                                                Type p1,
-                                                Type p2)
-        {
-            return GetMethodOrDie(classType, methodName,
-                BindingFlags.Instance | BindingFlags.Public, new[] {p1, p2});
-        }
-
-        public static MethodInfo GetMethodOrDie(this Type classType,
-                                                String methodName,
-                                                Type p1,
-                                                Type p2,
-                                                Type p3)
-        {
-            return GetMethodOrDie(classType, methodName,
-                BindingFlags.Instance | BindingFlags.Public,
-                new[] {p1, p2, p3});
-        }
 
         public static T GetPropertyValue<T>(this Object obj,
                                             String propertyName)
@@ -398,24 +293,7 @@ namespace Das.Extensions
                 PropertyNameFormat.Default);
         }
 
-        public static MethodInfo GetPublicStaticMethodOrDie(this Type classType,
-                                                            String methodName)
-        {
-            return classType.GetMethod(methodName, Const.PublicStatic,
-                       null, Type.EmptyTypes, null)
-                   ?? classType.GetMethod(methodName, Const.PublicStatic)
-                   ?? Die(classType, methodName);
-        }
-
-        public static MethodInfo GetPublicStaticMethodOrDie(this Type classType,
-                                                            String methodName,
-                                                            params Type[] prms)
-
-        {
-            return classType.GetMethod(methodName, Const.PublicStatic,
-                       null, prms, null)
-                   ?? Die(classType, methodName);
-        }
+       
 
         public static FieldInfo GetPrivateStaticFieldOrDie(this Type classType,
                                                            String fieldName)
@@ -424,12 +302,7 @@ namespace Das.Extensions
                    ?? DieBart(classType, fieldName);
         }
 
-        public static FieldInfo GetStaticFieldOrDie(this Type classType,
-                                                    String fieldName)
-        {
-            return classType.GetField(fieldName, Const.AnyStatic)
-                   ?? DieBart(classType, fieldName);
-        }
+      
 
         public static MethodInfo GetterOrDie(this Type tType,
                                              String property,
@@ -534,6 +407,12 @@ namespace Das.Extensions
                    throw new InvalidOperationException();
         }
 
+
+        [MethodImpl(256)]
+        public static Boolean IsCloseToZero(this Double d)
+        {
+            return Math.Abs(d) < MyEpsilon;
+        }
 
         public static T[] Take<T>(this T[] arr,
                                   Int32 startIndex,
@@ -647,11 +526,7 @@ namespace Das.Extensions
         //        ref obj, value);
         //}
 
-        private static MethodInfo Die(Type classType,
-                                      String methodName)
-        {
-            throw new InvalidOperationException(classType.Name + "->" + methodName);
-        }
+        
 
         private static FieldInfo DieBart(Type classType,
                                          String fieldName)
@@ -662,5 +537,6 @@ namespace Das.Extensions
         private static ISerializationCore? _dynamicFacade;
 
         private static ISerializerSettings? _settings;
+        private const Double MyEpsilon = 0.00001;
     }
 }

@@ -12,8 +12,11 @@ namespace Das.Serializer.Properties
                                        PropertyInfo propertyInfo,
                                        String propertyPath)
         {
-            Name = propertyInfo.Name;
+           Name = propertyInfo.Name;
             Type = propertyInfo.PropertyType;
+
+            //Logger.WriteDebug("propacc " + propertyInfo.DeclaringType?.Name + "->" + Name +
+            //                                            (Interlocked.Add(ref _counter, 1)));
 
             CanRead = canRead;
             DeclaringType = declaringType;
@@ -30,6 +33,8 @@ namespace Das.Serializer.Properties
                 _attributes.Add(attr.GetType(), attr);
             }
         }
+
+        //private static Int32 _counter;
 
         public String Name { get; }
 

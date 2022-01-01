@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Das.Serializer;
+using Das.Serializer.Types;
 
 namespace Das.Types
 {
@@ -50,16 +51,13 @@ namespace Das.Types
                 default:
                     throw new InvalidCastException();
             }
-
-            //return (T) GetPropertyResult(obj, obj.GetType(), propertyName)?.Value!;
         }
 
         public TProperty GetPropertyValue<TObject, TProperty>(TObject obj,
                                                               String propertyName)
         {
-            var str = _typeDelegates.GetTypeStructure(typeof(TObject));
-
-            return str.GetPropertyValue<TObject, TProperty>(obj, propertyName);
+           return _typeDelegates.GetPropertyAccessor<TObject, TProperty>(propertyName).
+                                 GetPropertyValue(ref obj);
         }
 
         public Object? GetPropertyValue(Object obj,
@@ -74,51 +72,68 @@ namespace Das.Types
                                            String propertyName,
                                            out Object result)
         {
-            if (obj == null)
-            {
-                result = null!;
-                return false;
-            }
+           var accessor = PropertyDictionary.GetPropertyAccessor(obj, propertyName);
+           if (!accessor.CanRead)
+           {
+              result = default!;
+              return false;
+           }
 
-            var oType = obj is Type t ? t : obj.GetType();
+           result = accessor.GetPropertyValue(obj)!;
+           return true;
 
-            var str = _typeDelegates.GetTypeStructure(oType);//, DepthConstants.AllProperties);
-            result = str.GetPropertyValue(obj, propertyName)!;
 
-            //var propRes = GetPropertyResult(obj, oType, propertyName);
 
-            //result = propRes?.Value!;
-            return result != null;
+            //if (obj == null)
+            //{
+            //    result = null!;
+            //    return false;
+            //}
+
+            //var oType = obj is Type t ? t : obj.GetType();
+
+            //var str = _typeDelegates.GetTypeStructure(oType);
+            //result = str.GetPropertyValue(obj, propertyName)!;
+
+            //return result != null;
+        }
+
+        public bool TryGetPropertyValue(Object obj,
+                                        PropertyInfo property,
+                                        out Object result)
+        {
+           var accessor = PropertyDictionary.GetPropertyAccessor(property);
+           if (!accessor.CanRead)
+           {
+              result = default!;
+              return false;
+           }
+
+           result = accessor.GetPropertyValue(obj)!;
+           return true;
+
         }
 
         public Boolean TryGetPropertyValue<T>(Object obj,
                                               String propertyName,
                                               out T result)
         {
-            if (TryGetPropertyValue(obj, propertyName, out var res))
-                if (TryCastDynamic(res, out result))
-                    return true;
+           if (TryGetPropertyValue(obj, propertyName, out var res))
+           {
+              if (res == default)
+              {
+                 result = default!;
+                 return true;
+              }
+              if (TryCastDynamic(res, out result))
+                 return true;
+           }
 
-            result = default!;
+           result = default!;
             return false;
         }
 
-        //public IPropertyValueIterator<IProperty> GetPropertyResults(IValueNode value,
-        //                                                            ISerializationDepth depth)
-        //{
-        //    var val = value.Value;
-
-        //    if (val == null)
-        //        return new PropertyValueIterator<IProperty>();
-
-        //    var useType = _typeDelegates.IsUseless(value.Type)
-        //        ? val.GetType()
-        //        : value.Type;
-
-        //    var typeStruct = _typeDelegates.GetTypeStructure(useType!, DepthConstants.AllProperties);
-        //    var found = typeStruct.GetPropertyValues(val, depth);
-        //    return found;
-        //}
+       
 
         public IEnumerable<KeyValuePair<PropertyInfo, object?>> GetPropertyResults(Object? val)
         {
@@ -154,7 +169,7 @@ namespace Das.Types
                                      Object targetObj,
                                      Object propVal)
         {
-            var str = _typeDelegates.GetTypeStructure(classType);//, DepthConstants.Full);
+            var str = _typeDelegates.GetTypeStructure(classType);
             return str.SetFieldValue(fieldName, targetObj, propVal);
         }
 
@@ -163,7 +178,7 @@ namespace Das.Types
                                         Object targetObj,
                                         Object fieldVal)
         {
-            var str = _typeDelegates.GetTypeStructure(classType);//, DepthConstants.Full);
+            var str = _typeDelegates.GetTypeStructure(classType);
             return str.SetFieldValue<T>(fieldName, targetObj, fieldVal);
         }
 
@@ -192,12 +207,26 @@ namespace Das.Types
                                          Object source,
                                          Object target)
         {
+           var srcType = source.GetType();
+
             foreach (var m in mutable)
             {
-                if (!TryGetPropertyValue(source, m.Name, out var propVal))
-                    continue;
 
-                TrySetProperty(target.GetType(), m.Name, PropertyNameFormat.Default, ref target, propVal);
+               var srcProp = srcType.GetProperty(m.Name);
+               if (srcProp == null)
+                  continue;
+
+               var accessor = PropertyDictionary.GetPropertyAccessor(srcProp);
+               if (!accessor.CanRead)
+                  continue;
+
+               var srcVal = accessor.GetPropertyValue(source);
+
+                //if (!TryGetPropertyValue(source, m.Name, out var propVal))
+                //    continue;
+
+                TrySetProperty(target.GetType(), m.Name, PropertyNameFormat.Default, 
+                   ref target, srcVal);
             }
         }
 
@@ -206,7 +235,7 @@ namespace Das.Types
                                         PropertyNameFormat format,
                                         Object? propVal)
         {
-            return TrySetProperty(targetObj.GetType(), propName, format, ref targetObj!, propVal);
+            return TrySetProperty(targetObj.GetType(), propName, format, ref targetObj, propVal);
         }
 
         public void Method(Object obj,

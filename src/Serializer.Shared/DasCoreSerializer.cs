@@ -5,7 +5,11 @@ using Das.Serializer.Json;
 using Das.Serializer.ProtoBuf;
 using Das.Serializer.Xml;
 using Das.Printers;
+
+#if GENERATECODE
 using Das.Serializer.Printers;
+#endif
+
 #if !NET40
 using System.Runtime.CompilerServices;
 

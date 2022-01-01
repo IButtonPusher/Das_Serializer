@@ -4,8 +4,11 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Das.Printers;
-using Das.Serializer.Printers;
 using Das.Serializer.Remunerators;
+
+#if GENERATECODE
+using Das.Serializer.Printers;
+#endif
 
 namespace Das.Serializer
 {

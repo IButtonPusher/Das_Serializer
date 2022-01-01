@@ -183,7 +183,7 @@ namespace Das.Streamers
                     if (!hasValue)
                         return null;
 
-                    type = asPrimitive!;
+                    type = asPrimitive;
                     continue;
                 }
 

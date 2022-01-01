@@ -493,20 +493,20 @@ namespace Das.Printers
 
         protected sealed override bool ShouldPrintValue(Object obj,
                                                         NodeTypes nodeType,
-                                                 IPropertyAccessor prop,
-                                                 ISerializerSettings settings,
-                                                 out Object? value)
+                                                        IPropertyAccessor prop,
+                                                        ISerializerSettings settings,
+                                                        out Object? value)
         {
-            if (!prop.TryGetAttribute<XmlIgnoreAttribute>(out _) &&
-                !prop.TryGetAttribute<IgnoreDataMemberAttribute>(out _))
-            {
-                value = prop.GetPropertyValue(obj);
-                return !settings.IsOmitDefaultValues ||
-                    !_typeInferrer.IsDefaultValue(value);
-            }
+           if (!prop.TryGetAttribute<XmlIgnoreAttribute>(out _) &&
+               !prop.TryGetAttribute<IgnoreDataMemberAttribute>(out _))
+           {
+              value = prop.GetPropertyValue(obj);
+              return !settings.IsOmitDefaultValues ||
+                     !_typeInferrer.IsDefaultValue(value);
+           }
 
-            value = default;
-            return false;
+           value = default;
+           return false;
         }
 
         protected override void PrintInteger(Object val,

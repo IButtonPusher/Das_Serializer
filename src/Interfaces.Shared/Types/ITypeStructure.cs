@@ -2,18 +2,14 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
-
+using Das.Serializer.Types;
 
 
 namespace Das.Serializer
 {
-    public interface ITypeStructure : ITypeStructureBase
+    public interface ITypeStructure : ITypeAccessor
     {
-        //SerializationDepth Depth { get; }
-
-        //Dictionary<String, INamedField> MemberTypes { get; }
-
-        IPropertyAccessor[] Properties { get; }
+       IPropertyAccessor[] Properties { get; }
 
         Int32 PropertyCount { get; }
 
@@ -54,8 +50,7 @@ namespace Das.Serializer
                                        PropertyNameFormat format,
                                        out IPropertyAccessor accessor);
 
-        Boolean TryGetPropertyAccessor(String propName,
-                                       out IPropertyAccessor accessor);
+        
 
         Boolean TrySetPropertyValue(String propName,
                                     PropertyNameFormat format,

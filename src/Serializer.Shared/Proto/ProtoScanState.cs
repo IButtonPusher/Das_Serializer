@@ -8,6 +8,7 @@ using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Das.Extensions;
+using Reflection.Common;
 
 namespace Das.Serializer.ProtoBuf
 {

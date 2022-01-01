@@ -17,10 +17,16 @@ namespace Das.Serializer
         ///     Returns a delegate that can be invoked to quickly get the value for an object
         ///     of targetType
         /// </summary>
-        public Func<Object, Object> CreatePropertyGetter(Type targetType,
+        public static Func<Object, Object> CreatePropertyGetter(Type targetType,
                                                          PropertyInfo propertyInfo)
         {
             return CreateDynamicPropertyGetter(targetType, propertyInfo);
+        }
+
+        Func<object, object> ITypeManipulator.CreatePropertyGetter(Type targetType,
+                                                                   PropertyInfo propertyInfo)
+        {
+           return CreatePropertyGetter(targetType, propertyInfo);
         }
 
         public Func<TObject, TProperty> CreatePropertyGetter<TObject, TProperty>(PropertyInfo propInfo)
@@ -30,7 +36,7 @@ namespace Das.Serializer
 
        
 
-        public Func<object, object> CreatePropertyGetter(Type targetType,
+        public static Func<object, object> CreatePropertyGetter(Type targetType,
                                                          String propertyName,
                                                          out PropertyInfo propInfo)
         {
@@ -43,7 +49,7 @@ namespace Das.Serializer
             var memberChain = new[] {memberInfo};
             return CreateSetterImpl<PropertySetter>(memberInfo.DeclaringType!, ParamTypes, memberChain);
 
-            //return CreateSetMethodImpl(memberInfo);
+            
         }
 
         public PropertySetter? CreateSetMethod(Type declaringType,
@@ -52,7 +58,14 @@ namespace Das.Serializer
             return CreateDynamicSetter(declaringType, memberName);
         }
 
-        public PropertySetter<T>? CreateSetMethod<T>(String memberName)
+        public static PropertySetter<T>? CreateSetMethod<T>(MemberInfo memberInfo)
+        {
+           var memChainArr = new[] {memberInfo};
+           return CreateSetterImpl<PropertySetter<T>>(typeof(T),
+              ParamTypes, memChainArr);
+        }
+
+        public static PropertySetter<T>? CreateSetMethod<T>(String memberName)
         {
             return CreateDynamicSetter<T>(memberName);
         }
@@ -105,6 +118,31 @@ namespace Das.Serializer
 
             il.Emit(OpCodes.Ret);
             return (Func<TParent, TField>) dynam.CreateDelegate(typeof(Func<TParent, TField>));
+        }
+
+        public Action<TParent, TField> CreateFieldSetter<TParent, TField>(FieldInfo fieldInfo)
+        {
+           var dynam = new DynamicMethod(String.Empty, typeof(void),
+              new[] { typeof(TParent), typeof(TField)},
+              typeof(Action<TParent, TField>), true);
+
+           var il = dynam.GetILGenerator();
+
+           if (!fieldInfo.IsStatic)
+              il.Emit(OpCodes.Ldarg_0);
+
+           il.Emit(OpCodes.Ldarg_1);
+
+           //if (fieldInfo.FieldType.IsValueType) il.Emit(OpCodes.Unbox_Any, fieldInfo.FieldType);
+
+           if (!fieldInfo.IsStatic)
+              il.Emit(OpCodes.Stfld, fieldInfo);
+           else
+              il.Emit(OpCodes.Stsfld, fieldInfo);
+
+
+           il.Emit(OpCodes.Ret);
+           return (Action<TParent, TField>) dynam.CreateDelegate(typeof(Action<TParent, TField>));
         }
 
         public Action<Object, Object?> CreateFieldSetter(FieldInfo fieldInfo)
@@ -169,6 +207,11 @@ namespace Das.Serializer
             return CreateDynamicPropertyGetter<TObject, TProperty>(_singlePropFairy, out _);
         }
 
+        public static Func<Object, Object> CreateDynamicPropertyGetter(PropertyInfo propertyInfo)
+        {
+           return CreateDynamicPropertyGetter(propertyInfo.DeclaringType!, propertyInfo);
+        }
+
         public static Func<Object, Object> CreateDynamicPropertyGetter(Type targetType,
                                                                        PropertyInfo propertyInfo)
         {
@@ -177,63 +220,7 @@ namespace Das.Serializer
             return CreateDynamicPropertyGetter(targetType, _singlePropFairy, out _);
         }
 
-        ///// <summary>
-        /////     Returns a delegate that can be invoked to quickly set the value for an object
-        /////     of targetType.  This method assumes this property has a setter. For properties
-        /////     without a setter use CreateReadOnlyPropertySetter
-        ///// </summary>
-        //private static PropertySetter CreateSetMethodImpl(MemberInfo memberInfo)
-        //{
-        //    Type paramType;
-
-        //    switch (memberInfo)
-        //    {
-        //        case PropertyInfo info:
-        //            paramType = info.PropertyType;
-        //            break;
-        //        case FieldInfo info:
-        //            paramType = info.FieldType;
-        //            break;
-        //        default:
-        //            throw new Exception("Can only create set methods for properties and fields.");
-        //    }
-
-        //    var reflectedType = memberInfo.ReflectedType;
-        //    var decType = memberInfo.DeclaringType;
-        //    if (reflectedType == null || decType == null)
-        //        throw new InvalidOperationException();
-
-        //    var setter = new DynamicMethod(
-        //        String.Empty,
-        //        typeof(void),
-        //        ParamTypes,
-        //        reflectedType.Module,
-        //        true);
-        //    var generator = setter.GetILGenerator();
-        //    generator.Emit(OpCodes.Ldarg_0);
-        //    generator.Emit(OpCodes.Ldind_Ref);
-
-        //    if (decType.IsValueType)
-        //        generator.Emit(OpCodes.Unbox, decType);
-
-        //    generator.Emit(OpCodes.Ldarg_1);
-        //    if (paramType.IsValueType)
-        //        generator.Emit(OpCodes.Unbox_Any, paramType);
-
-        //    switch (memberInfo)
-        //    {
-        //        case PropertyInfo info:
-        //            generator.Emit(OpCodes.Callvirt, info.GetSetMethod(true)!);
-        //            break;
-        //        case FieldInfo field:
-        //            generator.Emit(OpCodes.Stfld, field);
-        //            break;
-        //    }
-
-        //    generator.Emit(OpCodes.Ret);
-
-        //    return (PropertySetter) setter.CreateDelegate(typeof(PropertySetter));
-        //}
+       
 
         public static PropertySetter<T>? CreateDynamicSetter<T>(String memberName)
         {
@@ -241,7 +228,6 @@ namespace Das.Serializer
             _paramTypeFairy[0] = typeof(T).MakeByRefType();
             _paramTypeFairy[1] = typeof(Object);
 
-            //var propChainArr = GetPropertyChain(typeof(T), memberName).ToArray();
             var propChainArr = GetMemberChain(typeof(T), memberName).ToArray();
 
             return CreateSetterImpl<PropertySetter<T>>(typeof(T), _paramTypeFairy, propChainArr);
@@ -250,71 +236,44 @@ namespace Das.Serializer
         public static PropertySetter? CreateDynamicSetter(Type declaringType,
                                                           String memberName)
         {
-            //var propChainArr = GetPropertyChain(declaringType, memberName).ToArray();
-            var memChainArr = GetMemberChain(declaringType, memberName).ToArray();
+           var memChainArr = GetMemberChain(declaringType, memberName).ToArray();
             Array.Reverse(memChainArr);
             return CreateSetterImpl<PropertySetter>(declaringType, ParamTypes, memChainArr);
+        }
 
-            //var propChainArr = GetPropertyChain(declaringType, memberName).ToArray();
-            //return CreateSetterImpl<PropertySetter>(declaringType, ParamTypes, propChainArr);
+        public static TDelegate CreateMethodCaller<TDelegate>(MethodInfo method)
+           where TDelegate : Delegate
+        {
 
-            //var decType = declaringType;
-            //if (decType == null)
-            //    throw new InvalidOperationException();
+           var argList = new List<Type>();
+           argList.Add(method.DeclaringType);
+           var parms = method.GetParameters();
+           foreach (var parm in parms)
+           {
+              argList.Add(parm.ParameterType);
+           }
 
-            //var setter = new DynamicMethod(
-            //    String.Empty,
-            //    typeof(void),
-            //    ParamTypes,
-            //    declaringType.Module,
-            //    true);
-            //var generator = setter.GetILGenerator();
-            //generator.Emit(OpCodes.Ldarg_0);
-            //generator.Emit(OpCodes.Ldind_Ref);
+           //Type[] argTypes = { Const.ObjectType, typeof(Object[]) };
 
-            ////var propChainArr = GetPropertyChain(declaringType, memberName).ToArray();
 
-            //for (var c = 0; c < propChainArr.Length; c++)
-            //{
-            //    var info = propChainArr[c];
-            //    var accessCode = info.DeclaringType!.IsValueType ? OpCodes.Call : OpCodes.Callvirt;
+           var retType = method.ReturnType;
 
-            //    if (c == propChainArr.Length - 1)
-            //    {
-            //        // last stop => time to set
+           var dynam = new DynamicMethod(String.Empty, retType, argList.ToArray()
+              , typeof(DasType), true);
+           var il = dynam.GetILGenerator();
 
-            //        if (!info.CanWrite)
-            //            return null;
+           //pass the target object.  If it's a struct (value type) we have to pass the address
+           il.Emit(method.DeclaringType?.IsValueType == true ? OpCodes.Ldarga : OpCodes.Ldarg, 0);
 
-            //        var propSetter = info.GetSetMethod(true);
-            //        if (propSetter == null)
-            //            return null;
+           for (var i = 0; i < parms.Length; i++)
+           {
+              il.Emit(parms[i].ParameterType.IsValueType ? OpCodes.Ldarga : OpCodes.Ldarg, i);
+           }
 
-            //        Type paramType = info.PropertyType;
+           il.Emit(method.IsVirtual ? OpCodes.Callvirt : OpCodes.Call, method);
 
-            //        if (decType!.IsValueType)
-            //            generator.Emit(OpCodes.Unbox, decType);
-
-            //        generator.Emit(OpCodes.Ldarg_1);
-            //        if (paramType.IsValueType)
-            //            generator.Emit(OpCodes.Unbox_Any, paramType);
-
-            //        generator.Emit(accessCode, propSetter);
-            //    }
-            //    else
-            //    {
-            //        //time to get
-            //        var targetGetMethod = info.GetGetMethod();
-
-            //        generator.Emit(accessCode, targetGetMethod!);
-            //    }
-
-            //    decType = info.DeclaringType;
-            //}
-
-            //generator.Emit(OpCodes.Ret);
-
-            //return (PropertySetter) setter.CreateDelegate(typeof(PropertySetter));
+           il.Emit(OpCodes.Ret);
+           return (TDelegate) dynam.CreateDelegate(typeof(TDelegate));
         }
 
         public static DynamicMethod CreateMethodCaller(MethodInfo method,
@@ -519,67 +478,59 @@ namespace Das.Serializer
             return (Func<Object, Object>) del;
         }
 
-        //private static TSetter? CreateSetterImpl<TSetter>(Type declaringType,
-        //                                                  Type[] paramTypes,
-        //                                                  PropertyInfo[] propChainArr)
-        //    where TSetter : Delegate
-        //{
-        //    var decType = declaringType;
-        //    if (decType == null)
-        //        throw new InvalidOperationException();
+        public static PropertySetter CreatePropertySetter(MemberInfo memberInfo)
+        {
+           Type paramType;
+           switch (memberInfo)
+           {
+              case PropertyInfo info:
+                 paramType = info.PropertyType;
+                 break;
+              case FieldInfo info:
+                 paramType = info.FieldType;
+                 break;
+              default:
+                 throw new Exception("Can only create set methods for properties and fields.");
+           }
 
-        //    var setter = new DynamicMethod(
-        //        String.Empty,
-        //        typeof(void),
-        //        paramTypes,
-        //        declaringType.Module,
-        //        true);
-        //    var generator = setter.GetILGenerator();
-        //    generator.Emit(OpCodes.Ldarg_0);
-        //    generator.Emit(OpCodes.Ldind_Ref);
+           var reflectedType = memberInfo.ReflectedType;
+           var decType = memberInfo.DeclaringType;
+           if (reflectedType == null || decType == null)
+              throw new InvalidOperationException();
 
-        //    for (var c = 0; c < propChainArr.Length; c++)
-        //    {
-        //        var info = propChainArr[c];
-        //        var accessCode = info.DeclaringType!.IsValueType ? OpCodes.Call : OpCodes.Callvirt;
+           var setter = new DynamicMethod(
+              String.Empty,
+              typeof(void),
+              ParamTypes,
+              reflectedType.Module,
+              true);
+           var generator = setter.GetILGenerator();
+           generator.Emit(OpCodes.Ldarg_0);
+           generator.Emit(OpCodes.Ldind_Ref);
 
-        //        if (c == propChainArr.Length - 1)
-        //        {
-        //            // last stop => time to set
+           if (decType.IsValueType)
+           {
+              generator.Emit(OpCodes.Unbox, decType);
+           }
 
-        //            if (!info.CanWrite)
-        //                return null;
+           generator.Emit(OpCodes.Ldarg_1);
+           if (paramType.IsValueType)
+              generator.Emit(OpCodes.Unbox_Any, paramType);
 
-        //            var propSetter = info.GetSetMethod(true);
-        //            if (propSetter == null)
-        //                return null;
+           switch (memberInfo)
+           {
+              case PropertyInfo info:
+                 generator.Emit(OpCodes.Callvirt, info.GetSetMethod(true)!);
+                 break;
+              case FieldInfo field:
+                 generator.Emit(OpCodes.Stfld, field);
+                 break;
+           }
 
-        //            Type paramType = info.PropertyType;
+           generator.Emit(OpCodes.Ret);
 
-        //            if (decType!.IsValueType)
-        //                generator.Emit(OpCodes.Unbox, decType);
-
-        //            generator.Emit(OpCodes.Ldarg_1);
-        //            if (paramType.IsValueType)
-        //                generator.Emit(OpCodes.Unbox_Any, paramType);
-
-        //            generator.Emit(accessCode, propSetter);
-        //        }
-        //        else
-        //        {
-        //            //time to get
-        //            var targetGetMethod = info.GetGetMethod();
-
-        //            generator.Emit(accessCode, targetGetMethod!);
-        //        }
-
-        //        decType = info.DeclaringType;
-        //    }
-
-        //    generator.Emit(OpCodes.Ret);
-
-        //    return (TSetter) setter.CreateDelegate(typeof(TSetter));
-        //}
+           return (PropertySetter) setter.CreateDelegate(typeof(PropertySetter));
+        }
 
         private static TSetter? CreateSetterImpl<TSetter>(Type declaringType,
                                                           Type[] paramTypes,

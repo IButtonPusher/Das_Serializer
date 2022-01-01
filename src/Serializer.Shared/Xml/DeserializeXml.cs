@@ -60,21 +60,8 @@ namespace Das.Serializer
         {
             var txt = await GetTextFromFileInfoAsync(file);
 
-            //#if ALWAYS_EXPRESS
             return XmlExpress.Deserialize<T>(txt, Settings, _empty);
-            //#else
-            //    var arr = txt.ToCharArray();
-            //    return _FromXml<T>(arr);
-            //#endif
         }
-
-        //public T FromXml<T>(Char[] xml)
-        //{
-        //    using (var state = StateProvider.BorrowXml(Settings))
-        //    {
-        //        return state.Scanner.Deserialize<T>(xml);
-        //    }
-        //}
 
         public T FromXml<T>(Stream stream)
         {

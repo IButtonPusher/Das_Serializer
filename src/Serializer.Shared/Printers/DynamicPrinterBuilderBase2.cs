@@ -78,8 +78,6 @@ namespace Das.Serializer.Printers
                            MethodAttributes.Virtual | 
                            MethodAttributes.NewSlot;
 
-            
-
             var dynamicMethod = bldr.DefineMethod("Print", mAttribs); 
             
             var genericParamNames = new[] {"TWriter"};

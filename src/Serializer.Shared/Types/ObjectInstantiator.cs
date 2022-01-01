@@ -25,6 +25,7 @@ namespace Das.Serializer
             Constructors = new ConcurrentDictionary<Type, ConstructorInfo?>();
             KnownOnDeserialize = new ConcurrentDictionary<Type, Boolean>();
             GenericListDelegates = new ConcurrentDictionary<Type, Func<IList>>();
+            OnDeserializedDelegates = new ConcurrentDictionary<Type, Delegate?>();
         }
 
 
@@ -157,12 +158,40 @@ namespace Das.Serializer
                 KnownOnDeserialize.TryAdd(node.Type, dothProceed);
         }
 
+        private static readonly StreamingContext _streamingContext = new(StreamingContextStates.Persistence);
+
         public void OnDeserialized<T>(T obj)
         {
-            var str = _typeManipulator.GetTypeStructure(typeof(T));
-            var dothProceed = str.OnDeserialized(obj!, _objectManipulator);
+
+           var type = typeof(T);
+
+           var action = OnDeserializedDelegates.GetOrAdd(type, _ => BuildOnDeserializedDelegate<T>());
+           if (action is not Action<T, StreamingContext> jackson)
+              return;
+
+           jackson(obj, _streamingContext);
+
+            //var str = _typeManipulator.GetTypeStructure(typeof(T));
+            //var dothProceed = str.OnDeserialized(obj!, _objectManipulator);
             
-            KnownOnDeserialize.TryAdd(typeof(T), dothProceed);
+            //KnownOnDeserialize.TryAdd(typeof(T), dothProceed);
+        }
+
+        private static Action<T, StreamingContext>? BuildOnDeserializedDelegate<T>()
+        {
+           foreach (var meth in typeof(T).GetMethods())
+           {
+              var prms = meth.GetParameters();
+              if (prms.Length != 1 || prms[0].ParameterType != typeof(StreamingContext) ||
+                  !meth.IsDefined(typeof(OnDeserializedAttribute), false))
+              {
+                 continue;
+              }
+
+              return TypeManipulator.CreateMethodCaller<Action<T, StreamingContext>>(meth);
+           }
+
+           return default;
         }
 
 
@@ -175,7 +204,7 @@ namespace Das.Serializer
             var handle = GCHandle.Alloc(rawValue, GCHandleType.Pinned);
             var structure = (T) Marshal.PtrToStructure(handle.AddrOfPinnedObject(), objType)!;
             handle.Free();
-            return structure!;
+            return structure;
         }
 
         public Object CreatePrimitiveObject(Byte[] rawValue,
@@ -587,7 +616,7 @@ namespace Das.Serializer
 
         #endif
 
-
+        private static readonly ConcurrentDictionary<Type, Delegate?> OnDeserializedDelegates;
         private static readonly ConcurrentDictionary<Type, InstantiationType> InstantionTypes;
         private static readonly ConcurrentDictionary<Type, Func<Object>> ConstructorDelegates;
         private static readonly ConcurrentDictionary<Type, Func<IList>> GenericListDelegates;

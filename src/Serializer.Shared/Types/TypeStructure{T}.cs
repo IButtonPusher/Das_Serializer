@@ -6,13 +6,9 @@ namespace Das.Serializer.Types
     public class TypeStructure<T> : TypeStructure,
                                     ITypeStructure<T>
     {
-        //protected override IEnumerable<IPropertyAccessor<T>> BuildPropertyAccessors(Type type)
-        //{
-        //    return TODO_IMPLEMENT_ME;
-        //}
-        public TypeStructure(Type type,
-                             ITypeManipulator state,
-                             IEnumerable<IPropertyAccessor> propertyAccessors) 
+       public TypeStructure(Type type,
+                            ITypeManipulator state,
+                            IEnumerable<IPropertyAccessor> propertyAccessors) 
             : base(type, state, propertyAccessors)
         {
             Properties = new IPropertyAccessor<T>[base.Properties.Length];

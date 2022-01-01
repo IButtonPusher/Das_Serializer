@@ -55,6 +55,10 @@ o = serializer.FromJson(json);</Description>
 
 <Import Project="..\Serializer.Shared\Serializer.Shared.projitems" Label="Shared" />
 
+<Import Project="..\Reflection.Common\Reflection.Common.projitems" Label="Shared" />
+
+<Import Project="..\Serializer.BinaryProprietary\Serializer.BinaryProprietary.projitems" Label="Shared" />
+
 <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.1|AnyCPU'">
   <DefineConstants>GENERATECODE</DefineConstants>
   <DebugType>none</DebugType>

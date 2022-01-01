@@ -7,7 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Threading.Tasks; //using System.Linq;
+using System.Threading.Tasks; 
 
 namespace Das.Serializer
 {
@@ -18,8 +18,8 @@ namespace Das.Serializer
         {
             _typeConverters = new ConcurrentDictionary<Type, TypeConverter>();
             _cachedGermane = new ConcurrentDictionary<Type, Type>();
-            CachedProperties = new ConcurrentDictionary<Type,
-                IEnumerable<PropertyInfo>>();
+            //CachedProperties = new ConcurrentDictionary<Type, ICollection<PropertyInfo>>();
+            CachedProperties = new ConcurrentDictionary<Type, Lazy<ICollection<PropertyInfo>>>();
 
             _typesKnownSettableProperties = new ConcurrentDictionary<Type, Boolean>();
             CachedConstructors = new ConcurrentDictionary<Type, ConstructorInfo?>();
@@ -58,56 +58,6 @@ namespace Das.Serializer
         public Type GetGermaneType(Type ownerType)
         {
             return _cachedGermane.GetOrAdd(ownerType, GetGermaneTypeImpl);
-
-            //if (_cachedGermane.TryGetValue(ownerType, out var typ))
-            //    return typ;
-
-            //try
-            //{
-            //    if (!typeof(IEnumerable).IsAssignableFrom(ownerType) || ownerType == typeof(String))
-            //        return ownerType;
-
-            //    if (ownerType.IsArray)
-            //    {
-            //        typ = ownerType.GetElementType();
-            //        return typ!;
-            //    }
-
-            //    if (typeof(IDictionary).IsAssignableFrom(ownerType))
-            //    {
-            //        typ = GetKeyValuePair(ownerType)!;
-            //        if (typ != null)
-            //            return typ;
-            //    }
-
-            //    var gargs = ownerType.GetGenericArguments();
-
-            //    switch (gargs.Length)
-            //    {
-            //        case 1 when ownerType.IsGenericType:
-            //            typ = gargs[0];
-            //            return typ;
-            //        case 2:
-            //            var lastChanceDictionary = typeof(IDictionary<,>).MakeGenericType(gargs);
-            //            typ = lastChanceDictionary.IsAssignableFrom(ownerType)
-            //                ? GetKeyValuePair(lastChanceDictionary)!
-            //                : ownerType;
-            //            return typ;
-            //        case 0:
-            //            var gen0 = ownerType.GetInterfaces().FirstOrDefault(i =>
-            //                i.IsGenericType);
-
-
-            //            return gen0 != null ? GetGermaneType(gen0) : ownerType;
-            //    }
-            //}
-            //finally
-            //{
-            //    if (typ != null)
-            //        _cachedGermane.TryAdd(ownerType, typ);
-            //}
-
-            //throw new InvalidOperationException("Cannot load ");
         }
 
         private Type GetGermaneTypeImpl(Type ownerType)
@@ -230,43 +180,55 @@ namespace Das.Serializer
         }
 
 
-        public IEnumerable<PropertyInfo> GetPublicProperties(Type type,
+        IEnumerable<PropertyInfo> ITypeCore.GetPublicProperties(Type type)
+           => GetPublicProperties(type);
+
+        IEnumerable<PropertyInfo> ITypeCore.GetPublicProperties(Type type,
+                                                                Boolean numericFirst)
+           => GetPublicProperties(type, numericFirst);
+
+
+        public static IEnumerable<PropertyInfo> GetPublicProperties(Type type,
                                                              Boolean numericFirst = true)
         {
-            if (CachedProperties.TryGetValue(type, out var res))
+            var props = CachedProperties.GetOrAdd(type, GetPublicPropertiesLazy).Value;
+
+            var rar = numericFirst
+                ? props.OrderByDescending(p => IsLeaf(p.PropertyType, false)).ToArray()
+                : props.ToArray();
+
+            return rar;
+
+            
+        }
+
+
+        private static Lazy<ICollection<PropertyInfo>> GetPublicPropertiesLazy(Type type)
+        {
+            return new Lazy<ICollection<PropertyInfo>>(() => GetPublicPropertiesImpl(type));
+        }
+
+        private static ICollection<PropertyInfo> GetPublicPropertiesImpl(Type type)
+        {
+            var lookup = new Dictionary<String, PropertyInfo>();
+
+            foreach (var prop in type.GetProperties(BindingFlags.Instance | BindingFlags.Public))
             {
-                foreach (var p in res)
-                {
-                    yield return p;
-                }
-
-                yield break;
+                lookup[prop.Name] = prop;
             }
-
-            res = type.GetProperties(BindingFlags.Instance | BindingFlags.Public);
-
-            var byName = new HashSet<String>();
-            foreach (var r in res)
-            {
-                byName.Add(r.Name);
-            }
-
-
-            //var byName = new HashSet<String>(res.Select(p => p.Name));
 
             //todo: remove this and get it to work with explicits
             if (type.IsInterface)
             {
-                var results = new HashSet<PropertyInfo>(res);
+                //var results = new HashSet<PropertyInfo>(res);
 
                 foreach (var parentInterface in type.GetInterfaces())
                 foreach (var pp in GetPublicProperties(parentInterface, false))
                 {
-                    if (byName.Add(pp.Name))
-                        results.Add(pp);
+                        if (!lookup.ContainsKey(pp.Name))
+                            lookup.Add(pp.Name, pp);
                 }
 
-                res = results;
             }
             else
             {
@@ -274,30 +236,19 @@ namespace Das.Serializer
 
                 while (bt != null)
                 {
-                    var results = new HashSet<PropertyInfo>(res);
-
                     foreach (var pp in GetPublicProperties(bt, false))
-                        //type.BaseType, false)) //this has to have been unintentional...
                     {
-                        if (byName.Add(pp.Name))
-                            results.Add(pp);
+                        if (!lookup.ContainsKey(pp.Name))
+                            lookup.Add(pp.Name, pp);
                     }
 
                     bt = bt.BaseType;
                 }
             }
 
-            var rar = numericFirst
-                ? res.OrderByDescending(p => IsLeaf(p.PropertyType, false)).ToArray()
-                : res.ToArray();
-
-            CachedProperties.TryAdd(type, rar);
-
-            foreach (var prop in rar)
-            {
-                yield return prop;
-            }
+            return lookup.Values;
         }
+
 
         public object? ConvertTo(Object obj,
                                  Type type)
@@ -317,7 +268,6 @@ namespace Das.Serializer
         {
             var converter = GetTypeConverter(obj.GetType());
             return converter.ConvertToInvariantString(obj)!;
-            //var str = converter.ConvertToInvariantString(o!);
         }
 
         public object ConvertFromInvariantString(String str,
@@ -338,7 +288,7 @@ namespace Das.Serializer
 
             return default;
 
-            //return GetPublicProperties(type, false).FirstOrDefault(p => p.Name == propertyName);
+            
         }
 
         public Boolean TryGetPropertiesConstructor(Type type,
@@ -650,8 +600,11 @@ namespace Das.Serializer
             typeof(UInt32), typeof(Single)
         };
 
-        private static readonly ConcurrentDictionary<Type, IEnumerable<PropertyInfo>>
+        private static readonly ConcurrentDictionary<Type, Lazy<ICollection<PropertyInfo>>>
             CachedProperties;
+
+        //private static readonly ConcurrentDictionary<Type, ICollection<PropertyInfo>>
+        //    CachedProperties;
 
         private static readonly ConcurrentDictionary<Type, TypeConverter> _typeConverters;
 

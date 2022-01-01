@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
-using Das.Printers;
 using Das.Serializer;
 using Xunit;
 

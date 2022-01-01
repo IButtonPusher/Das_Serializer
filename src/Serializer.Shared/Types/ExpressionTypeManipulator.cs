@@ -22,7 +22,7 @@ namespace Das.Serializer
             return CreateExpressionPropertyGetter(targetType, propertyInfo);
         }
 
-        public Func<object, object> CreatePropertyGetter(Type targetType, 
+        public static Func<object, object> CreatePropertyGetter(Type targetType, 
                                                                   String propertyName,
                                                                   out PropertyInfo propInfo)
         {
@@ -160,6 +160,18 @@ namespace Das.Serializer
 
             var action = lambda.Compile();
             return action;
+        }
+
+        public static PropertySetter<T>? CreateSetMethod<T>(MemberInfo memberInfo)
+        {
+            var propChainArr = new[] { memberInfo };
+
+            _paramTypeFairy ??= new Type[2];
+            _paramTypeFairy[0] = typeof(T).MakeByRefType();
+            _paramTypeFairy[1] = typeof(Object);
+
+            return CreateSetterImpl<PropertySetter<T>>(typeof(T),
+                _paramTypeFairy, memChainArr);
         }
 
         public PropertySetter<T>? CreateSetMethod<T>(String memberName)

@@ -12,6 +12,7 @@ namespace Das.Serializer.Concurrency
             var oldContext = SynchronizationContext.Current;
             var synch = new ExclusiveSynchronizationContext();
             SynchronizationContext.SetSynchronizationContext(synch);
+            // ReSharper disable once AsyncVoidLambda
             synch.Post(async _ =>
             {
                 try
@@ -40,6 +41,7 @@ namespace Das.Serializer.Concurrency
             var synch = new ExclusiveSynchronizationContext();
             SynchronizationContext.SetSynchronizationContext(synch);
             var ret = default(T);
+            // ReSharper disable once AsyncVoidLambda
             synch.Post(async _ =>
             {
                 try

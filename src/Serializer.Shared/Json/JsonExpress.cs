@@ -60,7 +60,7 @@ namespace Das.Serializer.Json
                     root = DeserializeImpl(ref root, ref currentIndex, json, type,
                         sb, ctorValues, settings);
 
-                    return root!;
+                    return root;
                 }
 
                 AdvanceUntil(ref currentIndex, json, '{');
@@ -260,6 +260,7 @@ namespace Das.Serializer.Json
                                             Const.ObjectType, stringBuilder, child, null,
                                             ref root,
                                             ctorValues, settings);
+                                        stringBuilder.Clear();
                                         continue;
 
                                     case PropertyNotFoundBehavior.ThrowException:
@@ -510,6 +511,20 @@ namespace Das.Serializer.Json
                         currentIndex++;
                         GetNextPrimitive(ref currentIndex, json, stringBuilder);
                         currentIndex++;
+
+                        if (code == TypeCode.Double)
+                        {
+                           if (stringBuilder.Length == 1 && String.Equals(stringBuilder.ToString(), "-"))
+                              return double.NaN;
+
+                           if (stringBuilder.Length == 0)
+                              return double.NaN;
+                        }
+
+                        //if (stringBuilder.Length == 1 && code == TypeCode.Double &&
+                        //    String.Equals(stringBuilder.ToString(), "-"))
+                        //   return double.NaN;
+
                     }
 
                     return Convert.ChangeType(stringBuilder.ToString(), code,

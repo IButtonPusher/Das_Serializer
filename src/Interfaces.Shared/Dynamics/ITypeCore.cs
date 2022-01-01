@@ -33,8 +33,10 @@ namespace Das.Serializer
         /// </summary>
         Type GetGermaneType(Type ownerType);
 
+        IEnumerable<PropertyInfo> GetPublicProperties(Type type);
+
         IEnumerable<PropertyInfo> GetPublicProperties(Type type,
-                                                      Boolean numericFirst = true);
+                                                      Boolean numericFirst);
 
         Boolean HasEmptyConstructor(Type t);
 

@@ -72,7 +72,7 @@ namespace Das.Serializer
                                      FileInfo fileName)
         {
             var obj = (TTarget) o;
-            ToBytes(obj!, fileName);
+            ToBytes(obj, fileName);
         }
     }
 }

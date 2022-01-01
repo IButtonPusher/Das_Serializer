@@ -113,8 +113,7 @@ namespace Das.Serializer.Concurrency
             }
 
             var t = new Thread(RunOnCurrentThread) {Name = _staThreadName};
-
-            
+            t.IsBackground = true;
 
             t.SetApartmentState(ApartmentState.STA);
             t.Start();

@@ -31,5 +31,7 @@ namespace Das.Serializer
         {
             return this.AreEqual(other);
         }
+
+       
     }
 }
