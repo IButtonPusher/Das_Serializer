@@ -84,7 +84,8 @@ namespace Das.Printers
                 case TypeCode.UInt64:
 
                     if (propType.IsEnum)
-                        PrintStringWithoutEscaping(o.ToString(), Writer);
+                        // ReSharper disable once RedundantSuppressNullableWarningExpression
+                        PrintStringWithoutEscaping(o.ToString()!, Writer);
                     else
                         PrintInteger(o, Writer);
 
@@ -124,6 +125,6 @@ namespace Das.Printers
                                             ITextRemunerable Writer);
 
         protected abstract void PrintStringWithoutEscaping(String str,
-                                                           ITextRemunerable Writer);
+                                                           ITextRemunerable writer);
     }
 }

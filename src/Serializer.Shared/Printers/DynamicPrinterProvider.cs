@@ -23,9 +23,18 @@ namespace Das.Serializer.Printers
          //var access = AssemblyBuilderAccess.RunAndSave;
          var access = AssemblyBuilderAccess.Run;
 
+        #if NET45 || NET40
+
          AssemblyBuilder asmBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, access);
+
+         #else
+
+         AssemblyBuilder asmBuilder = AssemblyBuilder.DefineDynamicAssembly(asmName, access);
+
+         #endif
+
          _moduleBuilder = asmBuilder.DefineDynamicModule(AssemblyName);
-         //var moduleBuilder = asmBuilder.DefineDynamicModule(AssemblyName, SaveFile);
+        
       }
 
       public DynamicPrinterProvider(ITypeInferrer typeInferrer,

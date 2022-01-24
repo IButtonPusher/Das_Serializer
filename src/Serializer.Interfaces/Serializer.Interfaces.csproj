@@ -26,11 +26,11 @@
    <LangVersion>9.0</LangVersion>
    <Nullable>enable</Nullable>
    <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
-   <AssemblyVersion>0.0.23.0</AssemblyVersion>
+   <AssemblyVersion>0.0.24.0</AssemblyVersion>
    <RepositoryUrl>https://github.com/IButtonPusher/Das_Serializer.git</RepositoryUrl>
    <PackageProjectUrl>https://github.com/IButtonPusher/Das_Serializer</PackageProjectUrl>
    <RepositoryType>git</RepositoryType>
-   <FileVersion>0.0.23.0</FileVersion>
+   <FileVersion>0.0.24.0</FileVersion>
    <AnalysisLevel>none</AnalysisLevel>
 </PropertyGroup>
   

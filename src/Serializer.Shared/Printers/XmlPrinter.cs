@@ -427,42 +427,46 @@ namespace Das.Printers
 
         protected override void PrintCollection(Object? value,
                                                 Type valType,
-                                                ITextRemunerable Writer,
+                                                ITextRemunerable writer,
                                                 ISerializerSettings settings,
                                                 ICircularReferenceHandler circularReferenceHandler)
-            //Boolean knownEmpty)
         {
             if (ReferenceEquals(value, null))
                 return;
 
             var nodeType = value.GetType();
 
-            var isEmpty = value is ICollection {Count: 0};
+            var isEmpty = value is ICollection { Count: 0 };
 
-            //var parent = _formatStack.Pop();
             var parent = _formatStack.Peek();
 
             if (parent.IsTagOpen)
             {
-                Writer.Append(isEmpty ? SelfClose : CloseTag);
+                writer.Append(isEmpty ? SelfClose : CloseTag);
                 parent.IsTagOpen = false;
             }
 
-            if (!isEmpty)
+            if (isEmpty)
+                return;
+
+            var germane = _typeInferrer.GetGermaneType(nodeType);
+
+            if (!_typeInferrer.IsInstantiable(germane) &&
+                value is IList { Count: > 0 } ilist)
             {
-                var germane = _typeInferrer.GetGermaneType(nodeType);
-                var germaneNodeType = _nodeTypes.GetNodeType(germane);
-
-                Writer.TabOut();
-
-                PrintSeries(ExplodeIterator(value as IEnumerable, germane),
-                    Writer, PrintCollectionObject, germaneNodeType, settings, 
-                    circularReferenceHandler);
-
-                Writer.TabIn();
+                germane = ilist[0].GetType();
             }
 
-            //_formatStack.Push(parent);
+
+            var germaneNodeType = _nodeTypes.GetNodeType(germane);
+
+            writer.TabOut();
+
+            PrintSeries(ExplodeIterator(value as IEnumerable, germane),
+                writer, PrintCollectionObject, germaneNodeType, settings,
+                circularReferenceHandler);
+
+            writer.TabIn();
         }
 
         protected override void PrintCollectionObject(Object? o,
@@ -521,24 +525,6 @@ namespace Das.Printers
             PrintStringWithoutEscaping(str, Writer);
         }
 
-        //protected void PrintCollectionObject(ObjectNode val)
-        //{
-        //    if (!_isIgnoreCircularDependencies)
-        //        PushStack($"[{val.Index}]");
-
-        //    PrintNode(val);
-        //    if (!_isIgnoreCircularDependencies)
-        //        PopStack();
-        //}
-
-
-        //protected override void PrintReferenceType(IPrintNode node)
-        //{
-        //    var series = _stateProvider.ObjectManipulator.GetPropertyResults(node, this)
-        //                               .OrderByDescending(r => r.Type == Const.StrType);
-        //    PrintSeries(series, PrintProperty);
-        //}
-
         protected sealed override void PrintString(String str,
                                                    ITextRemunerable Writer)
         {
@@ -550,7 +536,8 @@ namespace Das.Printers
                 parent.IsTagOpen = false;
             }
 
-            Writer.Append(SecurityElement.Escape(str)!);
+            if (SecurityElement.Escape(str) is {} escaped)
+                Writer.Append(escaped);
 
             _formatStack.Push(parent);
         }
@@ -567,7 +554,8 @@ namespace Das.Printers
                 parent.IsTagOpen = false;
             }
 
-            Writer.Append(SecurityElement.Escape(input)!);
+            if (SecurityElement.Escape(input) is { } escaped)
+                Writer.Append(escaped);
 
             _formatStack.Push(parent);
         }

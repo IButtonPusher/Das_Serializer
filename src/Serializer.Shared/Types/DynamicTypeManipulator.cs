@@ -23,11 +23,7 @@ namespace Das.Serializer
             return CreateDynamicPropertyGetter(targetType, propertyInfo);
         }
 
-        Func<object, object> ITypeManipulator.CreatePropertyGetter(Type targetType,
-                                                                   PropertyInfo propertyInfo)
-        {
-           return CreatePropertyGetter(targetType, propertyInfo);
-        }
+       
 
         public Func<TObject, TProperty> CreatePropertyGetter<TObject, TProperty>(PropertyInfo propInfo)
         {
@@ -44,7 +40,7 @@ namespace Das.Serializer
         }
 
 
-        public PropertySetter? CreateSetMethod(MemberInfo memberInfo)
+        public static PropertySetter? CreateSetMethod(MemberInfo memberInfo)
         {
             var memberChain = new[] {memberInfo};
             return CreateSetterImpl<PropertySetter>(memberInfo.DeclaringType!, ParamTypes, memberChain);
@@ -104,17 +100,12 @@ namespace Das.Serializer
             if (!fieldInfo.IsStatic)
             {
                 il.Emit(OpCodes.Ldarg_0);
-                
-                //if (typeof(TField).IsValueType)
-                //    il.Emit(OpCodes.Ldflda, fieldInfo);
-                //else
-                    il.Emit(OpCodes.Ldfld, fieldInfo);
+
+                il.Emit(OpCodes.Ldfld, fieldInfo);
             }
             else
                 il.Emit(OpCodes.Ldsfld, fieldInfo);
 
-            //if (fieldInfo.FieldType.IsValueType)
-            //    il.Emit(OpCodes.Box, fieldInfo.FieldType);
 
             il.Emit(OpCodes.Ret);
             return (Func<TParent, TField>) dynam.CreateDelegate(typeof(Func<TParent, TField>));
@@ -206,6 +197,10 @@ namespace Das.Serializer
             _singlePropFairy[0] = propertyInfo;
             return CreateDynamicPropertyGetter<TObject, TProperty>(_singlePropFairy, out _);
         }
+
+        public static Func<Object, Object> CreatePropertyGetter(PropertyInfo propertyInfo)
+            => CreateDynamicPropertyGetter(propertyInfo);
+
 
         public static Func<Object, Object> CreateDynamicPropertyGetter(PropertyInfo propertyInfo)
         {
@@ -568,13 +563,12 @@ namespace Das.Serializer
                                 return null;
                             paramType = prop.PropertyType;
 
-                            //generator.Emit(accessCode, prop.GetSetMethod(true)!);
                             break;
 
                         case FieldInfo field:
                             paramType = field.FieldType;
 
-                            //generator.Emit(OpCodes.Stfld, field);
+                            
                             break;
 
                         default:

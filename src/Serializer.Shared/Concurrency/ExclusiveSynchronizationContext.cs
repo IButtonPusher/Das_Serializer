@@ -13,7 +13,7 @@ namespace Das.Serializer.Concurrency
         {
             while (!_done)
             {
-                Tuple<SendOrPostCallback, Object>? task = null;
+                Tuple<SendOrPostCallback, Object?>? task = null;
                 lock (items)
                 {
                     if (items.Count > 0) task = items.Dequeue();
@@ -41,7 +41,7 @@ namespace Das.Serializer.Concurrency
         }
 
         public override void Post(SendOrPostCallback d,
-                                  Object state)
+                                  Object? state)
         {
             lock (items)
             {
@@ -52,15 +52,14 @@ namespace Das.Serializer.Concurrency
         }
 
         public override void Send(SendOrPostCallback d,
-                                  Object state)
+                                  Object? state)
         {
             throw new NotSupportedException("We cannot send to our same thread");
         }
 
         private readonly AutoResetEvent _workItemsWaiting = new(false);
 
-        private readonly Queue<Tuple<SendOrPostCallback, Object>> items =
-            new();
+        private readonly Queue<Tuple<SendOrPostCallback, Object?>> items = new();
 
         private Boolean _done;
     }

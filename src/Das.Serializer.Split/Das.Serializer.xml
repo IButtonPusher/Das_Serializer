@@ -4,6 +4,26 @@
         <name>Das.Serializer</name>
     </assembly>
     <members>
+        <member name="T:Das.Serializer.CircularReferences.ExceptionCircularReferenceHandler">
+            <summary>
+            Throws an exception when a circular reference is detected
+            </summary>
+        </member>
+        <member name="T:Das.Serializer.CircularReferences.IgnoringCircularReferenceHandler">
+            <summary>
+            Changes circular references to null property values
+            </summary>
+        </member>
+        <member name="T:Das.Serializer.Collections.FastSemaphore">
+            <summary>
+            http://www.adammil.net/blog/v111_Creating_High-Performance_Locks_and_Lock-free_Code_for_NET_.html#rwlock
+            </summary>
+        </member>
+        <member name="T:Das.Serializer.Collections.UpgradableReadWriteLock">
+            <summary>
+                http://www.adammil.net/blog/v111_Creating_High-Performance_Locks_and_Lock-free_Code_for_NET_.html#rwlock
+            </summary>
+        </member>
         <member name="M:Das.Serializer.DasCoreSerializer.ToJson(System.Object)">
             <summary>
                 Create a Json string from any object.  For more options set the Settings
@@ -67,11 +87,6 @@
                 this property is accessed.
             </summary>
         </member>
-        <member name="T:Das.Serializer.SafeFile">
-            <summary>
-                Creates a system wide mutex on a string based on the file's name
-            </summary>
-        </member>
         <member name="M:Das.Serializer.Json.JsonExpress.GetValue(System.Int32@,System.String,System.Type,System.Text.StringBuilder,System.Object,Das.Serializer.IPropertyAccessor,System.Object@,System.Object[],Das.Serializer.ISerializerSettings)">
             <summary>
                 Leaves the StringBuilder dirty!
@@ -79,11 +94,13 @@
         </member>
         <member name="M:Das.Serializer.DasSerializer.GetProtoSerializer``1(Das.Serializer.IProtoBufOptions{``0})">
             <summary>
-            Returns a protocol buffers serializer that uses TPropertyAttribute as the attribute
-            for determining member tags/indexes
+                Returns a protocol buffers serializer that uses TPropertyAttribute as the attribute
+                for determining member tags/indexes
             </summary>
-            <seealso cref="F:Das.Serializer.ProtoBufOptions.Default">Default implementation that uses
-            Das.Serializer.IndexedMemberAttribute and its 'Index' Property</seealso>
+            <seealso cref="F:Das.Serializer.ProtoBufOptions.Default">
+                Default implementation that uses
+                Das.Serializer.IndexedMemberAttribute and its 'Index' Property
+            </seealso>
         </member>
         <member name="M:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1.ScanCollection(System.Type,Das.Serializer.ProtoBuf.IValueExtractor)">
             <summary>
@@ -138,17 +155,17 @@
         </member>
         <member name="F:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1._getDoubleBytes">
             <summary>
-            BitConverter.GetBytes(Double)
+                BitConverter.GetBytes(Double)
             </summary>
         </member>
         <member name="F:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1._getInt32">
             <summary>
-            ProtoDynamicBase.GetInt32
+                ProtoDynamicBase.GetInt32
             </summary>
         </member>
         <member name="F:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1._getInt64">
             <summary>
-            ProtoDynamicBase.GetInt64
+                ProtoDynamicBase.GetInt64
             </summary>
         </member>
         <member name="F:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1._readBytesField">
@@ -196,7 +213,7 @@
         </member>
         <member name="T:Das.Serializer.ProtoEnumerator`1">
             <summary>
-            Generates dynamic foreach code block
+                Generates dynamic foreach code block
             </summary>
         </member>
         <member name="T:Das.Serializer.Remunerators.DeferredBinaryWriter">
@@ -262,14 +279,9 @@
                 does not check or modify the cache
             </summary>
         </member>
-        <member name="M:Das.Serializer.CoreTextParser.TrySkip(System.String,System.String,System.String@)">
+        <member name="M:Das.Serializer.TypeStructure.GetMembersToSerialize(Das.Serializer.SerializationDepth)">
             <summary>
-                Returns the rest of the text if the text started with whenStartsWith
-            </summary>
-        </member>
-        <member name="M:Das.Serializer.TypeStructure.GetMembersToSerialize(Das.Serializer.ISerializationDepth)">
-            <summary>
-                Returns properties and/or fields depending on specified depth
+               Returns properties and/or fields depending on specified depth
             </summary>
         </member>
         <member name="M:Das.Serializer.TypeManipulator.CreatePropertyGetter(System.Type,System.Reflection.PropertyInfo)">
@@ -286,6 +298,11 @@
         <member name="M:Das.Serializer.TypeManipulator.GetAdder(System.Collections.IEnumerable,System.Type)">
             <summary>
                 Gets a delegate to add an object to a non-generic collection
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.TypeCore.ToPascalCase(System.String)">
+            <summary>
+                Returns the name in PascalCase
             </summary>
         </member>
         <member name="F:Das.Serializer.Xml.XmlExpress2._beforeStringChars">
@@ -363,15 +380,10 @@
             </param>
             <returns></returns>
         </member>
-        <member name="M:Das.Types.ObjectManipulator.TrySetProperty(System.Type,System.String,System.Object@,System.Object)">
+        <member name="M:Das.Types.ObjectManipulator.TrySetProperty(System.Type,System.String,Das.Serializer.PropertyNameFormat,System.Object@,System.Object)">
             <summary>
                 Attempts to set a property value for a targetObj which is a property of name propName
                 in a class of type classType
-            </summary>
-        </member>
-        <member name="M:Das.Types.TypeInference.ToPascalCase(System.String)">
-            <summary>
-                Returns the name in PascalCase
             </summary>
         </member>
         <member name="M:Das.Types.TypeInference.FromSingleToken(System.String,System.Boolean,System.Collections.Generic.IDictionary{System.String,System.String})">

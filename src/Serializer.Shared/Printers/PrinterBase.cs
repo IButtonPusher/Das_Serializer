@@ -79,7 +79,8 @@ namespace Das.Printers
                     break;
 
                 case NodeTypes.Collection:
-                    PrintCollection(o, propType, writer, settings, circularReferenceHandler);
+                    PrintCollection(o, propType, writer, 
+                        settings, circularReferenceHandler);
                     break;
 
                 case NodeTypes.Fallback:

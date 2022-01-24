@@ -19,7 +19,7 @@ namespace Das.Serializer
 
             _initialLoadCompletion = new TaskCompletionSource<bool>(
 
-                #if !NET40
+                #if !NET40 && !NET45
 
                 TaskCreationOptions.RunContinuationsAsynchronously);
                 #else

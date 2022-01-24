@@ -521,10 +521,6 @@ namespace Das.Serializer.Json
                               return double.NaN;
                         }
 
-                        //if (stringBuilder.Length == 1 && code == TypeCode.Double &&
-                        //    String.Equals(stringBuilder.ToString(), "-"))
-                        //   return double.NaN;
-
                     }
 
                     return Convert.ChangeType(stringBuilder.ToString(), code,
@@ -617,11 +613,6 @@ namespace Das.Serializer.Json
                     return stringBuilder[0];
 
                 case TypeCode.DateTime:
-
-                    
-
-                    //return DateTime.ParseExact(GetNextString(ref currentIndex, json, stringBuilder), 
-                    //    CultureInfo.InvariantCulture));
                     return DateTime.Parse(GetNextString(ref currentIndex, json, stringBuilder),
                         CultureInfo.InvariantCulture);
 

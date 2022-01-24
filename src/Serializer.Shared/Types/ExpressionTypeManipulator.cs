@@ -16,10 +16,29 @@ namespace Das.Serializer
     public partial class TypeManipulator
     {
         #if !GENERATECODE
-        public Func<Object, Object> CreatePropertyGetter(Type targetType,
+        public static Func<Object, Object> CreatePropertyGetter(Type targetType,
                                                                 PropertyInfo propertyInfo)
         {
             return CreateExpressionPropertyGetter(targetType, propertyInfo);
+        }
+
+        public Func<TObject, TProperty> CreatePropertyGetter<TObject, TProperty>(String propertyName,
+            out PropertyInfo propInfo)
+        {
+            var propChainArr = GetPropertyChain(typeof(TObject), propertyName).ToArray();
+            return CreateExpressionPropertyGetterImpl<TObject, TProperty>(propChainArr, out propInfo);
+        }
+
+        public Func<TObject, TProperty> CreatePropertyGetter<TObject, TProperty>(PropertyInfo propInfo)
+        {
+            _singlePropFairy ??= new PropertyInfo[1];
+            _singlePropFairy[0] = propInfo;
+            return CreateExpressionPropertyGetterImpl<TObject, TProperty>(_singlePropFairy, out _);
+        }
+
+        public static Func<Object, Object> CreatePropertyGetter(PropertyInfo propertyInfo)
+        {
+            return CreateExpressionPropertyGetter(propertyInfo.DeclaringType!, propertyInfo);
         }
 
         public static Func<object, object> CreatePropertyGetter(Type targetType, 
@@ -29,11 +48,21 @@ namespace Das.Serializer
             return CreateExpressionPropertyGetter(targetType, propertyName, out propInfo);
         }
 
- 
 
-       
+        //public Func<TObject, TProperty> CreatePropertyGetter<TObject, TProperty>(PropertyInfo propInfo)
+        //{
+        //    return TODO_IMPLEMENT_ME;
+        //}
 
-        public PropertySetter CreateSetMethod(MemberInfo memberInfo)
+        //public Func<TObject, TProperty> CreatePropertyGetter<TObject, TProperty>(String propertyName,
+        //                                                                         out PropertyInfo propInfo)
+        //{
+        //    return TODO_IMPLEMENT_ME;
+        //}
+
+        
+
+        public static PropertySetter CreateSetMethod(MemberInfo memberInfo)
         {
             switch (memberInfo)
             {
@@ -67,6 +96,19 @@ namespace Das.Serializer
                 input, fieldInfo.Name), input).Compile();
         }
 
+        
+
+
+        //public Func<TParent, TField> CreateFieldGetter<TParent, TField>(FieldInfo fieldInfo)
+        //{
+        //    return TODO_IMPLEMENT_ME;
+        //}
+
+        //public Action<TParent, TField> CreateFieldSetter<TParent, TField>(FieldInfo fieldInfo)
+        //{
+        //    return TODO_IMPLEMENT_ME;
+        //}
+
         public Action<Object, Object?> CreateFieldSetter(FieldInfo fieldInfo)
         {
 
@@ -74,12 +116,27 @@ namespace Das.Serializer
             return bob;
         }
 
+        public Action<TParent, TField> CreateFieldSetter<TParent, TField>(FieldInfo fieldInfo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Func<TParent, TField> CreateFieldGetter<TParent, TField>(FieldInfo fieldInfo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static TDelegate CreateMethodCaller<TDelegate>(MethodInfo method)
+            where TDelegate : Delegate
+        {
+            throw new NotImplementedException();
+        }
+
         public static VoidMethod CreateMethodCaller(MethodInfo method)
         {
             VoidMethod bobbith = (target, paramValues) =>
             {
                 method.Invoke(target, paramValues);
-                //bob.DynamicInvoke(target, paramValues);
             };
 
 
@@ -106,6 +163,51 @@ namespace Das.Serializer
             _singlePropFairy ??= new PropertyInfo[1];
             _singlePropFairy[0] = propertyInfo;
             return CreateExpressionPropertyGetterImpl(targetType, _singlePropFairy, out _);
+        }
+
+        private static Func<TObject, TProperty> CreateExpressionPropertyGetterImpl<TObject, TProperty>(PropertyInfo[] propChainArr,
+                                                                               out PropertyInfo propInfo)
+        {
+            var targetType = typeof(TObject);
+
+            propInfo = default!;
+
+            var targetObj = Expression.Parameter(typeof(object), "t");
+
+            var arg0 = Expression.Convert(targetObj, targetType);
+
+            Expression currentPropVal = arg0;
+
+            var doneOrNullValue = Expression.Label();
+            Expression propValObj = Expression.Constant(null);
+
+            for (var c = 0; c < propChainArr.Length; c++)
+            {
+                propInfo = propChainArr[c];
+
+                var getter = propInfo.GetGetMethod();
+
+                currentPropVal = Expression.Call(currentPropVal, getter);
+
+                //have to convert it so it can be the return value of our delegate
+                propValObj = Expression.Convert(currentPropVal, typeof(object));
+
+                if (c < propChainArr.Length - 1)
+                {
+                    var isNull = Expression.ReferenceEqual(
+                        Expression.Constant(null), propValObj);
+
+                    Expression.IfThen(isNull,
+                        Expression.Return(doneOrNullValue));
+                }
+            }
+
+            Expression.Label(doneOrNullValue);
+
+            var lambda = Expression.Lambda<Func<TObject, TProperty>>(propValObj, targetObj);
+
+            var action = lambda.Compile();
+            return action;
         }
 
         private static Func<Object, Object> CreateExpressionPropertyGetterImpl(Type targetType,
@@ -164,17 +266,20 @@ namespace Das.Serializer
 
         public static PropertySetter<T>? CreateSetMethod<T>(MemberInfo memberInfo)
         {
-            var propChainArr = new[] { memberInfo };
+            if (memberInfo is not PropertyInfo propInfo)
+                throw new NotSupportedException();
+
+            var propChainArr = new[] { propInfo };
 
             _paramTypeFairy ??= new Type[2];
             _paramTypeFairy[0] = typeof(T).MakeByRefType();
             _paramTypeFairy[1] = typeof(Object);
 
             return CreateSetterImpl<PropertySetter<T>>(typeof(T),
-                _paramTypeFairy, memChainArr);
+                _paramTypeFairy, propChainArr);
         }
 
-        public PropertySetter<T>? CreateSetMethod<T>(String memberName)
+        public static PropertySetter<T>? CreateSetMethod<T>(String memberName)
         {
             _paramTypeFairy ??= new Type[2];
             _paramTypeFairy[0] = typeof(T).MakeByRefType();
@@ -189,11 +294,10 @@ namespace Das.Serializer
                                                         PropertyInfo[] propChainArr)
         where TSetter : Delegate
         {
-            //var propChainArr = GetPropertyChain(targetType, memberName).ToArray();
-
             var objArg0 = Expression.Parameter(paramTypes[0].MakeByRefType(), "arg0");
             var objVal = Expression.Parameter(paramTypes[1], "val");
             var val = Expression.Convert(objVal, propChainArr[propChainArr.Length - 1].GetMemberType());
+            
             //convert arg0 from obj to the declaring type so the getter can be called
             var arg0 = Expression.Convert(objArg0, declaringType);
 

@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+// ReSharper disable UnusedMember.Global
 
 namespace Das.Serializer.Collections
 {
-    public class DoubleDictionary<TKeyOne, TKeyTwo, TValue>
+    public class DoubleDictionary<TKeyOne, TKeyTwo, TValue> 
+        where TKeyOne : notnull 
+        where TKeyTwo : notnull
     {
         public DoubleDictionary()
         {

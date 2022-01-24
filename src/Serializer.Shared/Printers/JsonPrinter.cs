@@ -315,7 +315,7 @@ namespace Das.Printers
 
         protected sealed override void PrintCollection(Object? value,
                                                        Type valType,
-                                                       ITextRemunerable Writer,
+                                                       ITextRemunerable writer,
                                                        ISerializerSettings settings,
                                                        ICircularReferenceHandler circularReferenceHandler)
         {
@@ -326,8 +326,8 @@ namespace Das.Printers
             circularReferenceHandler.AddPathReference(serializeAs, GetCollectionReferenceText);
 
 
-            Writer.Append(Const.OpenBracket);
-            Writer.TabOut();
+            writer.Append(Const.OpenBracket);
+            writer.TabOut();
 
             var germane = _typeInferrer.GetGermaneType(serializeAs);
             var germaneNodeType = _nodeTypes.GetNodeType(germane);
@@ -338,12 +338,12 @@ namespace Das.Printers
                     if (list.Count == 0)
                         break;
 
-                    PrintObject(list[0], germane, germaneNodeType, Writer, settings, circularReferenceHandler);
+                    PrintObject(list[0], germane, germaneNodeType, writer, settings, circularReferenceHandler);
 
                     for (var c = 1; c < list.Count; c++)
                     {
-                        Writer.Append(SequenceSeparator);
-                        PrintObject(list[c], germane, germaneNodeType, Writer,settings, 
+                        writer.Append(SequenceSeparator);
+                        PrintObject(list[c], germane, germaneNodeType, writer,settings, 
                             circularReferenceHandler);
                     }
 
@@ -356,17 +356,17 @@ namespace Das.Printers
                     foreach (var o in ienum)
                     {
                         if (printSep)
-                            Writer.Append(SequenceSeparator);
+                            writer.Append(SequenceSeparator);
                         printSep = true;
-                        PrintObject(o, germane, germaneNodeType, Writer,
+                        PrintObject(o, germane, germaneNodeType, writer,
                             settings, circularReferenceHandler);
                     }
 
                     break;
             }
 
-            Writer.TabIn();
-            Writer.Append(Const.CloseBracket);
+            writer.TabIn();
+            writer.Append(Const.CloseBracket);
             circularReferenceHandler.PopPathReference();
         }
 

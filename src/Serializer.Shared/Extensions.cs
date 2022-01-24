@@ -264,13 +264,15 @@ namespace Das.Extensions
 
 
         public static Boolean AreEqual(this ISerializationDepth left,
-                                       ISerializationDepth right)
+                                       ISerializationDepth? right)
         {
-        return left.SerializationDepth == right.SerializationDepth &&
-               left.IsOmitDefaultValues == right.IsOmitDefaultValues &&
-               left.IsRespectXmlIgnore == right.IsRespectXmlIgnore;
-        }
+            if (ReferenceEquals(null, right))
+                return false;
 
+            return left.SerializationDepth == right.SerializationDepth &&
+                   left.IsOmitDefaultValues == right.IsOmitDefaultValues &&
+                   left.IsRespectXmlIgnore == right.IsRespectXmlIgnore;
+        }
 
 
         public static T GetPropertyValue<T>(this Object obj,

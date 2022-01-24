@@ -14,7 +14,6 @@ namespace Das.Serializer
         public ValueCollectionWrapper(ICollection<T> baseCollection)
         {
             _baseCollection = baseCollection;
-            
         }
 
         Object ICollectionWrapper.GetBaseCollection() => _baseCollection;

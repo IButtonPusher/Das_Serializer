@@ -221,7 +221,8 @@ namespace Serializer.Tests
             Object oInst3 = inst3;
 
             var typem = new TypeManipulator(DasSettings.CloneDefault());
-            var setter3 = typem.CreateSetMethod(nameProp);
+            ITypeManipulator iTypem = typem;
+            var setter3 = iTypem.CreateSetMethod(nameProp);
             setter3(ref oInst3!, "henry howler");
             Assert.Equal("henry howler", inst3.Name);
         }

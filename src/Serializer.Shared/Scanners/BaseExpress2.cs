@@ -133,14 +133,10 @@ namespace Das.Serializer.Scanners
                         if (nodeScanState == NodeScanState.AttributeNameRead)
                             switch (stringBuilder.GetConsumingString())
                             {
-                                //case Const.XmlXsiAttribute:
                                 default: //todo: do we ever care about an attribute value here?
                                     AdvanceScanState(txt, ref currentIndex, stringBuilder, ref nodeScanState);
                                     stringBuilder.Clear();
                                     break;
-
-                                //default:
-                                //    throw new NotImplementedException();
                             }
 
                         var code = Type.GetTypeCode(specifiedType);
@@ -225,13 +221,10 @@ namespace Das.Serializer.Scanners
                                 return null;
                         }
 
-                        //var conv = _types.GetTypeConverter(specifiedType);
-
                         AdvanceScanStateUntil(txt, ref currentIndex, stringBuilder,
                             NodeScanState.StartOfNodeClose, ref nodeScanState);
 
                         return _types.ConvertTo(stringBuilder.GetConsumingString(), specifiedType);
-                    //return conv.ConvertFrom(stringBuilder.GetConsumingString());
 
                     default:
                         throw new NotImplementedException();
@@ -375,11 +368,19 @@ namespace Das.Serializer.Scanners
 
                         var robj = (RuntimeObject) child;
                         for (var c = 0; c < ctorParams.Length; c++)
-                            if (robj.Properties.TryGetValue(ctorParams[c].Name, out var found) ||
-                                robj.Properties.TryGetValue(
-                                    _typeInference.ToPascalCase(
-                                        ctorParams[c].Name), out found))
+                        {
+                            var pName = ctorParams[c].Name ?? throw new ArgumentException($"{ctor} parameter {c} has no name");
+
+                            if (robj.Properties.TryGetValue(pName, out var found) ||
+                                robj.Properties.TryGetValue(_typeInference.ToPascalCase(pName), out found))
+                            {
                                 arr[c] = found.PrimitiveValue;
+                            }
+                            else
+                            {
+                                arr[c] = _instantiator.BuildDefault(ctorParams[c].ParameterType, true);
+                            }
+                        }
 
                         return ctor.Invoke(arr);
 
@@ -458,13 +459,6 @@ namespace Das.Serializer.Scanners
 
                 if (nodeScanState == NodeScanState.StartOfNodeClose)
                     break;
-
-                //var refWas = currentIndex;
-                //var scanStateWas = nodeScanState;
-
-                //if (prop != null && _typeInference.IsCollection(germane))
-                //{}
-                
 
                 var current = DeserializeNode(txt, ref currentIndex, stringBuilder, germane, settings,
                     _emptyCtorValues, ref nodeScanState, parent, prop, root, false);

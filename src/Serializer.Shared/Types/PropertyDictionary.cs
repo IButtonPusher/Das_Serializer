@@ -46,8 +46,11 @@ namespace Das.Serializer.Types
 
        private static SimplePropertyAccessor BuildAccessor(PropertyInfo pi)
        {
-          var getter = pi.CanRead ? TypeManipulator.CreateDynamicPropertyGetter(pi) : default;
-          var setter = pi.CanWrite ? TypeManipulator.CreatePropertySetter(pi) : default;
+           var getter = pi.CanRead ? TypeManipulator.CreatePropertyGetter(pi) : default;
+           var setter = pi.CanWrite ? TypeManipulator.CreateSetMethod(pi) : default;
+
+          //var getter = pi.CanRead ? TypeManipulator.CreateDynamicPropertyGetter(pi) : default;
+          //var setter = pi.CanWrite ? TypeManipulator.CreatePropertySetter(pi) : default;
 
           var accessor = new SimplePropertyAccessor(pi.DeclaringType!, pi.Name,
              getter, setter, pi);

@@ -58,6 +58,17 @@ namespace Das.Serializer
             return (Func<Object, Object[], Object>) Delegate.CreateDelegate(delegateType, null, method);
         }
 
+        PropertySetter? ITypeManipulator.CreateSetMethod(MemberInfo memberInfo)
+        {
+            return CreateSetMethod(memberInfo);
+        }
+
+        Func<object, object> ITypeManipulator.CreatePropertyGetter(Type targetType,
+                                                                   PropertyInfo propertyInfo)
+        {
+            return CreatePropertyGetter(targetType, propertyInfo);
+        }
+
 
         /// <summary>
         ///     Detects the Add, Enqueue, Push etc method for generic collections
@@ -412,8 +423,14 @@ namespace Das.Serializer
 
             //super sophisticated
             var method = type.GetMethod(nameof(IList.Add));
+
             if (method != null)
             {
+                if (method.GetParameters().Length > 1)
+                {
+                    method = GetExplicitAddMethod(type) ?? method;
+                }
+
                 #if GENERATECODE
 
                 var dynam = CreateMethodCaller(method, true);
@@ -431,8 +448,6 @@ namespace Das.Serializer
 
         #if NET40 || NET45
 
-       
-
         private static VoidMethod CreateAddDelegateImpl(MethodInfo method)
         {
             #if GENERATECODE
@@ -447,6 +462,32 @@ namespace Das.Serializer
         }
 
         #endif
+
+        private static MethodInfo? GetExplicitAddMethod(Type type)
+        {
+            var allMyNonPublics = type.GetMethods(BindingFlags.Instance | 
+                                                  BindingFlags.NonPublic | 
+                                                  BindingFlags.FlattenHierarchy);
+
+            foreach (var m in allMyNonPublics)
+            {
+                //Debug.WriteLine("yo method " + m.Name);
+
+        if (!m.Name.EndsWith(nameof(IList.Add)))
+            continue;
+
+                //if (!m.Name.Equals(nameof(IList.Add)))
+                //    continue;
+
+                if (m.GetParameters().Length != 1)
+                    continue;
+
+                return m;
+            }
+
+            return default;
+
+        }
 
         private static MethodInfo? FindInvocableMethodImpl(Type type,
                                                            ICollection<String> possibleMethodNames,

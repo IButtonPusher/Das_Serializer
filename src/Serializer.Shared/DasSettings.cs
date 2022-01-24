@@ -171,7 +171,7 @@ namespace Das.Serializer
             return (DasSettings) _default.MemberwiseClone();
         }
 
-        public Boolean Equals(ISerializationDepth other)
+        public Boolean Equals(ISerializationDepth? other)
         {
             return this.AreEqual(other);
         }

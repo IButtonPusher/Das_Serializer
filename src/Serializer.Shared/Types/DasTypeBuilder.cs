@@ -22,8 +22,7 @@ namespace Das.Types
 
             #if !NET40
 
-            _getCompletedTask = typeof(Task).GetProperty("CompletedTask",
-                BindingFlags.Static | BindingFlags.Public).GetGetMethod();
+            _getCompletedTask = typeof(Task).GetStaticPropertyOrDie("CompletedTask").GetGetMethod()!;
 
             #else
             _getCompletedTask = typeof(TaskEx).GetProperty(nameof(TaskEx.CompletedTask),
@@ -82,7 +81,7 @@ namespace Das.Types
             var dType = GetDynamicType(Guid.NewGuid().ToString(), props, true,
                 Enumerable.Empty<EventInfo>(), _emptyMethodReplacements);
 
-            var dObj = Activator.CreateInstance(dType.ManagedType);
+            var dObj = Activator.CreateInstance(dType.ManagedType)!;
 
             foreach (var kvp in robj.Properties)
             {

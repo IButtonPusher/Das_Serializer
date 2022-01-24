@@ -519,9 +519,13 @@ namespace Das.Serializer
             foreach (var con in type.GetConstructors())
             {
                 var ctorParams = con.GetParameters();
-                //if (ctorParams.Length == 0)
-                if (ctorParams.Length != _rProps.Count)
+
+
+                if (ctorParams.Length > _rProps.Count)
                     continue;
+
+                //if (ctorParams.Length != _rProps.Count)
+                //    continue;
 
                 foreach (var p in ctorParams)
                 {

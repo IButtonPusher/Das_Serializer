@@ -10,25 +10,23 @@ namespace Das.Serializer.State
     {
         public static IList Get(Type collectionType)
         {
-            if (collectionType.IsGenericType)
-            {
-                var gargs = collectionType.GetGenericArguments();
+            if (!collectionType.IsGenericType)
+                throw new NotSupportedException();
 
-                var callMe = typeof(GenericCollectionWrapper).GetPublicStaticMethodOrDie(
-                                                                 nameof(GetGeneric))
-                                                             .MakeGenericMethod(gargs[0]);
+            var gargs = collectionType.GetGenericArguments();
 
-                var ctor = collectionType.GetConstructor(Type.EmptyTypes);
-                var collection = ctor?.Invoke(new object[0])!;
+            var callMe = typeof(GenericCollectionWrapper).GetPublicStaticMethodOrDie(
+                                                             nameof(GetGeneric))
+                                                         .MakeGenericMethod(gargs[0]);
 
-
-                var res = callMe.Invoke(null, new[] { collection });
+            var ctor = collectionType.GetConstructor(Type.EmptyTypes);
+            var collection = ctor?.Invoke(new object[0])!;
 
 
-                return (IList)res;
-            }
+            var res = callMe.Invoke(null, new[] { collection });
 
-            throw new NotSupportedException();
+
+            return (IList)res;
         }
 
         public static IList GetGeneric<T>(Object collection)
