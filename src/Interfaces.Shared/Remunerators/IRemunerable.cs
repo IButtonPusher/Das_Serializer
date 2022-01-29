@@ -22,7 +22,5 @@ namespace Das.Serializer
     public interface IRemunerable
     {
         Boolean IsEmpty { get; }
-
-        //void Append<TData>(TData data);
     }
 }

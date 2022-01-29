@@ -5,24 +5,32 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer.Properties
 {
-    public abstract class PropertyAccessorCore : IPropertyBase
+    public abstract class PropertyAccessorCore : PropertyInfoBase,
+                                                 IPropertyBase
     {
         protected PropertyAccessorCore(Boolean canRead,
                                        Type declaringType,
                                        PropertyInfo propertyInfo,
                                        String propertyPath)
+        : base(propertyInfo.Name, propertyInfo.PropertyType,
+            propertyInfo.GetGetMethod(),
+            propertyInfo.CanWrite ? propertyInfo.GetSetMethod() : default)
         {
-           Name = propertyInfo.Name;
-            Type = propertyInfo.PropertyType;
-
-            //Logger.WriteDebug("propacc " + propertyInfo.DeclaringType?.Name + "->" + Name +
-            //                                            (Interlocked.Add(ref _counter, 1)));
+            //Name = propertyInfo.Name;
+            //Type = propertyInfo.PropertyType;
 
             CanRead = canRead;
             DeclaringType = declaringType;
             PropertyInfo = propertyInfo;
             PropertyPath = propertyPath;
             PropertyType = propertyInfo.PropertyType;
+
+            //GetMethod = propertyInfo.GetGetMethod();
+            //SetMethod = propertyInfo.CanWrite ? propertyInfo.GetSetMethod() : default;
+
+            //TypeCode = propertyInfo.PropertyType != null
+            //    ? Type.GetTypeCode(propertyInfo.PropertyType)
+            //    : TypeCode.Object;
 
             _attributes = new Dictionary<Type, object>();
 
@@ -34,11 +42,11 @@ namespace Das.Serializer.Properties
             }
         }
 
-        //private static Int32 _counter;
+        
 
-        public String Name { get; }
+        //public String Name { get; }
 
-        public Type Type { get; }
+        //public Type Type { get; }
 
         public Boolean CanRead { get; }
 
@@ -47,6 +55,12 @@ namespace Das.Serializer.Properties
         public Type DeclaringType { get; }
 
         public PropertyInfo PropertyInfo { get; }
+
+        //public MethodInfo GetMethod { get; }
+
+        //public MethodInfo? SetMethod { get; }
+
+        //public TypeCode TypeCode { get; }
 
         public String PropertyPath { get; }
 

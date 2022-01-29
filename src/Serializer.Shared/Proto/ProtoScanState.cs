@@ -8,11 +8,15 @@ using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Das.Extensions;
+using Das.Serializer.CodeGen;
+using Das.Serializer.Properties;
+using Das.Serializer.Proto;
 using Reflection.Common;
 
 namespace Das.Serializer.ProtoBuf
 {
-    public class ProtoScanState : ProtoStateBase, IValueExtractor
+    public class ProtoScanState : ProtoStateBase,
+                                  IProtoScanState
     {
         public ProtoScanState(ILGenerator il,
                               IProtoFieldAccessor[] fields,
@@ -24,14 +28,15 @@ namespace Das.Serializer.ProtoBuf
                               FieldInfo readBytesField,
                               ITypeManipulator types,
                               IInstantiator instantiator,
-                              IDictionary<Type, FieldBuilder> proxies)
+                              IDictionary<Type, ProxiedInstanceField> proxies,
+                              IFieldActionProvider actionProvider)
             : base(il, currentField, parentType,
-                loadReturnValueOntoStack, proxies, types)
+                loadReturnValueOntoStack, proxies, types, actionProvider)
         {
             LocalFieldValues = new Dictionary<IProtoFieldAccessor, LocalBuilder>();
 
             Fields = fields;
-            CurrentField = currentField;
+            _currentField = currentField;
 
             LastByteLocal = lastByteLocal;
 
@@ -39,7 +44,6 @@ namespace Das.Serializer.ProtoBuf
             _streamAccessor = streamAccessor;
 
             _readBytesField = readBytesField;
-            _types = types;
             _instantiator = instantiator;
 
             EnsureLocalFieldsForProperties(fields);
@@ -60,12 +64,6 @@ namespace Das.Serializer.ProtoBuf
 
         public IProtoFieldAccessor[] Fields { get; }
 
-
-        /// <summary>
-        ///     For values that will be ctor injected
-        /// </summary>
-        public Dictionary<IProtoFieldAccessor, LocalBuilder> LocalFieldValues { get; }
-
         /// <summary>
         ///     Creates a local variable for every field.  Use only when there is no parameterless ctor
         /// </summary>
@@ -80,16 +78,21 @@ namespace Das.Serializer.ProtoBuf
             }
         }
 
-        public Action<IProtoFieldAccessor, ProtoScanState> GetFieldSetCompletion(
-            IProtoFieldAccessor field,
+        IProtoFieldAccessor IProtoScanState.CurrentField
+        {
+            get => _currentField;
+            set => _currentField = value;
+        }
+
+        public Action<IProtoFieldAccessor, IProtoScanState> GetFieldSetCompletion(IProtoFieldAccessor field,
             Boolean canSetValueInline,
             Boolean isValuePreInitialized)
         {
-            Action<IProtoFieldAccessor, ProtoScanState> res;
+            Action<IProtoFieldAccessor, IProtoScanState> res;
 
             switch (field.FieldAction)
             {
-                case ProtoFieldAction.PackedArray:
+                case FieldAction.PackedArray:
 
                     if (isValuePreInitialized && TryScanAndAddPackedArray(field, out var r)
                                               && !ReferenceEquals(null, r))
@@ -97,11 +100,11 @@ namespace Das.Serializer.ProtoBuf
 
                     goto asPrimitive;
 
-                case ProtoFieldAction.Primitive:
-                case ProtoFieldAction.VarInt:
-                case ProtoFieldAction.String:
-                case ProtoFieldAction.ChildObject:
-                case ProtoFieldAction.ByteArray:
+                case FieldAction.Primitive:
+                case FieldAction.VarInt:
+                case FieldAction.String:
+                case FieldAction.ChildObject:
+                case FieldAction.ByteArray:
 
                     asPrimitive:
 
@@ -119,8 +122,8 @@ namespace Das.Serializer.ProtoBuf
 
                     return res;
 
-                case ProtoFieldAction.ChildObjectCollection:
-                case ProtoFieldAction.ChildPrimitiveCollection:
+                case FieldAction.ChildObjectCollection:
+                case FieldAction.ChildPrimitiveCollection:
                     if (canSetValueInline)
                         res = (_,
                                s) =>
@@ -143,11 +146,11 @@ namespace Das.Serializer.ProtoBuf
 
                     return res;
 
-                case ProtoFieldAction.Dictionary:
+                case FieldAction.Dictionary:
                     return AddKeyValuePair;
 
-                case ProtoFieldAction.ChildObjectArray:
-                case ProtoFieldAction.ChildPrimitiveArray:
+                case FieldAction.ChildObjectArray:
+                case FieldAction.ChildPrimitiveArray:
 
                     res = (_,
                            s) =>
@@ -172,19 +175,19 @@ namespace Das.Serializer.ProtoBuf
         ///     - For non-array collections loads the value so that the 'Add' method can be called
         ///     For non-packed arrays, loads a local List
         /// </summary>
-        public Action<IProtoFieldAccessor, ProtoScanState> GetFieldSetInit(IProtoFieldAccessor field,
-                                                                           Boolean canSetValueInline)
+        public Action<IProtoFieldAccessor, IProtoScanState> GetFieldSetInit(IProtoFieldAccessor field,
+                                                                            Boolean canSetValueInline)
         {
-            Action<IProtoFieldAccessor, ProtoScanState> res;
+            Action<IProtoFieldAccessor, IProtoScanState> res;
 
             switch (field.FieldAction)
             {
-                case ProtoFieldAction.Primitive:
-                case ProtoFieldAction.VarInt:
-                case ProtoFieldAction.String:
-                case ProtoFieldAction.ChildObject:
-                case ProtoFieldAction.ByteArray:
-                case ProtoFieldAction.PackedArray:
+                case FieldAction.Primitive:
+                case FieldAction.VarInt:
+                case FieldAction.String:
+                case FieldAction.ChildObject:
+                case FieldAction.ByteArray:
+                case FieldAction.PackedArray:
 
                     if (canSetValueInline)
                         res = (_,
@@ -198,9 +201,9 @@ namespace Das.Serializer.ProtoBuf
                     return res;
 
 
-                case ProtoFieldAction.ChildObjectCollection:
-                case ProtoFieldAction.ChildPrimitiveCollection:
-                case ProtoFieldAction.Dictionary:
+                case FieldAction.ChildObjectCollection:
+                case FieldAction.ChildPrimitiveCollection:
+                case FieldAction.Dictionary:
 
                     if (canSetValueInline)
                         res = (_,
@@ -215,8 +218,8 @@ namespace Das.Serializer.ProtoBuf
                     return res;
 
 
-                case ProtoFieldAction.ChildObjectArray:
-                case ProtoFieldAction.ChildPrimitiveArray:
+                case FieldAction.ChildObjectArray:
+                case FieldAction.ChildPrimitiveArray:
 
                     res = (_,
                            s) =>
@@ -232,13 +235,40 @@ namespace Das.Serializer.ProtoBuf
             }
         }
 
+
+        public void LoadPositiveInt32()
+        {
+            _il.Emit(OpCodes.Ldarg_1);
+            _il.Emit(OpCodes.Call, _streamAccessor.GetPositiveInt32);
+        }
+
+        public Boolean TryGetAdderForField(IProtoFieldAccessor field,
+                                           out MethodInfo adder)
+        {
+            var fieldType = field.Type;
+
+            if (!_types.IsCollection(fieldType))
+            {
+                adder = default!;
+                return false;
+            }
+
+            if (fieldType.IsArray && field.FieldAction != FieldAction.PackedArray)
+            {
+                var useLocal = GetLocalForField(field);
+                fieldType = useLocal.LocalType;
+            }
+
+            return _types.TryGetAddMethod(fieldType!, out adder);
+        }
+
         public LocalBuilder GetLocalForField(IProtoFieldAccessor field)
         {
             if (LocalFieldValues.TryGetValue(field, out var local))
                 return local;
 
             var localType = field.Type.IsArray &&
-                            field.FieldAction != ProtoFieldAction.PackedArray
+                            field.FieldAction != FieldAction.PackedArray
                 ? ArrayTypeToListOf(field.Type)
                 : field.Type;
 
@@ -280,35 +310,8 @@ namespace Das.Serializer.ProtoBuf
             _il.Emit(OpCodes.Callvirt, _streamAccessor.ReadStreamBytes);
         }
 
-
-        public void LoadPositiveInt32()
-        {
-            _il.Emit(OpCodes.Ldarg_1);
-            _il.Emit(OpCodes.Call, _streamAccessor.GetPositiveInt32);
-        }
-
-        public Boolean TryGetAdderForField(IProtoFieldAccessor field,
-                                           out MethodInfo adder)
-        {
-            var fieldType = field.Type;
-
-            if (!_types.IsCollection(fieldType))
-            {
-                adder = default!;
-                return false;
-            }
-
-            if (fieldType.IsArray && field.FieldAction != ProtoFieldAction.PackedArray)
-            {
-                var useLocal = GetLocalForField(field);
-                fieldType = useLocal.LocalType;
-            }
-
-            return _types.TryGetAddMethod(fieldType!, out adder);
-        }
-
         private void AddKeyValuePair(IProtoFieldAccessor pv,
-                                     ProtoScanState s)
+                                     IProtoScanState s)
         {
             var il = s.IL;
 
@@ -352,8 +355,8 @@ namespace Das.Serializer.ProtoBuf
             {
                 switch (field.FieldAction)
                 {
-                    case ProtoFieldAction.ChildObjectArray:
-                    case ProtoFieldAction.ChildPrimitiveArray:
+                    case FieldAction.ChildObjectArray:
+                    case FieldAction.ChildPrimitiveArray:
                         var local = GetLocalForField(field);
                         if (local == null)
                             throw new InvalidOperationException();
@@ -362,9 +365,8 @@ namespace Das.Serializer.ProtoBuf
             }
         }
 
-        private Boolean TryScanAndAddPackedArray(
-            IProtoFieldAccessor field,
-            out Action<IProtoFieldAccessor, ProtoScanState>? res)
+        private Boolean TryScanAndAddPackedArray(IProtoFieldAccessor field,
+                                                 out Action<IProtoFieldAccessor, IProtoScanState>? res)
         {
             res = default;
 
@@ -416,13 +418,18 @@ namespace Das.Serializer.ProtoBuf
             return true;
         }
 
+
+        /// <summary>
+        ///     For values that will be ctor injected
+        /// </summary>
+        public Dictionary<IProtoFieldAccessor, LocalBuilder> LocalFieldValues { get; }
+
         private readonly IInstantiator _instantiator;
 
         private readonly Action<ILGenerator>? _loadReturnValueOntoStack;
 
         private readonly FieldInfo _readBytesField;
         private readonly IStreamAccessor _streamAccessor;
-        private readonly ITypeManipulator _types;
     }
 }
 

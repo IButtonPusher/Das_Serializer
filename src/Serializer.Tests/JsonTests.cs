@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using Das.Serializer;
+using Newtonsoft.Json;
+using Serializer.Tests.ProtocolBuffers;
 using Xunit;
 
 //using Newtonsoft.Json;
@@ -107,9 +110,27 @@ namespace Serializer.Tests.Json
         [Fact]
         public void ClassWithDictionaryJson()
         {
+            var mc1 = DictionaryPropertyMessage.DefaultValue;
+            var json = Serializer.ToJson(mc1);
+            var json2 = Serializer.ToJsonEx(mc1);
+            var json3 = JsonConvert.SerializeObject(mc1);
+            
+            var res1 = Serializer.FromJson<DictionaryPropertyMessage>(json);
+            var res2 = Serializer.FromJson<DictionaryPropertyMessage>(json);
+            var res3 = JsonConvert.DeserializeObject<DictionaryPropertyMessage>(json3);
+
+            Assert.True(SlowEquality.AreEqual(mc1, res1));
+            Assert.True(SlowEquality.AreEqual(mc1, res2));
+
+        }
+
+        [Fact]
+        public void ClassWithObjectDictionaryJson()
+        {
             var mc1 = ObjectDictionary.Get();
 
             var json = Serializer.ToJson(mc1);
+            //var json2 = Serializer.ToJsonEx(mc1);
 
             var res = Serializer.FromJson<ObjectDictionary>(json);
 
@@ -118,6 +139,7 @@ namespace Serializer.Tests.Json
             else if (mc1.Dic.Count != res.Dic.Count)
                 Assert.False(true);
 
+            
             var jRes = Serializer.ToJson(res);
 
             Assert.True(jRes == json);
@@ -264,6 +286,8 @@ namespace Serializer.Tests.Json
             bc.Add(SimpleClassObjectProperty.GetNullPayload());
 
             var json = Serializer.ToJson(bc);
+            var json3 = JsonConvert.SerializeObject(bc);
+            var json2 = Serializer.ToJsonEx(bc);
             var res = Serializer.FromJson<List<SimpleClassObjectProperty>>(json);
 
             for (var i = 0; i < bc.Count; i++)
@@ -322,6 +346,18 @@ namespace Serializer.Tests.Json
 
 
         [Fact]
+        public void MultiProperties()
+        {
+            var msg = MultiPropMessage.GetTestOne();
+            var json = Serializer.ToJson(msg);
+            var json2 = Serializer.ToJsonEx(msg);
+
+            var res = Serializer.FromJson<MultiPropMessage>(json2);
+
+            Assert.True(SlowEquality.AreEqual(msg, res));
+        }
+
+        [Fact]
         public void ObjectPayloadKnownType()
         {
             var sc = new SimpleClassObjectProperty
@@ -359,8 +395,18 @@ namespace Serializer.Tests.Json
         [Fact]
         public void DynamicPrintPrimitiveProperties()
         {
-
             var eg = SimpleClass.GetExample<SimpleClass>();
+
+            if (eg.DateOfBirth.HasValue)
+            {
+                DerpObject(eg.ShiftPreference);
+            }
+
+            var rdrrFlex = new TimeSpanConverter().ConvertToInvariantString(eg.ShiftPreference);
+
+            
+
+            //  Derp(eg.ShiftPreference.Ticks);
             if (eg.DateOfBirth.HasValue)
             {
                 var rdrr = eg.DateOfBirth.Value.ToString();
@@ -369,6 +415,9 @@ namespace Serializer.Tests.Json
             }
 
             var json = Serializer.ToJsonEx(eg, Serializer.Settings);
+
+            var json2 = JsonConvert.SerializeObject(eg);
+
             var eg2 = Serializer.FromJson<SimpleClass>(json);
 
             Assert.NotNull(eg2.Name);
@@ -376,7 +425,37 @@ namespace Serializer.Tests.Json
             var badProp = "";
             var rolf = SlowEquality.AreEqual(eg, eg2, ref badProp);
             Assert.True(rolf);
+
+            eg.DateOfBirth = null;
+            json = Serializer.ToJsonEx(eg, Serializer.Settings);
+            json2 = JsonConvert.SerializeObject(eg);
+            eg2 = Serializer.FromJson<SimpleClass>(json);
+            Assert.NotNull(eg2.Name);
+        
+            rolf = SlowEquality.AreEqual(eg, eg2, ref badProp);
+
+            Assert.True(rolf);
         }
+
+        private static void DerpObject(Object o)
+        {
+
+        }
+
+        private static void Derp(Int32 dd)
+        {
+
+        }
+
+        private static void Derp(Char dd)
+        {
+
+        }
+
+        //private static void Derp(Int64 dd)
+        //{
+
+        //}
 
         [Fact]
         public void PrimitivePropertiesJson()

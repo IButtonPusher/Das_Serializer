@@ -92,8 +92,10 @@ namespace Das.Serializer
 
             using (var sp = GetTextWriter(settings))
             {
-                //var proxy = _proxyProvider.GetJsonProxy<TObject, String, Char, ITextRemunerable>(settings);
                 var proxy = _proxyProvider.GetJsonProxy<TObject>(settings);
+        
+                //_proxyProvider.DumpProxies();
+                
                 proxy.Print(obj, sp);
                 return sp.ToString();
             }

@@ -89,7 +89,7 @@ namespace Das.Serializer
             IProtoBufOptions<TPropertyAttribute> options)
         {
             var protoProv = new ProtoDynamicProvider<TPropertyAttribute>(options, TypeManipulator,
-                ObjectInstantiator, ObjectManipulator);
+                ObjectInstantiator, ObjectManipulator, _settings);
 
             return new ProtoBufSerializer(StateProvider, Settings,
                 protoProv);

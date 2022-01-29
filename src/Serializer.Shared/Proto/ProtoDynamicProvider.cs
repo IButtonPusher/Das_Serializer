@@ -1,7 +1,7 @@
 ﻿#if GENERATECODE
 
 using System;
-using System.Collections;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,43 +10,46 @@ using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 using Das.Extensions;
+using Das.Serializer.CodeGen;
 using Das.Serializer.Remunerators;
 using Reflection.Common;
 
 namespace Das.Serializer.ProtoBuf
 {
     // ReSharper disable once UnusedType.Global
-    public partial class ProtoDynamicProvider<TPropertyAttribute>
+    public partial class ProtoDynamicProvider<TPropertyAttribute> : BaseDynamicProvider<IProtoFieldAccessor, Boolean, ProtoPrintState>
         where TPropertyAttribute : Attribute
     {
         public ProtoDynamicProvider(IProtoBufOptions<TPropertyAttribute> protoSettings,
                                     ITypeManipulator typeManipulator,
                                     IInstantiator instantiator,
-                                    IObjectManipulator objects)
+                                    IObjectManipulator objects,
+                                    ISerializerSettings defaultSettings) 
+            : base(typeManipulator, instantiator)
         {
             _protoSettings = protoSettings;
-            _types = typeManipulator;
-            _instantiator = instantiator;
+            
             _objects = objects;
+            _defaultSettings = defaultSettings;
 
             var asmName = new AssemblyName("BOB.Stuff");
             // ReSharper disable once JoinDeclarationAndInitializer
             AssemblyBuilderAccess access;
 
 
-            #if NET45 || NET40
+            //#if NET45 || NET40
 
-            access = AssemblyBuilderAccess.RunAndSave;
+            //access = AssemblyBuilderAccess.RunAndSave;
 
-            _asmBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, access);
-            _moduleBuilder = _asmBuilder.DefineDynamicModule(AssemblyName, SaveFile);
+            //_asmBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, access);
+            //_moduleBuilder = _asmBuilder.DefineDynamicModule(AssemblyName, SaveFile);
 
-            #else
-            access = AssemblyBuilderAccess.Run;
-            _asmBuilder = AssemblyBuilder.DefineDynamicAssembly(asmName, access);
-            _moduleBuilder = _asmBuilder.DefineDynamicModule(AssemblyName);
+            //#else
+            //access = AssemblyBuilderAccess.Run;
+            //_asmBuilder = AssemblyBuilder.DefineDynamicAssembly(asmName, access);
+            //_moduleBuilder = _asmBuilder.DefineDynamicModule(AssemblyName);
 
-            #endif
+            //#endif
 
             var writer = typeof(ProtoBufWriter);
             var bitConverter = typeof(BitConverter);
@@ -82,7 +85,7 @@ namespace Das.Serializer.ProtoBuf
             Utf8 = protoDynBase.GetPrivateStaticFieldOrDie("Utf8");
 
             _proxyProviderField = protoDynBase.GetInstanceFieldOrDie("_proxyProvider");
-            _getProtoProxy = typeof(IProtoProvider).GetMethodOrDie(nameof(IProtoProvider.GetProtoProxy));
+            _getProtoProxy = typeof(IProtoProvider).GetMethodOrDie(nameof(IProtoProvider.GetProtoProxy), typeof(Boolean));
 
             _getAutoProtoProxy = typeof(IProtoProvider).GetMethodOrDie(nameof(IProtoProvider.GetAutoProtoProxy));
 
@@ -152,9 +155,15 @@ namespace Das.Serializer.ProtoBuf
 
         public IProtoProxy<T> GetProtoProxy<T>(Boolean allowReadOnly = false)
         {
+            return GetProtoProxy<T>(_defaultSettings, allowReadOnly);
+        }
+
+        public IProtoProxy<T> GetProtoProxy<T>(ISerializerSettings settings,
+                                               Boolean allowReadOnly = false)
+        {
             return ProxyLookup<T>.Instance ??= allowReadOnly
-                ? CreateProxyTypeYesReadOnly<T>()
-                : CreateProxyTypeNoReadOnly<T>();
+                ? CreateProxyTypeYesReadOnly<T>(settings)
+                : CreateProxyTypeNoReadOnly<T>(settings);
         }
 
         Boolean IProtoProvider.TryGetProtoField(PropertyInfo prop,
@@ -171,53 +180,53 @@ namespace Das.Serializer.ProtoBuf
             return false;
         }
 
-        public ProtoFieldAction GetProtoFieldAction(Type pType)
-        {
-            if (pType.IsPrimitive)
-                return pType == typeof(Int32) ||
-                       pType == typeof(UInt32) ||
-                       pType == typeof(Int16) ||
-                       pType == typeof(Int64) ||
-                       pType == typeof(UInt64) ||
-                       pType == typeof(Byte) ||
-                       pType == typeof(Boolean)
-                    ? ProtoFieldAction.VarInt
-                    : ProtoFieldAction.Primitive;
+        //public ProtoFieldAction GetProtoFieldAction(Type pType)
+        //{
+        //    if (pType.IsPrimitive)
+        //        return pType == typeof(Int32) ||
+        //               pType == typeof(UInt32) ||
+        //               pType == typeof(Int16) ||
+        //               pType == typeof(Int64) ||
+        //               pType == typeof(UInt64) ||
+        //               pType == typeof(Byte) ||
+        //               pType == typeof(Boolean)
+        //            ? ProtoFieldAction.VarInt
+        //            : ProtoFieldAction.Primitive;
 
-            if (pType == Const.StrType)
-                return ProtoFieldAction.String;
+        //    if (pType == Const.StrType)
+        //        return ProtoFieldAction.String;
 
-            if (pType == Const.ByteArrayType)
-                return ProtoFieldAction.ByteArray;
+        //    if (pType == Const.ByteArrayType)
+        //        return ProtoFieldAction.ByteArray;
 
-            if (GetPackedArrayTypeCode(pType) != TypeCode.Empty)
-                return ProtoFieldAction.PackedArray;
+        //    if (GetPackedArrayTypeCode(pType) != TypeCode.Empty)
+        //        return ProtoFieldAction.PackedArray;
 
-            if (typeof(IDictionary).IsAssignableFrom(pType))
-                return ProtoFieldAction.Dictionary;
+        //    if (typeof(IDictionary).IsAssignableFrom(pType))
+        //        return ProtoFieldAction.Dictionary;
 
-            if (_types.IsCollection(pType))
-            {
-                var germane = _types.GetGermaneType(pType);
+        //    if (_types.IsCollection(pType))
+        //    {
+        //        var germane = _types.GetGermaneType(pType);
 
-                var subAction = GetProtoFieldAction(germane);
+        //        var subAction = GetProtoFieldAction(germane);
 
-                switch (subAction)
-                {
-                    case ProtoFieldAction.ChildObject:
-                        return pType.IsArray
-                            ? ProtoFieldAction.ChildObjectArray
-                            : ProtoFieldAction.ChildObjectCollection;
+        //        switch (subAction)
+        //        {
+        //            case ProtoFieldAction.ChildObject:
+        //                return pType.IsArray
+        //                    ? ProtoFieldAction.ChildObjectArray
+        //                    : ProtoFieldAction.ChildObjectCollection;
 
-                    default:
-                        return pType.IsArray
-                            ? ProtoFieldAction.ChildPrimitiveArray
-                            : ProtoFieldAction.ChildPrimitiveCollection;
-                }
-            }
+        //            default:
+        //                return pType.IsArray
+        //                    ? ProtoFieldAction.ChildPrimitiveArray
+        //                    : ProtoFieldAction.ChildPrimitiveCollection;
+        //        }
+        //    }
 
-            return ProtoFieldAction.ChildObject;
-        }
+        //    return ProtoFieldAction.ChildObject;
+        //}
 
 
         #if DEBUG
@@ -271,21 +280,24 @@ namespace Das.Serializer.ProtoBuf
 
         public Boolean TryGetProtoField(PropertyInfo prop,
                                         Boolean isRequireAttribute,
-                                        out ProtoField field)
+                                        out IProtoFieldAccessor field)
         {
-            return TryGetProtoFieldImpl(prop, isRequireAttribute, GetIndexFromAttribute, out field);
+            return TryGetFieldAccessor(prop, isRequireAttribute, GetIndexFromAttribute, 0, out field);
         }
 
-        public Boolean TryGetProtoFieldImpl(PropertyInfo prop,
-                                            Boolean isRequireAttribute,
-                                            Func<PropertyInfo, Int32> getFieldIndex,
-                                            out ProtoField field)
+
+
+        protected override Boolean TryGetFieldAccessor(PropertyInfo prop,
+                                                       Boolean isRequireAttribute,
+                                                       GetFieldIndex getFieldIndex,
+                                                       Int32 lastIndex,
+                                                       out IProtoFieldAccessor field)
         {
             var index = 0;
 
             if (isRequireAttribute)
             {
-                index = getFieldIndex(prop);
+                index = getFieldIndex(prop, lastIndex);
                 if (index <= 0)
                 {
                     field = default!;
@@ -297,11 +309,10 @@ namespace Das.Serializer.ProtoBuf
 
             var isCollection = _types.IsCollection(pType);
 
-
             var wire = ProtoBufSerializer.GetWireType(pType);
 
             var header = (Int32) wire + (index << 3);
-            var tc = Type.GetTypeCode(pType);
+            //var tc = Type.GetTypeCode(pType);
 
             var getter = prop.GetGetMethod() ?? throw new InvalidOperationException(prop.Name);
             var setter = prop.CanWrite ? prop.GetSetMethod(true) : default!;
@@ -311,7 +322,7 @@ namespace Das.Serializer.ProtoBuf
             var fieldAction = GetProtoFieldAction(prop.PropertyType);
 
             field = new ProtoField(prop.Name, pType, wire,
-                index, header, getter, tc,
+                index, header, getter,
                 _types.IsLeaf(pType, true), isCollection, fieldAction,
                 headerBytes, setter);
 
@@ -319,19 +330,21 @@ namespace Das.Serializer.ProtoBuf
         }
 
         private Type? CreateProxyType(Type type,
+                                      ISerializerSettings settings,
                                       Boolean allowReadOnly)
         {
             if (!_instantiator.TryGetDefaultConstructor(type, out var dtoctor) &&
                 !allowReadOnly)
                 throw new InvalidProgramException($"No valid constructor found for {type}");
 
-            var fields = GetProtoPrintFields(type);
+            var fields = GetPrintFields(type);
 
             var genericParent = typeof(ProtoDynamicBase<>).MakeGenericType(type);
             var retBldr = genericParent.GetMethodOrDie(
                 nameof(ProtoDynamicBase<Object>.BuildDefault));
 
-            return CreateProxyTypeImpl(type, dtoctor, fields, true, allowReadOnly, retBldr);
+            return CreateProxyTypeImpl(type, dtoctor, fields, true, allowReadOnly,
+                retBldr, genericParent);
         }
 
         private Type? CreateProxyTypeImpl(Type type,
@@ -339,7 +352,8 @@ namespace Das.Serializer.ProtoBuf
                                           IEnumerable<IProtoFieldAccessor> scanFields,
                                           Boolean canSetValuesInline,
                                           Boolean allowReadOnly,
-                                          MethodBase buildReturnValue)
+                                          MethodBase buildReturnValue,
+                                          Type? genericParent = null)
         {
             var scanFieldArr = scanFields.ToArray();
 
@@ -348,7 +362,7 @@ namespace Das.Serializer.ProtoBuf
             var bldr = _moduleBuilder.DefineType(typeName.Replace(".", "_"),
                 TypeAttributes.Public | TypeAttributes.Class);
 
-            var genericParent = typeof(ProtoDynamicBase<>).MakeGenericType(type);
+            genericParent ??= typeof(ProtoDynamicBase<>).MakeGenericType(type);
 
             var typeProxies = CreateProxyFields(bldr, scanFieldArr);
 
@@ -357,24 +371,30 @@ namespace Das.Serializer.ProtoBuf
                 typeProxies.Values,
                 allowReadOnly);
 
+        ////////////////////////////////////
+
             IEnumerable<IProtoFieldAccessor> printFields;
             if (canSetValuesInline || allowReadOnly)
-                printFields = GetProtoPrintFields(type);
+                printFields = GetPrintFields(type);
             else
                 printFields = scanFieldArr;
 
-            AddPrintMethod(type, bldr, genericParent, printFields, typeProxies);
+            AddPrintMethod(type, bldr, 
+                printFields, typeProxies);
 
-            if (ctor != null)
-            {
-                var example = canSetValuesInline ? ctor.Invoke(new Object[0]) : default;
-                AddScanMethod(type, bldr, genericParent, scanFieldArr,
-                    example!, canSetValuesInline,
-                    buildReturnValue, typeProxies);
+            ////////////////////////////////////
 
-                if (canSetValuesInline)
-                    AddDtoInstantiator(type, bldr, genericParent, ctor);
-            }
+
+            var example = canSetValuesInline ? ctor.Invoke(new Object[0]) : default;
+            AddScanMethod(type, bldr, genericParent, 
+                scanFieldArr,
+                example!, canSetValuesInline,
+                buildReturnValue, 
+                typeProxies);
+
+            if (canSetValuesInline)
+                AddDtoInstantiator(type, bldr, genericParent, ctor);
+
 
             bldr.SetParent(genericParent);
 
@@ -383,19 +403,21 @@ namespace Das.Serializer.ProtoBuf
             return dType;
         }
 
-        private IProtoProxy<T> CreateProxyTypeNoReadOnly<T>()
+        private IProtoProxy<T> CreateProxyTypeNoReadOnly<T>(ISerializerSettings settings)
         {
             var type = typeof(T);
-            var ptype = CreateProxyType(type, false) ?? throw new TypeLoadException(type.Name);
+            var ptype = CreateProxyType(type, settings, false) ?? throw new TypeLoadException(type.Name);
+
+            //DumpProxies();
 
             return InstantiateProxyInstance<T>(ptype);
         }
 
-        private IProtoProxy<T> CreateProxyTypeYesReadOnly<T>()
+        private IProtoProxy<T> CreateProxyTypeYesReadOnly<T>(ISerializerSettings settings)
         {
             var type = typeof(T);
 
-            var ptype = CreateProxyType(type, true) ?? throw new TypeLoadException(type.Name);
+            var ptype = CreateProxyType(type, settings, true) ?? throw new TypeLoadException(type.Name);
 
             return InstantiateProxyInstance<T>(ptype);
         }
@@ -428,7 +450,8 @@ namespace Das.Serializer.ProtoBuf
             }
         }
 
-        private Int32 GetIndexFromAttribute(PropertyInfo prop)
+        protected override Int32 GetIndexFromAttribute(PropertyInfo prop,
+                                                       Int32 lastIndex)
         {
             var attribs = prop.GetCustomAttributes(typeof(TPropertyAttribute), true)
                               .OfType<TPropertyAttribute>().ToArray();
@@ -438,21 +461,23 @@ namespace Das.Serializer.ProtoBuf
         }
 
 
-        private List<IProtoFieldAccessor> GetProtoPrintFields(Type type)
-        {
-            var res = new List<IProtoFieldAccessor>();
-            foreach (var prop in _types.GetPublicProperties(type))
-            {
-                if (TryGetProtoField(prop, true, out var protoField))
-                    res.Add(protoField);
-            }
+        //protected override List<IProtoFieldAccessor> GetProtoPrintFields(Type type)
+        //{
+        //    var res = new List<IProtoFieldAccessor>();
+        //    foreach (var prop in _types.GetPublicProperties(type))
+        //    {
+        //        if (TryGetProtoField(prop, true, out var protoField))
+        //            res.Add(protoField);
+        //    }
 
-            return res;
-        }
+        //    return res;
+        //}
 
 
         private IProtoProxy<T> InstantiateProxyInstance<T>(Type proxyType)
         {
+        //DumpProxies();
+
             var res = Activator.CreateInstance(proxyType, this)
                       ?? throw new Exception(proxyType.Name);
             return (IProtoProxy<T>) res;
@@ -487,7 +512,7 @@ namespace Das.Serializer.ProtoBuf
         };
 
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
-        private readonly AssemblyBuilder _asmBuilder;
+        //private readonly AssemblyBuilder _asmBuilder;
         private readonly MethodInfo _bytesToDouble;
 
         private readonly MethodInfo _bytesToSingle;
@@ -538,9 +563,10 @@ namespace Das.Serializer.ProtoBuf
 
         private readonly MethodInfo _getUInt32;
         private readonly MethodInfo _getUInt64;
-        private readonly IInstantiator _instantiator;
-        private readonly ModuleBuilder _moduleBuilder;
+        
+        //private readonly ModuleBuilder _moduleBuilder;
         private readonly IObjectManipulator _objects;
+        private readonly ISerializerSettings _defaultSettings;
 
         private readonly IProtoBufOptions<TPropertyAttribute> _protoSettings;
 
@@ -552,8 +578,6 @@ namespace Das.Serializer.ProtoBuf
         private readonly FieldInfo _readBytesField;
 
         private readonly MethodInfo _readStreamByte;
-
-        private readonly ITypeManipulator _types;
 
         /// <summary>
         ///     public static void Write(Byte[] vals, Stream _outStream)
@@ -578,6 +602,7 @@ namespace Das.Serializer.ProtoBuf
         #endif
 
         #endif
+       
     }
 }
 

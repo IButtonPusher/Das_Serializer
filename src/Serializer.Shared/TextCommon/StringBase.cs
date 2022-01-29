@@ -74,39 +74,6 @@ namespace Das.Serializer
          }
       }
 
-      //protected static void AppendRightImpl<TCollection>(StringBuilder _sb,
-      //                                                   TCollection items,
-      //                                                   Char separator,
-      //                                                   Int32 maxCount)
-      //   where TCollection : IEnumerable, ICollection
-      //{
-      //   if (items.Count == 0)
-      //      return;
-
-      //   if (items.Count <= maxCount)
-      //   {
-      //      _sb.Append(String.Join(separator.ToString(), items));
-      //   }
-      //   else
-      //   {
-      //      var skip = items.Count - maxCount;
-      //      var skipped = 0;
-
-      //      var itar = items.GetEnumerator();
-
-      //      if (!itar.MoveNext() || ++skipped <= skip)
-      //         return;
-
-      //      _sb.Append(itar.Current);
-
-      //      while (itar.MoveNext())
-      //      {
-      //         _sb.Append(separator);
-      //         _sb.Append(itar.Current);
-      //      }
-      //   }
-      //}
-
       [MethodImpl(256)]
       protected static void Append(DateTime dt,
                                    StringBuilder sb)
@@ -378,5 +345,7 @@ namespace Das.Serializer
                return;
          }
       }
+
+      
    }
 }

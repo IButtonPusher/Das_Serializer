@@ -58,7 +58,7 @@ namespace Das.Serializer
             #if GENERATECODE
 
             _proxyProvider = new DynamicPrinterProvider(TypeInferrer, StateProvider.NodeTypeProvider,
-                TypeManipulator);
+                TypeManipulator, StateProvider.ObjectInstantiator);
 
             #endif
         }

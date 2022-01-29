@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer.Remunerators
 {
-    public abstract class StringBuilderWrapper : StringBase,
+    public abstract class StringBuilderWrapper : StringBuilderBase,
                                                  ITextRemunerable
     {
         public StringBuilderWrapper()
@@ -184,7 +184,5 @@ namespace Das.Serializer.Remunerators
         {
             return _sb.ToString();
         }
-
-        private readonly StringBuilder _sb;
     }
 }

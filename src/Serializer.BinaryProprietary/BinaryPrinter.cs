@@ -15,21 +15,14 @@ namespace Das.Printers
                                  IDisposable
                                  //ISerializationDepth
     {
-        public BinaryPrinter(//IBinaryWriter writer,
-                             //IBinaryState stateProvider,
-                             //ISerializerSettings settings,
-                             ITypeInferrer typeInferrer,
+        public BinaryPrinter(ITypeInferrer typeInferrer,
                              INodeTypeProvider nodeTypes,
                              IObjectManipulator objectManipulator,
                              ITypeManipulator typeManipulator)
-            : base(//settings, 
-                typeInferrer, nodeTypes, objectManipulator,
+            : base(typeInferrer, nodeTypes, objectManipulator,
                 true, '.', typeManipulator)
         {
             _fallbackFormatter = new BinaryFormatter();
-            //IsPrintNullProperties = true;
-            //_bWriter = writer;
-            //_stateProvider = stateProvider;
 
             IsTextPrinter = false;
         }
@@ -39,12 +32,6 @@ namespace Das.Printers
             //_bWriter.Flush();
         }
 
-        //Boolean ISerializationDepth.IsOmitDefaultValues => false;
-
-        //SerializationDepth ISerializationDepth.SerializationDepth
-        //    => _settings.SerializationDepth;
-
-        //public override Boolean IsRespectXmlIgnore => false;
 
         #if !PARTIALTRUST
 

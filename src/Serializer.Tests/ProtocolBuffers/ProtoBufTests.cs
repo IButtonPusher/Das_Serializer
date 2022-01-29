@@ -434,6 +434,28 @@ namespace Serializer.Tests.ProtocolBuffers
             Assert.True(equal);
         }
 
+        [Fact]
+        public void ListOfIntTest()
+        {
+            var msg = ListOfIntMessage.Instance;
+
+            var o = TypeProvider.GetProtoProxy<ListOfIntMessage>();
+
+            using (var ms = new MemoryStream())
+            {
+                o.Print(msg, ms);
+                //ProtoBuf.Serializer.Serialize(ms, msg);
+
+                //Debug.WriteLine("PNET\r\n-----------------------------------");
+                //PrintMemoryStream(ms);
+                ms.Position = 0;
+                var res = o.Scan(ms);
+                Assert.True(SlowEquality.AreEqual(msg, res));
+                //var res = ProtoBuf.Serializer.Deserialize<ListOfIntMessage>(ms);
+
+            }
+        }
+
 
         [Fact]
         public void ComposedCollectionTest()
@@ -504,13 +526,13 @@ namespace Serializer.Tests.ProtocolBuffers
         [Fact]
         public void MultiPropTest()
         {
+            var fromNet = ProtoNetMultiProperties();
+
             var fromDas = DasMultiProperties();
             var fromDas2 = DasMultiProperties();
             var fromDas3 = DasMultiProperties();
             var fromDas4 = DasMultiProperties();
             var fromDas5 = DasMultiProperties();
-
-            var fromNet = ProtoNetMultiProperties();
 
             //TypeProvider.DumpProxies();
 
@@ -522,6 +544,19 @@ namespace Serializer.Tests.ProtocolBuffers
 
             Assert.True(equal);
         }
+
+        //[Fact]
+        //public void PrimitivePropertiesJson()
+        //{
+        //    var sc = SimpleClassObjectProperty.GetNullPayload();
+
+        //    var srl = new DasSerializer();
+        //    var json = srl.ToJson(sc);
+
+        //    var sc2 = srl.FromJson<SimpleClassObjectProperty>(json);
+        //    var badProp = "";
+        //    Assert.True(SlowEquality.AreEqual(sc, sc2, ref badProp));
+        //}
 
 
         [Fact]

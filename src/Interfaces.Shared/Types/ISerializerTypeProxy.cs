@@ -15,7 +15,6 @@ namespace Das.Serializer.Types
     {
         void Print<TWriter>(TType obj,
                             TWriter writer)
-            //where TMany : IEnumerable<TFew>
-            where TWriter : ITextRemunerable; //IRemunerable<TMany, TFew>;
+            where TWriter : ITextRemunerable;
     }
 }

@@ -91,8 +91,8 @@ namespace Das.Serializer
 
 
 
-                var printer = new XmlPrinter(//writer, //state, settings, 
-                    StateProvider.TypeInferrer, StateProvider.NodeTypeProvider,
+                var printer = new XmlPrinter(StateProvider.TypeInferrer, 
+                    StateProvider.NodeTypeProvider,
                     StateProvider.ObjectManipulator, StateProvider.TypeManipulator);
 
                 var rootText = TypeInferrer.ToClearName(asType, TypeNameOption.OmitGenericArguments);
@@ -110,7 +110,6 @@ namespace Das.Serializer
 
         protected StringBuilderWrapper GetTextWriter(ISerializerSettings settings)
         {
-            //return new FormattingStringBuilderWrapper(settings);
             return settings.IsFormatSerializedText
                 ? new FormattingStringBuilderWrapper(settings)
                 : new CompactStringBuilderWrapper();

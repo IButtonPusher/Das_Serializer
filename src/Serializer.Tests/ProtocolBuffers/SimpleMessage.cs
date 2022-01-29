@@ -61,6 +61,9 @@ namespace Serializer.Tests.ProtocolBuffers
         [ProtoMember(6)]
         public UInt64 U64 { get; set; }
 
+        [ProtoMember(8)]
+        public TimeSpan TimeSpan { get; set; }
+
         public static MultiPropMessage GetTestOne()
         {
             return new MultiPropMessage
@@ -71,7 +74,8 @@ namespace Serializer.Tests.ProtocolBuffers
                 LittleIntian = 63,
                 U32 = Int32.MaxValue - 5,
                 U64 = (Int64) Int32.MaxValue + 5,
-                TrueOrFalse = true
+                TrueOrFalse = true,
+                TimeSpan = System.TimeSpan.FromMinutes(5)
             };
         }
 
@@ -239,6 +243,28 @@ namespace Serializer.Tests.ProtocolBuffers
                     3, 270, 86942
                 }
             };
+    }
+
+    [ProtoContract]
+    public class ListOfIntMessage
+    {
+        public static ListOfIntMessage Instance => _instance;
+
+        private static ListOfIntMessage _instance;
+
+        static ListOfIntMessage()
+        {
+            _instance = new ListOfIntMessage();
+            _instance.Items.AddRange(new[] { 3, 1, 4, 1, 5, 9, 2, 6 });
+        }
+
+        private ListOfIntMessage()
+        {
+            Items = new List<int>(); //{ 3, 1, 4, 1, 5, 9, 2, 6 };
+        }
+
+        [ProtoMember(1)]
+        public List<Int32> Items { get; set; }
     }
 
 

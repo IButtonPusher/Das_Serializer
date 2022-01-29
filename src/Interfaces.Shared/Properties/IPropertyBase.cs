@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Das.Serializer
 {
-    public interface IPropertyBase : INamedField
+    public interface IPropertyBase : IPropertyInfo
     {
         Boolean CanRead { get; }
 

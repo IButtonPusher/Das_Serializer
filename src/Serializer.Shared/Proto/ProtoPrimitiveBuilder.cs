@@ -3,6 +3,7 @@
 using System;
 using System.Reflection.Emit;
 using System.Threading.Tasks;
+using Das.Serializer.Proto;
 
 namespace Das.Serializer.ProtoBuf
 {
@@ -10,14 +11,14 @@ namespace Das.Serializer.ProtoBuf
     // ReSharper disable once UnusedTypeParameter
     public partial class ProtoDynamicProvider<TPropertyAttribute>
     {
-        private void PrintPrimitive(ProtoPrintState s)
+        private void PrintPrimitive(IProtoPrintState s)
         {
             var pv = s.CurrentField;
 
             var code = pv.TypeCode;
             var il = s.IL;
 
-            PrintHeaderBytes(pv.HeaderBytes, s);
+            PrintHeaderBytes(s.CurrentFieldHeader, s);
 
             s.LoadCurrentFieldValueToStack();
 
@@ -46,10 +47,10 @@ namespace Das.Serializer.ProtoBuf
             }
         }
 
-        private void PrintString(ProtoPrintState s,
-                                 Action<ProtoPrintState> pushStringValueToStack)
+        private void PrintString(IProtoPrintState s,
+                                 Action<IProtoPrintState> pushStringValueToStack)
         {
-            PrintHeaderBytes(s.CurrentField.HeaderBytes, s);
+            PrintHeaderBytes(s.CurrentFieldHeader, s);
 
             var il = s.IL;
 
@@ -69,14 +70,14 @@ namespace Das.Serializer.ProtoBuf
             il.Emit(OpCodes.Call, _writeBytes);
         }
 
-        private void PrintVarInt(ProtoPrintState s)
+        private void PrintVarInt(IProtoPrintState s)
         {
             var pv = s.CurrentField;
 
             var code = pv.TypeCode;
             var il = s.IL;
 
-            PrintHeaderBytes(pv.HeaderBytes, s);
+            PrintHeaderBytes(s.CurrentFieldHeader, s);
 
             s.LoadCurrentFieldValueToStack();
             il.Emit(OpCodes.Ldarg_2);

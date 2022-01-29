@@ -185,6 +185,13 @@ namespace Das.Serializer.Remunerators
 
 
         [MethodImpl(256)]
+        public static void WriteChar(Char c,
+                                     Stream outStream)
+        {
+            outStream.WriteByte((Byte)c);
+        }
+
+        [MethodImpl(256)]
         public static void WriteInt8(Byte value,
                                      Stream _outStream)
         {
@@ -226,6 +233,12 @@ namespace Das.Serializer.Remunerators
             {
                 WriteInt64(item, _outStream);
             }
+        }
+
+        public static void WriteUInt16(UInt16 value,
+                                       Stream outStream)
+        {
+            WriteUInt32(value, outStream);
         }
 
         public static void WriteUInt32(UInt32 value,

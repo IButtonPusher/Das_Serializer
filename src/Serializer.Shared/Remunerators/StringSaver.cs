@@ -11,7 +11,7 @@ using Das.Extensions;
 
 namespace Das.Serializer
 {
-   public abstract class StringSaver : StringBase,
+   public abstract class StringSaver : StringBuilderBase,
                                        ITextRemunerable,
                                        ITextAccessor
    {
@@ -212,6 +212,8 @@ namespace Das.Serializer
          _sb.Append(data2);
       }
 
+     
+
       public void AppendRepeatedly(Char item,
                                    Int32 count)
       {
@@ -293,6 +295,8 @@ namespace Das.Serializer
          _sb.Append(data);
       }
 
+     
+
       // ReSharper disable once UnusedMember.Global
       public void Remove(Int32 startIndex,
                          Int32 length)
@@ -338,7 +342,7 @@ namespace Das.Serializer
       [MethodImpl(256)]
       public void Append(Object? obj)
       {
-         _sb.Append(obj);
+          _sb.Append(obj);
       }
 
       [MethodImpl(256)]
@@ -566,6 +570,5 @@ namespace Das.Serializer
       private static readonly Object _sbLock;
       private static readonly List<StringBuilder> _sbPool;
       private readonly Action<StringSaver>? _notifyDispose;
-      protected StringBuilder _sb;
    }
 }

@@ -369,12 +369,24 @@ namespace Das.Serializer.Scanners
                         var robj = (RuntimeObject) child;
                         for (var c = 0; c < ctorParams.Length; c++)
                         {
-                            var pName = ctorParams[c].Name ?? throw new ArgumentException($"{ctor} parameter {c} has no name");
+                            var ctorParam = ctorParams[c];
+                            var pName = ctorParam.Name ?? throw new ArgumentException($"{ctor} parameter {c} has no name");
 
                             if (robj.Properties.TryGetValue(pName, out var found) ||
                                 robj.Properties.TryGetValue(_typeInference.ToPascalCase(pName), out found))
                             {
-                                arr[c] = found.PrimitiveValue;
+                                if (found.PrimitiveValue is { } letsUse &&
+                                    !ctorParam.ParameterType.IsAssignableFrom(found.PrimitiveValue.GetType()))
+                                {
+                                    if (_objectManipulator.TryCastDynamic(found.PrimitiveValue, ctorParam.ParameterType,
+                                            out var casted))
+                                    {
+                                        letsUse = casted;
+                                    }
+                                }
+                                else letsUse = found.PrimitiveValue;
+
+                                arr[c] = letsUse;
                             }
                             else
                             {

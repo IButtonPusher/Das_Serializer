@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading.Tasks;
+using Das.Serializer.Proto;
 using Reflection.Common;
 
 namespace Das.Serializer.ProtoBuf
@@ -54,12 +55,12 @@ namespace Das.Serializer.ProtoBuf
         }
 
 
-        private void PrintAsPackedArray(ProtoPrintState s)
+        private void PrintAsPackedArray(IProtoPrintState s)
         {
             var type = s.CurrentField.Type;
             var il = s.IL;
 
-            PrintHeaderBytes(s.CurrentField.HeaderBytes, s);
+            PrintHeaderBytes(s.CurrentFieldHeader, s);
 
             s.LoadParentToStack();
 

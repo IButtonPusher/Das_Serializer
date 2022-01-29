@@ -24,6 +24,7 @@ namespace Serializer.Tests
             return AreEqual(left, right, ref fk);
         }
 
+
         public static Boolean AreEqual<T>(T left,
                                           T right,
                                           ref String badProp)

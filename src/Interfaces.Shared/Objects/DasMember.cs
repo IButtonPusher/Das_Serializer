@@ -17,7 +17,7 @@ namespace Das.Serializer
 
         public String Name { get; }
 
-        public Type Type { get; set; }
+        public Type Type { get; /*set;*/ }
 
         public Boolean Equals(INamedField other)
         {

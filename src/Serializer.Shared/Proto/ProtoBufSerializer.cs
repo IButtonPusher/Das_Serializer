@@ -43,7 +43,7 @@ namespace Das.Serializer.ProtoBuf
                                            TObject o)
             where TObject : class
         {
-            var printer = TypeProvider.GetProtoProxy<TObject>(true);
+            var printer = TypeProvider.GetProtoProxy<TObject>(_settings, true);
 
             printer.Print(o, stream);
         }
@@ -51,20 +51,27 @@ namespace Das.Serializer.ProtoBuf
         public TObject FromProtoStream<TObject>(Stream stream)
             where TObject : class
         {
-            var scanner = TypeProvider.GetProtoProxy<TObject>();
+            var scanner = TypeProvider.GetProtoProxy<TObject>(_settings);
             return scanner.Scan(stream);
         }
 
 
         public IProtoProxy<T> GetProtoProxy<T>(Boolean allowReadOnly = false)
         {
-            var proxy = TypeProvider.GetProtoProxy<T>(allowReadOnly);
+            var proxy = TypeProvider.GetProtoProxy<T>(_settings, allowReadOnly);
             return proxy;
         }
 
         public IProtoProxy<T> GetAutoProtoProxy<T>(Boolean allowReadOnly = false)
         {
             return TypeProvider.GetAutoProtoProxy<T>(allowReadOnly);
+        }
+
+        public IProtoProxy<T> GetProtoProxy<T>(ISerializerSettings settings,
+                                               Boolean allowReadOnly = false)
+        {
+            var proxy = TypeProvider.GetProtoProxy<T>(settings, allowReadOnly);
+            return proxy;
         }
 
         public bool TryGetProtoField(PropertyInfo prop,
@@ -75,7 +82,7 @@ namespace Das.Serializer.ProtoBuf
         }
 
 
-        public ProtoFieldAction GetProtoFieldAction(Type pType)
+        public FieldAction GetProtoFieldAction(Type pType)
         {
             return TypeProvider.GetProtoFieldAction(pType);
         }

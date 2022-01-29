@@ -2,6 +2,7 @@
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+// ReSharper disable MustUseReturnValue
 
 namespace Das.Serializer
 {

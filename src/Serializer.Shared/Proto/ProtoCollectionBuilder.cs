@@ -4,7 +4,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection.Emit;
 using System.Threading.Tasks;
-using Das.Extensions;
+using Das.Serializer.Proto;
 
 namespace Das.Serializer.ProtoBuf
 {
@@ -12,60 +12,19 @@ namespace Das.Serializer.ProtoBuf
     // ReSharper disable once UnusedTypeParameter
     public partial class ProtoDynamicProvider<TPropertyAttribute>
     {
-        private void PrintArray(ProtoPrintState s,
-                                Action<LocalBuilder, ProtoPrintState, ILGenerator, Byte[]> action)
+        //private void PrintArray(IProtoPrintState s,
+        //                        Action<LocalBuilder, IProtoPrintState, ILGenerator, Byte[]> action)
+        //{
+        //    var pv = s.CurrentField;
+        //    var ienum = new ProtoEnumerator<IProtoPrintState>(s, pv.Type,
+        //        pv.GetMethod, _types, this);
+
+        //    ienum.ForLoop(s, PrintEnumeratorCurrent);
+        //}
+
+        private void PrintByteArray(IProtoPrintState s)
         {
-            var il = s.IL;
-
-            var pv = s.CurrentField;
-
-            var getLength = pv.Type.GetterOrDie(nameof(Array.Length), out _);
-            var arrLength = il.DeclareLocal(Const.IntType);
-            s.LoadCurrentFieldValueToStack();
-            il.Emit(OpCodes.Callvirt, getLength);
-            il.Emit(OpCodes.Stloc, arrLength);
-
-            // for (var c = 0;
-            var fore = il.DefineLabel();
-            var breakLoop = il.DefineLabel();
-
-            var c = il.DeclareLocal(Const.IntType);
-            il.Emit(OpCodes.Ldc_I4_0);
-            il.Emit(OpCodes.Stloc, c);
-            il.MarkLabel(fore);
-
-            // c < arr.Length
-            il.Emit(OpCodes.Ldloc, c);
-            il.Emit(OpCodes.Ldloc, arrLength);
-            il.Emit(OpCodes.Bge, breakLoop);
-
-            // var current = array[c];
-            var germane = _types.GetGermaneType(pv.Type);
-            var current = il.DeclareLocal(germane);
-
-            s.LoadCurrentFieldValueToStack();
-            il.Emit(OpCodes.Ldloc, c);
-            il.Emit(OpCodes.Ldelem_Ref);
-            il.Emit(OpCodes.Stloc, current);
-
-            ///////////////////////////////////////////////////////////////
-            action(current, s, il, pv.HeaderBytes);
-            ///////////////////////////////////////////////////////////////
-
-            // c++
-            il.Emit(OpCodes.Ldloc, c);
-            il.Emit(OpCodes.Ldc_I4_1);
-            il.Emit(OpCodes.Add);
-            il.Emit(OpCodes.Stloc, c);
-            il.Emit(OpCodes.Br, fore);
-
-
-            il.MarkLabel(breakLoop);
-        }
-
-        private void PrintByteArray(ProtoPrintState s)
-        {
-            PrintHeaderBytes(s.CurrentField.HeaderBytes, s);
+            PrintHeaderBytes(s.CurrentFieldHeader, s);
 
             var il = s.IL;
 
@@ -84,18 +43,44 @@ namespace Das.Serializer.ProtoBuf
             il.Emit(OpCodes.Call, _writeBytes);
         }
 
-        private static void PrintCollection(ProtoPrintState s,
-                                            Action<LocalBuilder, ProtoPrintState, ILGenerator, Byte[]> action)
-        {
-            var pv = s.CurrentField;
-            var ienum = new ProtoEnumerator<ProtoPrintState>(s, pv.Type, pv.GetMethod);
+        //private void PrintCollection(IProtoPrintState s,
+        //                             Action<LocalBuilder, IProtoPrintState, ILGenerator, Byte[]> action)
+        //{
+        //    var pv = s.CurrentField;
+        //    var ienum = new ProtoEnumerator<IProtoPrintState>(s, pv.Type, pv.GetMethod, _types);
 
-            ienum.ForEach(action, pv.HeaderBytes);
+        //    ienum.ForEach(action, s.CurrentFieldHeader);
+        //}
+
+        private void PrintEnumeratorCurrent(LocalBuilder enumeratorCurrentValue,
+                                            LocalBuilder currentIndex,
+                                            IProtoPrintState s)
+        {
+            var germane = _types.GetGermaneType(s.CurrentField.Type);
+            var subAction = GetProtoFieldAction(germane);
+
+            switch (subAction)
+            {
+                case FieldAction.ChildObject:
+                    PrintChildObject(s, s.CurrentFieldHeader,
+                        ilg => ilg.Emit(OpCodes.Ldloc, enumeratorCurrentValue),
+                        germane);
+                    break;
+
+                case FieldAction.String:
+                    PrintString(s,
+                        xs => xs.IL.Emit(OpCodes.Ldloc, enumeratorCurrentValue));
+                    break;
+
+                default:
+                    throw new NotImplementedException();
+            }
         }
 
 
         private void PrintEnumeratorCurrent(LocalBuilder enumeratorCurrentValue,
-                                            ProtoPrintState s,
+                                            LocalBuilder currentIndex,
+                                            IProtoPrintState s,
                                             ILGenerator il,
                                             Byte[] headerBytes)
         {
@@ -104,13 +89,13 @@ namespace Das.Serializer.ProtoBuf
 
             switch (subAction)
             {
-                case ProtoFieldAction.ChildObject:
+                case FieldAction.ChildObject:
                     PrintChildObject(s, headerBytes,
                         ilg => ilg.Emit(OpCodes.Ldloc, enumeratorCurrentValue),
                         germane);
                     break;
 
-                case ProtoFieldAction.String:
+                case FieldAction.String:
                     PrintString(s,
                         xs => xs.IL.Emit(OpCodes.Ldloc, enumeratorCurrentValue));
                     break;
@@ -121,11 +106,11 @@ namespace Das.Serializer.ProtoBuf
         }
 
         private static void PrintKeyValuePair(LocalBuilder enumeratorCurrentValue,
-                                              ProtoPrintState s,
+                                              IProtoPrintState s,
                                               ILGenerator il,
                                               Byte[] headerBytes)
         {
-            s.PrintFieldViaProxy(s.CurrentField,
+            s.PrintFieldViaProxy(//s.CurrentField,
                 ilg => ilg.Emit(OpCodes.Ldloc, enumeratorCurrentValue));
         }
 
@@ -161,7 +146,7 @@ namespace Das.Serializer.ProtoBuf
         ///     for a collection of proto contracts by way of a property of a parent contract
         /// </summary>
         private void ScanCollection(Type type,
-                                    IValueExtractor s)
+                                    IProtoScanState s)
         {
             var il = s.IL;
 

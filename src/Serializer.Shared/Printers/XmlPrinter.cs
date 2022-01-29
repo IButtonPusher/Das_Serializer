@@ -366,8 +366,7 @@ namespace Das.Printers
                             break;
                         default:
                             Writer.IndentRepeatedly(current.Tabs);
-                            //for (var c = 0; c < current.Tabs; c++)
-                            //    Writer.Append(_indenter);
+                            
                             break;
                     }
 

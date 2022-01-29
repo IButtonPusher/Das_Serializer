@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Xml;
 using Das.Serializer;
+using Serializer.Tests.TestTypes;
 using Xunit;
 
 #pragma warning disable 8602
@@ -461,6 +462,16 @@ namespace Serializer.Tests.Xml
 
             var res = srl.FromXml(xml);
             //Assert.True(dyn.StartedAt == int2);
+        }
+
+        [Fact]
+        public void ImplicitCastableProperty()
+        {
+            var pit1 = new PropertyImplicitToCtorParam1(new ImplicitlyConvertible1());
+            var xml = srl.ToXml(pit1);
+            xml = xml.Replace("PropertyImplicitToCtorParam1", "PropertyImplicitToCtorParam2");
+
+            var pit2 = srl.FromXml<PropertyImplicitToCtorParam2>(xml);
         }
 
         [Fact]

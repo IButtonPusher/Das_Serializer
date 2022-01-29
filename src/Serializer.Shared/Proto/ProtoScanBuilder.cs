@@ -8,6 +8,8 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading.Tasks;
 using Das.Extensions;
+using Das.Serializer.CodeGen;
+using Das.Serializer.Proto;
 using Reflection.Common;
 
 namespace Das.Serializer.ProtoBuf
@@ -39,7 +41,7 @@ namespace Das.Serializer.ProtoBuf
         /// <summary>
         ///     2.
         /// </summary>
-        private void AddPropertiesToScanMethod(ProtoScanState state,
+        private void AddPropertiesToScanMethod(IProtoScanState state,
                                                Label afterPropertyLabel,
                                                Boolean canSetValuesInline,
                                                LocalBuilder streamLength,
@@ -120,8 +122,8 @@ namespace Das.Serializer.ProtoBuf
                                    IEnumerable<IProtoFieldAccessor> fields,
                                    Object? exampleObject,
                                    Boolean canSetValuesInline,
-                                   MethodBase buildReturnValue,
-                                   IDictionary<Type, FieldBuilder> proxies)
+                                   MethodBase retBldr,
+                                   IDictionary<Type, ProxiedInstanceField> proxies)
         {
             var fieldArr = fields.ToArray();
 
@@ -145,7 +147,7 @@ namespace Das.Serializer.ProtoBuf
                 il.Emit(OpCodes.Ldarg_0);
 
             var returnValue = InstantiateObjectToDefault(il, parentType,
-                buildReturnValue, fieldArr,
+                retBldr, fieldArr,
                 exampleObject);
 
             il.Emit(OpCodes.Ldarg_2);
@@ -166,7 +168,7 @@ namespace Das.Serializer.ProtoBuf
 
             var state = new ProtoScanState(il, fieldArr, first, parentType, loadCurrentValue,
                 lastByte, this, _readBytesField,
-                _types, _instantiator, proxies);
+                _types, _instantiator, proxies, this);
 
             /////////////////////////////
             AddPropertiesToScanMethod(state, endLabel,
@@ -176,7 +178,7 @@ namespace Das.Serializer.ProtoBuf
             il.MarkLabel(endLabel);
 
             if (!canSetValuesInline)
-                InstantiateFromLocals(state, buildReturnValue);
+                InstantiateFromLocals(state, retBldr);
             else
             {
                 SetPropertiesFromLocals(state, returnValue);
@@ -190,7 +192,7 @@ namespace Das.Serializer.ProtoBuf
         /// <summary>
         ///     3.
         /// </summary>
-        private Label AddScanProperty(ProtoScanState s,
+        private Label AddScanProperty(IProtoScanState s,
                                       Label afterPropertyLabel,
                                       Boolean canSetValueInline,
                                       Object? exampleObject)
@@ -320,7 +322,7 @@ namespace Das.Serializer.ProtoBuf
                 if (!field.IsRepeatedField)
                     continue;
 
-                if (field.FieldAction == ProtoFieldAction.ChildObjectArray)
+                if (field.FieldAction == FieldAction.ChildObjectArray)
                     continue; //don't try to instantiate arrays
 
                 if (type.IsAssignableFrom(exampleObject.GetType()))
@@ -365,11 +367,12 @@ namespace Das.Serializer.ProtoBuf
         }
 
         private void ScanChildObject(Type type,
-                                     IValueExtractor s)
+                                     IProtoScanState s)
         {
             var il = s.IL;
 
-            var proxyLocal = s.GetProxy(type);
+            var proxy = s.GetProxy(type);
+            var proxyLocal = proxy.ProxyField;
             var proxyType = proxyLocal.FieldType;
 
             ////////////////////////////////////////////
@@ -391,48 +394,48 @@ namespace Das.Serializer.ProtoBuf
         /// <summary>
         ///     Can be an actual field or an instance of a collection field.  Leaves the value on the stack
         /// </summary>
-        private void ScanValueToStack(IValueExtractor s,
+        private void ScanValueToStack(IProtoScanState s,
                                       ILGenerator il,
                                       Type fieldType,
                                       TypeCode typeCode,
                                       ProtoWireTypes wireType,
-                                      ProtoFieldAction fieldAction,
+                                      FieldAction fieldAction,
                                       Boolean isValuePreInitialized)
         {
             switch (fieldAction)
             {
-                case ProtoFieldAction.VarInt:
-                case ProtoFieldAction.Primitive:
+                case FieldAction.VarInt:
+                case FieldAction.Primitive:
                     ScanAsVarInt(il, typeCode, wireType);
                     return;
 
-                case ProtoFieldAction.String:
+                case FieldAction.String:
                     s.LoadNextString();
                     return;
 
-                case ProtoFieldAction.ByteArray:
+                case FieldAction.ByteArray:
                     ScanByteArray(il, s.LastByteLocal);
                     return;
 
-                case ProtoFieldAction.PackedArray:
+                case FieldAction.PackedArray:
                     ScanAsPackedArray(il, fieldType, isValuePreInitialized);
                     return;
 
-                case ProtoFieldAction.ChildObject:
+                case FieldAction.ChildObject:
                     ScanChildObject(fieldType, s);
                     return;
 
-                case ProtoFieldAction.ChildObjectCollection:
-                case ProtoFieldAction.ChildPrimitiveCollection:
+                case FieldAction.ChildObjectCollection:
+                case FieldAction.ChildPrimitiveCollection:
                     ScanCollection(fieldType, s);
                     return;
 
-                case ProtoFieldAction.ChildObjectArray:
-                case ProtoFieldAction.ChildPrimitiveArray:
+                case FieldAction.ChildObjectArray:
+                case FieldAction.ChildPrimitiveArray:
                     ScanCollection(fieldType, s);
                     return;
 
-                case ProtoFieldAction.Dictionary:
+                case FieldAction.Dictionary:
                     ScanCollection(fieldType, s);
                     return;
 

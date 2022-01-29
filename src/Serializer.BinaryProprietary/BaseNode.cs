@@ -56,9 +56,6 @@ namespace Das.Serializer
                                  String value,
                                  Boolean wasValueInQuotes)
         {
-            if (wasValueInQuotes)
-            {
-            }
 
             _attributes.Add(key, new AttributeValue(value, wasValueInQuotes));
         }

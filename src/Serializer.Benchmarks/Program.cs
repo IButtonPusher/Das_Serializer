@@ -52,7 +52,7 @@ namespace Serializer.Benchmarks
                 //bm.DasPrimitiveProperties();
                 //bm.DasPrimitiveProperties2();
                 //bm.JsonNetPrimitiveProperties();
-                bm.DasPrintPrimitiveProperties2();
+                //bm.DasPrintPrimitiveProperties2();
                 //bm.PrimitivePropertiesJsonBaseline();
                 //bm.PrimitivePropertiesJsonExpress();
             }

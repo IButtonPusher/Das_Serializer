@@ -200,9 +200,7 @@ namespace Das.Printers
                                                 TWriter writer,
                                                 ISerializerSettings settings,
                                                 ICircularReferenceHandler circularReferenceHandler);
-        //Boolean knownEmpty);
-
-
+        
         protected virtual void PrintCollectionObject(Object? o,
                                                      Type propType,
                                                      Int32 index,

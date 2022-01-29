@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Reflection;
 using System.Threading.Tasks;
+using Das.Serializer.Properties;
 
 namespace Das.Serializer.ProtoBuf
 {
-    public class ProtoField : IProtoFieldAccessor
+    public class ProtoField : PropertyActor,
+                              IProtoFieldAccessor
     {
         public ProtoField(String name,
                           Type type,
@@ -12,48 +14,40 @@ namespace Das.Serializer.ProtoBuf
                           Int32 fieldIndex,
                           Int32 header,
                           MethodInfo valueGetter,
-                          TypeCode typeCode,
                           Boolean isLeaf,
                           Boolean isRepeated,
-                          ProtoFieldAction fieldAction,
+                          FieldAction fieldAction,
                           Byte[] headerBytes,
                           MethodInfo? setMethod)
+            : base(name, type, valueGetter, setMethod,
+                fieldAction, fieldIndex)
         {
-            GetMethod = valueGetter;
-            TypeCode = typeCode;
             IsLeafType = isLeaf;
             IsRepeatedField = isRepeated;
-            FieldAction = fieldAction;
             HeaderBytes = headerBytes;
-            SetMethod = setMethod;
-            Type = type;
-            Name = name;
             WireType = wireType;
-            Index = fieldIndex;
             Header = header;
         }
 
-        public Type Type { get; set; }
+        //public Type Type { get; set; }
 
-        public String Name { get; }
+        //public String Name { get; }
 
         public ProtoWireTypes WireType { get; }
 
         public Int32 Header { get; }
 
-        public Int32 Index { get; }
-
-        public TypeCode TypeCode { get; }
+        //public TypeCode TypeCode { get; }
 
         public Boolean IsLeafType { get; }
 
         public Boolean IsRepeatedField { get; }
 
-        public ProtoFieldAction FieldAction { get; }
+        //public ProtoFieldAction FieldAction { get; }
 
-        public MethodInfo GetMethod { get; }
+        //public MethodInfo GetMethod { get; }
 
-        public MethodInfo? SetMethod { get; }
+        //public MethodInfo? SetMethod { get; }
 
         public Byte[] HeaderBytes { get; }
 

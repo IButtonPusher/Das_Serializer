@@ -178,7 +178,12 @@
                 Int64 value, Stream outStream)
             </summary>
         </member>
-        <member name="M:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1.ScanCollection(System.Type,Das.Serializer.ProtoBuf.IValueExtractor)">
+        <member name="F:Das.Serializer.ProtoBuf.ProtoPrintState._writeInt32">
+            <summary>
+                public static void ProtoBufWriter->WriteInt32(Int32 value, Stream _outStream)
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1.ScanCollection(System.Type,Das.Serializer.Proto.IProtoScanState)">
             <summary>
                 ICollection[TProperty] where TProperty : ProtoContract
                 for a collection of proto contracts by way of a property of a parent contract
@@ -189,22 +194,22 @@
                 Puts the next field index on the stack.  Jumps to
             </summary>
         </member>
-        <member name="M:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1.AddPropertiesToScanMethod(Das.Serializer.ProtoBuf.ProtoScanState,System.Reflection.Emit.Label,System.Boolean,System.Reflection.Emit.LocalBuilder,System.Object)">
+        <member name="M:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1.AddPropertiesToScanMethod(Das.Serializer.Proto.IProtoScanState,System.Reflection.Emit.Label,System.Boolean,System.Reflection.Emit.LocalBuilder,System.Object)">
             <summary>
                 2.
             </summary>
         </member>
-        <member name="M:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1.AddScanMethod(System.Type,System.Reflection.Emit.TypeBuilder,System.Type,System.Collections.Generic.IEnumerable{Das.Serializer.IProtoFieldAccessor},System.Object,System.Boolean,System.Reflection.MethodBase,System.Collections.Generic.IDictionary{System.Type,System.Reflection.Emit.FieldBuilder})">
+        <member name="M:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1.AddScanMethod(System.Type,System.Reflection.Emit.TypeBuilder,System.Type,System.Collections.Generic.IEnumerable{Das.Serializer.IProtoFieldAccessor},System.Object,System.Boolean,System.Reflection.MethodBase,System.Collections.Generic.IDictionary{System.Type,Das.Serializer.CodeGen.ProxiedInstanceField})">
             <summary>
                 1. Creates a method to deserialize from a stream
             </summary>
         </member>
-        <member name="M:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1.AddScanProperty(Das.Serializer.ProtoBuf.ProtoScanState,System.Reflection.Emit.Label,System.Boolean,System.Object)">
+        <member name="M:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1.AddScanProperty(Das.Serializer.Proto.IProtoScanState,System.Reflection.Emit.Label,System.Boolean,System.Object)">
             <summary>
                 3.
             </summary>
         </member>
-        <member name="M:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1.ScanValueToStack(Das.Serializer.ProtoBuf.IValueExtractor,System.Reflection.Emit.ILGenerator,System.Type,System.TypeCode,Das.Serializer.ProtoBuf.ProtoWireTypes,Das.Serializer.ProtoFieldAction,System.Boolean)">
+        <member name="M:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1.ScanValueToStack(Das.Serializer.Proto.IProtoScanState,System.Reflection.Emit.ILGenerator,System.Type,System.TypeCode,Das.Serializer.ProtoBuf.ProtoWireTypes,Das.Serializer.ProtoFieldAction,System.Boolean)">
             <summary>
                 Can be an actual field or an instance of a collection field.  Leaves the value on the stack
             </summary>
@@ -254,16 +259,6 @@
                 public static void Write(Byte[] vals, Stream _outStream)
             </summary>
         </member>
-        <member name="F:Das.Serializer.ProtoBuf.ProtoPrintState._writeInt32">
-            <summary>
-                public static void ProtoBufWriter->WriteInt32(Int32 value, Stream _outStream)
-            </summary>
-        </member>
-        <member name="P:Das.Serializer.ProtoBuf.ProtoScanState.LocalFieldValues">
-            <summary>
-                For values that will be ctor injected
-            </summary>
-        </member>
         <member name="M:Das.Serializer.ProtoBuf.ProtoScanState.EnsureLocalFields">
             <summary>
                 Creates a local variable for every field.  Use only when there is no parameterless ctor
@@ -282,9 +277,19 @@
                 Leaves the # of bytes read on the stack!
             </summary>
         </member>
+        <member name="P:Das.Serializer.ProtoBuf.ProtoScanState.LocalFieldValues">
+            <summary>
+                For values that will be ctor injected
+            </summary>
+        </member>
         <member name="M:Das.Serializer.ProtoBuf.ProtoStateBase.LoadFieldProxy(Das.Serializer.IProtoFieldAccessor)">
             <summary>
                 Leaves the field on the stack
+            </summary>
+        </member>
+        <member name="F:Das.Serializer.ProtoBuf.ProtoStateBase._getDoubleBytes">
+            <summary>
+                BitConverter.GetBytes(Double)
             </summary>
         </member>
         <member name="M:Das.Serializer.Remunerators.IProtoWriter.GetVarIntLength(System.Int32)">
@@ -683,6 +688,11 @@
                 http://www.adammil.net/blog/v111_Creating_High-Performance_Locks_and_Lock-free_Code_for_NET_.html#rwlock
             </summary>
         </member>
+        <member name="T:Das.Serializer.DynamicEnumerator`1">
+            <summary>
+                Generates dynamic foreach code block
+            </summary>
+        </member>
         <member name="M:Das.Serializer.DasCoreSerializer.ToJson(System.Object)">
             <summary>
                 Create a Json string from any object.  For more options set the Settings
@@ -760,11 +770,6 @@
                 Default implementation that uses
                 Das.Serializer.IndexedMemberAttribute and its 'Index' Property
             </seealso>
-        </member>
-        <member name="T:Das.Serializer.ProtoEnumerator`1">
-            <summary>
-                Generates dynamic foreach code block
-            </summary>
         </member>
         <member name="M:Das.Serializer.BaseExpress.GetUntilAny(System.Int32@,System.String,System.Text.StringBuilder,System.Char[],System.Char@)">
             <summary>

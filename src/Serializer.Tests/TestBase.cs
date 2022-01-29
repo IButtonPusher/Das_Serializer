@@ -22,7 +22,8 @@ namespace Serializer.Tests
             TypeProvider = new ProtoDynamicProvider<ProtoMemberAttribute>(Settings,
                 Serializer.TypeManipulator,
                 Serializer.ObjectInstantiator,
-                Serializer.ObjectManipulator);
+                Serializer.ObjectManipulator,
+                _serializer.Settings);
             #endif
         }
 

@@ -22,23 +22,6 @@ namespace Das.Types
                 ConcurrentDictionary<String, Func<Object, Object[], Object>>>();
         }
 
-        //public IProperty? GetPropertyResult(Object o,
-        //                                    Type asType,
-        //                                    String propertyName)
-        //{
-        //    if (propertyName == null)
-        //        return default;
-        //    var str = _typeDelegates.GetTypeStructure(asType, DepthConstants.AllProperties);
-        //    return str.GetProperty(o, propertyName);
-        //}
-
-        //public IEnumerable<IProperty> GetPropertyValues<T>(T obj)
-        //{
-        //    var node = new ValueNode(obj!, typeof(T));
-        //    return GetPropertyResults(node, _settings);
-        //}
-
-
         public T GetPropertyValue<T>(Object obj,
                                      String propertyName)
         {
@@ -81,21 +64,6 @@ namespace Das.Types
 
            result = accessor.GetPropertyValue(obj)!;
            return true;
-
-
-
-            //if (obj == null)
-            //{
-            //    result = null!;
-            //    return false;
-            //}
-
-            //var oType = obj is Type t ? t : obj.GetType();
-
-            //var str = _typeDelegates.GetTypeStructure(oType);
-            //result = str.GetPropertyValue(obj, propertyName)!;
-
-            //return result != null;
         }
 
         public bool TryGetPropertyValue(Object obj,
@@ -114,6 +82,7 @@ namespace Das.Types
 
         }
 
+        
         public Boolean TryGetPropertyValue<T>(Object obj,
                                               String propertyName,
                                               out T result)
@@ -157,7 +126,7 @@ namespace Das.Types
                 ? val.GetType()
                 : valType;
 
-            var typeStruct = _typeDelegates.GetTypeStructure(useType);//!, DepthConstants.AllProperties);
+            var typeStruct = _typeDelegates.GetTypeStructure(useType);
             foreach (var f in typeStruct.IteratePropertyValues(val, depth))
             {
                 yield return f;
@@ -185,7 +154,7 @@ namespace Das.Types
         public void SetFieldValues<TObject>(TObject obj,
                                             Action<ITypeStructure, TObject> action)
         {
-            var s = _typeDelegates.GetTypeStructure(typeof(TObject));//, DepthConstants.Full);
+            var s = _typeDelegates.GetTypeStructure(typeof(TObject));
             action(s, obj);
         }
 
@@ -199,7 +168,7 @@ namespace Das.Types
                                       ref Object targetObj,
                                       Object? propVal)
         {
-            var str = _typeDelegates.GetTypeStructure(classType);//, DepthConstants.AllProperties);
+            var str = _typeDelegates.GetTypeStructure(classType);
             return str.TrySetPropertyValue(propName, format, ref targetObj, propVal);
         }
 
@@ -222,10 +191,7 @@ namespace Das.Types
 
                var srcVal = accessor.GetPropertyValue(source);
 
-                //if (!TryGetPropertyValue(source, m.Name, out var propVal))
-                //    continue;
-
-                TrySetProperty(target.GetType(), m.Name, PropertyNameFormat.Default, 
+               TrySetProperty(target.GetType(), m.Name, PropertyNameFormat.Default, 
                    ref target, srcVal);
             }
         }
@@ -341,6 +307,14 @@ namespace Das.Types
             return converter.ConvertEx<T>(o, settings);
         }
 
+        public Boolean TryCastDynamic(Object o,
+                                      Type castTo,
+                                      out Object casted)
+        {
+            return TryCleanCast(o, castTo, out casted);
+        }
+
+
         public Boolean TryCastDynamic<T>(Object o,
                                          out T casted)
         {
@@ -360,16 +334,28 @@ namespace Das.Types
                 return true;
             }
 
-            var tt = typeof(T);
-
-            if (typeof(IConvertible).IsAssignableFrom(tt) &&
-                o is IConvertible)
+            if (TryCleanCast(o,  typeof(T), out var ores))
             {
-                result = (T) Convert.ChangeType(o, tt);
+                result = (T)ores;
                 return true;
             }
 
-            var implicitOperators = from m in o.GetType().GetMethods()
+            result = default!;
+            return false;
+        }
+
+        private static Boolean TryCleanCast(Object o,
+                                            Type tt,
+                                            out Object result)
+        {
+            if (typeof(IConvertible).IsAssignableFrom(tt) &&
+                o is IConvertible)
+            {
+                result = Convert.ChangeType(o, tt);
+                return true;
+            }
+
+            var implicitOperators = from m in o.GetType().GetMethods(BindingFlags.Static | BindingFlags.Public)
                 let mparams = m.GetParameters()
                 where string.Equals(m.Name, "op_Implicit") &&
                       m.ReturnType == tt &&
@@ -380,7 +366,7 @@ namespace Das.Types
             var useImplicit = implicitOperators.FirstOrDefault();
             if (useImplicit != null)
             {
-                result = (T) useImplicit.Invoke(null, new[] {o});
+                result = useImplicit.Invoke(null, new[] { o });
                 return true;
             }
 

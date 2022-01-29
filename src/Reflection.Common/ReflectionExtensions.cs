@@ -51,9 +51,27 @@ namespace Reflection.Common
                                                 BindingFlags flags,
                                                 Type[] parameters)
         {
-            return classType.GetMethod(methodName, flags, null,
-                       parameters, null)
-                   ?? Die(classType, methodName);
+            var res = classType.GetMethod(methodName, flags, null,
+                parameters, null);
+            //?? Die(classType, methodName);
+
+            if (res != null)
+                return res;
+
+            if (classType.IsInterface)
+            {
+                var impl = classType.GetInterfaces();
+
+                foreach (var type in impl)
+                {
+                    res = type.GetMethod(methodName, flags, null,
+                        parameters, null);
+                    if (res != null)
+                        return res;
+                }
+            }
+
+            return Die(classType, methodName);
         }
 
         [Pure]
@@ -86,6 +104,14 @@ namespace Reflection.Common
         {
             return GetMethodOrDie(classType, methodName,
                 BindingFlags.Instance | BindingFlags.Public, parameters);
+        }
+
+        [Pure]
+        public static MethodInfo GetMethodOrDie<TParam>(this Type classType,
+                                                String methodName)
+        {
+            return GetMethodOrDie(classType, methodName,
+                BindingFlags.Instance | BindingFlags.Public, new[] { typeof(TParam) });
         }
 
         [Pure]
@@ -306,7 +332,7 @@ namespace Reflection.Common
         private static T Die<T>(Type classType,
                                 String memberName)
         {
-            throw new InvalidOperationException(classType.Name + "->" + memberName);
+            throw new MissingMemberException(classType.Name + "->" + memberName);
         }
 
         private static MethodInfo Die(Type classType,

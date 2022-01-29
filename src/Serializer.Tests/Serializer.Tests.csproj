@@ -71,6 +71,7 @@
     <Compile Include="SlowEquality.cs" />
     <Compile Include="TestBase.cs" />
     <Compile Include="TestClasses.cs" />
+    <Compile Include="TestTypes\PropertyImplicitToCtorParam.cs" />
     <Compile Include="TypeTests.cs" />
     <Compile Include="XmlTests.cs" />
     <Compile Include="Xml\SvgDocument.cs" />
@@ -79,6 +80,9 @@
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet">
       <Version>0.12.1</Version>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>13.0.1</Version>
     </PackageReference>
     <PackageReference Include="protobuf-net">
       <Version>3.0.73</Version>
@@ -117,6 +121,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="..\Interfaces.Shared\Interfaces.Shared.projitems" Label="Shared" />
   <Import Project="..\Serializer.Shared\Serializer.Shared.projitems" Label="Shared" />
   <Import Project="..\Serializer.BinaryProprietary\Serializer.BinaryProprietary.projitems" Label="Shared" />

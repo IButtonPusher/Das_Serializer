@@ -97,6 +97,10 @@ namespace Das.Serializer
         Boolean TryCastDynamic<T>(Object o,
                                   out T casted);
 
+        Boolean TryCastDynamic(Object o,
+                               Type castTo,
+                               out Object casted);
+
         Boolean TryGetPropertyValue<T>(Object obj,
                                        String propertyName,
                                        out T result);

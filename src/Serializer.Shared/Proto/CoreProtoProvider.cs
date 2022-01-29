@@ -16,6 +16,12 @@ namespace Das.Serializer.ProtoBuf
             throw new NotImplementedException();
         }
 
+        public IProtoProxy<T> GetProtoProxy<T>(ISerializerSettings settings,
+                                               Boolean allowReadOnly = false)
+        {
+            throw new NotImplementedException();
+        }
+
         public bool TryGetProtoField(PropertyInfo prop,
                                      Boolean isRequireAttribute,
                                      out IProtoFieldAccessor field)
@@ -24,7 +30,7 @@ namespace Das.Serializer.ProtoBuf
         }
 
 
-        public ProtoFieldAction GetProtoFieldAction(Type pType)
+        public FieldAction GetProtoFieldAction(Type pType)
         {
             throw new NotImplementedException();
         }

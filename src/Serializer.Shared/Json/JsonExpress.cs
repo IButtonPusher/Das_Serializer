@@ -500,8 +500,25 @@ namespace Das.Serializer.Json
                 case TypeCode.Byte:
 
                     if (type.IsEnum)
-                        return Enum.Parse(type,
-                            GetNextString(ref currentIndex, json, stringBuilder));
+                    {
+                        if (json[currentIndex] == '"')
+                        {
+                            return Enum.Parse(type,
+                                GetNextString(ref currentIndex, json, stringBuilder));
+                        }
+                        else
+                        {
+                            GetNextPrimitive(ref currentIndex, json, stringBuilder);
+                            if (int.TryParse(stringBuilder.ToString(), out var iEnumVal))
+                                return Enum.ToObject(type, iEnumVal);
+                        }
+
+                        //GetNextPrimitive(ref currentIndex, json, stringBuilder);
+                        //if (int.TryParse(stringBuilder.ToString(), out var iEnumVal))
+                        //    return Enum.ToObject(type, iEnumVal);
+                        //return Enum.Parse(type,
+                        //    GetNextString(ref currentIndex, json, stringBuilder));
+                    }
 
                     GetNextPrimitive(ref currentIndex, json, stringBuilder);
 

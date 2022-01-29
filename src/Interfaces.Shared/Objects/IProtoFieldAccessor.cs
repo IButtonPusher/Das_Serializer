@@ -1,20 +1,16 @@
 ﻿using System;
 using System.Reflection;
 using System.Threading.Tasks;
+using Das.Serializer.Properties;
 
 namespace Das.Serializer
 {
-    public interface IProtoFieldAccessor : IProtoField, IEquatable<ParameterInfo>
+    public interface IProtoFieldAccessor : IProtoField, IEquatable<ParameterInfo>,
+                                           IPropertyActionAware
     {
-        ProtoFieldAction FieldAction { get; }
-
-        MethodInfo GetMethod { get; }
-
         /// <summary>
         ///     Wire type | field index
         /// </summary>
         Byte[] HeaderBytes { get; }
-
-        MethodInfo? SetMethod { get; }
     }
 }

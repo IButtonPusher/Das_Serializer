@@ -38,18 +38,25 @@ namespace Serializer.Benchmarks
 
 
        
-
+        [Benchmark]
         public String PrintDasDictionary()
         {
             var mc1 = DictionaryPropertyMessage.DefaultValue;
-            return Serializer.ToJson(mc1);
+            return Serializer.ToJsonEx(mc1);
+        }
+
+        [Benchmark]
+        public String JsonNetPrintDictionary()
+        {
+            var mc1 = DictionaryPropertyMessage.DefaultValue;
+            return JsonConvert.SerializeObject(mc1);
         }
 
         [Benchmark]
         public DictionaryPropertyMessage DasDictionary()
         {
             var mc1 = DictionaryPropertyMessage.DefaultValue;
-            var json = Serializer.ToJson(mc1);
+            var json = Serializer.ToJsonEx(mc1);
 
             return Serializer.FromJson<DictionaryPropertyMessage>(json);
         }
@@ -67,7 +74,7 @@ namespace Serializer.Benchmarks
         public MultiPropMessage DasMultiProperties()
         {
             var msg = MultiPropMessage.GetTestOne();
-            var json = Serializer.ToJson(msg);
+            var json = Serializer.ToJsonEx(msg);
 
             return Serializer.FromJson<MultiPropMessage>(json);
         }
@@ -85,16 +92,16 @@ namespace Serializer.Benchmarks
         [Benchmark]
         public SimpleClass DasPrimitiveProperties()
         {
-            var json = Serializer.ToJson(SimpleClass);
-            return Serializer.FromJson<SimpleClass>(json);
-        }
-
-        [Benchmark]
-        public SimpleClass DasPrimitiveProperties2()
-        {
             var json = Serializer.ToJsonEx(SimpleClass);
             return Serializer.FromJson<SimpleClass>(json);
         }
+
+        //[Benchmark]
+        //public SimpleClass DasPrimitiveProperties2()
+        //{
+        //    var json = Serializer.ToJsonEx(SimpleClass);
+        //    return Serializer.FromJson<SimpleClass>(json);
+        //}
 
         [Benchmark]
         public SimpleClass JsonNetPrimitiveProperties()
@@ -106,14 +113,14 @@ namespace Serializer.Benchmarks
         [Benchmark]
         public String DasPrintPrimitiveProperties()
         {
-            return Serializer.ToJson(SimpleClass);
-        }
-
-        [Benchmark]
-        public String DasPrintPrimitiveProperties2()
-        {
             return Serializer.ToJsonEx(SimpleClass);
         }
+
+        //[Benchmark]
+        //public String DasPrintPrimitiveProperties2()
+        //{
+        //    return Serializer.ToJsonEx(SimpleClass);
+        //}
 
         [Benchmark]
         public String JsonNetPrintPrimitiveProperties()

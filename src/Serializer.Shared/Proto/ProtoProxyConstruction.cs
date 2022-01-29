@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading.Tasks;
 using Das.Extensions;
+using Das.Serializer.CodeGen;
 using Das.Types;
 using Reflection.Common;
 
@@ -20,7 +21,7 @@ namespace Das.Serializer.ProtoBuf
         private ConstructorInfo AddConstructors(TypeBuilder bldr,
                                                 ConstructorInfo dtoCtor,
                                                 Type genericBase,
-                                                ICollection<FieldBuilder> childProxies,
+                                                ICollection<ProxiedInstanceField> childProxies,
                                                 Boolean isDtoReadOnly)
         {
             var baseCtors = genericBase.GetConstructors(BindingFlags.Public |
@@ -123,7 +124,7 @@ namespace Das.Serializer.ProtoBuf
                                               TypeBuilder builder,
                                               ConstructorInfo dtoCtor,
                                               FieldInfo readOnlyBackingField,
-                                              IEnumerable<FieldBuilder> childProxies,
+                                              IEnumerable<ProxiedInstanceField> childProxies,
                                               Boolean isDtoReadOnly)
         {
             var paramList = new List<Type>();
@@ -151,11 +152,13 @@ namespace Das.Serializer.ProtoBuf
             {
                 il.Emit(OpCodes.Ldarg_0);
 
-                var gargs = kvp.FieldType.GetGenericArguments();
+                var fieldType = kvp.ProxyField.FieldType;
+
+                var gargs = fieldType.GetGenericArguments();
 
                 if (gargs.Length != 1)
                     throw new InvalidOperationException(
-                        $"{kvp.FieldType} should have exactly one generic argument");
+                        $"{fieldType} should have exactly one generic argument");
 
                 var garg = gargs[0];
 
@@ -198,7 +201,7 @@ namespace Das.Serializer.ProtoBuf
                 il.Emit(OpCodes.Callvirt, getProxyInstance);
 
 
-                il.Emit(OpCodes.Stfld, kvp);
+                il.Emit(OpCodes.Stfld, kvp.ProxyField);
             }
 
             il.Emit(OpCodes.Ldarg_0);
@@ -212,50 +215,59 @@ namespace Das.Serializer.ProtoBuf
             il.Emit(OpCodes.Ret);
         }
 
-        private static FieldBuilder CreateLocalProxy(IProtoFieldAccessor field,
-                                                     TypeBuilder builder,
-                                                     Type germane)
+        protected override Type GetProxyClosedGenericType(Type argType)
         {
-            var proxyType = typeof(IProtoProxy<>).MakeGenericType(germane);
-
-            return builder.DefineField($"_{field.Name}Proxy", proxyType, FieldAttributes.Private);
+            return typeof(IProtoProxy<>).MakeGenericType(argType);
         }
 
-        private Dictionary<Type, FieldBuilder> CreateProxyFields(TypeBuilder bldr,
-                                                                 IEnumerable<IProtoFieldAccessor> fields)
-        {
-            var typeProxies = new Dictionary<Type, FieldBuilder>();
+        //private static ProxiedInstanceField CreateLocalProxy(INamedField field,
+        //                                                     TypeBuilder builder,
+        //                                                     Type germane)
+        //{
+        //    var proxyType = typeof(IProtoProxy<>).MakeGenericType(germane);
 
-            foreach (var field in fields)
-            {
-                switch (field.FieldAction)
-                {
-                    case ProtoFieldAction.ChildObject:
-                        if (typeProxies.ContainsKey(field.Type))
-                            continue;
+        //    var fieldInfo =  builder.DefineField($"_{field.Name}Proxy", proxyType, FieldAttributes.Private);
+        //    return new ProxiedInstanceField(proxyType, fieldInfo,
+        //        proxyType.GetMethodOrDie(nameof(IProtoProxy<Object>.Print)));
+        //}
 
-                        var local = CreateLocalProxy(field, bldr, field.Type);
-                        typeProxies[field.Type] = local;
-                        break;
+        //private Dictionary<Type, ProxiedInstanceField> CreateProxyFields(TypeBuilder bldr,
+        //                                                                 IEnumerable<IProtoFieldAccessor> fields)
+        //{
+        //    var typeProxies = new Dictionary<Type, ProxiedInstanceField>();
 
-                    case ProtoFieldAction.ChildObjectArray:
-                    case ProtoFieldAction.ChildObjectCollection:
-                    case ProtoFieldAction.Dictionary:
-                        var germane = _types.GetGermaneType(field.Type);
+        //    foreach (var field in fields)
+        //    {
+        //        switch (field.FieldAction)
+        //        {
+        //            case ProtoFieldAction.ChildObject:
+        //                if (typeProxies.ContainsKey(field.Type))
+        //                    continue;
 
-                        if (typeProxies.ContainsKey(germane))
-                            continue;
+        //                var local = CreateLocalProxy(field, bldr, field.Type);
+        //                typeProxies[field.Type] = local;
+        //                break;
 
-                        var bldr2 = CreateLocalProxy(field, bldr, germane);
+        //            case ProtoFieldAction.ChildObjectArray:
+        //            case ProtoFieldAction.ChildObjectCollection:
+        //            case ProtoFieldAction.Dictionary:
+        //                var germane = _types.GetGermaneType(field.Type);
 
-                        typeProxies[germane] = bldr2;
+        //                if (typeProxies.ContainsKey(germane))
+        //                    continue;
 
-                        break;
-                }
-            }
+        //                var bldr2 = CreateLocalProxy(field, bldr, germane);
 
-            return typeProxies;
-        }
+        //                typeProxies[germane] = bldr2;
+
+        //                break;
+        //        }
+        //    }
+
+        //    return typeProxies;
+        //}
+
+      
     }
 }
 
