@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading.Tasks;
 using Das.Serializer.CodeGen;
-using Das.Serializer.Collections;
 using Das.Serializer.Types;
 
 namespace Das.Serializer.Printers
@@ -15,7 +14,7 @@ namespace Das.Serializer.Printers
    {
       static DynamicPrinterProvider()
       {
-         _readWriteLock = new UpgradableReadWriteLock();
+         //_readWriteLock = new UpgradableReadWriteLock();
          _readWriteLock2 = new object();
          _jsonProxies2 = new Dictionary<long, Object>();
 
@@ -115,7 +114,7 @@ namespace Das.Serializer.Printers
 
       
       private static readonly Dictionary<Int64, Object> _jsonProxies2;
-      private static readonly UpgradableReadWriteLock _readWriteLock;
+      //private static readonly UpgradableReadWriteLock _readWriteLock;
       private static readonly Object _readWriteLock2;
       private readonly DynamicJsonPrinterBuilder2 _jsonProxyBuilder2;
       private static readonly ModuleBuilder _moduleBuilder;

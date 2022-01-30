@@ -52,9 +52,45 @@ namespace Das.Serializer.ProtoBuf
             }
         }
 
+        public void PrintDateTimeField()
+        {
+            PrintCurrentFieldHeader();
+            PrepareToPrintValue();
+            AppendInt64();
+        }
+
+
+
+
         public void PrintFallback()
         {
-            throw new NotImplementedException();
+            if (!_actionProvider.TryGetSpecialProperty(CurrentField.Type, out var propInfo))
+                throw new NotImplementedException();
+
+            PrintCurrentFieldHeader();
+
+            PrepareToPrintValue(propInfo,
+                (s,
+                 p) =>
+                {
+                    if (s.CurrentField.Type.IsValueType)
+                    {
+                        var local = s.GetLocal(s.CurrentField.Type);
+
+                        s.LoadCurrentFieldValueToStack();
+
+                        s.IL.Emit(OpCodes.Stloc, local);
+                        s.IL.Emit(OpCodes.Ldloca, local);
+                        s.IL.Emit(OpCodes.Call, p.GetGetMethod());
+                    }
+                    else
+                    {
+                        s.LoadCurrentFieldValueToStack();
+                        s.IL.Emit(OpCodes.Callvirt, p.GetGetMethod());
+                    }
+                });
+
+            _actionProvider.AppendPrimitive(this, Type.GetTypeCode(propInfo.PropertyType));
         }
 
         public void PrintEnum()
@@ -95,7 +131,7 @@ namespace Das.Serializer.ProtoBuf
         }
 
         public void PrepareToPrintValue<TData>(TData data,
-                                               Action<IDynamicState, TData> loadValue)
+                                               Action<IDynamicPrintState, TData> loadValue)
         {
             loadValue(this, data);
             _il.Emit(OpCodes.Ldarg_2);
@@ -104,6 +140,29 @@ namespace Das.Serializer.ProtoBuf
         public void PrepareToPrintValue()
         {
             LoadCurrentFieldValueToStack();
+
+            switch (CurrentField.TypeCode)
+            {
+                case TypeCode.Single:
+                    _il.Emit(OpCodes.Call, _getSingleBytes);
+                    break;
+
+                case TypeCode.Double:
+                    _il.Emit(OpCodes.Call, _getDoubleBytes);
+                    break;
+
+                case TypeCode.Decimal:
+                    _il.Emit(OpCodes.Call, _getDecimalBytes);
+                    break;
+
+                case TypeCode.DateTime:
+                    var dt = GetLocal<DateTime>();
+                    _il.Emit(OpCodes.Stloc, dt);
+                    _il.Emit(OpCodes.Ldloca, dt);
+                    _il.Emit(OpCodes.Call, _dateToFileTime);
+                    break;
+            }
+
             _il.Emit(OpCodes.Ldarg_2);
         }
 

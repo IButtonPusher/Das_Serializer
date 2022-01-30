@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection.Emit;
 using System.Threading.Tasks;
+using Das.Serializer.Properties;
 
 namespace Das.Serializer.State
 {
@@ -47,6 +48,8 @@ namespace Das.Serializer.State
 
 
         void AppendNull();
+
+        IFieldActionProvider ActionProvider { get; }
     }
 
     public interface IDynamicPrintState<out TField> : IDynamicState<TField>,
@@ -90,7 +93,7 @@ namespace Das.Serializer.State
         void PrintEnum();
 
         void PrepareToPrintValue<TData>(TData data, 
-                                        Action<IDynamicState, TData> loadValue);
+                                        Action<IDynamicPrintState, TData> loadValue);
 
 
         void PrintObjectCollection();

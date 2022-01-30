@@ -22,26 +22,26 @@ namespace Das.Serializer.ProtoBuf
         //    ienum.ForLoop(s, PrintEnumeratorCurrent);
         //}
 
-        private void PrintByteArray(IProtoPrintState s)
-        {
-            PrintHeaderBytes(s.CurrentFieldHeader, s);
+        //private void PrintByteArray(IProtoPrintState s)
+        //{
+        //    PrintHeaderBytes(s.CurrentFieldHeader, s);
 
-            var il = s.IL;
+        //    var il = s.IL;
 
-            s.LoadParentToStack();
+        //    s.LoadParentToStack();
 
-            il.Emit(OpCodes.Call, s.CurrentField.GetMethod);
-            il.Emit(OpCodes.Stloc, s.LocalBytes);
+        //    il.Emit(OpCodes.Call, s.CurrentField.GetMethod);
+        //    il.Emit(OpCodes.Stloc, s.LocalBytes);
 
-            il.Emit(OpCodes.Ldloc, s.LocalBytes);
-            il.Emit(OpCodes.Call, _getArrayLength);
-            s.WriteInt32();
+        //    il.Emit(OpCodes.Ldloc, s.LocalBytes);
+        //    il.Emit(OpCodes.Call, _getArrayLength);
+        //    s.WriteInt32();
 
-            il.Emit(OpCodes.Ldloc, s.LocalBytes);
+        //    il.Emit(OpCodes.Ldloc, s.LocalBytes);
 
-            il.Emit(OpCodes.Ldarg_2);
-            il.Emit(OpCodes.Call, _writeBytes);
-        }
+        //    il.Emit(OpCodes.Ldarg_2);
+        //    il.Emit(OpCodes.Call, _writeBytes);
+        //}
 
         //private void PrintCollection(IProtoPrintState s,
         //                             Action<LocalBuilder, IProtoPrintState, ILGenerator, Byte[]> action)
@@ -52,67 +52,67 @@ namespace Das.Serializer.ProtoBuf
         //    ienum.ForEach(action, s.CurrentFieldHeader);
         //}
 
-        private void PrintEnumeratorCurrent(LocalBuilder enumeratorCurrentValue,
-                                            LocalBuilder currentIndex,
-                                            IProtoPrintState s)
-        {
-            var germane = _types.GetGermaneType(s.CurrentField.Type);
-            var subAction = GetProtoFieldAction(germane);
+        //private void PrintEnumeratorCurrent(LocalBuilder enumeratorCurrentValue,
+        //                                    LocalBuilder currentIndex,
+        //                                    IProtoPrintState s)
+        //{
+        //    var germane = _types.GetGermaneType(s.CurrentField.Type);
+        //    var subAction = GetProtoFieldAction(germane);
 
-            switch (subAction)
-            {
-                case FieldAction.ChildObject:
-                    PrintChildObject(s, s.CurrentFieldHeader,
-                        ilg => ilg.Emit(OpCodes.Ldloc, enumeratorCurrentValue),
-                        germane);
-                    break;
+        //    switch (subAction)
+        //    {
+        //        case FieldAction.ChildObject:
+        //            PrintChildObject(s, s.CurrentFieldHeader,
+        //                ilg => ilg.Emit(OpCodes.Ldloc, enumeratorCurrentValue),
+        //                germane);
+        //            break;
 
-                case FieldAction.String:
-                    PrintString(s,
-                        xs => xs.IL.Emit(OpCodes.Ldloc, enumeratorCurrentValue));
-                    break;
+        //        case FieldAction.String:
+        //            PrintString(s,
+        //                xs => xs.IL.Emit(OpCodes.Ldloc, enumeratorCurrentValue));
+        //            break;
 
-                default:
-                    throw new NotImplementedException();
-            }
-        }
+        //        default:
+        //            throw new NotImplementedException();
+        //    }
+        //}
 
 
-        private void PrintEnumeratorCurrent(LocalBuilder enumeratorCurrentValue,
-                                            LocalBuilder currentIndex,
-                                            IProtoPrintState s,
-                                            ILGenerator il,
-                                            Byte[] headerBytes)
-        {
-            var germane = _types.GetGermaneType(s.CurrentField.Type);
-            var subAction = GetProtoFieldAction(germane);
+        //private void PrintEnumeratorCurrent(LocalBuilder enumeratorCurrentValue,
+        //                                    LocalBuilder currentIndex,
+        //                                    IProtoPrintState s,
+        //                                    ILGenerator il,
+        //                                    Byte[] headerBytes)
+        //{
+        //    var germane = _types.GetGermaneType(s.CurrentField.Type);
+        //    var subAction = GetProtoFieldAction(germane);
 
-            switch (subAction)
-            {
-                case FieldAction.ChildObject:
-                    PrintChildObject(s, headerBytes,
-                        ilg => ilg.Emit(OpCodes.Ldloc, enumeratorCurrentValue),
-                        germane);
-                    break;
+        //    switch (subAction)
+        //    {
+        //        case FieldAction.ChildObject:
+        //            PrintChildObject(s, headerBytes,
+        //                ilg => ilg.Emit(OpCodes.Ldloc, enumeratorCurrentValue),
+        //                germane);
+        //            break;
 
-                case FieldAction.String:
-                    PrintString(s,
-                        xs => xs.IL.Emit(OpCodes.Ldloc, enumeratorCurrentValue));
-                    break;
+        //        case FieldAction.String:
+        //            PrintString(s,
+        //                xs => xs.IL.Emit(OpCodes.Ldloc, enumeratorCurrentValue));
+        //            break;
 
-                default:
-                    throw new NotImplementedException();
-            }
-        }
+        //        default:
+        //            throw new NotImplementedException();
+        //    }
+        //}
 
-        private static void PrintKeyValuePair(LocalBuilder enumeratorCurrentValue,
-                                              IProtoPrintState s,
-                                              ILGenerator il,
-                                              Byte[] headerBytes)
-        {
-            s.PrintFieldViaProxy(//s.CurrentField,
-                ilg => ilg.Emit(OpCodes.Ldloc, enumeratorCurrentValue));
-        }
+        //private static void PrintKeyValuePair(LocalBuilder enumeratorCurrentValue,
+        //                                      IProtoPrintState s,
+        //                                      ILGenerator il,
+        //                                      Byte[] headerBytes)
+        //{
+        //    s.PrintFieldViaProxy(//s.CurrentField,
+        //        ilg => ilg.Emit(OpCodes.Ldloc, enumeratorCurrentValue));
+        //}
 
 
         private void ScanByteArray(ILGenerator il,

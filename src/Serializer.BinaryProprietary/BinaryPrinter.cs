@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
+using Das.Extensions;
 using Das.Serializer;
 using Das.Serializer.Remunerators; //using System.Runtime.InteropServices;
 
@@ -56,19 +57,19 @@ namespace Das.Printers
 
         #endif
 
-        public static Byte[] GetBytes(Decimal dec)
-        {
-            var bits = Decimal.GetBits(dec);
-            var bytes = new List<Byte>();
+        //public static Byte[] GetBytes(Decimal dec)
+        //{
+        //    var bits = Decimal.GetBits(dec);
+        //    var bytes = new List<Byte>();
 
-            foreach (var i in bits)
-            {
-                bytes.AddRange(BitConverter.GetBytes(i));
-            }
+        //    foreach (var i in bits)
+        //    {
+        //        bytes.AddRange(BitConverter.GetBytes(i));
+        //    }
 
 
-            return bytes.ToArray();
-        }
+        //    return bytes.ToArray();
+        //}
 
 
         //public override void PrintNode(INamedValue node)
@@ -208,7 +209,7 @@ namespace Das.Printers
                     bytes = BitConverter.GetBytes((Double) o!);
                     break;
                 case TypeCode.Decimal:
-                    bytes = GetBytes((Decimal) o!);
+                    bytes = ((Decimal)o!).ToByteArray();//  GetBytes((Decimal) o!);
                     break;
                 case TypeCode.DateTime:
                     _bWriter.WriteInt64(((DateTime) o!).Ticks);

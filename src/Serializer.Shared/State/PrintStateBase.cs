@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection.Emit;
-using System.Text;
 using Das.Serializer.CodeGen;
 using Das.Serializer.Properties;
 

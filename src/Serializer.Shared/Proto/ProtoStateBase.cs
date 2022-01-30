@@ -36,6 +36,8 @@ namespace Das.Serializer.ProtoBuf
             LoadParentToStack();
             var call = ParentType.IsValueType ? OpCodes.Call : OpCodes.Callvirt;
             IL.Emit(call, CurrentField.GetMethod);
+
+            
         }
 
         public override IPropertyInfo CurrentField => _currentField;

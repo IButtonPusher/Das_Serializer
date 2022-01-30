@@ -257,6 +257,8 @@ namespace Serializer.Tests.ProtocolBuffers
 
             var o = TypeProvider.GetProtoProxy<MultiPropMessage>();
 
+            //TypeProvider.DumpProxies();
+
             using (var ms = new MemoryStream())
             {
                 o.Print(msg, ms);

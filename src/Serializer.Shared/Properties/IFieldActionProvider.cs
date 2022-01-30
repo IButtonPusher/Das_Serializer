@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Threading.Tasks;
 using Das.Serializer.State;
 
@@ -13,5 +14,8 @@ namespace Das.Serializer.Properties
         /// </summary>
         void AppendPrimitive(IDynamicPrintState s,
                              TypeCode typeCode);
+
+        Boolean TryGetSpecialProperty(Type pType,
+                                      out PropertyInfo propInfo);
     }
 }

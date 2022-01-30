@@ -448,14 +448,7 @@ namespace Das.Serializer
             return IsLeafImpl(t, false, LeavesNotString);
         }
 
-        public static Decimal ToDecimal(Byte[] bytes)
-        {
-            var bits = new Int32[4];
-            for (var i = 0; i <= 15; i += 4)
-                bits[i / 4] = BitConverter.ToInt32(bytes, i);
-
-            return new Decimal(bits);
-        }
+       
 
 
         public static Boolean IsAnonymousType(Type type)

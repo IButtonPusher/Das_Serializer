@@ -40,42 +40,64 @@ namespace Serializer.Tests.ProtocolBuffers
     [ProtoContract]
     public class MultiPropMessage
     {
+        [ProtoMember(4)]
+        public Byte ByteProperty { get; set; }
+
         [ProtoMember(2)]
-        public Int32 A { get; set; }
+        public Int32 IntProperty { get; set; }
 
         [ProtoMember(3)]
-        public Int64 BigInt { get; set; }
+        public Int64 BigIntProperty { get; set; }
 
-        [ProtoMember(4)]
-        public Byte LittleIntian { get; set; }
+        [ProtoMember(9)]
+        public Int16 Int16Property { get; set; }
 
         [ProtoMember(1)]
-        public String S { get; set; }
+        public String StringProperty { get; set; }
 
         [ProtoMember(7)]
-        public Boolean TrueOrFalse { get; set; }
+        public Boolean BooleanProperty { get; set; }
 
         [ProtoMember(5)]
-        public UInt32 U32 { get; set; }
+        public UInt32 UInt32Property { get; set; }
 
         [ProtoMember(6)]
-        public UInt64 U64 { get; set; }
+        public UInt64 UInt64Property { get; set; }
 
         [ProtoMember(8)]
         public TimeSpan TimeSpan { get; set; }
+
+        [ProtoMember(10)]
+        public Single SingleProperty { get; set; }
+
+        [ProtoMember(11)]
+        public Double DoubleProperty { get; set; }
+
+        [ProtoMember(12)]
+        public Decimal DecimalProperty { get; set; }
+
+        [ProtoMember(13)]
+        public DateTime DateTimeProperty { get; set; }
+
+        
 
         public static MultiPropMessage GetTestOne()
         {
             return new MultiPropMessage
             {
-                A = 26256,
-                S = "hello world",
-                BigInt = (Int64) Int32.MaxValue + 1,
-                LittleIntian = 63,
-                U32 = Int32.MaxValue - 5,
-                U64 = (Int64) Int32.MaxValue + 5,
-                TrueOrFalse = true,
-                TimeSpan = System.TimeSpan.FromMinutes(5)
+                Int16Property = 2345,
+                IntProperty = 26256,
+                StringProperty = "hello world",
+                BigIntProperty = (Int64) Int32.MaxValue + 1,
+                ByteProperty = 63,
+                UInt32Property = Int32.MaxValue - 5,
+                UInt64Property = (Int64) Int32.MaxValue + 5,
+                BooleanProperty = true,
+                TimeSpan = System.TimeSpan.FromMinutes(5),
+                SingleProperty = 3.14f,
+                DoubleProperty = 3.1415926,
+                DecimalProperty = 3.14159265358979323M,
+                DateTimeProperty = new DateTime(2012, 5, 15)
             };
         }
 
@@ -83,12 +105,12 @@ namespace Serializer.Tests.ProtocolBuffers
         {
             return new MultiPropMessage
             {
-                A = 6,
-                S = "Gööd ßye not world",
-                BigInt = -33,
-                LittleIntian = 0,
-                U32 = 1,
-                U64 = (Int64) Int32.MaxValue + 5000
+                IntProperty = 6,
+                StringProperty = "Gööd ßye not world",
+                BigIntProperty = -33,
+                ByteProperty = 0,
+                UInt32Property = 1,
+                UInt64Property = (Int64) Int32.MaxValue + 5000
             };
         }
     }
@@ -110,15 +132,15 @@ namespace Serializer.Tests.ProtocolBuffers
                     A = 3,
                     MultiPropMessage1 = new MultiPropMessage
                     {
-                        A = 5,
-                        S = "hello",
-                        BigInt = 54321
+                        IntProperty = 5,
+                        StringProperty = "hello",
+                        BigIntProperty = 54321
                     },
                     MultiPropMessage2 = new MultiPropMessage
                     {
-                        A = 51,
-                        S = "world",
-                        BigInt = 12345
+                        IntProperty = 51,
+                        StringProperty = "world",
+                        BigIntProperty = 12345
                     }
                 };
 
@@ -127,15 +149,15 @@ namespace Serializer.Tests.ProtocolBuffers
                     A = 21,
                     MultiPropMessage1 = new MultiPropMessage
                     {
-                        A = 4,
-                        S = "hallo",
-                        BigInt = 80085
+                        IntProperty = 4,
+                        StringProperty = "hallo",
+                        BigIntProperty = 80085
                     },
                     MultiPropMessage2 = new MultiPropMessage
                     {
-                        A = 41,
-                        S = "weld",
-                        BigInt = 1337
+                        IntProperty = 41,
+                        StringProperty = "weld",
+                        BigIntProperty = 1337
                     }
                 };
 
@@ -303,13 +325,13 @@ namespace Serializer.Tests.ProtocolBuffers
                         A = 4,
                         MultiPropMessage1 = new MultiPropMessage
                         {
-                            A = 6,
-                            S = "good bye"
+                            IntProperty = 6,
+                            StringProperty = "good bye"
                         },
                         MultiPropMessage2 = new MultiPropMessage
                         {
-                            A = 51,
-                            S = "not world"
+                            IntProperty = 51,
+                            StringProperty = "not world"
                         }
                     }
                 };
@@ -321,13 +343,13 @@ namespace Serializer.Tests.ProtocolBuffers
                         A = 21,
                         MultiPropMessage1 = new MultiPropMessage
                         {
-                            A = 78,
-                            S = "hallo"
+                            IntProperty = 78,
+                            StringProperty = "hallo"
                         },
                         MultiPropMessage2 = new MultiPropMessage
                         {
-                            A = 41,
-                            S = "weld"
+                            IntProperty = 41,
+                            StringProperty = "weld"
                         }
                     },
                     new ComposedMessage2
@@ -335,13 +357,13 @@ namespace Serializer.Tests.ProtocolBuffers
                         A = 22,
                         MultiPropMessage1 = new MultiPropMessage
                         {
-                            A = 89,
-                            S = "chüss"
+                            IntProperty = 89,
+                            StringProperty = "chüss"
                         },
                         MultiPropMessage2 = new MultiPropMessage
                         {
-                            A = 1011,
-                            S = "nicht weld"
+                            IntProperty = 1011,
+                            StringProperty = "nicht weld"
                         }
                     }
                 };

@@ -181,6 +181,11 @@ namespace Das.Serializer.ProtoBuf
             }
         }
 
+        public static DateTime GetDateTime(Stream stream)
+        {
+            return DateTime.FromFileTime(GetInt64(stream));
+        }
+
         public static Int64 GetInt64(Stream stream)
         {
             var result = 0L;

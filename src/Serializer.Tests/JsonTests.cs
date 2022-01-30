@@ -287,7 +287,7 @@ namespace Serializer.Tests.Json
 
             var json = Serializer.ToJson(bc);
             var json3 = JsonConvert.SerializeObject(bc);
-            var json2 = Serializer.ToJsonEx(bc);
+            //var json2 = Serializer.ToJsonEx(bc);
             var res = Serializer.FromJson<List<SimpleClassObjectProperty>>(json);
 
             for (var i = 0; i < bc.Count; i++)

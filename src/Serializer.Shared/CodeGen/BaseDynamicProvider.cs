@@ -229,7 +229,7 @@ namespace Das.Serializer.CodeGen
             return FieldAction.ChildObject;
         }
 
-        public void DumpProxies()
+        public virtual void DumpProxies()
         {
             _asmBuilder.Save("protoTest.dll");
         }
@@ -343,7 +343,7 @@ namespace Das.Serializer.CodeGen
 
                     //state.PrepareToPrintValue();
 
-                    AppendValueTypeImpl(state, Type.GetTypeCode(propInfo.PropertyType));
+                    //AppendValueTypeImpl(state, Type.GetTypeCode(propInfo.PropertyType));
 
                     break;
 
@@ -502,7 +502,7 @@ namespace Das.Serializer.CodeGen
         }
 
 
-        protected Boolean TryGetSpecialProperty(Type pType,
+        public Boolean TryGetSpecialProperty(Type pType,
                                                 out PropertyInfo propInfo)
         {
             foreach (var ctor in pType.GetConstructors())
@@ -570,12 +570,12 @@ namespace Das.Serializer.CodeGen
         protected abstract Int32 GetIndexFromAttribute(PropertyInfo prop,
                                                        Int32 lastIndex);
 
-        private void PrintString(IDynamicPrintState<TField, TReturns> s)
-        {
-            s.PrintCurrentFieldHeader();
-            //s.LoadCurrentFieldValueToStack();
-            s.PrintStringField();
-        }
+        //private void PrintString(IDynamicPrintState<TField, TReturns> s)
+        //{
+        //    s.PrintCurrentFieldHeader();
+        //    //s.LoadCurrentFieldValueToStack();
+        //    s.PrintStringField();
+        //}
 
         private void PrintPrimitive(TState s)
         {
@@ -591,13 +591,6 @@ namespace Das.Serializer.CodeGen
             s.PrepareToPrintValue();
 
             AppendPrimitive(s, s.CurrentField.TypeCode);
-            //AppendValueTypeImpl(s, s.CurrentField.TypeCode);
-        }
-
-        private static void AppendValueTypeImpl(TState s,
-                                                TypeCode typeCode)
-        {
-            throw new NotImplementedException();
         }
 
         private void PrintNullableValueType(TState s)

@@ -28,7 +28,7 @@ namespace Das.Serializer.Json.Printers
             _writeString = typeof(IStringRemunerable).GetMethodOrDie<String>(
                 nameof(IStringRemunerable.Append));
 
-            _appendEscaped = typeof(JsonPrinter).GetMethod(nameof(JsonPrinter.AppendEscaped),
+            _writeStringEscaped = typeof(JsonPrinter).GetMethod(nameof(JsonPrinter.AppendEscaped),
                 BindingFlags.Static | BindingFlags.Public)!;
 
             _printDateTime = typeof(IStringRemunerable).GetMethod(nameof(IStringRemunerable.Append),
@@ -358,7 +358,7 @@ namespace Das.Serializer.Json.Printers
         }
 
         public void PrepareToPrintValue<TData>(TData data,
-                                               Action<IDynamicState, TData> loadValue)
+                                               Action<IDynamicPrintState, TData> loadValue)
         {
             _il.Emit(OpCodes.Ldarga, 2);
 
@@ -371,14 +371,13 @@ namespace Das.Serializer.Json.Printers
         {
             PrintCurrentFieldHeader();
 
-            //PrintChar('"');
-
-            _il.Emit(OpCodes.Ldarga, 2);
+            _il.Emit(OpCodes.Ldarg, 2);
 
             LoadCurrentFieldValueToStack();
+            //_il.Emit(OpCodes.Ldarga, 2);
 
-            _il.Emit(OpCodes.Constrained, _tWriter);
-            _il.Emit(OpCodes.Callvirt, _writeString);
+            //_il.Emit(OpCodes.Constrained, _tWriter);
+            _il.Emit(OpCodes.Call, _writeStringEscaped);
 
             PrintChar('"');
         }
@@ -965,7 +964,7 @@ namespace Das.Serializer.Json.Printers
         private static readonly MethodInfo _writeChar;
         private static readonly MethodInfo _writeString;
 
-        private static readonly MethodInfo _appendEscaped;
+        private static readonly MethodInfo _writeStringEscaped;
         private static readonly MethodInfo _printDateTime;
 
         private static readonly MethodInfo _writeBoolean;

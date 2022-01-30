@@ -67,7 +67,7 @@ namespace Serializer.Benchmarks
             var mc1 = DictionaryPropertyMessage.DefaultValue;
             var json = JsonConvert.SerializeObject(mc1);
 
-            return JsonConvert.DeserializeObject<DictionaryPropertyMessage>(json);
+            return JsonConvert.DeserializeObject<DictionaryPropertyMessage>(json)!;
         }
 
         [Benchmark]
@@ -85,7 +85,7 @@ namespace Serializer.Benchmarks
             var msg = MultiPropMessage.GetTestOne();
             var json = JsonConvert.SerializeObject(msg);
 
-            return JsonConvert.DeserializeObject<MultiPropMessage>(json);
+            return JsonConvert.DeserializeObject<MultiPropMessage>(json)!;
         }
 
 
@@ -107,7 +107,7 @@ namespace Serializer.Benchmarks
         public SimpleClass JsonNetPrimitiveProperties()
         {
             var json = JsonConvert.SerializeObject(SimpleClass);
-            return JsonConvert.DeserializeObject<SimpleClass>(json);
+            return JsonConvert.DeserializeObject<SimpleClass>(json)!;
         }
 
         [Benchmark]

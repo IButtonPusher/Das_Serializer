@@ -1,6 +1,7 @@
 ﻿#if GENERATECODE
 
 using System;
+using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading.Tasks;
 
@@ -10,6 +11,25 @@ namespace Das.Serializer.ProtoBuf
     // ReSharper disable once UnusedTypeParameter
     public partial class ProtoDynamicProvider<TPropertyAttribute>
     {
+        private void ReadFloatingPoint(ILGenerator il,
+                                       Action<ILGenerator> loadLength,
+                                       MethodInfo converter)
+        {
+            il.Emit(OpCodes.Ldarg_1);
+
+            il.Emit(OpCodes.Ldsfld, _readBytesField);
+            il.Emit(OpCodes.Ldc_I4_0);
+            loadLength(il);
+            
+            il.Emit(OpCodes.Callvirt, ReadStreamBytes);
+            il.Emit(OpCodes.Pop);
+
+            il.Emit(OpCodes.Ldsfld, _readBytesField);
+
+            il.Emit(OpCodes.Ldc_I4_0);
+            il.Emit(OpCodes.Call, converter);
+        }
+
         private void ScanAsVarInt(ILGenerator il,
                                   TypeCode typeCode,
                                   ProtoWireTypes wireType)
@@ -90,38 +110,44 @@ namespace Das.Serializer.ProtoBuf
                         // SINGLE
                         /////////////
                         case TypeCode.Single:
-                            il.Emit(OpCodes.Ldarg_1);
+                            ReadFloatingPoint(il, i => i.Emit(OpCodes.Ldc_I4_4),
+                                _bytesToSingle);
 
-                            il.Emit(OpCodes.Ldsfld, _readBytesField);
-                            il.Emit(OpCodes.Ldc_I4_0);
-                            il.Emit(OpCodes.Ldc_I4_4);
-                            il.Emit(OpCodes.Callvirt, ReadStreamBytes);
-                            il.Emit(OpCodes.Pop);
+                            //il.Emit(OpCodes.Ldarg_1);
 
-                            il.Emit(OpCodes.Ldsfld, _readBytesField);
+                            //il.Emit(OpCodes.Ldsfld, _readBytesField);
+                            //il.Emit(OpCodes.Ldc_I4_0);
+                            //il.Emit(OpCodes.Ldc_I4_4);
+                            //il.Emit(OpCodes.Callvirt, ReadStreamBytes);
+                            //il.Emit(OpCodes.Pop);
 
-                            il.Emit(OpCodes.Ldc_I4_0);
-                            il.Emit(OpCodes.Call, _bytesToSingle);
+                            //il.Emit(OpCodes.Ldsfld, _readBytesField);
 
-                            break;
+                            //il.Emit(OpCodes.Ldc_I4_0);
+                            //il.Emit(OpCodes.Call, _bytesToSingle);
+
+                            return;
 
                         /////////////
                         // DOUBLE
                         /////////////
                         case TypeCode.Double:
 
-                            il.Emit(OpCodes.Ldarg_1);
+                            ReadFloatingPoint(il, i => i.Emit(OpCodes.Ldc_I4_8),
+                                _bytesToDouble);
+
+                            //il.Emit(OpCodes.Ldarg_1);
 
 
-                            il.Emit(OpCodes.Ldsfld, _readBytesField);
-                            il.Emit(OpCodes.Ldc_I4_0);
-                            il.Emit(OpCodes.Ldc_I4_8);
-                            il.Emit(OpCodes.Callvirt, ReadStreamBytes);
-                            il.Emit(OpCodes.Pop);
+                            //il.Emit(OpCodes.Ldsfld, _readBytesField);
+                            //il.Emit(OpCodes.Ldc_I4_0);
+                            //il.Emit(OpCodes.Ldc_I4_8);
+                            //il.Emit(OpCodes.Callvirt, ReadStreamBytes);
+                            //il.Emit(OpCodes.Pop);
 
-                            il.Emit(OpCodes.Ldsfld, _readBytesField);
-                            il.Emit(OpCodes.Ldc_I4_0);
-                            il.Emit(OpCodes.Call, _bytesToDouble);
+                            //il.Emit(OpCodes.Ldsfld, _readBytesField);
+                            //il.Emit(OpCodes.Ldc_I4_0);
+                            //il.Emit(OpCodes.Call, _bytesToDouble);
 
                             return;
 
@@ -129,7 +155,20 @@ namespace Das.Serializer.ProtoBuf
                             throw new NotImplementedException();
                     }
 
-                    break;
+                    
+                    case ProtoWireTypes.LengthDelimited:
+
+                        switch (typeCode)
+                        {
+                            case TypeCode.Decimal:
+                                ReadFloatingPoint(il, i => i.Emit(OpCodes.Ldc_I4, 16),
+                                    _bytesToDecimal);
+                                return;
+
+                        }
+
+                        break;
+
                 default:
                     return;
             }

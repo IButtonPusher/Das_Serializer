@@ -228,13 +228,6 @@ namespace Das.Extensions
                                                           String propertyName)
         {
             var wot = classType.GetProperty(propertyName, BindingFlags.Public | BindingFlags.Static);
-            //if (wot == null && classType.IsInterface)
-            //    foreach (var @interface in classType.GetInterfaces())
-            //    {
-            //        wot = @interface.GetProperty(propertyName);
-            //        if (wot != null)
-            //            break;
-            //    }
 
             return wot ?? throw new MissingMemberException(classType.FullName, propertyName);
         }
@@ -520,13 +513,43 @@ namespace Das.Extensions
                 propertyName, out result);
         }
 
-        //public static Boolean TrySetPropertyValue(this Object obj,
-        //                                          String propertyName,
-        //                                          Object value)
-        //{
-        //    return SerializationCore.ObjectManipulator.TrySetProperty(obj.GetType(), propertyName,
-        //        ref obj, value);
-        //}
+        public static Byte[] ToByteArray(this Decimal dec)
+        {
+            var bits = Decimal.GetBits(dec);
+            var bytes = new List<Byte>();
+
+            foreach (var i in bits)
+            {
+                bytes.AddRange(BitConverter.GetBytes(i));
+            }
+
+            return bytes.ToArray();
+        }
+
+        public static Boolean CanConvertToFileTime(this DateTime dt)
+        {
+            return dt.Year >= 1601;
+        }
+
+        public static Decimal ToDecimal(Byte[] bytes,
+                                        Int32 startIndex)
+        {
+            var bits = new Int32[4];
+            for (var i = startIndex; i <= startIndex + 15; i += 4)
+                bits[i / 4] = BitConverter.ToInt32(bytes, i);
+
+            return new Decimal(bits);
+        }
+
+        public static Decimal ToDecimal(Byte[] bytes)
+        {
+            return ToDecimal(bytes, 0);
+            //var bits = new Int32[4];
+            //for (var i = 0; i <= 15; i += 4)
+            //    bits[i / 4] = BitConverter.ToInt32(bytes, i);
+
+            //return new Decimal(bits);
+        }
 
         
 
