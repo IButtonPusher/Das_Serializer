@@ -189,14 +189,15 @@ namespace Das.Serializer.Json
 
             AdvanceUntil(ref currentIndex, json, '{');
 
-            var typeStruct = _types.GetTypeStructure(type);//, settings);
+            var typeStruct = _types.GetTypeStructure(type);
 
             while (TryGetNextString(ref currentIndex, json, stringBuilder))
             {
                 var attributeKey = stringBuilder.ToString();
 
                 if (!typeStruct.TryGetPropertyAccessor(attributeKey, settings.ScanPropertyNameFormat,
-                    out var prop))
+                        out var prop))
+                {
                     switch (attributeKey)
                     {
                         case Const.TypeWrap:
@@ -272,6 +273,7 @@ namespace Das.Serializer.Json
 
                             goto endOfObject;
                     }
+                }
 
                 stringBuilder.Clear();
 
@@ -483,6 +485,23 @@ namespace Das.Serializer.Json
                                  Object[] ctorValues,
                                  ISerializerSettings settings)
         {
+            if (type.IsEnum)
+            {
+                SkipWhiteSpace(ref currentIndex, json);
+
+                if (json[currentIndex] == '"')
+                {
+                    // enum from string
+                    return Enum.Parse(type,
+                        GetNextString(ref currentIndex, json, stringBuilder));
+                }
+
+                // enum from int
+                GetNextPrimitive(ref currentIndex, json, stringBuilder);
+                if (int.TryParse(stringBuilder.ToString(), out var iEnumVal))
+                    return Enum.ToObject(type, iEnumVal);
+            }
+
             var code = Type.GetTypeCode(type);
 
             switch (code)
@@ -498,27 +517,6 @@ namespace Das.Serializer.Json
                 case TypeCode.Decimal:
                 case TypeCode.SByte:
                 case TypeCode.Byte:
-
-                    if (type.IsEnum)
-                    {
-                        if (json[currentIndex] == '"')
-                        {
-                            return Enum.Parse(type,
-                                GetNextString(ref currentIndex, json, stringBuilder));
-                        }
-                        else
-                        {
-                            GetNextPrimitive(ref currentIndex, json, stringBuilder);
-                            if (int.TryParse(stringBuilder.ToString(), out var iEnumVal))
-                                return Enum.ToObject(type, iEnumVal);
-                        }
-
-                        //GetNextPrimitive(ref currentIndex, json, stringBuilder);
-                        //if (int.TryParse(stringBuilder.ToString(), out var iEnumVal))
-                        //    return Enum.ToObject(type, iEnumVal);
-                        //return Enum.Parse(type,
-                        //    GetNextString(ref currentIndex, json, stringBuilder));
-                    }
 
                     GetNextPrimitive(ref currentIndex, json, stringBuilder);
 

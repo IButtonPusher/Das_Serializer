@@ -503,7 +503,7 @@ namespace Das.Serializer
 
             foreach (var p in type.GetProperties())
             {
-                if (p.CanWrite || !p.CanRead)
+                if (/*p.CanWrite ||*/ !p.CanRead)
                     continue;
 
                 _rProps[p.Name] = p.PropertyType;

@@ -15,7 +15,6 @@ using Reflection.Common;
 namespace Das.Serializer.ProtoBuf
 {
     // ReSharper disable once UnusedTypeParameter
-    // ReSharper disable once UnusedType.Global
     public partial class ProtoDynamicProvider<TPropertyAttribute>
     {
         /// <summary>

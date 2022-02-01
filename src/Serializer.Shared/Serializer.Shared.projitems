@@ -68,7 +68,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoAutoProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoBufOptions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoBufSerializer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoPrimitiveBuilder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Proto\Printers\ProtoPrintState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoScanningField.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoScanState.cs" />

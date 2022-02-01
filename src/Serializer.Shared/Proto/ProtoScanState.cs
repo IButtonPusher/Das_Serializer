@@ -49,12 +49,6 @@ namespace Das.Serializer.ProtoBuf
             EnsureLocalFieldsForProperties(fields);
         }
 
-        //static ProtoScanState()
-        //{
-        //    _dateFromFileTime = typeof(DateTime).GetPublicStaticMethodOrDie(
-        //        nameof(DateTime.FromFileTime), typeof(Int64));
-        //}
-
         public LocalBuilder LastByteLocal { get; }
 
         public void LoadNextString()
@@ -173,59 +167,7 @@ namespace Das.Serializer.ProtoBuf
 
                     return res;
 
-                //case FieldAction.DateTime:
-                //    if (canSetValueInline)
-                //        res = (_,
-                //               s) => s.IL.Emit(OpCodes.Callvirt, field.SetMethod ??
-                //                                                 throw new MissingMethodException(field.Name));
-                //    else
-                //    {
-                //        var local = GetLocalForField(field);
-                //        res = (_,
-                //               s) => s.IL.Emit(OpCodes.Stloc, local);
-                //        return res;
-                //    }
-
-                //    return res;
-                //    break;
-
-                //case FieldAction.HasSpecialProperty:
-                //case FieldAction.FallbackSerializable:
-                
-
-                //    if (!_actionProvider.TryGetSpecialProperty(field.Type, out var spatial))
-                //        throw new NotImplementedException();
-
-                //    var ctor = field.Type.GetConstructorOrDie(new Type[] { spatial.PropertyType });
-
-                //    if (canSetValueInline)
-                //        res = (_,
-                //               s) =>
-                //        {
-                            
-                                
-                //                s.IL.Emit(OpCodes.Newobj, ctor);
-                            
-
-                //            s.IL.Emit(OpCodes.Callvirt, field.SetMethod ??
-                //                                        throw new MissingMethodException(field.Name));
-                //        };
-                //    else
-                //    {
-                //        var local = GetLocalForField(field);
-                        
-                //        res = (_,
-                //               s) =>
-                //        {
-                //            s.IL.Emit(OpCodes.Newobj, ctor);
-                //            s.IL.Emit(OpCodes.Stloc, local);
-                //        };
-                //        return res;
-                //    }
-
-                //    return res;
-
-                
+              
                 case FieldAction.NullableValueType:
                 case FieldAction.Enum:
                 default:

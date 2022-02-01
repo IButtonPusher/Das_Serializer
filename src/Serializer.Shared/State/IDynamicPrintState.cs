@@ -12,7 +12,7 @@ namespace Das.Serializer.State
     {
         void AppendPrimitive<TData>(TData data,
                                     TypeCode typeCode,
-                                Action<IDynamicPrintState, TData> loadValue);
+                                    Action<IDynamicPrintState, TData> loadValue);
 
         void AppendBoolean();
 
@@ -34,7 +34,6 @@ namespace Das.Serializer.State
 
         void AppendUInt64();
 
-
         void AppendSingle();
 
         void AppendDouble();
@@ -42,10 +41,6 @@ namespace Das.Serializer.State
         void AppendDecimal();
 
         void AppendDateTime();
-
-        //void AppendValue<TData>(TData data,
-        //                        Action<IDynamicState, TData> loadValue);
-
 
         void AppendNull();
 
@@ -59,20 +54,16 @@ namespace Das.Serializer.State
         void PrintCurrentFieldHeader();
 
         void PrepareToPrintValue();
-
-        //void LoadWriter();
     }
 
     public interface IDynamicPrintState<out TField, out TReturns> : IDynamicPrintState<TField>,
                                                                     IEnumerable<IDynamicPrintState<TField, TReturns>>
         where TField : IPropertyInfo
     {
-        void  PrintChildObjectField(Action<ILGenerator> loadObject,
-                               Type fieldType);
+        void PrintChildObjectField(Action<ILGenerator> loadObject,
+                                   Type fieldType);
 
         void WriteInt32();
-
-        //void PrintPrimitive();
 
         void PrintVarIntField();
 
@@ -92,7 +83,7 @@ namespace Das.Serializer.State
 
         void PrintEnum();
 
-        void PrepareToPrintValue<TData>(TData data, 
+        void PrepareToPrintValue<TData>(TData data,
                                         Action<IDynamicPrintState, TData> loadValue);
 
 
@@ -101,8 +92,6 @@ namespace Das.Serializer.State
         void PrintPrimitiveCollection();
 
         void PrintDictionary();
-
-       
     }
 }
 

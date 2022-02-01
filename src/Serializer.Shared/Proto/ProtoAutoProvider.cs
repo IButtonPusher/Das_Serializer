@@ -30,7 +30,7 @@ namespace Das.Serializer.ProtoBuf
 
             var scanFields = GetProtoScanFields(type, out var ctor);
 
-            var ptype = CreateProxyTypeImpl(type, ctor, scanFields, 
+            var ptype = CreateProxyTypeImpl(type, ctor, scanFields,
                             false, false, ctor) ??
                         throw new InvalidOperationException();
 
@@ -49,53 +49,6 @@ namespace Das.Serializer.ProtoBuf
             return InstantiateProxyInstance<T>(ptype);
         }
 
-        //private List<IProtoFieldAccessor> GetProtoScanFields(Type type,
-        //                                                     out ConstructorInfo useCtor)
-        //{
-        //    _instantiator.TryGetDefaultConstructor(type, out var emptyCtor);
-        //    var hasPropCtor = _instantiator.TryGetPropertiesConstructor(type, out var propCtor);
-
-        //    var ctorParamNames = new Dictionary<String, Type>(StringComparer.OrdinalIgnoreCase);
-        //    if (hasPropCtor)
-        //        foreach (var prm in propCtor.GetParameters())
-        //        {
-        //            if (String.IsNullOrEmpty(prm.Name))
-        //                continue;
-
-        //            ctorParamNames.Add(prm.Name, prm.ParameterType);
-        //        }
-
-
-        //    var useProperties = new List<PropertyInfo>();
-
-        //    foreach (var prop in _types.GetPublicProperties(type, false))
-        //    {
-        //        var hasSetter = prop.GetSetMethod(true) != null;
-        //        if (hasSetter)
-        //            useProperties.Add(prop);
-        //        else
-        //        {
-        //            if (ctorParamNames.TryGetValue(prop.Name, out var ctorArgType)
-        //                && ctorArgType == prop.PropertyType)
-        //                useProperties.Add(prop);
-        //        }
-        //    }
-
-        //    var protoFields = new List<IProtoFieldAccessor>();
-
-        //    for (var c = 0; c < useProperties.Count; c++)
-        //    {
-        //        var current = useProperties[c];
-
-        //        var next = c + 1;
-
-        //        if (TryGetFieldAccessor(current, true, _ => next, out var protoField))
-        //            protoFields.Add(protoField);
-        //    }
-
-        //    useCtor = emptyCtor ?? propCtor;
-        //    return protoFields;
-        //}
         protected override MethodInfo GetProxyMethod => _getProtoProxy;
     }
 }

@@ -53,64 +53,7 @@ namespace Das.Serializer.ProtoBuf
         }
 
 
-        //private void PrintAsPackedArray(IProtoPrintState s)
-        //{
-        //    var type = s.CurrentField.Type;
-        //    var il = s.IL;
-
-        //    PrintHeaderBytes(s.CurrentFieldHeader, s);
-
-        //    s.LoadParentToStack();
-
-        //    var packTypeCode = GetPackedArrayTypeCode(type);
-
-        //    /////////////////////////////////////
-        //    // var arrayLocalField = obj.Property;
-        //    /////////////////////////////////////
-        //    var arrayLocalField = il.DeclareLocal(type);
-
-        //    il.Emit(OpCodes.Call, s.CurrentField.GetMethod);
-        //    il.Emit(OpCodes.Stloc, arrayLocalField);
-        //    /////////////////////////////////////
-
-        //    /////////////////////////////////////
-        //    // WriteInt32(GetPackedArrayLength(ienum)); 
-        //    /////////////////////////////////////
-        //    MethodInfo getPackedArrayLength;
-        //    MethodInfo writePackedArray;
-
-        //    switch (packTypeCode)
-        //    {
-        //        case TypeCode.Int32:
-        //            getPackedArrayLength = _getPackedInt32Length.MakeGenericMethod(type);
-        //            writePackedArray = _writePacked32.MakeGenericMethod(type);
-        //            break;
-
-        //        case TypeCode.Int16:
-        //            getPackedArrayLength = _getPackedInt16Length.MakeGenericMethod(type);
-        //            writePackedArray = _writePacked16.MakeGenericMethod(type);
-        //            break;
-
-        //        case TypeCode.Int64:
-        //            getPackedArrayLength = _getPackedInt64Length.MakeGenericMethod(type);
-        //            writePackedArray = _writePacked64.MakeGenericMethod(type);
-        //            break;
-
-        //        default:
-        //            throw new InvalidOperationException("Cannot print " + type + " as a packed repeated field");
-        //    }
-
-
-        //    il.Emit(OpCodes.Ldloc, arrayLocalField);
-        //    il.Emit(OpCodes.Call, getPackedArrayLength);
-
-        //    s.WriteInt32();
-
-
-        //    il.Emit(OpCodes.Ldloc, arrayLocalField);
-        //    il.Emit(OpCodes.Ldarg_2);
-        //    il.Emit(OpCodes.Call, writePackedArray);
-        //}
+       
 
         private void ScanAsPackedArray(ILGenerator il,
                                        Type fieldType,

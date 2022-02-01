@@ -79,7 +79,7 @@ namespace Serializer.Tests.ProtocolBuffers
         [ProtoMember(13)]
         public DateTime DateTimeProperty { get; set; }
 
-        
+
 
         public static MultiPropMessage GetTestOne()
         {

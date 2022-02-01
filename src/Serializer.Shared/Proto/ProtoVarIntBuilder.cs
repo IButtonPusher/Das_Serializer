@@ -113,19 +113,6 @@ namespace Das.Serializer.ProtoBuf
                             ReadFloatingPoint(il, i => i.Emit(OpCodes.Ldc_I4_4),
                                 _bytesToSingle);
 
-                            //il.Emit(OpCodes.Ldarg_1);
-
-                            //il.Emit(OpCodes.Ldsfld, _readBytesField);
-                            //il.Emit(OpCodes.Ldc_I4_0);
-                            //il.Emit(OpCodes.Ldc_I4_4);
-                            //il.Emit(OpCodes.Callvirt, ReadStreamBytes);
-                            //il.Emit(OpCodes.Pop);
-
-                            //il.Emit(OpCodes.Ldsfld, _readBytesField);
-
-                            //il.Emit(OpCodes.Ldc_I4_0);
-                            //il.Emit(OpCodes.Call, _bytesToSingle);
-
                             return;
 
                         /////////////
@@ -135,19 +122,6 @@ namespace Das.Serializer.ProtoBuf
 
                             ReadFloatingPoint(il, i => i.Emit(OpCodes.Ldc_I4_8),
                                 _bytesToDouble);
-
-                            //il.Emit(OpCodes.Ldarg_1);
-
-
-                            //il.Emit(OpCodes.Ldsfld, _readBytesField);
-                            //il.Emit(OpCodes.Ldc_I4_0);
-                            //il.Emit(OpCodes.Ldc_I4_8);
-                            //il.Emit(OpCodes.Callvirt, ReadStreamBytes);
-                            //il.Emit(OpCodes.Pop);
-
-                            //il.Emit(OpCodes.Ldsfld, _readBytesField);
-                            //il.Emit(OpCodes.Ldc_I4_0);
-                            //il.Emit(OpCodes.Call, _bytesToDouble);
 
                             return;
 

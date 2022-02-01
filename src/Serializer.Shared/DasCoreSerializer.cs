@@ -39,7 +39,6 @@ namespace Das.Serializer
 
             JsonExpress = new JsonExpress(ObjectInstantiator, TypeManipulator,
                 TypeInferrer, stateProvider.ObjectManipulator,
-                //stateProvider.JsonContext.PrimitiveScanner,
                 jsonPrimitiveScanner,
                 DynamicTypes);
 

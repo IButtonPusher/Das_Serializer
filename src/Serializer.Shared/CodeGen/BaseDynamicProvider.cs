@@ -116,7 +116,6 @@ namespace Das.Serializer.CodeGen
             if (pType.IsEnum)
             {
                 return FieldAction.Enum;
-                //return GetProtoFieldAction(pType.GetEnumUnderlyingType());
             }
 
             var typeCode = Type.GetTypeCode(pType);
@@ -213,19 +212,6 @@ namespace Das.Serializer.CodeGen
             if (TryGetSpecialProperty(pType, out _))
                 return FieldAction.HasSpecialProperty;
 
-            //var ctor = pType.GetConstructor(new Type[1] { typeof(Int64) });
-            //if (ctor != null)
-            //{
-            //    var prmName = ctor.GetParameters()[0].Name;
-            //    var prop = pType.GetProperties()
-            //                    .FirstOrDefault(p =>
-            //                        String.Equals(p.Name, prmName, StringComparison.OrdinalIgnoreCase));
-            //    if (prop != null)
-            //    {
-            //    }
-
-            //}
-
             return FieldAction.ChildObject;
         }
 
@@ -242,11 +228,6 @@ namespace Das.Serializer.CodeGen
 
         protected abstract Type GetProxyClosedGenericType(Type argType);
 
-        //protected abstract TState? GetInitialState(Type parentType,
-        //                                         IEnumerable<IProtoFieldAccessor> fields,
-        //                                         IDictionary<Type, ProxiedInstanceField> typeProxies,
-        //                                         ILGenerator il);
-
         protected void AddFieldToPrintMethod(TState state)
         {
             AddFieldToPrintMethod(state, state.CurrentFieldAction);
@@ -261,7 +242,6 @@ namespace Das.Serializer.CodeGen
             {
                 case FieldAction.VarInt:
                     PrintVarInt(state);
-                    //state.PrintVarIntField();
                     break;
 
                 case FieldAction.Primitive:
@@ -341,10 +321,6 @@ namespace Das.Serializer.CodeGen
                             }
                         });
 
-                    //state.PrepareToPrintValue();
-
-                    //AppendValueTypeImpl(state, Type.GetTypeCode(propInfo.PropertyType));
-
                     break;
 
                 case FieldAction.Enum:
@@ -389,26 +365,6 @@ namespace Das.Serializer.CodeGen
 
             return res;
         }
-
-        //public Boolean TryGetProtoField(PropertyInfo prop,
-        //                                Boolean isRequireAttribute,
-        //                                out IProtoFieldAccessor field)
-        //{
-        //    return TryGetFieldAccessor(prop, isRequireAttribute, GetIndexFromAttribute, out field);
-        //}
-
-        //private List<IProtoFieldAccessor> GetProtoPrintFields(Type type)
-        //{
-        //    var res = new List<IProtoFieldAccessor>();
-        //    foreach (var prop in _types.GetPublicProperties(type))
-        //    {
-        //        if (TryGetProtoField(prop, true, out var protoField))
-        //            res.Add(protoField);
-        //    }
-
-        //    return res;
-        //}
-
 
         protected List<TField> GetProtoScanFields(Type type,
                                                   out ConstructorInfo useCtor)
@@ -531,51 +487,10 @@ namespace Das.Serializer.CodeGen
             return false;
         }
 
-        //private Dictionary<Type, ProxiedInstanceField> CreateProxyFields(TypeBuilder bldr,
-        //                                                                 IEnumerable<TField> fields)
-        //{
-        //    var typeProxies = new Dictionary<Type, FieldBuilder>();
-
-        //    foreach (var field in fields)
-        //    {
-        //        switch (field.FieldAction)
-        //        {
-        //            case ProtoFieldAction.ChildObject:
-        //                if (typeProxies.ContainsKey(field.Type))
-        //                    continue;
-
-        //                var local = CreateLocalProxy(field, bldr, field.Type);
-        //                typeProxies[field.Type] = local;
-        //                break;
-
-        //            case ProtoFieldAction.ChildObjectArray:
-        //            case ProtoFieldAction.ChildObjectCollection:
-        //            case ProtoFieldAction.Dictionary:
-        //                var germane = _types.GetGermaneType(field.Type);
-
-        //                if (typeProxies.ContainsKey(germane))
-        //                    continue;
-
-        //                var bldr2 = CreateLocalProxy(field, bldr, germane);
-
-        //                typeProxies[germane] = bldr2;
-
-        //                break;
-        //        }
-        //    }
-
-        //    return typeProxies;
-        //}
+       
 
         protected abstract Int32 GetIndexFromAttribute(PropertyInfo prop,
                                                        Int32 lastIndex);
-
-        //private void PrintString(IDynamicPrintState<TField, TReturns> s)
-        //{
-        //    s.PrintCurrentFieldHeader();
-        //    //s.LoadCurrentFieldValueToStack();
-        //    s.PrintStringField();
-        //}
 
         private void PrintPrimitive(TState s)
         {
@@ -647,17 +562,14 @@ namespace Das.Serializer.CodeGen
             s.AppendNull();
 
             il.MarkLabel(eof);
-
-            //var fieldAction = GetProtoFieldAction(baseType);
-
-            //AddFieldToPrintMethod(s, fieldAction);
+        
         }
 
         private ProxiedInstanceField CreateLocalProxy(INamedField field,
                                                       TypeBuilder builder,
                                                       Type germane)
         {
-            var proxyType = GetProxyClosedGenericType(germane); //typeof(IProtoProxy<>).MakeGenericType(germane);
+            var proxyType = GetProxyClosedGenericType(germane);
 
             var fieldInfo = builder.DefineField($"_{field.Name}Proxy", proxyType, FieldAttributes.Private);
             return new ProxiedInstanceField(proxyType, fieldInfo,
