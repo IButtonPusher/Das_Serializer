@@ -268,6 +268,18 @@ namespace Serializer.Tests.Xml
         }
 
         [Fact]
+        public void ExplicitImplementation()
+        {
+            var ei = new ExplicitImplementation();
+
+            var xml = srl.ToXml(ei);
+
+            var eio = srl.FromXml<ExplicitImplementation>(xml);
+
+            Assert.True(SlowEquality.AreEqual(ei, eio));
+        }
+
+        [Fact]
         public void Int32asInt16Xml()
         {
             var someInt = 55;
@@ -513,22 +525,27 @@ namespace Serializer.Tests.Xml
             sc.Payload = sc.Name;
 
             {
-                //var srl = new DasSerializer();
+                
                 var xml = srl.ToXml(sc);
 
                 var sc2 = srl.FromXml<SimpleClassObjectProperty>(xml);
                 var badProp = "";
                 Assert.True(SlowEquality.AreEqual(sc, sc2, ref badProp));
             }
+        }
 
-            //{
-            //    var srl = new DasCoreSerializer();
-            //    var xml = srl.ToXml(sc);
+        [Fact]
+        public void XmlPartialPropertyCtor()
+        {
+            var data = new PartialPropertyCtor(true, "string1", "string2",
+                false, "string3", "string4", true, "string5", "string6",
+                3.14, 11280, false, true, "string7", "string9", 0.15926);
 
-            //    var sc2 = srl.FromXml<SimpleClassObjectProperty>(xml);
-            //    var badProp = "";
-            //    Assert.True(SlowEquality.AreEqual(sc, sc2, ref badProp));
-            //}
+            var xml = srl.ToXml(data);
+
+            var data2 = srl.FromXml<PartialPropertyCtor>(xml);
+
+            Assert.True(SlowEquality.AreEqual(data, data2));
         }
     }
 }

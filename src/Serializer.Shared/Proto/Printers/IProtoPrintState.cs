@@ -20,7 +20,9 @@ namespace Das.Serializer.Proto
 
         LocalBuilder ChildObjectStream { get; }
 
-        void PrintFieldViaProxy(Action<ILGenerator> loadFieldValue);
+        //void PrintFieldViaProxy(Action<ILGenerator> loadFieldValue);
+        
+        void PrintFieldViaProxy(Action loadFieldValue);
     }
 }
 

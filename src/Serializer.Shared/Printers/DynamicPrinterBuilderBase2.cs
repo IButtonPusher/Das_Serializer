@@ -45,14 +45,11 @@ namespace Das.Serializer.Printers
 
             BuildStaticConstructor(bldr, invariantCulture);
 
-            Type tWriter;
-
             var dynamicMethod = SetupPrintMethod(type, bldr, out _);
 
-            tWriter = dynamicMethod.GetGenericArguments()[0];
+            var tWriter = dynamicMethod.GetGenericArguments()[0];
 
             var il = dynamicMethod.GetILGenerator();
-
 
             var printFields = GetPrintFields(type);
 
@@ -63,12 +60,8 @@ namespace Das.Serializer.Printers
             var state = GetInitialState(type, il, tWriter, invariantCulture,
                 settings, proxies, printFields, converters);
 
-
             foreach (var protoField in state.OfType<TState>())
-                {
-                    AddFieldToPrintMethod(protoField);
-                }
-            
+                AddFieldToPrintMethod(protoField);
 
             state.AppendChar('}');
 
@@ -171,39 +164,38 @@ namespace Das.Serializer.Printers
 
             foreach (var field in fields)
             {
-                if (field.FieldAction == FieldAction.FallbackSerializable)
+                if (field.FieldAction != FieldAction.FallbackSerializable)
+                    continue;
+
+                var conv = TypeDescriptor.GetConverter(field.Type);
+                var convType = conv.GetType();
+
+                if (convertersAdded.TryGetValue(convType, out var convField))
                 {
-                    var conv = TypeDescriptor.GetConverter(field.Type);
-                    var convType = conv.GetType();
-
-                    if (convertersAdded.TryGetValue(convType, out var convField))
-                    {
-                        converters.Add(field, convField);
-                        continue;
-                    }
-
-                    convField = bldr.DefineField($"_{field.Name}Converter", convType,
-                        FieldAttributes.Private);
-                    convertersAdded.Add(convType, convField);
                     converters.Add(field, convField);
-
-                    var emptyCtor = convType.GetConstructor(Type.EmptyTypes);
-
-                    il.Emit(OpCodes.Ldarg_0);
-
-                    if (emptyCtor != null)
-                        il.Emit(OpCodes.Newobj, emptyCtor!);
-                    else
-                    {
-                        //var getConverter = typeof(TypeDescriptor).GetPublicStaticMethodOrDie(
-                        //    nameof(TypeDescriptor.GetConverter), typeof(Type));
-
-                        throw new NotImplementedException();
-                    }
-
-                    il.Emit(OpCodes.Stfld, convField);
-
+                    continue;
                 }
+
+                convField = bldr.DefineField($"_{field.Name}Converter", convType,
+                    FieldAttributes.Private);
+                convertersAdded.Add(convType, convField);
+                converters.Add(field, convField);
+
+                var emptyCtor = convType.GetConstructor(Type.EmptyTypes);
+
+                il.Emit(OpCodes.Ldarg_0);
+
+                if (emptyCtor != null)
+                    il.Emit(OpCodes.Newobj, emptyCtor!);
+                else
+                {
+                    //var getConverter = typeof(TypeDescriptor).GetPublicStaticMethodOrDie(
+                    //    nameof(TypeDescriptor.GetConverter), typeof(Type));
+
+                    throw new NotImplementedException();
+                }
+
+                il.Emit(OpCodes.Stfld, convField);
             }
 
             il.Emit(OpCodes.Ret);

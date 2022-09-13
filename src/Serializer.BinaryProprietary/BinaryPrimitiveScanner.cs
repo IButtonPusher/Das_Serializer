@@ -104,12 +104,6 @@ namespace Das.Serializer
                 return null;
 
             return BitConverter.ToString(tempByte, 0);
-
-            //fixed (Byte* bptr = tempByte)
-            //{
-            //    var cptr = (Char*) bptr;
-            //    return new String(cptr, 0, tempByte.Length / 2);
-            //}
         }
 
 

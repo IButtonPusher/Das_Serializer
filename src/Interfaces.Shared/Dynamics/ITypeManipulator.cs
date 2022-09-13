@@ -24,11 +24,6 @@ namespace Das.Serializer
         Func<Object, Object> CreatePropertyGetter(Type targetType,
                                                   PropertyInfo propertyInfo);
 
-        //Func<TObject, TProperty> CreatePropertyGetter<TObject, TProperty>(PropertyInfo propInfo);
-
-        //Func<TObject, TProperty> CreatePropertyGetter<TObject, TProperty>(String propertyName,
-        //                                                                  out PropertyInfo propInfo);
-
 
         PropertySetter? CreateSetMethod(MemberInfo memberInfo);
 

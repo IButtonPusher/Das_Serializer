@@ -37,6 +37,11 @@ namespace Das.Serializer
                                                      out TDelegate result)
             where TDelegate : Delegate;
 
+        Boolean TryGetConstructorDelegate<TDelegate>(Type type,
+                                                     ConstructorInfo ctor,
+                                                     out TDelegate result)
+            where TDelegate : Delegate;
+
         Boolean TryGetDefaultConstructor(Type type,
                                          out ConstructorInfo ctor);
 
@@ -47,7 +52,5 @@ namespace Das.Serializer
 
         Boolean TryGetPropertiesConstructor(Type type,
                                             out ConstructorInfo constr);
-
-        //InstantiationType GetInstantiationType(Type type);
     }
 }

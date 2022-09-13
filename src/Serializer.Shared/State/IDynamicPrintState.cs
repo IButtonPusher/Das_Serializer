@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Reflection.Emit;
 using System.Threading.Tasks;
 using Das.Serializer.Properties;
 
@@ -57,12 +56,9 @@ namespace Das.Serializer.State
     }
 
     public interface IDynamicPrintState<out TField, out TReturns> : IDynamicPrintState<TField>,
-                                                                    IEnumerable<IDynamicPrintState<TField, TReturns>>
+        IEnumerable<IDynamicPrintState<TField, TReturns>>
         where TField : IPropertyInfo
     {
-        void PrintChildObjectField(Action<ILGenerator> loadObject,
-                                   Type fieldType);
-
         void WriteInt32();
 
         void PrintVarIntField();
@@ -85,6 +81,9 @@ namespace Das.Serializer.State
 
         void PrepareToPrintValue<TData>(TData data,
                                         Action<IDynamicPrintState, TData> loadValue);
+
+        void PrintChildObjectField(Action loadObject,
+                                   Type fieldType);
 
 
         void PrintObjectCollection();

@@ -321,6 +321,7 @@ namespace Das.Serializer
 
 
 
+        // ReSharper disable once MemberCanBeMadeStatic.Global
         public TypePropertiesAccessor GetTypePropertyAccessor(Type declaringType)
         {
            lock (_lockNewType)
@@ -473,7 +474,7 @@ namespace Das.Serializer
             {
                 //Debug.WriteLine("yo method " + m.Name);
 
-        if (!m.Name.EndsWith(nameof(IList.Add)))
+        if (!m.Name.EndsWith(nameof(IList.Add), StringComparison.Ordinal))
             continue;
 
                 //if (!m.Name.Equals(nameof(IList.Add)))
@@ -541,6 +542,7 @@ namespace Das.Serializer
             return CreateMethodCaller(addMethod);
         }
 
+        // ReSharper disable once MemberCanBeMadeStatic.Local
         private VoidMethod? GetAdderImpl(Type type)
         {
             #if NET40 || NET45

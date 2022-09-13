@@ -10,7 +10,8 @@ namespace Das.Serializer.ProtoBuf
     // ReSharper disable once UnusedTypeParameter
     public partial class ProtoDynamicProvider<TPropertyAttribute> : IStreamAccessor,
                                                                     // ReSharper disable once RedundantExtendsListEntry
-                                                                    IProtoProvider where TPropertyAttribute : Attribute
+                                                                    IProtoProvider 
+        where TPropertyAttribute : Attribute
     {
         public IProtoProxy<T> GetAutoProtoProxy<T>(Boolean allowReadOnly = false)
         {

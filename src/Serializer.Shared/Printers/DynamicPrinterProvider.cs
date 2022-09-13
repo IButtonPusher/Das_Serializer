@@ -17,7 +17,7 @@ namespace Das.Serializer.Printers
           _readWriteLock2 = new object();
          _jsonProxies2 = new Dictionary<long, Object>();
 
-         var asmName = new AssemblyName("PRINT.Stuff");
+         var asmName = new AssemblyName(AssemblyName);
          var access = AssemblyBuilderAccess.RunAndCollect;
 
         #if NET45 || NET40
@@ -79,7 +79,7 @@ namespace Das.Serializer.Printers
          return Activator.CreateInstance(type2, this, settings);
       }
 
-      private const string AssemblyName = "PRINT.Stuff";
+      private const string AssemblyName = "Das.RuntimeSerializer";
 
       private static readonly Dictionary<Int64, Object> _jsonProxies2;
       

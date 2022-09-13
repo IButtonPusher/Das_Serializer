@@ -295,7 +295,7 @@ namespace Reflection.Common
                                                     String propertyName,
                                                     BindingFlags flags)
         {
-            var wot = classType.GetProperty(propertyName);
+            var wot = classType.GetProperty(propertyName, flags);
             if (wot == null && classType.IsInterface)
                 foreach (var @interface in classType.GetInterfaces())
                 {

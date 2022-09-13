@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
@@ -19,10 +18,10 @@ namespace Das.Serializer.Json
                            IObjectManipulator objectManipulator,
                            IStringPrimitiveScanner stringPrimitiveScanner,
                            IDynamicTypes dynamicTypes)
-            : base(']', '}', types)
+            : base(']', '}', types, instantiator)
         {
-            _instantiator = instantiator;
-            _types = types;
+            //_instantiator = instantiator;
+            //_types = types;
             _typeInference = typeInference;
             _objectManipulator = objectManipulator;
             _stringPrimitiveScanner = stringPrimitiveScanner;
@@ -296,27 +295,27 @@ namespace Das.Serializer.Json
         }
 
 
-        [MethodImpl(256)]
-        private IList GetCollection(Type type,
-                                    IPropertyAccessor? prop,
-                                    Object? parent)
-        {
-            if (!type.IsArray && prop != null && parent != null)
-                if (prop.GetPropertyValue(parent) is IList list)
-                    return list;
+        //[MethodImpl(256)]
+        //private IList GetCollection(Type type,
+        //                            IPropertyAccessor? prop,
+        //                            Object? parent)
+        //{
+        //    if (!type.IsArray && prop != null && parent != null)
+        //        if (prop.GetPropertyValue(parent) is IList list)
+        //            return list;
 
-            var res = type.IsArray
-                ? _instantiator.BuildGenericList(_types.GetGermaneType(type))
-                : _instantiator.BuildDefault(type, true);
-            if (res is IList good)
-                return good;
+        //    var res = type.IsArray
+        //        ? _instantiator.BuildGenericList(_types.GetGermaneType(type))
+        //        : _instantiator.BuildDefault(type, true);
+        //    if (res is IList good)
+        //        return good;
 
-            if (res is ICollection collection &&
-                _types.GetAdder(collection, type) is { } adder)
-                return new ValueCollectionWrapper(collection, adder);
+        //    if (res is ICollection collection &&
+        //        _types.GetAdder(collection, type) is { } adder)
+        //        return new ValueCollectionWrapper(collection, adder);
 
-            throw new InvalidOperationException();
-        }
+        //    throw new InvalidOperationException();
+        //}
 
         private Object? GetCollectionValue(ref Int32 currentIndex,
                                            String json,
@@ -374,8 +373,8 @@ namespace Das.Serializer.Json
                     }
             }
 
-
-            var collection = GetCollection(type, prop, parent);
+            var collection = GetEmptyCollection(type, prop, parent);
+            //var collection = GetCollection(type, prop, parent);
 
             if (json[currentIndex] != ']')
                 while (true)
@@ -535,7 +534,6 @@ namespace Das.Serializer.Json
                            if (stringBuilder.Length == 0)
                               return double.NaN;
                         }
-
                     }
 
                     return Convert.ChangeType(stringBuilder.ToString(), code,
@@ -743,10 +741,10 @@ namespace Das.Serializer.Json
 
         private readonly IDynamicTypes _dynamicTypes;
 
-        private readonly IInstantiator _instantiator;
+        //private readonly IInstantiator _instantiator;
         private readonly IObjectManipulator _objectManipulator;
         private readonly IStringPrimitiveScanner _stringPrimitiveScanner;
         private readonly ITypeInferrer _typeInference;
-        private readonly ITypeManipulator _types;
+        //private readonly ITypeManipulator _types;
     }
 }

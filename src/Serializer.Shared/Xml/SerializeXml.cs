@@ -64,32 +64,18 @@ namespace Das.Serializer
                                         Type asType,
                                         ISerializerSettings settings)
         {
-            var nodeType = NodeTypeProvider.GetNodeType(asType);
-
             using (var writer = GetTextWriter(settings))
             {
-                var doCopy = true;
                 var amAnonymous = IsAnonymousType(asType);
-
-                if (nodeType == NodeTypes.PropertiesToConstructor)
-                {
-                    doCopy = false;
-
-
-                    settings = StateProvider.ObjectConverter.Copy(settings, settings);
-                    settings.TypeSpecificity = TypeSpecificity.All;
-                }
 
                 if (amAnonymous)
                 {
-                    if (doCopy)
-                        settings = StateProvider.ObjectConverter.Copy(settings, settings);
+                    
+                    settings = StateProvider.ObjectConverter.Copy(settings, settings);
 
                     settings.TypeSpecificity = TypeSpecificity.All;
                     settings.CacheTypeConstructors = false;
                 }
-
-
 
                 var printer = new XmlPrinter(StateProvider.TypeInferrer, 
                     StateProvider.NodeTypeProvider,

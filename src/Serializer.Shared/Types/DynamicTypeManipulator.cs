@@ -239,16 +239,13 @@ namespace Das.Serializer
         public static TDelegate CreateMethodCaller<TDelegate>(MethodInfo method)
            where TDelegate : Delegate
         {
-
-           var argList = new List<Type>();
+            var argList = new List<Type>();
            argList.Add(method.DeclaringType);
            var parms = method.GetParameters();
            foreach (var parm in parms)
            {
               argList.Add(parm.ParameterType);
            }
-
-           //Type[] argTypes = { Const.ObjectType, typeof(Object[]) };
 
 
            var retType = method.ReturnType;
@@ -335,10 +332,6 @@ namespace Das.Serializer
 
             il.Emit(OpCodes.Ldarg_0);
 
-            //il.Emit(targetType.IsValueType
-            //    ? OpCodes.Unbox
-            //    : OpCodes.Castclass, targetType);
-
             //////////////////
 
             MethodInfo? targetGetMethod = null;
@@ -379,14 +372,9 @@ namespace Das.Serializer
             }
 
             if (targetGetMethod == null)
-                throw new InvalidOperationException();
-
-            //var returnType = targetGetMethod.ReturnType;
+                throw new MissingMethodException(propInfo.Name);
 
             il.MarkLabel(ggLabel);
-
-            //if (returnType.IsValueType)
-            //    il.Emit(OpCodes.Box, returnType);
 
             il.Emit(OpCodes.Ret);
 
@@ -493,12 +481,12 @@ namespace Das.Serializer
            if (reflectedType == null || decType == null)
               throw new InvalidOperationException();
 
-           var setter = new DynamicMethod(
-              String.Empty,
-              typeof(void),
-              ParamTypes,
-              reflectedType.Module,
-              true);
+           var setter = new DynamicMethod(String.Empty,
+               typeof(void),
+               ParamTypes,
+               reflectedType.Module,
+               true);
+           
            var generator = setter.GetILGenerator();
            generator.Emit(OpCodes.Ldarg_0);
            generator.Emit(OpCodes.Ldind_Ref);
@@ -617,10 +605,6 @@ namespace Das.Serializer
                             break;
                     }
 
-                //var targetGetMethod = info.GetGetMethod();
-
-                //generator.Emit(accessCode, targetGetMethod!);
-
                 decType = info.DeclaringType;
             }
 
@@ -652,7 +636,6 @@ namespace Das.Serializer
 
         private static IEnumerable<MemberInfo> GetMemberChainImpl(Type declaringType,
                                                                   String[] subPropTokens,
-                                                                  //MemberInfo[] memInfos,
                                                                   Int32 index)
         {
             if (declaringType == null ||
@@ -669,7 +652,7 @@ namespace Das.Serializer
 
             foreach (var subMem in subMems)
             {
-                foreach (var v in GetMemberChainImpl(subMem.GetMemberType(), subPropTokens, //memInfos,
+                foreach (var v in GetMemberChainImpl(subMem.GetMemberType(), subPropTokens,
                     ++index))
                 {
                     hathFound = true;

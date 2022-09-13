@@ -71,6 +71,8 @@
     <Compile Include="SlowEquality.cs" />
     <Compile Include="TestBase.cs" />
     <Compile Include="TestClasses.cs" />
+    <Compile Include="TestTypes\ExplicitImplementation.cs" />
+    <Compile Include="TestTypes\PartialPropertyCtor.cs" />
     <Compile Include="TestTypes\PropertyImplicitToCtorParam.cs" />
     <Compile Include="TypeTests.cs" />
     <Compile Include="XmlTests.cs" />

@@ -62,9 +62,6 @@ namespace Das.Serializer
 
         private Type GetGermaneTypeImpl(Type ownerType)
         {
-            if (!typeof(IEnumerable).IsAssignableFrom(ownerType) || ownerType == typeof(String))
-                return ownerType;
-
             Type? typ = null;
 
             if (ownerType.IsArray)
@@ -72,6 +69,10 @@ namespace Das.Serializer
                 typ = ownerType.GetElementType() ?? throw new InvalidOperationException();
                 return typ;
             }
+
+            if (!typeof(IEnumerable).IsAssignableFrom(ownerType) || ownerType == typeof(String))
+                return ownerType;
+
 
             if (typeof(IDictionary).IsAssignableFrom(ownerType))
             {
@@ -123,8 +124,6 @@ namespace Das.Serializer
                 }
             }
 
-            //var allPublic = GetPublicProperties(type, false);
-            //yesOrNo = allPublic.Any(p => p.CanWrite);
             _typesKnownSettableProperties.TryAdd(type, yesOrNo);
             return yesOrNo;
         }
@@ -198,10 +197,7 @@ namespace Das.Serializer
                 : props.ToArray();
 
             return rar;
-
-            
         }
-
 
         private static Lazy<ICollection<PropertyInfo>> GetPublicPropertiesLazy(Type type)
         {
@@ -220,15 +216,12 @@ namespace Das.Serializer
             //todo: remove this and get it to work with explicits
             if (type.IsInterface)
             {
-                //var results = new HashSet<PropertyInfo>(res);
-
                 foreach (var parentInterface in type.GetInterfaces())
                 foreach (var pp in GetPublicProperties(parentInterface, false))
                 {
                         if (!lookup.ContainsKey(pp.Name))
                             lookup.Add(pp.Name, pp);
                 }
-
             }
             else
             {
@@ -503,39 +496,45 @@ namespace Das.Serializer
 
             foreach (var p in type.GetProperties())
             {
-                if (/*p.CanWrite ||*/ !p.CanRead)
+                if (!p.CanRead)
                     continue;
 
                 _rProps[p.Name] = p.PropertyType;
             }
 
+            var validCtors = new Dictionary<ConstructorInfo, Int32>();
+
             foreach (var con in type.GetConstructors())
             {
                 var ctorParams = con.GetParameters();
-
-
-                if (ctorParams.Length > _rProps.Count)
-                    continue;
-
-                //if (ctorParams.Length != _rProps.Count)
-                //    continue;
 
                 foreach (var p in ctorParams)
                 {
                     if (String.IsNullOrEmpty(p.Name) ||
                         !_rProps.TryGetValue(p.Name, out var propType) ||
                         !p.ParameterType.IsAssignableFrom(propType))
-                        goto fail;
+                        goto ctorInvalid;
                 }
 
-                _rProps.Clear();
+                // all ctor params are valid
 
-                return con;
+                if (ctorParams.Length == _rProps.Count)
+                {
+                    //winner is you
+                    _rProps.Clear();
+                    return con;
+                }
 
-                fail: ;
+                validCtors.Add(con, ctorParams.Length);
+
+                ctorInvalid: ;
             }
 
             _rProps.Clear();
+
+            foreach (var item in validCtors.OrderByDescending(kvp => kvp.Value))
+                return item.Key;
+
             return default;
         }
 
@@ -580,9 +579,7 @@ namespace Das.Serializer
 
         private static readonly ConcurrentDictionary<Type, Boolean> _typesKnownSettableProperties;
         private static readonly ConcurrentDictionary<Type, Type> _cachedGermane;
-        
-        
-        //private static readonly ConcurrentDictionary<Type, KeyValuePair<Type, Type>> _cachedGermaneEx;
+
 
         private static readonly ConcurrentDictionary<Type, ConstructorInfo?> CachedConstructors;
 
@@ -599,9 +596,6 @@ namespace Das.Serializer
 
         private static readonly ConcurrentDictionary<Type, Lazy<ICollection<PropertyInfo>>>
             CachedProperties;
-
-        //private static readonly ConcurrentDictionary<Type, ICollection<PropertyInfo>>
-        //    CachedProperties;
 
         private static readonly ConcurrentDictionary<Type, TypeConverter> _typeConverters;
 

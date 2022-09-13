@@ -62,6 +62,11 @@
             _pathReferences.Remove(obj);
             </summary>
         </member>
+        <member name="M:Das.Serializer.Properties.IFieldActionProvider.AppendPrimitive(Das.Serializer.State.IDynamicPrintState,System.TypeCode)">
+            <summary>
+            Assumes everything is on the stack and only the corrent "write" method needs to be called
+            </summary>
+        </member>
         <member name="P:Das.Serializer.IPropertyBase.PropertyPath">
             <summary>
                 The property's name under most circumstances.  Can also be ParentType.PropertyName etc
@@ -114,12 +119,13 @@
             <param name="allowReadOnly">skips generating a scan method if no usable constructor is found</param>
             <exception cref="T:System.MissingMethodException">If allowReadOnly is false and no default constructor is found</exception>
         </member>
-        <member name="M:Das.Serializer.ProtoBuf.IProtoProvider.GetProtoProxy``1(System.Boolean)">
+        <member name="M:Das.Serializer.ProtoBuf.IProtoProvider.GetProtoProxy``1(Das.Serializer.ISerializerSettings,System.Boolean)">
             <summary>
                 Builds a scan and/or print proxy for type T where properties with the attribute
                 specified in the applicable ProtoBufOptions{TPropertyAttribute} instance
             </summary>
             <typeparam name="T">The type of the class to serialize </typeparam>
+            <param name="settings"></param>
             <param name="allowReadOnly">skips generating a scan method if no usable constructor is found</param>
             <exception cref="T:System.MissingMethodException">If allowReadOnly is false and no default constructor is found</exception>
         </member>
@@ -183,6 +189,11 @@
                 public static void ProtoBufWriter->WriteInt32(Int32 value, Stream _outStream)
             </summary>
         </member>
+        <member name="F:Das.Serializer.ProtoBuf.ProtoPrintState._getDoubleBytes">
+            <summary>
+                BitConverter.GetBytes(Double)
+            </summary>
+        </member>
         <member name="M:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1.ScanCollection(System.Type,Das.Serializer.Proto.IProtoScanState)">
             <summary>
                 ICollection[TProperty] where TProperty : ProtoContract
@@ -209,9 +220,10 @@
                 3.
             </summary>
         </member>
-        <member name="M:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1.ScanValueToStack(Das.Serializer.Proto.IProtoScanState,System.Reflection.Emit.ILGenerator,System.Type,System.TypeCode,Das.Serializer.ProtoBuf.ProtoWireTypes,Das.Serializer.ProtoFieldAction,System.Boolean)">
+        <member name="M:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1.ScanValueToStack(Das.Serializer.Proto.IProtoScanState,System.Reflection.Emit.ILGenerator,System.Type,System.TypeCode,Das.Serializer.ProtoBuf.ProtoWireTypes,Das.Serializer.FieldAction,System.Boolean)">
             <summary>
-                Can be an actual field or an instance of a collection field.  Leaves the value on the stack
+                Can be an actual field or an instance of a collection field.
+            Leaves the value on the stack
             </summary>
         </member>
         <member name="P:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1.ReadStreamBytes">
@@ -234,11 +246,6 @@
                 Encoding-> public virtual string GetString(byte[] bytes, int index, int count)
             </summary>
         </member>
-        <member name="F:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1._getDoubleBytes">
-            <summary>
-                BitConverter.GetBytes(Double)
-            </summary>
-        </member>
         <member name="F:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1._getInt32">
             <summary>
                 ProtoDynamicBase.GetInt32
@@ -252,11 +259,6 @@
         <member name="F:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1._readBytesField">
             <summary>
                 Thread static Byte[]
-            </summary>
-        </member>
-        <member name="F:Das.Serializer.ProtoBuf.ProtoDynamicProvider`1._writeBytes">
-            <summary>
-                public static void Write(Byte[] vals, Stream _outStream)
             </summary>
         </member>
         <member name="M:Das.Serializer.ProtoBuf.ProtoScanState.EnsureLocalFields">
@@ -282,14 +284,10 @@
                 For values that will be ctor injected
             </summary>
         </member>
-        <member name="M:Das.Serializer.ProtoBuf.ProtoStateBase.LoadFieldProxy(Das.Serializer.IProtoFieldAccessor)">
+        <member name="F:Das.Serializer.FieldAction.HasSpecialProperty">
             <summary>
-                Leaves the field on the stack
-            </summary>
-        </member>
-        <member name="F:Das.Serializer.ProtoBuf.ProtoStateBase._getDoubleBytes">
-            <summary>
-                BitConverter.GetBytes(Double)
+            A special property is one where the type and name matches that of the single
+            constructor argument for one of the declaring type's constructors
             </summary>
         </member>
         <member name="M:Das.Serializer.Remunerators.IProtoWriter.GetVarIntLength(System.Int32)">
@@ -678,6 +676,11 @@
             Changes circular references to null property values
             </summary>
         </member>
+        <member name="M:Das.Serializer.CodeGen.BaseDynamicProvider`3.AppendPrimitive(Das.Serializer.State.IDynamicPrintState,System.TypeCode)">
+            <summary>
+                Assumes everything is on the stack and only the corrent "write" method needs to be called
+            </summary>
+        </member>
         <member name="T:Das.Serializer.Collections.FastSemaphore">
             <summary>
             http://www.adammil.net/blog/v111_Creating_High-Performance_Locks_and_Lock-free_Code_for_NET_.html#rwlock
@@ -761,6 +764,11 @@
                 Leaves the StringBuilder dirty!
             </summary>
         </member>
+        <member name="M:Das.Serializer.Json.Printers.JsonPrintState.PrintCurrentFieldHeader">
+            <summary>
+                Property name and maybe a comma if it's not the first property
+            </summary>
+        </member>
         <member name="M:Das.Serializer.DasSerializer.GetProtoSerializer``1(Das.Serializer.IProtoBufOptions{``0})">
             <summary>
                 Returns a protocol buffers serializer that uses TPropertyAttribute as the attribute
@@ -826,6 +834,11 @@
         <member name="M:Das.Serializer.AssemblyList.GetRunning">
             <summary>
                 does not check or modify the cache
+            </summary>
+        </member>
+        <member name="M:Das.Serializer.State.DynamicStateBase.LoadFieldProxy(Das.Serializer.INamedField)">
+            <summary>
+                Leaves the field on the stack
             </summary>
         </member>
         <member name="M:Das.Serializer.TypeStructure.GetMembersToSerialize(Das.Serializer.SerializationDepth)">

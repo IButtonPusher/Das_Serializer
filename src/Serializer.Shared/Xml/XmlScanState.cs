@@ -6,7 +6,7 @@ namespace Das.Serializer.Xml
 {
     public partial class XmlExpress2
     {
-        protected override Boolean AdvanceScanState(String txt,
+        protected Boolean AdvanceScanState(String txt,
                                                     ref Int32 currentIndex,
                                                     StringBuilder stringBuilder,
                                                     ref NodeScanState scanState)

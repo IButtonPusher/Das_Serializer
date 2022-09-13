@@ -109,7 +109,6 @@ namespace Das.Serializer
 
         protected async Task<String> GetTextFromFileInfoAsync(FileInfo fi)
         {
-            //using (var _ = new SafeFile(fi))
             using (TextReader tr = new StreamReader(fi.FullName))
             {
                 var res = await _readToEndAsync(tr).ConfigureAwait(true);

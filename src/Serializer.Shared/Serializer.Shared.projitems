@@ -92,7 +92,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\StringSaver.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RuntimeObject.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\BaseExpress.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Scanners\BaseExpress2.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\JsonPrimitiveScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\NodeScanState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scanners\StringPrimitiveScanner.cs" />
@@ -106,7 +105,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)State\ICollectionWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\IDynamicPrintState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\IDynamicState.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)State\PrintStateBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\ValueCollectionWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Streamers\ByteArray.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Streamers\ByteStream.cs" />

@@ -61,6 +61,8 @@ namespace Das.Serializer
             _sb.Append(item);
         }
 
+#pragma warning disable CS8618
         protected StringBuilder _sb;
+#pragma warning restore CS8618
     }
 }

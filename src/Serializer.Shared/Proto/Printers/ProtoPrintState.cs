@@ -116,6 +116,11 @@ namespace Das.Serializer.ProtoBuf
             return GetEnumerator();
         }
 
+        //IEnumerator<IDynamicPrintState<IProtoFieldAccessor, bool, ILGenerator>> IEnumerable<IDynamicPrintState<IProtoFieldAccessor, bool, ILGenerator>>.GetEnumerator()
+        //{
+        //    return GetEnumerator();
+        //}
+
         public IEnumerator<ProtoPrintState> GetEnumerator()
         {
             for (var c = 0; c < Fields.Length; c++)
@@ -129,8 +134,8 @@ namespace Das.Serializer.ProtoBuf
         {
             return GetEnumerator();
         }
-
-        public void PrintFieldViaProxy(Action<ILGenerator> loadFieldValue)
+        
+        public void PrintFieldViaProxy(Action loadFieldValue)
         {
             var protoField = _currentField;
 
@@ -146,7 +151,8 @@ namespace Das.Serializer.ProtoBuf
             // LEAVES THE CHILD STREAM WITH THE SERIALIZED BYTES
             /////////////////////////////////////////////////////
 
-            loadFieldValue(_il);
+            //loadFieldValue(_il);
+            loadFieldValue();
             _il.Emit(OpCodes.Ldloc, ChildObjectStream);
             _il.Emit(OpCodes.Call, printMethod);
 
@@ -197,8 +203,10 @@ namespace Das.Serializer.ProtoBuf
 
         public Byte[] CurrentFieldHeader => _currentField.HeaderBytes;
 
-        public void PrintChildObjectField(Action<ILGenerator> loadObject,
-                                     Type fieldType)
+        //public void PrintChildObjectField(Action<ILGenerator> loadObject,
+        //                             Type fieldType)
+        public void PrintChildObjectField(Action loadObject,
+                                          Type fieldType)
         {
             var headerBytes = CurrentFieldHeader;
             PrintHeaderBytes(headerBytes);
@@ -212,7 +220,8 @@ namespace Das.Serializer.ProtoBuf
 
             _il.Emit(OpCodes.Ldarg_0);
             _il.Emit(OpCodes.Ldfld, proxyField);
-            loadObject(_il);
+            //loadObject(_il);
+            loadObject();
 
             _il.Emit(OpCodes.Ldloc, ChildObjectStream);
 

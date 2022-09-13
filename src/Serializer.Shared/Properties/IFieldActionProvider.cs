@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if GENERATECODE
+
+using System;
 using System.Reflection;
 using System.Threading.Tasks;
 using Das.Serializer.State;
@@ -19,3 +21,5 @@ namespace Das.Serializer.Properties
                                       out PropertyInfo propInfo);
     }
 }
+
+#endif

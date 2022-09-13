@@ -23,7 +23,7 @@ namespace Das.Serializer.CodeGen
             _types = types;
             _instantiator = instantiator;
 
-            var asmName = new AssemblyName("BOB.Stuff");
+            var asmName = new AssemblyName("Das.RuntimeAssembly");
             // ReSharper disable once JoinDeclarationAndInitializer
             AssemblyBuilderAccess access;
 
@@ -33,7 +33,7 @@ namespace Das.Serializer.CodeGen
             access = AssemblyBuilderAccess.RunAndSave;
 
             _asmBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, access);
-            _moduleBuilder = _asmBuilder.DefineDynamicModule(AssemblyName, SaveFile);
+            _moduleBuilder = _asmBuilder.DefineDynamicModule(AssemblyName, $"{AssemblyName}.dll");
 
             #else
             access = AssemblyBuilderAccess.Run;
@@ -217,7 +217,11 @@ namespace Das.Serializer.CodeGen
 
         public virtual void DumpProxies()
         {
+        #if DEBUG
+
             _asmBuilder.Save("protoTest.dll");
+
+#endif
         }
 
         protected abstract Boolean TryGetFieldAccessor(PropertyInfo prop,
@@ -261,7 +265,7 @@ namespace Das.Serializer.CodeGen
                     break;
 
                 case FieldAction.ChildObject:
-                    state.PrintChildObjectField(_ => state.LoadCurrentFieldValueToStack(),
+                    state.PrintChildObjectField(state.LoadCurrentFieldValueToStack,
                         state.CurrentField.Type);
                     break;
 
@@ -487,8 +491,6 @@ namespace Das.Serializer.CodeGen
             return false;
         }
 
-       
-
         protected abstract Int32 GetIndexFromAttribute(PropertyInfo prop,
                                                        Int32 lastIndex);
 
@@ -591,7 +593,7 @@ namespace Das.Serializer.CodeGen
 
         private const string AssemblyName = "BOB.Stuff";
 
-        private static readonly String SaveFile = $"{AssemblyName}.dll";
+        //private static readonly String SaveFile = $"{AssemblyName}.dll";
         protected readonly AssemblyBuilder _asmBuilder;
 
         protected readonly IInstantiator _instantiator;

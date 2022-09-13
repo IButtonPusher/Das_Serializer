@@ -84,62 +84,6 @@ namespace Das.Serializer
         public void ForEach(OnValueReady action)
         {
             ForEachImpl(action, null);
-            //var germane = _types.GetGermaneType(_buildState.CurrentField.Type);
-            //var subAction = _actionProvider.GetProtoFieldAction(germane);
-            
-
-            //var allDone = _il.DefineLabel();
-
-            ///////////////////////////////////////
-            //// TRY
-            ///////////////////////////////////////
-            //if (_enumeratorDisposeMethod != null)
-            //    _il.BeginExceptionBlock();
-            //{
-            //    var tryNext = _il.DefineLabel();
-            //    _il.MarkLabel(tryNext);
-
-            //    /////////////////////////////////////
-            //    // !enumerator.HasNext() -> EXIT LOOP
-            //    /////////////////////////////////////
-            //    _il.Emit(_enumeratorType.IsValueType
-            //        ? OpCodes.Ldloca
-            //        : OpCodes.Ldloc, _enumeratorLocal);
-
-            //    _il.Emit(OpCodes.Call, _enumeratorMoveNext);
-            //    _il.Emit(OpCodes.Brfalse, allDone);
-
-            //    _il.Emit(_enumeratorType.IsValueType
-            //        ? OpCodes.Ldloca
-            //        : OpCodes.Ldloc, _enumeratorLocal);
-
-            //    _il.Emit(OpCodes.Callvirt, _enumeratorCurrent);
-            //    _il.Emit(OpCodes.Stloc, _enumeratorCurrentValue);
-
-            //    /////////////////////////////////////////////////////////////
-            //    action(_enumeratorCurrentValue, germane, subAction);
-            //    /////////////////////////////////////////////////////////////
-
-            //    _il.Emit(OpCodes.Br, tryNext);
-
-            //    _il.MarkLabel(allDone);
-            //}
-
-            //if (_enumeratorDisposeMethod == null)
-            //    return;
-
-            ///////////////////////////////////////
-            //// FINALLY
-            ///////////////////////////////////////
-            //_il.BeginFinallyBlock();
-            //{
-            //    if (_enumeratorType.IsValueType)
-            //        _il.Emit(OpCodes.Ldloca, _enumeratorLocal);
-            //    else
-            //        _il.Emit(OpCodes.Ldloc, _enumeratorLocal);
-            //    _il.Emit(OpCodes.Call, _enumeratorDisposeMethod);
-            //}
-            //_il.EndExceptionBlock();
         }
 
         private void ForEachImpl(OnValueReady? action,

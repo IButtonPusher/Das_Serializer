@@ -12,7 +12,6 @@ namespace Das.Serializer.ProtoBuf
         /// </summary>
         MethodInfo CopyMemoryStream { get; }
 
-
         /// <summary>
         ///     public static Int32 ProtoDynamicBase.GetPositiveInt32(
         ///     Stream stream);

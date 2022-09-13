@@ -325,18 +325,18 @@ namespace Das.Types
             return false;
         }
 
-        private static Boolean TryCleanCast<T>(Object o,
-                                               out T result)
+        private static Boolean TryCleanCast<TOutput>(Object o,
+                                               out TOutput result)
         {
-            if (o is T ez)
+            if (o is TOutput ez)
             {
                 result = ez;
                 return true;
             }
 
-            if (TryCleanCast(o,  typeof(T), out var ores))
+            if (TryCleanCast(o,  typeof(TOutput), out var ores))
             {
-                result = (T)ores;
+                result = (TOutput)ores;
                 return true;
             }
 
@@ -345,8 +345,8 @@ namespace Das.Types
         }
 
         private static Boolean TryCleanCast(Object o,
-                                            Type tt,
-                                            out Object result)
+                                                    Type tt,
+                                                    out Object result)
         {
             if (typeof(IConvertible).IsAssignableFrom(tt) &&
                 o is IConvertible)
@@ -374,8 +374,38 @@ namespace Das.Types
             return false;
         }
 
+        //private static Func<Object, Object>? GetImplicitDelegate(Type convertTo,
+        //                                                         Type convertFrom)
+        //{
+        //    if (GetImplicitOp(convertTo, convertFrom, out var foundIt))
+        //    {
+        //        return TypeManipulator.CreateMethodCaller<Func<Object, Object>>(foundIt);
+        //    }
+        //}
+
+        //private static Boolean GetImplicitOp(Type convertTo,
+        //                                         Type convertFrom,
+        //                                         out MethodInfo useImplicit)
+        //{
+        //    var implicitOperators = from m in convertFrom.GetMethods(BindingFlags.Static 
+        //                                                             | BindingFlags.Public)
+        //        let mparams = m.GetParameters()
+        //        where string.Equals(m.Name, "op_Implicit") &&
+        //              m.ReturnType == convertTo &&
+        //              mparams.Length == 1 &&
+        //              mparams[0].ParameterType == convertFrom
+        //        select m;
+
+        //    useImplicit = implicitOperators.FirstOrDefault()!;
+        //    return useImplicit != null;
+        //}
+
         private readonly ConcurrentDictionary<Type, ConcurrentDictionary
             <String, Func<Object, Object[], Object>>> _cachedFuncs;
+
+        //private static readonly ConcurrentDictionary<Type,
+        //    ConcurrentDictionary<Type, MethodInfo?>> _cachedImplicitOps
+        //    = new ();
 
         private readonly ConcurrentDictionary<Type, ConcurrentDictionary
             <String, VoidMethod>> _cachedMethods;

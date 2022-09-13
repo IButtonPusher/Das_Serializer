@@ -28,7 +28,6 @@ namespace Das.Serializer.ProtoBuf
 
             _il.Emit(OpCodes.Ldarg_2);
             _il.Emit(OpCodes.Call, _writeBytes);
-            
         }
 
         public void PrintObjectArray()
@@ -104,9 +103,6 @@ namespace Das.Serializer.ProtoBuf
             il.Emit(OpCodes.Call, writePackedArray);
         }
 
-       
-
-        
 
         public void PrintObjectCollection()
         {
@@ -150,23 +146,23 @@ namespace Das.Serializer.ProtoBuf
                     break;
 
                 default:
-                    throw new NotImplementedException();
+                    throw new NotImplementedException($"{nameof(AppendPrimitive)} -> {typeCode}");
             }
         }
 
-        public void AppendChar(Char c)
+        void IDynamicPrintState.AppendChar(Char c)
         {
-            throw new NotSupportedException();
+            throw new NotSupportedException(nameof(AppendChar));
         }
 
-        public void AppendDateTime()
+        void IDynamicPrintState.AppendDateTime()
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException(nameof(IDynamicPrintState.AppendDateTime));
         }
 
-        public void AppendNull()
+        void IDynamicPrintState.AppendNull()
         {
-            throw new NotSupportedException();
+            throw new NotSupportedException(nameof(IDynamicPrintState.AppendNull));
         }
 
         public void PrintAsPackedArray()
@@ -177,25 +173,17 @@ namespace Das.Serializer.ProtoBuf
         private void PrintCollection(OnValueReady action)
         {
             var pv = CurrentField;
-            var ienum = new DynamicEnumerator<IProtoPrintState>(this, 
+            var ienum = new DynamicEnumerator<IProtoPrintState>(this,
                 pv.Type, pv.GetMethod, _types, _actionProvider);
 
             ienum.ForEach(action);
         }
 
-        //private void PrintArray()
-        //{
-        //    var pv = CurrentField;
-        //    var ienum = new ProtoEnumerator<IProtoPrintState>(this, pv.Type, pv.GetMethod, _types);
-
-        //    ienum.ForLoop(PrintEnumeratorCurrent);
-        //}
-
         private void PrintKeyValuePair(LocalBuilder enumeratorCurrentValue,
                                        Type itemType,
                                        FieldAction fieldAction)
         {
-            PrintFieldViaProxy(ilg => ilg.Emit(OpCodes.Ldloc, enumeratorCurrentValue));
+            PrintFieldViaProxy(() => _il.Emit(OpCodes.Ldloc, enumeratorCurrentValue));
         }
 
         private void PrintEnumeratorCurrent(LocalBuilder enumeratorCurrentValue,
@@ -213,7 +201,7 @@ namespace Das.Serializer.ProtoBuf
             switch (fieldAction)
             {
                 case FieldAction.ChildObject:
-                    PrintChildObjectField(ilg => ilg.Emit(OpCodes.Ldloc, enumeratorCurrentValue),
+                    PrintChildObjectField(() => _il.Emit(OpCodes.Ldloc, enumeratorCurrentValue),
                         itemType);
                     break;
 
@@ -225,8 +213,6 @@ namespace Das.Serializer.ProtoBuf
                     throw new NotImplementedException();
             }
         }
-
-      
     }
 }
 

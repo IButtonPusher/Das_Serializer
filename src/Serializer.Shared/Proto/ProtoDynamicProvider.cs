@@ -2,12 +2,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Das.Extensions;
 using Das.Serializer.CodeGen;
@@ -55,8 +53,6 @@ namespace Das.Serializer.ProtoBuf
 
             _readStreamByte = stream.GetMethodOrDie(nameof(Stream.ReadByte));
             _readStreamBytes = stream.GetMethodOrDie(nameof(Stream.Read));
-
-            //_writeStreamByte = stream.GetMethodOrDie(nameof(Stream.WriteByte));
 
             _getPositiveInt32 = protoDynBase.GetPublicStaticMethodOrDie(
                 nameof(ProtoDynamicBase.GetPositiveInt32));
@@ -146,9 +142,9 @@ namespace Das.Serializer.ProtoBuf
         public override void DumpProxies()
         {
             #if NET45 || NET40
-            if (Interlocked.Increment(ref _dumpCount) > 1)
+            if (System.Threading.Interlocked.Increment(ref _dumpCount) > 1)
             {
-                Debug.WriteLine("WARNING:  Proxies already dumped");
+                System.Diagnostics.Debug.WriteLine("WARNING:  Proxies already dumped");
                 return;
             }
 

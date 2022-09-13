@@ -21,7 +21,6 @@ namespace Das.Serializer
 
         void Append(UInt64 item);
 
-        
         void Append(Single item);
 
         void Append(Double item);
