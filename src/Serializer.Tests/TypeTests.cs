@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Das.Serializer;
 using Das.Serializer.Remunerators;
+using Reflection.Common;
+using Serializer.Tests.TestTypes;
 using Xunit;
 
 #pragma warning disable 8602
@@ -226,6 +228,27 @@ namespace Serializer.Tests
             setter3(ref oInst3!, "henry howler");
             Assert.Equal("henry howler", inst3.Name);
         }
+
+        [Fact]
+        public void CopyAbstract()
+        {
+            var copysettings = DasSettings.CloneDefault();
+            copysettings.SerializationDepth = SerializationDepth.Full;
+            var inst = AbstractTypeFactory.GetInstance();
+            var inst2 = Serializer.StateProvider.ObjectConverter.Copy(inst, copysettings);
+
+            var equal = SlowEquality.AreEqual(inst, inst2);
+            Assert.True(equal);
+        }
+
+        [Fact]
+        public void GetPropertyAmbiguously()
+        {
+            var moo = typeof(SimpleClassNewProp).GetPropertyOrDie(nameof(SimpleClassNewProp.Animal));
+            var pass = moo?.PropertyType == typeof(String);
+            Assert.True(pass);
+        }
+
 
         //  #endif
     }

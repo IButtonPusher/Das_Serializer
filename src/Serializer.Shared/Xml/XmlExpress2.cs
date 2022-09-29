@@ -8,7 +8,7 @@ using Das.Serializer.State;
 
 namespace Das.Serializer.Xml
 {
-    public partial class XmlExpress2 : BaseExpress
+    public sealed partial class XmlExpress2 : BaseExpress
     {
         public XmlExpress2(IInstantiator instantiator,
                            ITypeManipulator types,
@@ -18,9 +18,6 @@ namespace Das.Serializer.Xml
                            ISerializerSettings settings,
                            IDynamicTypes dynamicTypes)
             : base(ImpossibleChar, '>', types, instantiator)
-            //: base(instantiator, objectManipulator, typeInference, types, primitiveScanner,
-            //    dynamicTypes, '>', ImpossibleChar, Const.XmlType, Const.RefTag,
-            //    new[] {'"', '>'}, Const.XmlNull)
         {
             _settings = settings;
             _objectManipulator = objectManipulator;
@@ -35,7 +32,7 @@ namespace Das.Serializer.Xml
             _nullPrimitiveAttribute = Const.XmlNull;
         }
 
-        public sealed override T Deserialize<T>(String txt,
+        public override T Deserialize<T>(String txt,
                                                 ISerializerSettings settings,
                                                 Object[] ctorValues)
         {
@@ -52,7 +49,7 @@ namespace Das.Serializer.Xml
             return cooked;
         }
 
-        public sealed override IEnumerable<T> DeserializeMany<T>(String xml)
+        public override IEnumerable<T> DeserializeMany<T>(String xml)
         {
             var currentIndex = 0;
             var nodeScanState = NodeScanState.None;
@@ -518,10 +515,10 @@ namespace Das.Serializer.Xml
         }
 
 
-        protected void HandleEncodingNode(String txt,
-                                                   ref Int32 currentIndex,
-                                                   StringBuilder stringBuilder,
-                                                   ref NodeScanState nodeScanState)
+        private void HandleEncodingNode(String txt,
+                                        ref Int32 currentIndex,
+                                        StringBuilder stringBuilder,
+                                        ref NodeScanState nodeScanState)
         {
             AdvanceScanStateUntil(txt, ref currentIndex, stringBuilder,
                 NodeScanState.EncodingNodeClose, ref nodeScanState);
@@ -531,8 +528,8 @@ namespace Das.Serializer.Xml
         }
 
 
-        protected bool IsCollectionHasMoreItems(ref Int32 currentIndex,
-                                                         String txt)
+        private static bool IsCollectionHasMoreItems(ref Int32 currentIndex,
+                                                     String txt)
         {
             SkipWhiteSpace(ref currentIndex, txt);
 
@@ -545,9 +542,9 @@ namespace Das.Serializer.Xml
             return txt[currentIndex + 1] != '/';
         }
 
-        protected void LoadNextPrimitive(ref Int32 currentIndex,
-                                                  String txt,
-                                                  StringBuilder stringBuilder)
+        protected static void LoadNextPrimitive(ref Int32 currentIndex,
+                                                String txt,
+                                                StringBuilder stringBuilder)
         {
             switch (txt[currentIndex])
             {
@@ -765,7 +762,7 @@ namespace Das.Serializer.Xml
         private static readonly Char[] _stringEndChars = {'<', '"'};
         private readonly ISerializerSettings _settings;
 
-        protected static readonly Object[] _emptyCtorValues = new Object[0];
+        private static readonly Object[] _emptyCtorValues = new Object[0];
 
         protected readonly String _circularReferenceAttribute;
         protected readonly IDynamicTypes _dynamicTypes;

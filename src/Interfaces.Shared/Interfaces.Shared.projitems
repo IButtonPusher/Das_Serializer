@@ -15,6 +15,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IAssemblyList.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dynamics\IConverterProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ICircularReferenceHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Members\IMemberAccessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\IIndexedProperty.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\IPropertyAccessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\IPropertyAccessor{T}.cs" />

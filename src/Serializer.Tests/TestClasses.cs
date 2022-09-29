@@ -591,4 +591,9 @@ namespace Serializer.Tests
             Version = new Version(3, 1, 4)
         };
     }
+
+    public class SimpleClassNewProp : SimpleClass
+    {
+        public new String Animal { get; set; }
+    }
 }

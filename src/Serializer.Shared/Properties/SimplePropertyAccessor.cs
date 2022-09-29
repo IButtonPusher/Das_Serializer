@@ -21,6 +21,10 @@ namespace Das.Serializer.Properties
 
         public override Boolean CanWrite { get; }
 
+        public bool TrySetValue(ref Object targetObj,
+                                Object? propVal) =>
+            SetPropertyValue(ref targetObj, propVal);
+
         public Boolean SetPropertyValue(ref Object targetObj,
                                         Object? propVal)
         {

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Das.Serializer;
 using Das.Serializer.ProtoBuf;
 using ProtoBuf;
+// ReSharper disable All
 
 #pragma warning disable 8618
 

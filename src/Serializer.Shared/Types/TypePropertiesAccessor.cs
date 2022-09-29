@@ -11,6 +11,7 @@ namespace Das.Serializer.Types
    public class TypePropertiesAccessor : IEnumerable<IPropertyAccessor>, ITypeAccessor
    {
       public TypePropertiesAccessor(Type type,
+                                    ITypeManipulator typeManipulator,
                                     IEnumerable<PropertyInfo> properties)
       {
          Type = type;
@@ -20,11 +21,7 @@ namespace Das.Serializer.Types
          {
             var accessor = PropertyDictionary.GetPropertyAccessor(pi);
 
-            //var getter = pi.CanRead ? getHandler(type, pi) : default;
-            //var setter = pi.CanWrite ? TypeManipulator.CreatePropertySetter(pi) : default;
-
-            //var accessor = new SimplePropertyAccessor(type, pi.Name,
-            //   getter, setter, pi);
+           
             _accessors[pi.Name] = accessor;
          }
       }

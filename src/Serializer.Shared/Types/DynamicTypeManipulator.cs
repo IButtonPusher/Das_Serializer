@@ -54,6 +54,8 @@ namespace Das.Serializer
             return CreateDynamicSetter(declaringType, memberName);
         }
 
+        
+
         public static PropertySetter<T>? CreateSetMethod<T>(MemberInfo memberInfo)
         {
            var memChainArr = new[] {memberInfo};

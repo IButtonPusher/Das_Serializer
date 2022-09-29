@@ -3,7 +3,8 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer
 {
-    public interface IPropertyAccessor : IPropertyBase
+    public interface IPropertyAccessor : IPropertyBase,
+                                         IMemberAccessor
     {
         Object? GetPropertyValue(Object obj);
 
@@ -13,6 +14,6 @@ namespace Das.Serializer
         Boolean TryGetPropertyValue(Object obj,
                                     out Object result);
 
-        Boolean IsValidForSerialization(SerializationDepth depth);
+        //Boolean IsValidForSerialization(SerializationDepth depth);
     }
 }

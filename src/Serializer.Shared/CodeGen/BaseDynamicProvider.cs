@@ -217,11 +217,11 @@ namespace Das.Serializer.CodeGen
 
         public virtual void DumpProxies()
         {
-        #if DEBUG
-
+        #if DEBUG 
+        #if NET40 || NET45
             _asmBuilder.Save("protoTest.dll");
-
-#endif
+        #endif
+        #endif
         }
 
         protected abstract Boolean TryGetFieldAccessor(PropertyInfo prop,

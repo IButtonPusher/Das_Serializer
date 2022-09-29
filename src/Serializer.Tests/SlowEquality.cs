@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Das.Extensions;
@@ -24,6 +25,10 @@ namespace Serializer.Tests
             return AreEqual(left, right, ref fk);
         }
 
+        private static readonly MethodInfo AreEqualMethod = typeof(SlowEquality).GetMethods(
+                BindingFlags.Static | BindingFlags.Public)
+            .First(m => m.Name == nameof(AreEqual) &&
+                        m.GetParameters().Length == 2);
 
         public static Boolean AreEqual<T>(T left,
                                           T right,
@@ -37,6 +42,15 @@ namespace Serializer.Tests
 
             if (left.Equals(right))
                 return true;
+
+            var ltype = left.GetType();
+            var rtype = right.GetType();
+            if (ltype != typeof(T) && ltype == rtype)
+            {
+                var gmeth = AreEqualMethod.MakeGenericMethod(ltype);
+                var bval = gmeth.Invoke(null, new object[] { left, right});
+                return (Boolean)bval;
+            }
 
             if (badProp == null)
                 badProp = "";
@@ -127,11 +141,38 @@ namespace Serializer.Tests
                             return false;
                     }
                 }
+                
 
-                if (!EqualityComparer<T>.Default.Equals(left, right))
+                if (EqualityComparer<T>.Default.Equals(left, right))
+                    return true;
+
+                var fieldFlags = BindingFlags.Public |
+                                 BindingFlags.NonPublic |
+                                 BindingFlags.Instance | 
+                                 BindingFlags.FlattenHierarchy;
+
+                foreach (var field in TypeManipulator.GetRecursivePrivateFields(refl))
+                    //foreach (var field in refl.GetFields(Const.NonPublic))
                 {
-                    return false;
+                    var l = field.GetValue(left);
+                    var rProp = right.GetType().GetField(field.Name, fieldFlags) ?? field;
+
+                    var r = rProp.GetValue(right);
+                    if (!AreEqual(l, r, ref badProp))
+                    {
+                        badProp = field.Name;
+                        return false;
+                    }
+
+                    propsFound++;
                 }
+
+                return propsFound > 0;
+
+                //if (!EqualityComparer<T>.Default.Equals(left, right))
+                //{
+                //    return false;
+                //}
             }
 
             return true;

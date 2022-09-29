@@ -4,12 +4,12 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer.Xml
 {
-    public partial class XmlExpress2
+    public sealed partial class XmlExpress2
     {
-        protected Boolean AdvanceScanState(String txt,
-                                                    ref Int32 currentIndex,
-                                                    StringBuilder stringBuilder,
-                                                    ref NodeScanState scanState)
+        private static Boolean AdvanceScanState(String txt,
+                                                ref Int32 currentIndex,
+                                                StringBuilder stringBuilder,
+                                                ref NodeScanState scanState)
         {
             if (currentIndex >= txt.Length)
             {
@@ -49,7 +49,7 @@ namespace Das.Serializer.Xml
                         return true;
                     }
 
-                    else if (currentChar == '!')
+                    if (currentChar == '!')
                     {
                         SkipUntil(ref currentIndex, txt, '>');
                         scanState = NodeScanState.None;

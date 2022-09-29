@@ -2,8 +2,10 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Xml;
@@ -121,6 +123,18 @@ namespace Serializer.Tests.Xml
             var xml = Serializer.ToXml(mc1);
 
             var mc2 = Serializer.FromXml<ObjectDictionary>(xml);
+
+            if (mc1 == null || mc2 == null)
+                Assert.False(true);
+            if (mc1.Dic.Count != mc2.Dic.Count)
+                Assert.False(true);
+            Assert.True(Serializer.ToXml(mc2) == xml);
+
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("DE-de");
+
+            xml = Serializer.ToXml(mc1);
+
+            mc2 = Serializer.FromXml<ObjectDictionary>(xml);
 
             if (mc1 == null || mc2 == null)
                 Assert.False(true);

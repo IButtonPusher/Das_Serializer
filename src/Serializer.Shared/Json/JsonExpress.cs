@@ -295,28 +295,6 @@ namespace Das.Serializer.Json
         }
 
 
-        //[MethodImpl(256)]
-        //private IList GetCollection(Type type,
-        //                            IPropertyAccessor? prop,
-        //                            Object? parent)
-        //{
-        //    if (!type.IsArray && prop != null && parent != null)
-        //        if (prop.GetPropertyValue(parent) is IList list)
-        //            return list;
-
-        //    var res = type.IsArray
-        //        ? _instantiator.BuildGenericList(_types.GetGermaneType(type))
-        //        : _instantiator.BuildDefault(type, true);
-        //    if (res is IList good)
-        //        return good;
-
-        //    if (res is ICollection collection &&
-        //        _types.GetAdder(collection, type) is { } adder)
-        //        return new ValueCollectionWrapper(collection, adder);
-
-        //    throw new InvalidOperationException();
-        //}
-
         private Object? GetCollectionValue(ref Int32 currentIndex,
                                            String json,
                                            Type type,
@@ -740,11 +718,9 @@ namespace Das.Serializer.Json
             });
 
         private readonly IDynamicTypes _dynamicTypes;
-
-        //private readonly IInstantiator _instantiator;
+        
         private readonly IObjectManipulator _objectManipulator;
         private readonly IStringPrimitiveScanner _stringPrimitiveScanner;
         private readonly ITypeInferrer _typeInference;
-        //private readonly ITypeManipulator _types;
     }
 }

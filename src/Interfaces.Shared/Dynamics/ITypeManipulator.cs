@@ -62,10 +62,22 @@ namespace Das.Serializer
         IEnumerable<INamedField> GetPropertiesToSerialize(Type type,
                                                           SerializationDepth depth);
 
+        
+        /// <summary>
+        ///     Recursive through base types without duplicates
+        /// </summary>
+        IEnumerable<IMemberAccessor> GetMembersToSerialize(Type type,
+                                                              SerializationDepth depth);
+
+        Object? TryGetFieldValueOfType(Object obj,
+                                       Type fieldType);
+
         Type? GetPropertyType(Type classType,
                               String propName);
 
         IEnumerable<FieldInfo> GetRecursivePrivateFields(Type type);
+
+        IEnumerable<FieldInfo> GetAllFields(Type type);
 
         // ReSharper disable once UnusedMember.Global
         ITypeStructure<T> GetTypeStructure<T>();

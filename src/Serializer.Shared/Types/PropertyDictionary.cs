@@ -39,9 +39,15 @@ namespace Das.Serializer.Types
           return accessor;
        }
 
-       public static SimplePropertyAccessor GetPropertyAccessor(PropertyInfo propInfo)
+       public static SimplePropertyAccessor GetPropertyAccessor(PropertyInfo propInfo,
+                                                                ITypeManipulator typeManipulator)
        {
           return _accessors.GetOrAdd(propInfo, BuildAccessor);
+       }
+
+       public static SimplePropertyAccessor GetPropertyAccessor(PropertyInfo propInfo)
+       {
+           return _accessors.GetOrAdd(propInfo, BuildAccessor);
        }
 
        private static SimplePropertyAccessor BuildAccessor(PropertyInfo pi)
@@ -49,10 +55,7 @@ namespace Das.Serializer.Types
            var getter = pi.CanRead ? TypeManipulator.CreatePropertyGetter(pi) : default;
            var setter = pi.CanWrite ? TypeManipulator.CreateSetMethod(pi) : default;
 
-          //var getter = pi.CanRead ? TypeManipulator.CreateDynamicPropertyGetter(pi) : default;
-          //var setter = pi.CanWrite ? TypeManipulator.CreatePropertySetter(pi) : default;
-
-          var accessor = new SimplePropertyAccessor(pi.DeclaringType!, pi.Name,
+           var accessor = new SimplePropertyAccessor(pi.DeclaringType!, pi.Name,
              getter, setter, pi);
           return accessor;
        }

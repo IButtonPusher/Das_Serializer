@@ -7,6 +7,7 @@ using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Das.Extensions;
+using Das.Serializer.Properties;
 using Das.Serializer.Types;
 
 namespace Das.Serializer
@@ -20,6 +21,7 @@ namespace Das.Serializer
          Type = type;
 
          _types = state;
+         _membersFoundAtDepth = state.Settings.SerializationDepth;
 
 
          if (type.IsDefined(typeof(SerializeAsTypeAttribute), false))
@@ -34,6 +36,7 @@ namespace Das.Serializer
          _propertyAccessors = new Dictionary<string, IPropertyAccessor>();
 
          _fieldSetters = new ConcurrentDictionary<string, Action<object, object?>?>();
+         _fieldAccessors = new ConcurrentDictionary<string, FieldAccessor>();
 
          if (_types.IsLeaf(type, true) || _types.IsCollection(type))
          {
@@ -119,15 +122,60 @@ namespace Das.Serializer
       /// <summary>
       ///    Returns properties and/or fields depending on specified depth
       /// </summary>
-      public IEnumerable<INamedField> GetMembersToSerialize(SerializationDepth depth)
+      public IEnumerable<IMemberAccessor> GetMembersToSerialize(SerializationDepth depth)
       {
-         foreach (var kvp in _propertyAccessors)
-         {
-            if (!kvp.Value.IsValidForSerialization(depth))
-               continue;
+          EnsureMemberAccessors(depth);
+        
+          foreach (var kvp in _propertyAccessors)
+          {
+              if (!kvp.Value.IsValidForSerialization(depth))
+                  continue;
 
-            yield return kvp.Value;
-         }
+              yield return kvp.Value;
+          }
+
+          if ((depth & SerializationDepth.PrivateFields) == SerializationDepth.PrivateFields)
+          {
+              foreach (var fieldAccessor in _fieldAccessors.Values)
+                  yield return fieldAccessor;
+          }
+      }
+
+      private void EnsureMemberAccessors(SerializationDepth depth)
+      {
+          var rem = depth & ~ _membersFoundAtDepth;
+          if (rem != SerializationDepth.None && !Type.IsArray)
+          {
+              foreach (var missing in ExtensionMethods.GetEnumFlagValues(rem))
+              {
+                  switch (missing)
+                  {
+                      case SerializationDepth.PrivateFields:
+                          var amfs = _types.GetAllFields(Type).ToArray();
+                          foreach (var mf in amfs)
+                          {
+                              _fieldAccessors.GetOrAdd(mf.Name,
+                                  (fn) => new FieldAccessor(mf, GetFieldSetter(fn)));
+                          }
+                          break;
+
+                      default:
+                          foreach (var prop in _types.GetPublicProperties(Type))
+                          {
+                              if (_propertyAccessors.ContainsKey(prop.Name))
+                                  continue;
+
+                              var wafl = prop.GetSetMethod();
+                          }
+
+                          break;
+                  }
+
+                  _membersFoundAtDepth |= missing;
+              }
+              //rem.getvalues
+          }
+
       }
 
       public Boolean SetFieldValue(String fieldName,
@@ -165,6 +213,62 @@ namespace Das.Serializer
          accessor.SetPropertyValue(ref targetObj, propVal);
          return true;
       }
+
+      public bool TryGetValueForParameter(Object obj,
+                                          ParameterInfo prm,
+                                          SerializationDepth depth,
+                                          out Object? value,
+                                          out Boolean isMemberSerializable)
+      {
+          isMemberSerializable = false;
+
+          EnsureMemberAccessors(depth);
+          var useFields = (depth & SerializationDepth.PrivateFields) == SerializationDepth.PrivateFields;
+
+          if (!string.IsNullOrEmpty(prm.Name))
+          {
+              var propName = _types.ChangePropertyNameFormat(prm.Name, 
+                  PropertyNameFormat.PascalCase);
+              if (_propertyAccessors.TryGetValue(propName, out var accessor))
+              {
+                  value = accessor.GetPropertyValue(obj);
+                  return true;
+              }
+
+              if (useFields)
+              {
+                  foreach (var kvp in _fieldAccessors)
+                  {
+                      if (kvp.Key.IndexOf(prm.Name, StringComparison.OrdinalIgnoreCase) >= 0)
+                      {
+                          value = kvp.Value.GetValue(obj);
+                          isMemberSerializable = kvp.Value.IsMemberSerializable;
+                          return true;
+                      }
+                  }
+              }
+          }
+          else
+          {
+              var prmType = prm.ParameterType;
+
+              foreach (var memberAccess in GetMembersToSerialize(depth))
+              {
+                  if (prmType.IsAssignableFrom(memberAccess.Type))
+                  {
+                      value = memberAccess.GetValue(obj);
+                      isMemberSerializable = memberAccess.IsMemberSerializable;
+                      return true;
+                  }
+              }
+          }
+
+          value = default;
+          return false;
+
+         
+      }
+
 
       public Boolean TryGetAttribute<TAttribute>(String memberName,
                                                  PropertyNameFormat format,
@@ -240,8 +344,10 @@ namespace Das.Serializer
       private static readonly Object[] _onDeserializedArgs = {_streamingContext};
 
       private readonly ConcurrentDictionary<String, Action<Object, Object?>?> _fieldSetters;
+      private readonly ConcurrentDictionary<String, FieldAccessor> _fieldAccessors;
       private readonly String? _onDeserializedMethodName;
       private readonly Dictionary<String, IPropertyAccessor> _propertyAccessors;
+      private SerializationDepth _membersFoundAtDepth;
 
       private readonly ITypeManipulator _types;
    }

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<RuleSet Name="Rules for Das.Serializer" Description="Code analysis rules for Das.Serializer.csproj." ToolsVersion="16.0">
+<RuleSet Name="Rules for Das.Serializer" Description="Code analysis rules for Das.Serializer.csproj." ToolsVersion="17.0">
   <Rules AnalyzerId="ClrHeapAllocationAnalyzer" RuleNamespace="ClrHeapAllocationAnalyzer">
     <Rule Id="HAA0101" Action="None" />
     <Rule Id="HAA0102" Action="None" />
@@ -277,6 +277,7 @@
     <Rule Id="CS8819" Action="None" />
     <Rule Id="CS8824" Action="None" />
     <Rule Id="CS8825" Action="None" />
+    <Rule Id="CS8826" Action="None" />
     <Rule Id="CS8846" Action="None" />
     <Rule Id="CS8847" Action="None" />
     <Rule Id="CS8848" Action="None" />
@@ -293,6 +294,24 @@
     <Rule Id="CS8887" Action="None" />
     <Rule Id="CS8897" Action="None" />
     <Rule Id="CS8898" Action="None" />
+    <Rule Id="CS8907" Action="None" />
+    <Rule Id="CS8909" Action="None" />
+    <Rule Id="CS8933" Action="None" />
+    <Rule Id="CS8947" Action="None" />
+    <Rule Id="CS8960" Action="None" />
+    <Rule Id="CS8961" Action="None" />
+    <Rule Id="CS8962" Action="None" />
+    <Rule Id="CS8963" Action="None" />
+    <Rule Id="CS8965" Action="None" />
+    <Rule Id="CS8966" Action="None" />
+    <Rule Id="CS8971" Action="None" />
+    <Rule Id="CS8973" Action="None" />
+    <Rule Id="CS8974" Action="None" />
+    <Rule Id="CS8981" Action="None" />
+    <Rule Id="CS9016" Action="None" />
+    <Rule Id="CS9017" Action="None" />
+    <Rule Id="CS9042" Action="None" />
+    <Rule Id="CS9057" Action="None" />
   </Rules>
   <Rules AnalyzerId="Microsoft.CodeAnalysis.CSharp.Analyzers" RuleNamespace="Microsoft.CodeAnalysis.CSharp.Analyzers">
     <Rule Id="RS1002" Action="None" />
@@ -386,6 +405,7 @@
     <Rule Id="IDE0053WithoutSuggestion" Action="None" />
     <Rule Id="IDE0054" Action="None" />
     <Rule Id="IDE0054WithoutSuggestion" Action="None" />
+    <Rule Id="IDE0055" Action="None" />
     <Rule Id="IDE0056" Action="None" />
     <Rule Id="IDE0056WithoutSuggestion" Action="None" />
     <Rule Id="IDE0057" Action="None" />
@@ -416,10 +436,34 @@
     <Rule Id="IDE0080" Action="None" />
     <Rule Id="IDE0082" Action="None" />
     <Rule Id="IDE0083" Action="None" />
+    <Rule Id="IDE0090" Action="None" />
+    <Rule Id="IDE0100" Action="None" />
+    <Rule Id="IDE0110" Action="None" />
+    <Rule Id="IDE0120" Action="None" />
+    <Rule Id="IDE0130" Action="None" />
+    <Rule Id="IDE0150" Action="None" />
+    <Rule Id="IDE0160" Action="None" />
+    <Rule Id="IDE0161" Action="None" />
+    <Rule Id="IDE0170" Action="None" />
+    <Rule Id="IDE0180" Action="None" />
+    <Rule Id="IDE0200" Action="None" />
+    <Rule Id="IDE0210" Action="None" />
+    <Rule Id="IDE0211" Action="None" />
+    <Rule Id="IDE0220" Action="None" />
+    <Rule Id="IDE0230" Action="None" />
+    <Rule Id="IDE0240" Action="None" />
+    <Rule Id="IDE0241" Action="None" />
     <Rule Id="IDE1005" Action="None" />
     <Rule Id="IDE1005WithoutSuggestion" Action="None" />
     <Rule Id="IDE1006" Action="None" />
     <Rule Id="IDE1006WithoutSuggestion" Action="None" />
+    <Rule Id="IDE2000" Action="None" />
+    <Rule Id="IDE2001" Action="None" />
+    <Rule Id="IDE2002" Action="None" />
+    <Rule Id="IDE2003" Action="None" />
+    <Rule Id="IDE2004" Action="None" />
+    <Rule Id="JSON001" Action="None" />
+    <Rule Id="JSON002" Action="None" />
     <Rule Id="RE0001" Action="None" />
     <Rule Id="RE0001WithoutSuggestion" Action="None" />
   </Rules>
@@ -438,6 +482,7 @@
   <Rules AnalyzerId="Microsoft.CodeAnalysis.VisualBasic.Features" RuleNamespace="Microsoft.CodeAnalysis.VisualBasic.Features">
     <Rule Id="IDE0010" Action="None" />
     <Rule Id="IDE0010WithoutSuggestion" Action="None" />
+    <Rule Id="IDE0055" Action="None" />
     <Rule Id="IDE0071" Action="None" />
     <Rule Id="IDE0071WithoutSuggestion" Action="None" />
     <Rule Id="IDE0073" Action="None" />
@@ -446,6 +491,12 @@
     <Rule Id="IDE0077" Action="None" />
     <Rule Id="IDE0079" Action="None" />
     <Rule Id="IDE0082" Action="None" />
+    <Rule Id="IDE0100" Action="None" />
+    <Rule Id="IDE0120" Action="None" />
+    <Rule Id="IDE2000" Action="None" />
+    <Rule Id="IDE2003" Action="None" />
+    <Rule Id="JSON001" Action="None" />
+    <Rule Id="JSON002" Action="None" />
   </Rules>
   <Rules AnalyzerId="xunit.analyzers" RuleNamespace="xunit.analyzers">
     <Rule Id="xUnit1000" Action="None" />

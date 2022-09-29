@@ -70,7 +70,7 @@ namespace Das.Types
                                         PropertyInfo property,
                                         out Object result)
         {
-           var accessor = PropertyDictionary.GetPropertyAccessor(property);
+           var accessor = PropertyDictionary.GetPropertyAccessor(property, _typeDelegates);
            if (!accessor.CanRead)
            {
               result = default!;
@@ -185,7 +185,7 @@ namespace Das.Types
                if (srcProp == null)
                   continue;
 
-               var accessor = PropertyDictionary.GetPropertyAccessor(srcProp);
+               var accessor = PropertyDictionary.GetPropertyAccessor(srcProp, _typeDelegates);
                if (!accessor.CanRead)
                   continue;
 
@@ -345,8 +345,8 @@ namespace Das.Types
         }
 
         private static Boolean TryCleanCast(Object o,
-                                                    Type tt,
-                                                    out Object result)
+                                            Type tt,
+                                            out Object result)
         {
             if (typeof(IConvertible).IsAssignableFrom(tt) &&
                 o is IConvertible)

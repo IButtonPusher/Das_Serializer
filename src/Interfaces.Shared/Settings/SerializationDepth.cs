@@ -16,6 +16,6 @@ namespace Das.Serializer
         GetOnlyProperties = 2,
         AllProperties = 3,
         PrivateFields = 4,
-        Full = 6
+        Full = 7
     }
 }

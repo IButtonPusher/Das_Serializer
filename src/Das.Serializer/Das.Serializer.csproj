@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.1;net45;netstandard2.0</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.0.27-alpha</Version>
+    <Version>0.0.29-alpha</Version>
     <Configurations>Debug;Release;TEST_NO_CODEGENERATION</Configurations>
   </PropertyGroup>
 
@@ -29,8 +29,6 @@ o = serializer.FromJson(json);</Description>
   
 
   <Import Project="..\Interfaces.Shared\Interfaces.Shared.projitems" Label="Shared" />
-
-  <Import Project="..\Serializer.Shared\Serializer.Shared.projitems" Label="Shared" />
 
   <Import Project="..\Reflection.Common\Reflection.Common.projitems" Label="Shared" />
 
@@ -79,5 +77,9 @@ o = serializer.FromJson(json);</Description>
   <DefineConstants>PARTIALTRUST</DefineConstants>
   <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
 </PropertyGroup>
+
+<ItemGroup>
+  <Compile Include="..\Serializer.Shared\Types\EnumCache.cs" />
+</ItemGroup>
 
 </Project>

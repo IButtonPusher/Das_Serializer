@@ -229,6 +229,37 @@ namespace Das.Serializer
             }
         }
 
+        public Object? TryGetFieldValueOfType(Object obj,
+                                              Type fieldType)
+        {
+            var objType = obj.GetType();
+
+            if (IsCollection(objType))
+                return default;
+
+            var str = GetTypeStructure(objType);//, depth);
+            foreach (var pi in str.GetMembersToSerialize(SerializationDepth.PrivateFields))
+            {
+                if (fieldType.IsAssignableFrom(pi.Type))
+                    return pi.GetValue(obj);
+            }
+
+            return default;
+        }
+
+        public IEnumerable<IMemberAccessor> GetMembersToSerialize(Type type,
+                                                                  SerializationDepth depth)
+        {
+            if (IsCollection(type))
+                yield break;
+
+            var str = GetTypeStructure(type);//, depth);
+            foreach (var pi in str.GetMembersToSerialize(depth))
+            {
+                yield return pi;
+            }
+        }
+
         public Type? GetPropertyType(Type classType,
                                      String propName)
         {
@@ -329,7 +360,7 @@ namespace Das.Serializer
               if (!_cachedTypeAccessors.TryGetValue(declaringType, out var typeAccessor))
               {
                  typeAccessor = new TypePropertiesAccessor(declaringType,
-                    GetValidProperties(declaringType));
+                     this, GetValidProperties(declaringType));
                  _cachedTypeAccessors[declaringType] = typeAccessor;
               }
 
@@ -390,11 +421,36 @@ namespace Das.Serializer
               BuildPropertyAccessor<T>);
         }
 
+        public IEnumerable<FieldInfo> GetAllFields(Type type) 
+        {
+            foreach (var f in GetRecursiveFieldsImpl(type, Const.AnyInstance))
+                yield return f;
+        }
+
         public static IEnumerable<FieldInfo> GetRecursivePrivateFields(Type type)
+        {
+            foreach (var f in GetRecursiveFieldsImpl(type, Const.NonPublic))
+                yield return f;
+            //while (true)
+            //{
+            //    foreach (var field in type.GetFields(Const.NonPublic))
+            //    {
+            //        yield return field;
+            //    }
+
+            //    var parent = type.BaseType;
+            //    if (parent == null) yield break;
+
+            //    type = parent;
+            //}
+        }
+
+        private static IEnumerable<FieldInfo> GetRecursiveFieldsImpl(Type type,
+                                                                     BindingFlags flags)
         {
             while (true)
             {
-                foreach (var field in type.GetFields(Const.NonPublic))
+                foreach (var field in type.GetFields(flags))
                 {
                     yield return field;
                 }
@@ -405,8 +461,6 @@ namespace Das.Serializer
                 type = parent;
             }
         }
-
-       
 
 
         protected static Boolean TryGetMembers(Type declaringType,

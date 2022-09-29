@@ -4,7 +4,7 @@
     <TargetFrameworks>netstandard2.1;net45;netstandard2.0</TargetFrameworks>
 	 <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.0.26-alpha</Version>
+    <Version>0.0.27-alpha</Version>
     <Configurations>Debug;Release;TEST_NO_CODEGENERATION</Configurations>
   </PropertyGroup>
 
@@ -35,7 +35,7 @@ o = serializer.FromJson(json);</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Das.Serializer.Interfaces" Version="0.0.26-alpha" />
+    <PackageReference Include="Das.Serializer.Interfaces" Version="0.0.27-alpha" />
   </ItemGroup>
   
   <Target Name="CopyProjectReferencesToPackage" DependsOnTargets="ResolveReferences">

@@ -26,7 +26,6 @@ namespace Das.Serializer
             Constructors = new ConcurrentDictionary<Type, ConstructorInfo?>();
             KnownOnDeserialize = new ConcurrentDictionary<Type, Boolean>();
             GenericListDelegates = new ConcurrentDictionary<Type, Func<IList>>();
-            //OnDeserializedDelegates = new ConcurrentDictionary<Type, Delegate?>();
         }
 
 
@@ -47,6 +46,11 @@ namespace Das.Serializer
         public Object? BuildDefault(Type type,
                                     Boolean isCacheConstructors)
         {
+            if (typeof(Type).IsAssignableFrom(type))
+            {
+                return default;
+            }
+
             if (_typeSurrogates.ContainsKey(type))
                 type = _typeSurrogates[type];
 

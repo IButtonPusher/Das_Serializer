@@ -386,9 +386,9 @@ namespace Das.Serializer.ProtoBuf
         // ReSharper disable once StaticMemberInGenericType
 
         #if DEBUG
-
+        #if NET45 || NET40
         private static Int32 _dumpCount;
-
+        #endif
         #endif
 
 

@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Das.Serializer;
+using Das.Serializer.Types;
 
 namespace Das.Extensions
 {
@@ -38,6 +39,34 @@ namespace Das.Extensions
            attrib = default!;
            return false;
         }
+
+        public static IEnumerable<TEnum> GetEnumFlagValues<TEnum>(TEnum value)
+        where TEnum : Enum
+        {
+            var allMyValues = Enum.GetValues(typeof(TEnum));
+            foreach (TEnum amv in allMyValues)
+            {
+                if (Convert.ToInt32(amv) == 0)
+                    continue;
+
+                if (EnumCache<TEnum>.HasFlag(value, amv))
+                    yield return amv;
+                //if ((value & amv) == amv)
+            }
+        }
+
+        #if NET40
+
+        public static TAttribute GetCustomAttribute<TAttribute>(this MemberInfo m)
+            where TAttribute : Attribute
+        {
+            if (TryGetCustomAttribute<TAttribute>(m, out var found))
+                return found;
+
+            return default!;
+        }
+
+        #endif
 
         public static Boolean TryGetCustomAttribute<TAttribute>(this MemberInfo m,
                                                                 out TAttribute value)
