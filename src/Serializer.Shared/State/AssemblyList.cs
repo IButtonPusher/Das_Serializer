@@ -93,6 +93,8 @@ namespace Das.Serializer
 
             var asFile = new FileInfo(assembly.Location);
             var myNameIs = assembly.GetName().Name;
+            if (myNameIs == null)
+               return;
 
             _assembliesByFileName.TryAdd(asFile.Name, assembly);
             _assembliesByName.TryAdd(myNameIs, assembly);
@@ -105,7 +107,6 @@ namespace Das.Serializer
         private static IEnumerable<Assembly> GetRunning()
         {
             var sended = new HashSet<Assembly>();
-
 
             foreach (var dll in AppDomain.CurrentDomain.GetAssemblies())
             {

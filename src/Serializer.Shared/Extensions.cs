@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Das.Serializer;
+using Das.Serializer.Types;
 
 namespace Das.Extensions
 {
@@ -38,6 +39,34 @@ namespace Das.Extensions
            attrib = default!;
            return false;
         }
+
+        public static IEnumerable<TEnum> GetEnumFlagValues<TEnum>(TEnum value)
+        where TEnum : Enum
+        {
+            var allMyValues = Enum.GetValues(typeof(TEnum));
+            foreach (TEnum amv in allMyValues)
+            {
+                if (Convert.ToInt32(amv) == 0)
+                    continue;
+
+                if (EnumCache<TEnum>.HasFlag(value, amv))
+                    yield return amv;
+                //if ((value & amv) == amv)
+            }
+        }
+
+        #if NET40
+
+        public static TAttribute GetCustomAttribute<TAttribute>(this MemberInfo m)
+            where TAttribute : Attribute
+        {
+            if (TryGetCustomAttribute<TAttribute>(m, out var found))
+                return found;
+
+            return default!;
+        }
+
+        #endif
 
         public static Boolean TryGetCustomAttribute<TAttribute>(this MemberInfo m,
                                                                 out TAttribute value)
@@ -163,22 +192,6 @@ namespace Das.Extensions
         }
 
 
-        ///// <summary>
-        /////     Creates an easier to read string depiction of a type name, particularly
-        /////     with generics. Can be parsed back into a type using DasType.FromClearName(..)
-        /////     into
-        ///// </summary>
-        ///// <param name="type"></param>
-        ///// <param name="isOmitAssemblyName">
-        /////     Guarantees that the output string will be
-        /////     valid xml or json markup but may lead to slower deserialization
-        ///// </param>
-        //public static String GetClearName(this Type type,
-        //                                  Boolean isOmitAssemblyName)
-        //{
-        //    return SerializationCore.TypeInferrer.ToClearName(type, isOmitAssemblyName);
-        //}
-
         [MethodImpl(256)]
         public static String GetConsumingString(this StringBuilder sb)
         {
@@ -228,13 +241,6 @@ namespace Das.Extensions
                                                           String propertyName)
         {
             var wot = classType.GetProperty(propertyName, BindingFlags.Public | BindingFlags.Static);
-            //if (wot == null && classType.IsInterface)
-            //    foreach (var @interface in classType.GetInterfaces())
-            //    {
-            //        wot = @interface.GetProperty(propertyName);
-            //        if (wot != null)
-            //            break;
-            //    }
 
             return wot ?? throw new MissingMemberException(classType.FullName, propertyName);
         }
@@ -520,13 +526,43 @@ namespace Das.Extensions
                 propertyName, out result);
         }
 
-        //public static Boolean TrySetPropertyValue(this Object obj,
-        //                                          String propertyName,
-        //                                          Object value)
-        //{
-        //    return SerializationCore.ObjectManipulator.TrySetProperty(obj.GetType(), propertyName,
-        //        ref obj, value);
-        //}
+        public static Byte[] ToByteArray(this Decimal dec)
+        {
+            var bits = Decimal.GetBits(dec);
+            var bytes = new List<Byte>();
+
+            foreach (var i in bits)
+            {
+                bytes.AddRange(BitConverter.GetBytes(i));
+            }
+
+            return bytes.ToArray();
+        }
+
+        public static Boolean CanConvertToFileTime(this DateTime dt)
+        {
+            return dt.Year >= 1601;
+        }
+
+        public static Decimal ToDecimal(Byte[] bytes,
+                                        Int32 startIndex)
+        {
+            var bits = new Int32[4];
+            for (var i = startIndex; i <= startIndex + 15; i += 4)
+                bits[i / 4] = BitConverter.ToInt32(bytes, i);
+
+            return new Decimal(bits);
+        }
+
+        public static Decimal ToDecimal(Byte[] bytes)
+        {
+            return ToDecimal(bytes, 0);
+            //var bits = new Int32[4];
+            //for (var i = 0; i <= 15; i += 4)
+            //    bits[i / 4] = BitConverter.ToInt32(bytes, i);
+
+            //return new Decimal(bits);
+        }
 
         
 

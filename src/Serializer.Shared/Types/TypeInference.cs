@@ -38,21 +38,51 @@ namespace Das.Types
 
 
             TypeNames = new ConcurrentDictionary<String, Type?>();
+            
             TypeNames["object"] = Const.ObjectType;
+            TypeNames["Object"] = Const.ObjectType;
+            
             TypeNames["string"] = typeof(String);
+            TypeNames["String"] = typeof(String);
+            
             TypeNames["bool"] = typeof(Boolean);
+            TypeNames["Boolean"] = typeof(Boolean);
+
             TypeNames["byte"] = typeof(Byte);
+            TypeNames["Byte"] = typeof(Byte);
+            
             TypeNames["char"] = typeof(Char);
+            TypeNames["Char"] = typeof(Char);
+            
             TypeNames["decimal"] = typeof(Decimal);
+            TypeNames["Decimal"] = typeof(Decimal);
+            
             TypeNames["double"] = typeof(Double);
+            TypeNames["Double"] = typeof(Double);
+            
             TypeNames["short"] = typeof(Int16);
+            TypeNames["Int16"] = typeof(Int16);
+
             TypeNames["int"] = Const.IntType;
+            TypeNames["Int32"] = Const.IntType;
+
             TypeNames["long"] = typeof(Int64);
+            TypeNames["Int64"] = typeof(Int64);
+
             TypeNames["sbyte"] = typeof(SByte);
+            TypeNames["SByte"] = typeof(SByte);
+
             TypeNames["float"] = typeof(Single);
+            TypeNames["Single"] = typeof(Single);
+
             TypeNames["ushort"] = typeof(UInt16);
+            TypeNames["UInt16"] = typeof(UInt16);
+
             TypeNames["uint"] = typeof(UInt32);
+            TypeNames["UInt32"] = typeof(UInt32);
+
             TypeNames["ulong"] = typeof(UInt64);
+            TypeNames["UInt64"] = typeof(UInt64);
 
             foreach (var typ in TypeNames.Values)
             {
@@ -486,16 +516,10 @@ namespace Das.Types
                             break;
                     }
 
-                    //if (!_assemblies.TryGetAssemblyByFileName(kvp.Value, out asm))
-                    //    continue;
-
                     var searchNs = kvp.Key + "." + singleToken;
                     var type = asm.GetType(searchNs);
                     if (type != null)
                         return type;
-
-                    //var omgbbq = asm.GetTypes().OrderBy(t => t.Name).ToArray();
-                    //var plz = omgbbq.FirstOrDefault(t => t.Name == singleToken);
                 }
 
             var arr = Settings.TypeSearchNameSpaces;

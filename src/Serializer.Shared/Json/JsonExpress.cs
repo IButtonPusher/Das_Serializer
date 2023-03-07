@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
@@ -19,10 +18,10 @@ namespace Das.Serializer.Json
                            IObjectManipulator objectManipulator,
                            IStringPrimitiveScanner stringPrimitiveScanner,
                            IDynamicTypes dynamicTypes)
-            : base(']', '}', types)
+            : base(']', '}', types, instantiator)
         {
-            _instantiator = instantiator;
-            _types = types;
+            //_instantiator = instantiator;
+            //_types = types;
             _typeInference = typeInference;
             _objectManipulator = objectManipulator;
             _stringPrimitiveScanner = stringPrimitiveScanner;
@@ -189,14 +188,15 @@ namespace Das.Serializer.Json
 
             AdvanceUntil(ref currentIndex, json, '{');
 
-            var typeStruct = _types.GetTypeStructure(type);//, settings);
+            var typeStruct = _types.GetTypeStructure(type);
 
             while (TryGetNextString(ref currentIndex, json, stringBuilder))
             {
                 var attributeKey = stringBuilder.ToString();
 
                 if (!typeStruct.TryGetPropertyAccessor(attributeKey, settings.ScanPropertyNameFormat,
-                    out var prop))
+                        out var prop))
+                {
                     switch (attributeKey)
                     {
                         case Const.TypeWrap:
@@ -272,6 +272,7 @@ namespace Das.Serializer.Json
 
                             goto endOfObject;
                     }
+                }
 
                 stringBuilder.Clear();
 
@@ -293,28 +294,6 @@ namespace Das.Serializer.Json
             return child;
         }
 
-
-        [MethodImpl(256)]
-        private IList GetCollection(Type type,
-                                    IPropertyAccessor? prop,
-                                    Object? parent)
-        {
-            if (!type.IsArray && prop != null && parent != null)
-                if (prop.GetPropertyValue(parent) is IList list)
-                    return list;
-
-            var res = type.IsArray
-                ? _instantiator.BuildGenericList(_types.GetGermaneType(type))
-                : _instantiator.BuildDefault(type, true);
-            if (res is IList good)
-                return good;
-
-            if (res is ICollection collection &&
-                _types.GetAdder(collection, type) is { } adder)
-                return new ValueCollectionWrapper(collection, adder);
-
-            throw new InvalidOperationException();
-        }
 
         private Object? GetCollectionValue(ref Int32 currentIndex,
                                            String json,
@@ -372,8 +351,8 @@ namespace Das.Serializer.Json
                     }
             }
 
-
-            var collection = GetCollection(type, prop, parent);
+            var collection = GetEmptyCollection(type, prop, parent);
+            //var collection = GetCollection(type, prop, parent);
 
             if (json[currentIndex] != ']')
                 while (true)
@@ -483,6 +462,23 @@ namespace Das.Serializer.Json
                                  Object[] ctorValues,
                                  ISerializerSettings settings)
         {
+            if (type.IsEnum)
+            {
+                SkipWhiteSpace(ref currentIndex, json);
+
+                if (json[currentIndex] == '"')
+                {
+                    // enum from string
+                    return Enum.Parse(type,
+                        GetNextString(ref currentIndex, json, stringBuilder));
+                }
+
+                // enum from int
+                GetNextPrimitive(ref currentIndex, json, stringBuilder);
+                if (int.TryParse(stringBuilder.ToString(), out var iEnumVal))
+                    return Enum.ToObject(type, iEnumVal);
+            }
+
             var code = Type.GetTypeCode(type);
 
             switch (code)
@@ -498,27 +494,6 @@ namespace Das.Serializer.Json
                 case TypeCode.Decimal:
                 case TypeCode.SByte:
                 case TypeCode.Byte:
-
-                    if (type.IsEnum)
-                    {
-                        if (json[currentIndex] == '"')
-                        {
-                            return Enum.Parse(type,
-                                GetNextString(ref currentIndex, json, stringBuilder));
-                        }
-                        else
-                        {
-                            GetNextPrimitive(ref currentIndex, json, stringBuilder);
-                            if (int.TryParse(stringBuilder.ToString(), out var iEnumVal))
-                                return Enum.ToObject(type, iEnumVal);
-                        }
-
-                        //GetNextPrimitive(ref currentIndex, json, stringBuilder);
-                        //if (int.TryParse(stringBuilder.ToString(), out var iEnumVal))
-                        //    return Enum.ToObject(type, iEnumVal);
-                        //return Enum.Parse(type,
-                        //    GetNextString(ref currentIndex, json, stringBuilder));
-                    }
 
                     GetNextPrimitive(ref currentIndex, json, stringBuilder);
 
@@ -537,7 +512,6 @@ namespace Das.Serializer.Json
                            if (stringBuilder.Length == 0)
                               return double.NaN;
                         }
-
                     }
 
                     return Convert.ChangeType(stringBuilder.ToString(), code,
@@ -744,11 +718,9 @@ namespace Das.Serializer.Json
             });
 
         private readonly IDynamicTypes _dynamicTypes;
-
-        private readonly IInstantiator _instantiator;
+        
         private readonly IObjectManipulator _objectManipulator;
         private readonly IStringPrimitiveScanner _stringPrimitiveScanner;
         private readonly ITypeInferrer _typeInference;
-        private readonly ITypeManipulator _types;
     }
 }

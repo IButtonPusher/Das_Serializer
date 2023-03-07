@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading.Tasks;
@@ -12,8 +13,6 @@ using Das.Serializer.Properties;
 using Das.Serializer.State;
 using Das.Serializer.Types;
 using Reflection.Common;
-
-// ReSharper disable All
 
 namespace Das.Serializer.Printers
 {
@@ -24,15 +23,11 @@ namespace Das.Serializer.Printers
         protected DynamicPrinterBuilderBase2(ITypeInferrer typeInferrer,
                                              INodeTypeProvider nodeTypes,
                                              ITypeManipulator typeManipulator,
-                                             ModuleBuilder moduleBuilder,
                                              IInstantiator instantiator)
             : base(typeManipulator, instantiator)
         {
             _typeInferrer = typeInferrer;
             _nodeTypes = nodeTypes;
-            //    _typeManipulator = typeManipulator;
-
-            //_moduleBuilder = moduleBuilder;
         }
 
 
@@ -50,16 +45,11 @@ namespace Das.Serializer.Printers
 
             BuildStaticConstructor(bldr, invariantCulture);
 
-            Type tWriter;
+            var dynamicMethod = SetupPrintMethod(type, bldr, out _);
 
-            var dynamicMethod = SetupPrintMethod(type, bldr, out var gWriter);
-            tWriter = gWriter;
-
-            tWriter = dynamicMethod.GetGenericArguments()[0];
+            var tWriter = dynamicMethod.GetGenericArguments()[0];
 
             var il = dynamicMethod.GetILGenerator();
-
-            /////////////////////////////////////////
 
             var printFields = GetPrintFields(type);
 
@@ -70,49 +60,10 @@ namespace Das.Serializer.Printers
             var state = GetInitialState(type, il, tWriter, invariantCulture,
                 settings, proxies, printFields, converters);
 
-
-
-            //state.AppendChar('{');
-
-            //if (false)
-            {
-
-                foreach (TState protoField in state)
-                    /////////////////////////////////////////
-                {
-                    AddFieldToPrintMethod(protoField);
-
-                    //break;
-                }
-
-
-
-            }
+            foreach (var protoField in state.OfType<TState>())
+                AddFieldToPrintMethod(protoField);
 
             state.AppendChar('}');
-
-            /////////////////////////////////////////
-
-            //var nodeType = _nodeTypes.GetNodeType(type);
-
-            //switch (nodeType)
-            //{
-            //case NodeTypes.Collection:
-            //PrintObjectCollection(type, il, settings);
-            //break;
-
-            //case NodeTypes.Object:
-            //case NodeTypes.PropertiesToConstructor:
-            ////OpenObject(type, il, settings);
-            //var prepend = PrintPropertyCollection(type, il, settings, invariantCulture, tWriter);
-            //CloseObject(il, settings, tWriter, prepend);
-            //break;
-
-            //default:
-            //throw new InvalidOperationException();
-            //}
-
-            /////////////////////////////////////////
 
             il.Emit(OpCodes.Ret);
 
@@ -132,80 +83,7 @@ namespace Das.Serializer.Printers
                                                   IEnumerable<TField> properties,
                                                   Dictionary<TField, FieldInfo> converterFields);
 
-        protected abstract TResult PrintProperty(IPropertyInfo prop,
-                                                 ILGenerator il,
-                                                 Int32 index,
-                                                 ISerializerSettings settings,
-                                                 FieldInfo invariantCulture,
-                                                 TResult prepend,
-                                                 Type tWriter);
-
-        protected abstract TResult PrintPrimitive(Type primitiveType,
-                                                  ILGenerator il,
-                                                  ISerializerSettings settings,
-                                                  Action<ILGenerator> loadPrimitiveValue,
-                                                  FieldInfo invariantCulture,
-                                                  Type tWriter);
-
-        protected abstract TResult PrintFallback(IPropertyInfo prop,
-                                                 ILGenerator il,
-                                                 ISerializerSettings settings,
-                                                 Action<ILGenerator> loadFallbackValue,
-                                                 FieldInfo invariantCulture,
-                                                 Type tWriter);
-
-        protected abstract void OpenObject(Type type,
-                                           ILGenerator il,
-                                           ISerializerSettings settings,
-                                           Type tWriter);
-
-        protected abstract void CloseObject(ILGenerator il,
-                                            ISerializerSettings settings,
-                                            Type tWriter,
-                                            TResult prepend);
-
-
-        protected virtual TResult PrintPropertyValue(IPropertyInfo prop,
-                                                     ILGenerator il,
-                                                     ISerializerSettings settings,
-                                                     FieldInfo invariantCulture,
-                                                     NodeTypes nodeType,
-                                                     Type tWriter)
-        {
-            switch (nodeType)
-            {
-                case NodeTypes.Primitive:
-                    return PrintPrimitive(prop.Type, il, settings,
-                        g => GetPropertyValue(prop, g), invariantCulture, tWriter);
-
-                case NodeTypes.Fallback:
-                    return PrintFallback(prop, il, settings,
-                        g => GetPropertyValue(prop, g), invariantCulture, tWriter);
-
-
-                case NodeTypes.Collection:
-                    PrintObjectCollection(prop.Type, il, settings);
-                    break;
-
-                case NodeTypes.PropertiesToConstructor:
-                case NodeTypes.Object:
-                    var prepend = PrintPropertyCollection(prop.Type, il, settings,
-                        invariantCulture, tWriter);
-                    CloseObject(il, settings, tWriter, prepend);
-                    break;
-
-                case NodeTypes.Dynamic:
-                    break;
-                case NodeTypes.StringConvertible:
-                    break;
-
-
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
-            return default!;
-        }
+    
 
         protected void GetPropertyValue(IPropertyInfo prop,
                                         ILGenerator il)
@@ -249,7 +127,7 @@ namespace Das.Serializer.Printers
             var convertersAdded = new Dictionary<Type, FieldInfo>();
 
             var ctor = bldr.DefineConstructor(MethodAttributes.Public,
-                CallingConventions.Standard, new Type[]
+                CallingConventions.Standard, new[]
                 {
                     typeof(IProxyProvider),
                     typeof(ISerializerSettings)
@@ -286,40 +164,38 @@ namespace Das.Serializer.Printers
 
             foreach (var field in fields)
             {
-                if (field.FieldAction == FieldAction.FallbackSerializable)
+                if (field.FieldAction != FieldAction.FallbackSerializable)
+                    continue;
+
+                var conv = TypeDescriptor.GetConverter(field.Type);
+                var convType = conv.GetType();
+
+                if (convertersAdded.TryGetValue(convType, out var convField))
                 {
-                    var conv = TypeDescriptor.GetConverter(field.Type);
-                    var convType = conv.GetType();
-
-                    if (convertersAdded.TryGetValue(convType, out var convField))
-                    {
-                        converters.Add(field, convField);
-                        continue;
-                    }
-
-                    convField = bldr.DefineField($"_{field.Name}Converter", convType,
-                        FieldAttributes.Private);
-                    convertersAdded.Add(convType, convField);
                     converters.Add(field, convField);
-
-                    var emptyCtor = convType.GetConstructor(Type.EmptyTypes);
-
-                    il.Emit(OpCodes.Ldarg_0);
-
-                    if (emptyCtor != null)
-                        il.Emit(OpCodes.Newobj, emptyCtor!);
-                    else
-                    {
-                        var getConverter = typeof(TypeDescriptor).GetPublicStaticMethodOrDie(
-                            nameof(TypeDescriptor.GetConverter), typeof(Type));
-
-                        throw new NotImplementedException();
-                        //il.Emit(OpCodes.Call, );
-                    }
-
-                    il.Emit(OpCodes.Stfld, convField);
-
+                    continue;
                 }
+
+                convField = bldr.DefineField($"_{field.Name}Converter", convType,
+                    FieldAttributes.Private);
+                convertersAdded.Add(convType, convField);
+                converters.Add(field, convField);
+
+                var emptyCtor = convType.GetConstructor(Type.EmptyTypes);
+
+                il.Emit(OpCodes.Ldarg_0);
+
+                if (emptyCtor != null)
+                    il.Emit(OpCodes.Newobj, emptyCtor!);
+                else
+                {
+                    //var getConverter = typeof(TypeDescriptor).GetPublicStaticMethodOrDie(
+                    //    nameof(TypeDescriptor.GetConverter), typeof(Type));
+
+                    throw new NotImplementedException();
+                }
+
+                il.Emit(OpCodes.Stfld, convField);
             }
 
             il.Emit(OpCodes.Ret);
@@ -348,35 +224,8 @@ namespace Das.Serializer.Printers
             il.Emit(OpCodes.Ret);
         }
 
-        private TResult PrintPropertyCollection(Type type,
-                                                ILGenerator il,
-                                                ISerializerSettings settings,
-                                                FieldInfo invariantCulture,
-                                                Type tWriter)
-        {
-            var typeStruct = _types.GetTypeStructure(type);
-            var properties = typeStruct.Properties;
-
-            var prepend = default(TResult);
-
-            for (var c = 0; c < properties.Length; c++)
-            {
-                var prop = properties[c];
-                prepend = PrintProperty(prop, il, c, settings,
-                    invariantCulture, prepend!, tWriter);
-            }
-
-            return prepend!;
-        }
-
-        private void PrintObjectCollection(Type type,
-                                           ILGenerator il,
-                                           ISerializerSettings settings)
-        {
-        }
-        //protected readonly ITypeManipulator _typeManipulator;
-
-        //private readonly ModuleBuilder _moduleBuilder;
+       
+       
         protected readonly INodeTypeProvider _nodeTypes;
 
         protected readonly ITypeInferrer _typeInferrer;
@@ -387,18 +236,7 @@ namespace Das.Serializer.Printers
             return lastIndex + 1;
         }
 
-        //protected override List<TField> GetProtoPrintFields(Type type)
-        //{
-        //    var res = new List<TField>();
-        //    foreach (var prop in _types.GetPublicProperties(type))
-        //    {
-        //        if (TryGetFieldAccessor(prop, true, GetIndexFromAttribute, out var protoField))
-        //        //if (TryGetProtoField(prop, true, out var protoField))
-        //            res.Add(protoField);
-        //    }
-
-        //    return res;
-        //}
+       
 
     }
 }

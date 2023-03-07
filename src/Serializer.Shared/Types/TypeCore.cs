@@ -62,9 +62,6 @@ namespace Das.Serializer
 
         private Type GetGermaneTypeImpl(Type ownerType)
         {
-            if (!typeof(IEnumerable).IsAssignableFrom(ownerType) || ownerType == typeof(String))
-                return ownerType;
-
             Type? typ = null;
 
             if (ownerType.IsArray)
@@ -72,6 +69,10 @@ namespace Das.Serializer
                 typ = ownerType.GetElementType() ?? throw new InvalidOperationException();
                 return typ;
             }
+
+            if (!typeof(IEnumerable).IsAssignableFrom(ownerType) || ownerType == typeof(String))
+                return ownerType;
+
 
             if (typeof(IDictionary).IsAssignableFrom(ownerType))
             {
@@ -123,8 +124,6 @@ namespace Das.Serializer
                 }
             }
 
-            //var allPublic = GetPublicProperties(type, false);
-            //yesOrNo = allPublic.Any(p => p.CanWrite);
             _typesKnownSettableProperties.TryAdd(type, yesOrNo);
             return yesOrNo;
         }
@@ -146,7 +145,8 @@ namespace Das.Serializer
         public Boolean IsCollection(Type type)
         {
             return CollectionTypes.GetOrAdd(type, t =>
-                t != Const.StrType && typeof(IEnumerable).IsAssignableFrom(t));
+                t != Const.StrType && (typeof(IEnumerable).IsAssignableFrom(t) || 
+                                       t.IsArray));
         }
 
 
@@ -198,10 +198,7 @@ namespace Das.Serializer
                 : props.ToArray();
 
             return rar;
-
-            
         }
-
 
         private static Lazy<ICollection<PropertyInfo>> GetPublicPropertiesLazy(Type type)
         {
@@ -220,15 +217,12 @@ namespace Das.Serializer
             //todo: remove this and get it to work with explicits
             if (type.IsInterface)
             {
-                //var results = new HashSet<PropertyInfo>(res);
-
                 foreach (var parentInterface in type.GetInterfaces())
                 foreach (var pp in GetPublicProperties(parentInterface, false))
                 {
                         if (!lookup.ContainsKey(pp.Name))
                             lookup.Add(pp.Name, pp);
                 }
-
             }
             else
             {
@@ -448,14 +442,7 @@ namespace Das.Serializer
             return IsLeafImpl(t, false, LeavesNotString);
         }
 
-        public static Decimal ToDecimal(Byte[] bytes)
-        {
-            var bits = new Int32[4];
-            for (var i = 0; i <= 15; i += 4)
-                bits[i / 4] = BitConverter.ToInt32(bytes, i);
-
-            return new Decimal(bits);
-        }
+       
 
 
         public static Boolean IsAnonymousType(Type type)
@@ -507,42 +494,98 @@ namespace Das.Serializer
         {
             _rProps ??= new Dictionary<String, Type>(
                 StringComparer.OrdinalIgnoreCase);
+            var isDynamicType = type.Assembly.IsDynamic;
 
             foreach (var p in type.GetProperties())
             {
-                if (p.CanWrite || !p.CanRead)
+                if (!p.CanRead)
                     continue;
 
                 _rProps[p.Name] = p.PropertyType;
             }
 
-            foreach (var con in type.GetConstructors())
+            var validCtors = new Dictionary<ConstructorInfo, Int32>();
+            var typeCtors = type.GetConstructors();
+
+            foreach (var con in typeCtors)
             {
                 var ctorParams = con.GetParameters();
 
-
-                if (ctorParams.Length > _rProps.Count)
-                    continue;
-
-                //if (ctorParams.Length != _rProps.Count)
-                //    continue;
-
                 foreach (var p in ctorParams)
                 {
-                    if (String.IsNullOrEmpty(p.Name) ||
-                        !_rProps.TryGetValue(p.Name, out var propType) ||
-                        !p.ParameterType.IsAssignableFrom(propType))
-                        goto fail;
+                    if (!String.IsNullOrEmpty(p.Name))
+                    {
+                        // regular type (not runtime generated)
+                        if (!_rProps.TryGetValue(p.Name, out var propType) ||
+                            !p.ParameterType.IsAssignableFrom(propType))
+                            goto ctorInvalid;
+                        
+                    }
+                    else
+                    {
+                        isDynamicType = true;
+                        goto dynamicType;
+
+                    }
+
+                    //if (String.IsNullOrEmpty(p.Name) ||
+                    //    !_rProps.TryGetValue(p.Name, out var propType) ||
+                    //    !p.ParameterType.IsAssignableFrom(propType))
+                    //    goto ctorInvalid;
                 }
 
-                _rProps.Clear();
+                dynamicType:
+                if (isDynamicType)
+                {
+                    _tProps ??= new Dictionary<Type, PropertyInfo>();
 
-                return con;
+                    var allMyFields = type.GetFields(Const.AnyInstance);
 
-                fail: ;
+                    foreach (var prop in type.GetProperties())
+                    {
+                        _tProps[prop.PropertyType] = prop;
+                    }
+
+                    foreach (var p in ctorParams)
+                    {
+                        if (!_tProps.ContainsKey(p.ParameterType))
+                        {
+                            if (allMyFields.Any(f => p.ParameterType.IsAssignableFrom(f.FieldType)))
+                                continue;
+                            
+                            _tProps.Clear();
+                            goto ctorInvalid;
+                        }
+                    }
+
+                    _tProps.Clear();
+                    _rProps.Clear();
+                    return con;
+                    //goto ctorInvalid;
+                }
+
+                // all ctor params are valid
+
+                if (ctorParams.Length == _rProps.Count)
+                {
+                    //winner is you
+                    _rProps.Clear();
+                    return con;
+                }
+
+                validCtors.Add(con, ctorParams.Length);
+
+                ctorInvalid: ;
             }
 
             _rProps.Clear();
+
+            foreach (var item in validCtors.OrderByDescending(kvp => kvp.Value))
+                return item.Key;
+
+            //if (isDynamicType && typeCtors.Length > 0)
+            //    return typeCtors[0];
+
             return default;
         }
 
@@ -582,14 +625,15 @@ namespace Das.Serializer
         [ThreadStatic]
         private static Dictionary<String, Type>? _rProps;
 
+        [ThreadStatic]
+        private static Dictionary<Type, PropertyInfo>? _tProps;
+
 
         private static readonly ConcurrentDictionary<Type, Boolean> CollectionTypes;
 
         private static readonly ConcurrentDictionary<Type, Boolean> _typesKnownSettableProperties;
         private static readonly ConcurrentDictionary<Type, Type> _cachedGermane;
-        
-        
-        //private static readonly ConcurrentDictionary<Type, KeyValuePair<Type, Type>> _cachedGermaneEx;
+
 
         private static readonly ConcurrentDictionary<Type, ConstructorInfo?> CachedConstructors;
 
@@ -606,9 +650,6 @@ namespace Das.Serializer
 
         private static readonly ConcurrentDictionary<Type, Lazy<ICollection<PropertyInfo>>>
             CachedProperties;
-
-        //private static readonly ConcurrentDictionary<Type, ICollection<PropertyInfo>>
-        //    CachedProperties;
 
         private static readonly ConcurrentDictionary<Type, TypeConverter> _typeConverters;
 

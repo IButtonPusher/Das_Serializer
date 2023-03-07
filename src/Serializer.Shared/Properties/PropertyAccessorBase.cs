@@ -13,6 +13,7 @@ namespace Das.Serializer.Properties
         : base(getter != null, declaringType, propInfo, propertyName)
         {
             _getter = getter;
+            _propInfo = propInfo;
         }
 
         public Object? GetPropertyValue(Object obj)
@@ -43,7 +44,10 @@ namespace Das.Serializer.Properties
             return true;
         }
 
-      
+        public object? GetValue(Object obj) => GetPropertyValue(obj);
+
+       
+       
 
         public Boolean IsValidForSerialization(SerializationDepth depth)
         {
@@ -63,6 +67,6 @@ namespace Das.Serializer.Properties
         }
 
         private readonly Func<object, object>? _getter;
-        
+        protected readonly PropertyInfo _propInfo;
     }
 }

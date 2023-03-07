@@ -114,12 +114,13 @@
             <param name="allowReadOnly">skips generating a scan method if no usable constructor is found</param>
             <exception cref="T:System.MissingMethodException">If allowReadOnly is false and no default constructor is found</exception>
         </member>
-        <member name="M:Das.Serializer.ProtoBuf.IProtoProvider.GetProtoProxy``1(System.Boolean)">
+        <member name="M:Das.Serializer.ProtoBuf.IProtoProvider.GetProtoProxy``1(Das.Serializer.ISerializerSettings,System.Boolean)">
             <summary>
                 Builds a scan and/or print proxy for type T where properties with the attribute
                 specified in the applicable ProtoBufOptions{TPropertyAttribute} instance
             </summary>
             <typeparam name="T">The type of the class to serialize </typeparam>
+            <param name="settings"></param>
             <param name="allowReadOnly">skips generating a scan method if no usable constructor is found</param>
             <exception cref="T:System.MissingMethodException">If allowReadOnly is false and no default constructor is found</exception>
         </member>
@@ -176,6 +177,12 @@
             <summary>
                 public static void ProtoBufWriter.WriteUInt64(
                 Int64 value, Stream outStream)
+            </summary>
+        </member>
+        <member name="F:Das.Serializer.FieldAction.HasSpecialProperty">
+            <summary>
+            A special property is one where the type and name matches that of the single
+            constructor argument for one of the declaring type's constructors
             </summary>
         </member>
         <member name="M:Das.Serializer.Remunerators.IProtoWriter.GetVarIntLength(System.Int32)">

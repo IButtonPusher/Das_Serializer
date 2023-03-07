@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
+using Das.Extensions;
 
 namespace Das.Serializer.Properties
 {
@@ -16,6 +18,9 @@ namespace Das.Serializer.Properties
             propertyInfo.GetGetMethod(),
             propertyInfo.CanWrite ? propertyInfo.GetSetMethod() : default)
         {
+            IsMemberSerializable = propertyInfo.GetCustomAttribute<NonSerializedAttribute>() == null
+                && propertyInfo.GetCustomAttribute<IgnoreDataMemberAttribute>() == null;
+
             //Name = propertyInfo.Name;
             //Type = propertyInfo.PropertyType;
 
@@ -42,7 +47,7 @@ namespace Das.Serializer.Properties
             }
         }
 
-        
+        public Boolean IsMemberSerializable { get; }
 
         //public String Name { get; }
 

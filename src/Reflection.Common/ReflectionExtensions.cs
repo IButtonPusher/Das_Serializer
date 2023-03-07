@@ -212,7 +212,8 @@ namespace Reflection.Common
         public static MethodInfo GetPropertyGetterOrDie(this Type classType,
                                                         String propertyName)
         {
-            return GetPropertyGetterOrDie(classType, propertyName, PublicInstance);
+            var prop = GetPropertyOrDie(classType, propertyName);
+            return prop.GetGetMethod() ?? Die(classType, propertyName);
         }
 
         [Pure]
@@ -240,7 +241,8 @@ namespace Reflection.Common
         public static MethodInfo GetPropertySetterOrDie(this Type classType,
                                                         String propertyName)
         {
-            return GetPropertyGetterOrDie(classType, propertyName, PublicInstance);
+            var prop = GetPropertyOrDie(classType, propertyName);
+            return prop.GetSetMethod() ?? Die(classType, propertyName);
         }
 
         [Pure]
@@ -287,6 +289,10 @@ namespace Reflection.Common
         public static PropertyInfo GetPropertyOrDie(this Type classType,
                                                     String propertyName)
         {
+            var prop = classType.GetProperty(propertyName, PublicDeclaredInstance);
+            if (prop != null)
+                return prop;
+            
             return GetPropertyOrDie(classType, propertyName, PublicInstance);
         }
 
@@ -295,7 +301,7 @@ namespace Reflection.Common
                                                     String propertyName,
                                                     BindingFlags flags)
         {
-            var wot = classType.GetProperty(propertyName);
+            var wot = classType.GetProperty(propertyName, flags);
             if (wot == null && classType.IsInterface)
                 foreach (var @interface in classType.GetInterfaces())
                 {
@@ -345,6 +351,7 @@ namespace Reflection.Common
         private const BindingFlags AnyStatic = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic 
                                                | BindingFlags.FlattenHierarchy;
         private const BindingFlags PublicInstance = BindingFlags.Instance | BindingFlags.Public;
+        private const BindingFlags PublicDeclaredInstance = BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly;
 
         private const BindingFlags NonPublicInstance = BindingFlags.Instance |
                                                        BindingFlags.NonPublic;

@@ -220,54 +220,6 @@ namespace Das.Serializer.ProtoBuf
             return typeof(IProtoProxy<>).MakeGenericType(argType);
         }
 
-        //private static ProxiedInstanceField CreateLocalProxy(INamedField field,
-        //                                                     TypeBuilder builder,
-        //                                                     Type germane)
-        //{
-        //    var proxyType = typeof(IProtoProxy<>).MakeGenericType(germane);
-
-        //    var fieldInfo =  builder.DefineField($"_{field.Name}Proxy", proxyType, FieldAttributes.Private);
-        //    return new ProxiedInstanceField(proxyType, fieldInfo,
-        //        proxyType.GetMethodOrDie(nameof(IProtoProxy<Object>.Print)));
-        //}
-
-        //private Dictionary<Type, ProxiedInstanceField> CreateProxyFields(TypeBuilder bldr,
-        //                                                                 IEnumerable<IProtoFieldAccessor> fields)
-        //{
-        //    var typeProxies = new Dictionary<Type, ProxiedInstanceField>();
-
-        //    foreach (var field in fields)
-        //    {
-        //        switch (field.FieldAction)
-        //        {
-        //            case ProtoFieldAction.ChildObject:
-        //                if (typeProxies.ContainsKey(field.Type))
-        //                    continue;
-
-        //                var local = CreateLocalProxy(field, bldr, field.Type);
-        //                typeProxies[field.Type] = local;
-        //                break;
-
-        //            case ProtoFieldAction.ChildObjectArray:
-        //            case ProtoFieldAction.ChildObjectCollection:
-        //            case ProtoFieldAction.Dictionary:
-        //                var germane = _types.GetGermaneType(field.Type);
-
-        //                if (typeProxies.ContainsKey(germane))
-        //                    continue;
-
-        //                var bldr2 = CreateLocalProxy(field, bldr, germane);
-
-        //                typeProxies[germane] = bldr2;
-
-        //                break;
-        //        }
-        //    }
-
-        //    return typeProxies;
-        //}
-
-      
     }
 }
 

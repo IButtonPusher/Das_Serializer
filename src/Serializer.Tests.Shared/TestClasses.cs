@@ -146,7 +146,7 @@ namespace Serializer.Tests
         public String SuperSecret { get; }
 
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var sc = obj as SimpleClassObjectProperty;
             if (sc == null)
@@ -590,5 +590,10 @@ namespace Serializer.Tests
         {
             Version = new Version(3, 1, 4)
         };
+    }
+
+    public class SimpleClassNewProp : SimpleClass
+    {
+        public new String Animal { get; set; }
     }
 }

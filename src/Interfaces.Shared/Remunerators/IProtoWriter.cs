@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer.Remunerators
 {
-    public interface IProtoWriter //: IBinaryWriter
+    public interface IProtoWriter
     {
         Int32 GetPackedArrayLength16<TCollection>(TCollection packedArray)
             where TCollection : IEnumerable<Int16>;
@@ -22,7 +22,6 @@ namespace Das.Serializer.Remunerators
         /// <param name="varInt"></param>
         /// <returns></returns>
         Int32 GetVarIntLength(Int32 varInt);
-        //IProtoWriter Push();
 
         void Write(Byte[] bytes,
                    Int32 count,

@@ -24,7 +24,6 @@ namespace Das.Serializer.State
 
         Label VerifyShouldPrintValue();
 
-        
 
         ILGenerator IL { get; }
 

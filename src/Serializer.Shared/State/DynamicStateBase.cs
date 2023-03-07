@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Das.Extensions;
 using Das.Serializer.CodeGen;
 using Das.Serializer.Properties;
+using Reflection.Common;
 
 namespace Das.Serializer.State
 {
@@ -17,6 +18,8 @@ namespace Das.Serializer.State
         static DynamicStateBase()
         {
             _getArrayLength = typeof(Array).GetterOrDie(nameof(Array.Length), out _);
+            _canConvertToFileTime = typeof(ExtensionMethods).GetPublicStaticMethodOrDie(
+                nameof(ExtensionMethods.CanConvertToFileTime), typeof(DateTime));
         }
 
         protected DynamicStateBase(ILGenerator il,
@@ -61,21 +64,41 @@ namespace Das.Serializer.State
         public virtual Label VerifyShouldPrintValue()
         {
             var propertyType = CurrentField.Type;
+            var typeCode = CurrentField.TypeCode;
 
             var gotoIfFalse = _il.DefineLabel();
+
+            if (propertyType == typeof(DateTime))
+            {
+                LoadCurrentFieldValueToStack();
+                _il.Emit(OpCodes.Call, _canConvertToFileTime);
+                _il.Emit(OpCodes.Brfalse, gotoIfFalse);
+            }
+
+            
 
             if (propertyType.IsPrimitive)
             {
                 LoadCurrentFieldValueToStack();
 
-                if (propertyType == typeof(Double))
+                switch (typeCode)
                 {
-                    _il.Emit(OpCodes.Ldc_R8, 0.0);
-                    _il.Emit(OpCodes.Ceq);
-                    _il.Emit(OpCodes.Brtrue, gotoIfFalse);
+                    case TypeCode.Single:
+                        _il.Emit(OpCodes.Ldc_R4, 0.0f);
+                        _il.Emit(OpCodes.Ceq);
+                        _il.Emit(OpCodes.Brtrue, gotoIfFalse);
+                        break;
+
+                    case TypeCode.Double:
+                        _il.Emit(OpCodes.Ldc_R8, 0.0);
+                        _il.Emit(OpCodes.Ceq);
+                        _il.Emit(OpCodes.Brtrue, gotoIfFalse);
+                        break;
+
+                    default:
+                        _il.Emit(OpCodes.Brfalse, gotoIfFalse);
+                        break;
                 }
-                else
-                    _il.Emit(OpCodes.Brfalse, gotoIfFalse);
 
                 goto done;
             }
@@ -92,6 +115,8 @@ namespace Das.Serializer.State
             done:
             return gotoIfFalse;
         }
+
+        public IFieldActionProvider ActionProvider => _actionProvider;
 
         public ILGenerator IL => _il;
 
@@ -121,7 +146,7 @@ namespace Das.Serializer.State
         {
             var nullableType = CurrentField.Type;
 
-            if (!_types.TryGetNullableType(nullableType, out var baseType))
+            if (!_types.TryGetNullableType(nullableType, out _))
                 throw new InvalidOperationException();
 
             var tmpVal = GetLocal(nullableType);
@@ -204,6 +229,8 @@ namespace Das.Serializer.State
         private readonly IDictionary<Type, ProxiedInstanceField> _proxies;
 
         protected readonly IFieldActionProvider _actionProvider;
+
+        private static readonly MethodInfo _canConvertToFileTime;
     }
 }
 

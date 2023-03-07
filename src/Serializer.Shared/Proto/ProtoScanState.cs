@@ -105,6 +105,9 @@ namespace Das.Serializer.ProtoBuf
                 case FieldAction.String:
                 case FieldAction.ChildObject:
                 case FieldAction.ByteArray:
+                case FieldAction.DateTime:
+                case FieldAction.FallbackSerializable:
+                case FieldAction.HasSpecialProperty:
 
                     asPrimitive:
 
@@ -164,6 +167,9 @@ namespace Das.Serializer.ProtoBuf
 
                     return res;
 
+              
+                case FieldAction.NullableValueType:
+                case FieldAction.Enum:
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -188,6 +194,12 @@ namespace Das.Serializer.ProtoBuf
                 case FieldAction.ChildObject:
                 case FieldAction.ByteArray:
                 case FieldAction.PackedArray:
+                
+                case FieldAction.DateTime:
+                case FieldAction.NullableValueType:
+                case FieldAction.HasSpecialProperty:
+                case FieldAction.FallbackSerializable:
+                case FieldAction.Enum:
 
                     if (canSetValueInline)
                         res = (_,
@@ -230,6 +242,9 @@ namespace Das.Serializer.ProtoBuf
 
                     return res;
 
+               
+               
+                
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -430,6 +445,8 @@ namespace Das.Serializer.ProtoBuf
 
         private readonly FieldInfo _readBytesField;
         private readonly IStreamAccessor _streamAccessor;
+
+        //private static readonly MethodInfo _dateFromFileTime;
     }
 }
 

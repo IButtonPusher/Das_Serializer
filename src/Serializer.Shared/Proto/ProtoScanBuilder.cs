@@ -15,14 +15,13 @@ using Reflection.Common;
 namespace Das.Serializer.ProtoBuf
 {
     // ReSharper disable once UnusedTypeParameter
-    // ReSharper disable once UnusedType.Global
     public partial class ProtoDynamicProvider<TPropertyAttribute>
     {
         /// <summary>
         ///     Puts the next field index on the stack.  Jumps to
         /// </summary>
-        private Label AddLoadCurrentFieldIndex(ILGenerator il,
-                                               Label goNextLabel)
+        private static Label AddLoadCurrentFieldIndex(ILGenerator il,
+                                                      Label goNextLabel)
         {
             /////////////////////////////
             // 1. GET CURRENT FIELD INDEX
@@ -366,8 +365,8 @@ namespace Das.Serializer.ProtoBuf
             return method;
         }
 
-        private void ScanChildObject(Type type,
-                                     IProtoScanState s)
+        private static void ScanChildObject(Type type,
+                                            IProtoScanState s)
         {
             var il = s.IL;
 
@@ -392,7 +391,8 @@ namespace Das.Serializer.ProtoBuf
         }
 
         /// <summary>
-        ///     Can be an actual field or an instance of a collection field.  Leaves the value on the stack
+        ///     Can be an actual field or an instance of a collection field.
+        /// Leaves the value on the stack
         /// </summary>
         private void ScanValueToStack(IProtoScanState s,
                                       ILGenerator il,
@@ -439,6 +439,35 @@ namespace Das.Serializer.ProtoBuf
                     ScanCollection(fieldType, s);
                     return;
 
+                case FieldAction.DateTime:
+                    ScanAsVarInt(il, TypeCode.Int64, ProtoWireTypes.Varint);
+                    il.Emit(OpCodes.Call, _dateFromFileTime);
+                    break;
+
+                case FieldAction.HasSpecialProperty:
+                case FieldAction.FallbackSerializable:
+                
+                    if (TryGetSpecialProperty(s.CurrentField.Type, out var pInfo))
+                    {
+                        var ctor = s.CurrentField.Type.GetConstructorOrDie(new[] 
+                            { pInfo.PropertyType });
+
+                        var fa = GetProtoFieldAction(pInfo.PropertyType);
+                        var propType = pInfo.PropertyType;
+                        var wt = ProtoBufSerializer.GetWireType(propType);
+                        ScanValueToStack(s, il, propType, Type.GetTypeCode(propType),
+                            wt, fa, isValuePreInitialized);
+                        il.Emit(OpCodes.Newobj, ctor);
+                    }
+                    else throw new NotImplementedException();
+                    break;
+
+                
+                case FieldAction.NullableValueType:
+                case FieldAction.Enum:
+                
+                
+                
                 default:
                     throw new ArgumentOutOfRangeException();
             }

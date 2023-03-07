@@ -28,12 +28,11 @@ namespace Das.Serializer.ProtoBuf
             var stream = typeof(Stream);
             var writer = typeof(ProtoBufWriter);
             var protoDynBase = typeof(ProtoDynamicBase);
-            var bitConverter = typeof(BitConverter);
 
             _writeInt8 = writer.GetPublicStaticMethodOrDie(
                 nameof(ProtoBufWriter.WriteInt8), typeof(Byte), stream);
             _writeChar = writer.GetPublicStaticMethodOrDie(
-                nameof(ProtoBufWriter.WriteInt8), typeof(Char), stream);
+                nameof(ProtoBufWriter.WriteChar), typeof(Char), stream);
 
             _writeInt16 = writer.GetPublicStaticMethodOrDie(nameof(ProtoBufWriter.WriteInt16),
                 typeof(Int16), stream);
@@ -67,6 +66,11 @@ namespace Das.Serializer.ProtoBuf
                 nameof(ProtoDynamicBase.CopyMemoryStream));
             _setStreamLength = stream.GetMethodOrDie(nameof(Stream.SetLength));
 
+            var bitConverter = typeof(BitConverter);
+
+            _getDecimalBytes = typeof(ExtensionMethods).GetPublicStaticMethodOrDie(
+                nameof(ExtensionMethods.ToByteArray), typeof(Decimal));
+
             _getDoubleBytes = bitConverter.GetPublicStaticMethodOrDie(nameof(BitConverter.GetBytes),
                 typeof(Double));
 
@@ -76,6 +80,8 @@ namespace Das.Serializer.ProtoBuf
             _getPackedInt32Length = writer.GetPublicStaticMethodOrDie(nameof(ProtoBufWriter.GetPackedArrayLength32));
             _getPackedInt16Length = writer.GetPublicStaticMethodOrDie(nameof(ProtoBufWriter.GetPackedArrayLength16));
             _getPackedInt64Length = writer.GetPublicStaticMethodOrDie(nameof(ProtoBufWriter.GetPackedArrayLength64));
+
+            _dateToFileTime = typeof(DateTime).GetMethodOrDie(nameof(DateTime.ToFileTime));
         
 
             Utf8 = protoDynBase.GetPrivateStaticFieldOrDie("Utf8");
@@ -110,6 +116,11 @@ namespace Das.Serializer.ProtoBuf
             return GetEnumerator();
         }
 
+        //IEnumerator<IDynamicPrintState<IProtoFieldAccessor, bool, ILGenerator>> IEnumerable<IDynamicPrintState<IProtoFieldAccessor, bool, ILGenerator>>.GetEnumerator()
+        //{
+        //    return GetEnumerator();
+        //}
+
         public IEnumerator<ProtoPrintState> GetEnumerator()
         {
             for (var c = 0; c < Fields.Length; c++)
@@ -123,8 +134,8 @@ namespace Das.Serializer.ProtoBuf
         {
             return GetEnumerator();
         }
-
-        public void PrintFieldViaProxy(Action<ILGenerator> loadFieldValue)
+        
+        public void PrintFieldViaProxy(Action loadFieldValue)
         {
             var protoField = _currentField;
 
@@ -140,7 +151,8 @@ namespace Das.Serializer.ProtoBuf
             // LEAVES THE CHILD STREAM WITH THE SERIALIZED BYTES
             /////////////////////////////////////////////////////
 
-            loadFieldValue(_il);
+            //loadFieldValue(_il);
+            loadFieldValue();
             _il.Emit(OpCodes.Ldloc, ChildObjectStream);
             _il.Emit(OpCodes.Call, printMethod);
 
@@ -191,8 +203,10 @@ namespace Das.Serializer.ProtoBuf
 
         public Byte[] CurrentFieldHeader => _currentField.HeaderBytes;
 
-        public void PrintChildObjectField(Action<ILGenerator> loadObject,
-                                     Type fieldType)
+        //public void PrintChildObjectField(Action<ILGenerator> loadObject,
+        //                             Type fieldType)
+        public void PrintChildObjectField(Action loadObject,
+                                          Type fieldType)
         {
             var headerBytes = CurrentFieldHeader;
             PrintHeaderBytes(headerBytes);
@@ -206,7 +220,8 @@ namespace Das.Serializer.ProtoBuf
 
             _il.Emit(OpCodes.Ldarg_0);
             _il.Emit(OpCodes.Ldfld, proxyField);
-            loadObject(_il);
+            //loadObject(_il);
+            loadObject();
 
             _il.Emit(OpCodes.Ldloc, ChildObjectStream);
 
@@ -240,6 +255,22 @@ namespace Das.Serializer.ProtoBuf
             _il.Emit(OpCodes.Callvirt, _setStreamLength);
         }
 
+        //public override void LoadCurrentFieldValueToStack()
+        //{
+        //    base.LoadCurrentFieldValueToStack();
+
+        //    switch (CurrentField.TypeCode)
+        //    {
+        //        case TypeCode.Single:
+        //            _il.Emit(OpCodes.Call, _getSingleBytes);
+        //            break;
+
+        //        case TypeCode.Double:
+        //            _il.Emit(OpCodes.Call, _getDoubleBytes);
+        //            break;
+        //    }
+        //}
+
 
         [MethodImpl(MethodImplOptions.NoOptimization)]
         public void EnsureChildObjectStream()
@@ -257,12 +288,7 @@ namespace Das.Serializer.ProtoBuf
 
         
 
-        public void PrintDateTimeField()
-        {
-            throw new NotImplementedException();
-        }
-
-
+       
         private void PrintHeaderBytes(Byte[] headerBytes)
         {
             var s = this;
@@ -373,10 +399,14 @@ namespace Das.Serializer.ProtoBuf
         /// </summary>
         protected static readonly MethodInfo _getDoubleBytes;
 
+        protected static readonly MethodInfo _getDecimalBytes;
+
         protected static readonly MethodInfo _getPackedInt16Length;
 
         protected static readonly MethodInfo _getPackedInt32Length;
         protected static readonly MethodInfo _getPackedInt64Length;
+
+        protected static readonly MethodInfo _dateToFileTime;
 
         protected static readonly FieldInfo Utf8;
 
@@ -446,22 +476,22 @@ namespace Das.Serializer.ProtoBuf
 
         public void AppendSingle()
         {
-            _il.Emit(OpCodes.Call, _getSingleBytes);
-            _il.Emit(OpCodes.Ldarg_2);
+            //_il.Emit(OpCodes.Call, _getSingleBytes);
+            //_il.Emit(OpCodes.Ldarg_2);
             _il.Emit(OpCodes.Call, _writeBytes);
         }
 
         public void AppendDouble()
         {
-            _il.Emit(OpCodes.Call, _getDoubleBytes);
-            _il.Emit(OpCodes.Ldarg_2);
+            //_il.Emit(OpCodes.Call, _getDoubleBytes);
+            //_il.Emit(OpCodes.Ldarg_2);
             _il.Emit(OpCodes.Call, _writeBytes);
         }
 
         public void AppendDecimal()
         {
-            _il.Emit(OpCodes.Call, _getDoubleBytes);
-            _il.Emit(OpCodes.Ldarg_2);
+            //_il.Emit(OpCodes.Call, _getDoubleBytes);
+            //_il.Emit(OpCodes.Ldarg_2);
             _il.Emit(OpCodes.Call, _writeBytes);
         }
     }

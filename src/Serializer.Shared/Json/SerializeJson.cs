@@ -102,7 +102,9 @@ namespace Das.Serializer
 
             #else
 
-            return ToJson(obj, obj.GetType());
+            return obj == null
+                ? string.Empty
+                : ToJson(obj, obj.GetType());
 
             #endif
         }

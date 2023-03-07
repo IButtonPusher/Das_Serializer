@@ -2,6 +2,7 @@
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
+using Das.Extensions;
 
 namespace Das.Serializer
 {
@@ -30,7 +31,7 @@ namespace Das.Serializer
                     return GetString(input);
 
                 case TypeCode.Decimal:
-                    return ToDecimal(input);
+                    return ExtensionMethods.ToDecimal(input);
 
                 case TypeCode.DateTime:
                     var ticks = _instantiator.CreatePrimitiveObject<Int64>(input, typeof(Int64));
@@ -103,12 +104,6 @@ namespace Das.Serializer
                 return null;
 
             return BitConverter.ToString(tempByte, 0);
-
-            //fixed (Byte* bptr = tempByte)
-            //{
-            //    var cptr = (Char*) bptr;
-            //    return new String(cptr, 0, tempByte.Length / 2);
-            //}
         }
 
 

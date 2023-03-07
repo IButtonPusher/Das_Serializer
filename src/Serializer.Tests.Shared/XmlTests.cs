@@ -2,8 +2,10 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Xml;
@@ -121,6 +123,18 @@ namespace Serializer.Tests.Xml
             var xml = Serializer.ToXml(mc1);
 
             var mc2 = Serializer.FromXml<ObjectDictionary>(xml);
+
+            if (mc1 == null || mc2 == null)
+                Assert.False(true);
+            if (mc1.Dic.Count != mc2.Dic.Count)
+                Assert.False(true);
+            Assert.True(Serializer.ToXml(mc2) == xml);
+
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("DE-de");
+
+            xml = Serializer.ToXml(mc1);
+
+            mc2 = Serializer.FromXml<ObjectDictionary>(xml);
 
             if (mc1 == null || mc2 == null)
                 Assert.False(true);
@@ -265,6 +279,18 @@ namespace Serializer.Tests.Xml
             }
 
             Assert.True(count == 100);
+        }
+
+        [Fact]
+        public void ExplicitImplementation()
+        {
+            var ei = new ExplicitImplementation();
+
+            var xml = srl.ToXml(ei);
+
+            var eio = srl.FromXml<ExplicitImplementation>(xml);
+
+            Assert.True(SlowEquality.AreEqual(ei, eio));
         }
 
         [Fact]
@@ -513,22 +539,27 @@ namespace Serializer.Tests.Xml
             sc.Payload = sc.Name;
 
             {
-                //var srl = new DasSerializer();
+                
                 var xml = srl.ToXml(sc);
 
                 var sc2 = srl.FromXml<SimpleClassObjectProperty>(xml);
                 var badProp = "";
                 Assert.True(SlowEquality.AreEqual(sc, sc2, ref badProp));
             }
+        }
 
-            //{
-            //    var srl = new DasCoreSerializer();
-            //    var xml = srl.ToXml(sc);
+        [Fact]
+        public void XmlPartialPropertyCtor()
+        {
+            var data = new PartialPropertyCtor(true, "string1", "string2",
+                false, "string3", "string4", true, "string5", "string6",
+                3.14, 11280, false, true, "string7", "string9", 0.15926);
 
-            //    var sc2 = srl.FromXml<SimpleClassObjectProperty>(xml);
-            //    var badProp = "";
-            //    Assert.True(SlowEquality.AreEqual(sc, sc2, ref badProp));
-            //}
+            var xml = srl.ToXml(data);
+
+            var data2 = srl.FromXml<PartialPropertyCtor>(xml);
+
+            Assert.True(SlowEquality.AreEqual(data, data2));
         }
     }
 }

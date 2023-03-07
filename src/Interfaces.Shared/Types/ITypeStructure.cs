@@ -9,14 +9,14 @@ namespace Das.Serializer
 {
     public interface ITypeStructure : ITypeAccessor
     {
-       IPropertyAccessor[] Properties { get; }
+        IPropertyAccessor[] Properties { get; }
 
         Int32 PropertyCount { get; }
 
         /// <summary>
         ///     Returns properties and/or fields depending on specified depth
         /// </summary>
-        IEnumerable<INamedField> GetMembersToSerialize(SerializationDepth depth);
+        IEnumerable<IMemberAccessor> GetMembersToSerialize(SerializationDepth depth);
 
         TProperty GetPropertyValue<TObject, TProperty>(TObject o,
                                                        String propertyName);
@@ -50,11 +50,18 @@ namespace Das.Serializer
                                        PropertyNameFormat format,
                                        out IPropertyAccessor accessor);
 
-        
+
 
         Boolean TrySetPropertyValue(String propName,
                                     PropertyNameFormat format,
                                     ref Object targetObj,
                                     Object? propVal);
+
+        Boolean TryGetValueForParameter(Object obj,
+                                        ParameterInfo prm,
+                                        SerializationDepth depth,
+                                        out Object? value,
+                                        out Boolean isMemberSerializable);
+
     }
 }

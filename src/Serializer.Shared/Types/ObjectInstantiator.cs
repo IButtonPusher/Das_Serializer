@@ -9,6 +9,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
@@ -25,7 +26,6 @@ namespace Das.Serializer
             Constructors = new ConcurrentDictionary<Type, ConstructorInfo?>();
             KnownOnDeserialize = new ConcurrentDictionary<Type, Boolean>();
             GenericListDelegates = new ConcurrentDictionary<Type, Func<IList>>();
-            OnDeserializedDelegates = new ConcurrentDictionary<Type, Delegate?>();
         }
 
 
@@ -46,6 +46,11 @@ namespace Das.Serializer
         public Object? BuildDefault(Type type,
                                     Boolean isCacheConstructors)
         {
+            if (typeof(Type).IsAssignableFrom(type))
+            {
+                return default;
+            }
+
             if (_typeSurrogates.ContainsKey(type))
                 type = _typeSurrogates[type];
 
@@ -92,11 +97,10 @@ namespace Das.Serializer
                             return null;
 
                         default:
-                            throw new NotImplementedException();
+                            throw new NotSupportedException($"Cannot instantiate abstract type {type}");
                     }
-
                 default:
-                    throw new NotImplementedException();
+                    throw new NotSupportedException($"Cannot instantiate type {type}");
             }
         }
 
@@ -158,18 +162,36 @@ namespace Das.Serializer
                 KnownOnDeserialize.TryAdd(node.Type, dothProceed);
         }
 
-        private static readonly StreamingContext _streamingContext = new(StreamingContextStates.Persistence);
+        //private static readonly StreamingContext _streamingContext = new(StreamingContextStates.Persistence);
 
+        [MethodImpl(MethodImplOptions.NoOptimization)]
         public void OnDeserialized<T>(T obj)
         {
 
            var type = typeof(T);
 
-           var action = OnDeserializedDelegates.GetOrAdd(type, _ => BuildOnDeserializedDelegate<T>());
-           if (action is not Action<T, StreamingContext> jackson)
-              return;
+           var wasKnown = KnownOnDeserialize.TryGetValue(type, out var dothProceed);
 
-           jackson(obj, _streamingContext);
+           if (wasKnown && !dothProceed)
+               return;
+
+           //var action = OnDeserializedDelegates.GetOrAdd(type, _ => BuildOnDeserializedDelegate<T>());
+           //if (action is not Action<T, StreamingContext> jackson)
+           //   return;
+
+           //Console.WriteLine("calling " + jackson);
+
+           var str = _typeManipulator.GetTypeStructure(type);//, depth);
+           dothProceed = str.OnDeserialized(obj!, _objectManipulator);
+
+           if (!wasKnown)
+               KnownOnDeserialize.TryAdd(type, dothProceed);
+
+        //_objectManipulator.Method(obj,);
+
+           //jackson(obj, _streamingContext);
+
+          
 
             //var str = _typeManipulator.GetTypeStructure(typeof(T));
             //var dothProceed = str.OnDeserialized(obj!, _objectManipulator);
@@ -177,22 +199,22 @@ namespace Das.Serializer
             //KnownOnDeserialize.TryAdd(typeof(T), dothProceed);
         }
 
-        private static Action<T, StreamingContext>? BuildOnDeserializedDelegate<T>()
-        {
-           foreach (var meth in typeof(T).GetMethods())
-           {
-              var prms = meth.GetParameters();
-              if (prms.Length != 1 || prms[0].ParameterType != typeof(StreamingContext) ||
-                  !meth.IsDefined(typeof(OnDeserializedAttribute), false))
-              {
-                 continue;
-              }
+        //private static Action<T, StreamingContext>? BuildOnDeserializedDelegate<T>()
+        //{
+        //   foreach (var meth in typeof(T).GetMethods())
+        //   {
+        //      var prms = meth.GetParameters();
+        //      if (prms.Length != 1 || prms[0].ParameterType != typeof(StreamingContext) ||
+        //          !meth.IsDefined(typeof(OnDeserializedAttribute), false))
+        //      {
+        //         continue;
+        //      }
 
-              return TypeManipulator.CreateMethodCaller<Action<T, StreamingContext>>(meth);
-           }
+        //      return TypeManipulator.CreateMethodCaller<Action<T, StreamingContext>>(meth);
+        //   }
 
-           return default;
-        }
+        //   return default;
+        //}
 
 
         public T CreatePrimitiveObject<T>(Byte[] rawValue,
@@ -225,9 +247,12 @@ namespace Das.Serializer
         }
 
         public bool TryGetDefaultConstructor(Type type,
+                                             #if NETSTANDARD21 || NET40
+                                             [System.Diagnostics.CodeAnalysis.MaybeNullWhen(false)]
+                                                #endif   
                                              out ConstructorInfo ctor)
         {
-            if (Constructors.TryGetValue(type, out ctor!))
+            if (Constructors.TryGetValue(type, out ctor))
             {
                 if (ctor == null)
                     return false;
@@ -426,14 +451,58 @@ namespace Das.Serializer
         {
             var delegateType = typeof(TDelegate);
 
+            var genericArguments = delegateType.GetGenericArguments();
+            //var argTypes = genericArguments.Length > 1
+            //    ? genericArguments.Take(genericArguments.Length - 1).ToArray()
+            //    : Type.EmptyTypes;
+            var constructor = GetConstructor(type, genericArguments, out var argTypes);
+
+            return TryGetConstructorDelegateImpl(type, constructor, argTypes,
+                out result);
+        }
+
+        public bool TryGetConstructorDelegate<TDelegate>(Type type,
+                                                         ConstructorInfo constructor,
+                                                         out TDelegate result)
+            where TDelegate : Delegate
+        {
+            var delegateType = typeof(TDelegate);
+
+            var genericArguments = delegateType.GetGenericArguments();
+            var argTypes = genericArguments.Length > 1
+                ? genericArguments.Take(genericArguments.Length - 1).ToArray()
+                : Type.EmptyTypes;
+
+            return TryGetConstructorDelegateImpl(type, constructor, argTypes,
+                out result);
+        }
+
+        private static bool TryGetConstructorDelegateImpl<TDelegate>(Type type,
+                                                                     ConstructorInfo? constructor,
+                                                                     Type[] argTypes,
+                                                                     out TDelegate result)
+            where TDelegate : Delegate
+        {
+
+        //}
+
+        //public bool TryGetConstructorDelegate<TDelegate>(Type type,
+        //                                                 out TDelegate result)
+        //    where TDelegate : Delegate
+        //{
+            var delegateType = typeof(TDelegate);
+
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
 
             if (delegateType == null)
                 throw new ArgumentNullException(nameof(delegateType));
 
-            var genericArguments = delegateType.GetGenericArguments();
-            var constructor = GetConstructor(type, genericArguments, out var argTypes);
+            //var genericArguments = delegateType.GetGenericArguments();
+            //var argTypes = genericArguments.Length > 1
+            //    ? genericArguments.Take(genericArguments.Length - 1).ToArray()
+            //    : Type.EmptyTypes;
+            //constructor = GetConstructor(type, genericArguments, out var argTypes);
 
             if (constructor == null)
             {
@@ -616,7 +685,7 @@ namespace Das.Serializer
 
         #endif
 
-        private static readonly ConcurrentDictionary<Type, Delegate?> OnDeserializedDelegates;
+        //private static readonly ConcurrentDictionary<Type, Delegate?> OnDeserializedDelegates;
         private static readonly ConcurrentDictionary<Type, InstantiationType> InstantionTypes;
         private static readonly ConcurrentDictionary<Type, Func<Object>> ConstructorDelegates;
         private static readonly ConcurrentDictionary<Type, Func<IList>> GenericListDelegates;

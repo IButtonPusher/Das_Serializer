@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>d4654587-15f1-45f0-8e73-239d45c4c07c</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Serializer.Tests.Shared</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)BinaryTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ExpressionTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ILPurgatory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)INiceAndEasy.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)InstantiationTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)JsonTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ProtocolBuffers\ProtoBufTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ProtocolBuffers\SimpleMessage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ProtocolBuffers\UnDecompileDump.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SlowEquality.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TestBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TestClasses.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TestTypes\AbstractTypes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TestTypes\ExplicitImplementation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TestTypes\PartialPropertyCtor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TestTypes\PropertyImplicitToCtorParam.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TypeTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)XmlTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xml\SvgDocument.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xml\SvgPath.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)Xml\book.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)Xml\cog.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)Xml\ExtraAttributes.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)Xml\Headlines.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>

@@ -15,6 +15,8 @@ namespace Das.Serializer.Properties
         {
             _setter = setter;
             CanWrite = setter != null;
+
+           
         }
 
         public Boolean SetPropertyValue(ref T targetObj,
@@ -25,6 +27,12 @@ namespace Das.Serializer.Properties
             _setter(ref targetObj!, propVal);
             return true;
         }
+
+  
+
+        public bool TrySetValue(ref Object targetObj,
+                                Object? propVal) =>
+            SetPropertyValue(ref targetObj, propVal);
 
         public override Boolean CanWrite { get; }
 
@@ -38,6 +46,7 @@ namespace Das.Serializer.Properties
         }
 
         private readonly PropertySetter<T>? _setter;
+
 
         
     }

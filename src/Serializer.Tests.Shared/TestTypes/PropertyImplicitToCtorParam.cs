@@ -10,10 +10,7 @@ namespace Serializer.Tests.TestTypes
             MyProperty = myProperty;
         }
 
-        //public static implicit operator PropertyImplicitToCtorParam2(PropertyImplicitToCtorParam1 me)
-        //{
-        //    return new PropertyImplicitToCtorParam2(me.MyProperty);
-        //}
+      
 
         public ImplicitlyConvertible1 MyProperty { get; }
     }

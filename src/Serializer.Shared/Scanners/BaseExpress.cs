@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Das.Extensions;
+using Das.Serializer.State;
 
 namespace Das.Serializer
 {
@@ -12,11 +14,13 @@ namespace Das.Serializer
     {
         protected BaseExpress(Char endArrayChar,
                               Char endBlockChar,
-                              ITypeManipulator typeManipulator)
+                              ITypeManipulator typeManipulator,
+                              IInstantiator instantiator)
         {
             _endArrayChar = endArrayChar;
             _endBlockChar = endBlockChar;
-            _typeManipulator = typeManipulator;
+            _types = typeManipulator;
+            _instantiator = instantiator;
         }
 
         public abstract T Deserialize<T>(String txt,
@@ -256,16 +260,49 @@ namespace Das.Serializer
                 return false;
             }
 
-            if (_typeManipulator.IsCollection(current.GetType()))
+            if (_types.IsCollection(current.GetType()))
                 throw new NotImplementedException();
 
-            var prop = _typeManipulator.FindPublicProperty(current.GetType(),
+            var prop = _types.FindPublicProperty(current.GetType(),
                 pathToken);
             if (prop == null)
                 return false;
 
             current = prop.GetValue(current, null);
             return current != null;
+        }
+
+        [MethodImpl(256)]
+        protected IList GetEmptyCollection(Type type,
+                                           IPropertyAccessor? prop,
+                                           Object? parent)
+        {
+            if (!type.IsArray && prop != null && 
+                parent != null && parent is not IRuntimeObject)
+            {
+                var pVal = prop.GetPropertyValue(parent);
+
+                if (pVal is IList list && type.IsAssignableFrom(pVal.GetType()))
+                    return list;
+            }
+
+            var res = type.IsArray
+                ? _instantiator.BuildGenericList(_types.GetGermaneType(type))
+                : _instantiator.BuildDefault(type, true);
+            
+            if (res is IList good)
+                return good;
+
+            if (res is ICollection collection &&
+                _types.GetAdder(collection, type) is { } adder)
+                return new ValueCollectionWrapper(collection, adder);
+
+
+            if (type.IsGenericType)
+                return GenericCollectionWrapper.Get(type);
+
+
+            throw new InvalidOperationException();
         }
 
         protected const Char ImpossibleChar = '\0';
@@ -275,6 +312,7 @@ namespace Das.Serializer
 
         private readonly Char _endArrayChar;
         protected readonly Char _endBlockChar;
-        private readonly ITypeManipulator _typeManipulator;
+        protected readonly ITypeManipulator _types;
+        protected readonly IInstantiator _instantiator;
     }
 }

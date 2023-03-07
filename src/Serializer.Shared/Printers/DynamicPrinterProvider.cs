@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading.Tasks;
 using Das.Serializer.CodeGen;
-using Das.Serializer.Collections;
 using Das.Serializer.Types;
 
 namespace Das.Serializer.Printers
@@ -15,13 +14,10 @@ namespace Das.Serializer.Printers
    {
       static DynamicPrinterProvider()
       {
-         _readWriteLock = new UpgradableReadWriteLock();
-         _readWriteLock2 = new object();
+          _readWriteLock2 = new object();
          _jsonProxies2 = new Dictionary<long, Object>();
 
-         var asmName = new AssemblyName("PRINT.Stuff");
-
-         //var access = AssemblyBuilderAccess.RunAndSave;
+         var asmName = new AssemblyName(AssemblyName);
          var access = AssemblyBuilderAccess.RunAndCollect;
 
         #if NET45 || NET40
@@ -34,7 +30,7 @@ namespace Das.Serializer.Printers
 
          #endif
 
-         _moduleBuilder = asmBuilder.DefineDynamicModule(AssemblyName);
+         asmBuilder.DefineDynamicModule(AssemblyName);
         
       }
 
@@ -48,9 +44,8 @@ namespace Das.Serializer.Printers
                                     ITypeManipulator typeManipulator,
                                     IInstantiator instantiator)
       {
-         
-         _jsonProxyBuilder2 = new DynamicJsonPrinterBuilder2(typeInferrer, nodeTypes,
-            typeManipulator, _moduleBuilder, instantiator);
+          _jsonProxyBuilder2 = new DynamicJsonPrinterBuilder2(typeInferrer, nodeTypes,
+            typeManipulator, instantiator);
       }
 
 
@@ -68,32 +63,6 @@ namespace Das.Serializer.Printers
 
              return (ISerializerTypeProxy<TType>)found;
          }
-
-
-         //_readWriteLock.EnterRead();
-         //try
-         //{
-         //   if (_jsonProxies2.TryGetValue(lookup, out var found))
-         //      return (ISerializerTypeProxy<TType>) found;
-
-         //   _readWriteLock.Upgrade();
-
-         //   try
-         //   {
-         //      found = BuildJsonProxy<TType>(settings);
-         //      _jsonProxies2.Add(lookup, found);
-
-         //      return (ISerializerTypeProxy<TType>) found;
-         //   }
-         //   finally
-         //   {
-         //      _readWriteLock.Downgrade();
-         //   }
-         //}
-         //finally
-         //{
-         //   _readWriteLock.ExitRead();
-         //}
       }
 
       private Object BuildJsonProxy<TType>(ISerializerSettings settings)
@@ -110,15 +79,12 @@ namespace Das.Serializer.Printers
          return Activator.CreateInstance(type2, this, settings);
       }
 
-      private const string AssemblyName = "PRINT.Stuff";
-      //private static readonly String SaveFile = $"{AssemblyName}.dll";
+      private const string AssemblyName = "Das.RuntimeSerializer";
 
-      
       private static readonly Dictionary<Int64, Object> _jsonProxies2;
-      private static readonly UpgradableReadWriteLock _readWriteLock;
+      
       private static readonly Object _readWriteLock2;
       private readonly DynamicJsonPrinterBuilder2 _jsonProxyBuilder2;
-      private static readonly ModuleBuilder _moduleBuilder;
    }
 }
 

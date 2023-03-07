@@ -103,16 +103,9 @@ namespace Das.Printers
 
             var willReturn = o != null;
 
-            //if (!checkCircs)
-            //    return willReturn;
-
             circularReferenceHandler.PopPathObject();
-            //_pathObjects.RemoveAt(_pathObjects.Count - 1);
-            
-            circularReferenceHandler.RemovePathReference(o);
-            //if (o != null)
-            //    _pathReferences.Remove(o);
 
+            circularReferenceHandler.RemovePathReference(o);
 
             return willReturn;
         }
@@ -154,8 +147,10 @@ namespace Das.Printers
             {
                 case TypeSpecificity.All:
                     return true;
+
                 case TypeSpecificity.None:
                     return false;
+
                 case TypeSpecificity.Discrepancy:
                     if (declaredType.IsSealed)
                         return false;
@@ -244,11 +239,6 @@ namespace Das.Printers
                 exe(prop.PropertyInfo, val, writer, settings, circularReferenceHandler);
                 
             }
-
-            //foreach (var val in values)
-            //{
-            //    exe(val.Key, val.Value, writer, settings, circularReferenceHandler);
-            //}
         }
 
         protected abstract Boolean ShouldPrintValue(Object obj,

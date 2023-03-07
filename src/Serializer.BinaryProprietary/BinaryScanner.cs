@@ -14,7 +14,6 @@ namespace Das.Serializer
                              IInstantiator objectInstantiator)
             : base(state, settings)
         {
-            //_state = state;
             _typeManipulator = typeManipulator;
             _objectManipulator = objectManipulator;
             _objectInstantiator = objectInstantiator;

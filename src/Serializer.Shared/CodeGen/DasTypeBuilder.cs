@@ -219,7 +219,6 @@ namespace Das.Types
         {
             foreach (var o in attributes)
             {
-                //var valu = new ValueNode(o);
                 var attr = new DasAttribute(o.GetType());
 
                 //foreach (var propVal in _objectManipulator.GetPropertyResults(valu, Settings))

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.IO;
-using System.Runtime.CompilerServices;
+//using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace Das.Serializer.Remunerators
@@ -50,7 +50,7 @@ namespace Das.Serializer.Remunerators
             Write(pi, 1);
         }
 
-        [MethodImpl(256)]
+        [System.Runtime.CompilerServices.MethodImpl(256)]
         public sealed override unsafe void WriteInt32(Int32 val)
         {
             var pi = (Byte*) &val;

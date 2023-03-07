@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.1;net45;netstandard2.0</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.0.26-alpha</Version>
+    <Version>0.0.29-alpha</Version>
     <Configurations>Debug;Release;TEST_NO_CODEGENERATION</Configurations>
   </PropertyGroup>
 
@@ -30,8 +30,6 @@ o = serializer.FromJson(json);</Description>
 
   <Import Project="..\Interfaces.Shared\Interfaces.Shared.projitems" Label="Shared" />
 
-  <Import Project="..\Serializer.Shared\Serializer.Shared.projitems" Label="Shared" />
-
   <Import Project="..\Reflection.Common\Reflection.Common.projitems" Label="Shared" />
 
   <Import Project="..\Serializer.BinaryProprietary\Serializer.BinaryProprietary.projitems" Label="Shared" />
@@ -40,13 +38,13 @@ o = serializer.FromJson(json);</Description>
    <LangVersion>9.0</LangVersion>
    <Nullable>enable</Nullable>
    <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
-   <AssemblyVersion>0.0.26.0</AssemblyVersion>
-   <FileVersion>0.0.26.0</FileVersion>
+   <AssemblyVersion>0.0.27.0</AssemblyVersion>
+   <FileVersion>0.0.27.0</FileVersion>
    <AnalysisLevel>none</AnalysisLevel>
 </PropertyGroup>
 
 <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.1|AnyCPU'">
-  <DefineConstants>GENERATECODE</DefineConstants>
+  <DefineConstants>GENERATECODE;NETSTANDARD21</DefineConstants>
   <DocumentationFile>Das.Serializer.xml</DocumentationFile>
   <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
   <NoWarn>1701;1702;CS1591</NoWarn>
@@ -56,7 +54,7 @@ o = serializer.FromJson(json);</Description>
 
 
 <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.1|AnyCPU'">
-  <DefineConstants>TRACE;DEBUG;GENERATECODE</DefineConstants>
+  <DefineConstants>TRACE;DEBUG;GENERATECODE;NETSTANDARD21</DefineConstants>
   <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 </PropertyGroup>
 
@@ -79,5 +77,9 @@ o = serializer.FromJson(json);</Description>
   <DefineConstants>PARTIALTRUST</DefineConstants>
   <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
 </PropertyGroup>
+
+<ItemGroup>
+  <Compile Include="..\Serializer.Shared\Types\EnumCache.cs" />
+</ItemGroup>
 
 </Project>

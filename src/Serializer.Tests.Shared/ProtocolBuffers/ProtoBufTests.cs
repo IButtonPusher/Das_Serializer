@@ -216,7 +216,7 @@ namespace Serializer.Tests.ProtocolBuffers
         // ReSharper disable once UnusedMember.Local
         private static void PrintMemoryStream(MemoryStream ms)
         {
-            Debug.WriteLine(string.Join(",", ms.ToArray()) + "\r\n");
+            //Debug.WriteLine(string.Join(",", ms.ToArray()) + "\r\n");
 
             //for (var c = 0; c < arr.Length; c++)
             //    Debug.WriteLine(arr[c]);
@@ -257,11 +257,13 @@ namespace Serializer.Tests.ProtocolBuffers
 
             var o = TypeProvider.GetProtoProxy<MultiPropMessage>();
 
+            //TypeProvider.DumpProxies();
+
             using (var ms = new MemoryStream())
             {
                 o.Print(msg, ms);
 
-                Debug.WriteLine("DAS\r\n-----------------------------------");
+                //Debug.WriteLine("DAS\r\n-----------------------------------");
                 PrintMemoryStream(ms);
 
                 ms.Position = 0;
@@ -283,7 +285,7 @@ namespace Serializer.Tests.ProtocolBuffers
             {
                 ProtoBuf.Serializer.Serialize(ms, msg);
                 ms.Position = 0;
-                Debug.WriteLine("PNET\r\n-----------------------------------");
+                //Debug.WriteLine("PNET\r\n-----------------------------------");
                 PrintMemoryStream(ms);
                 return ProtoBuf.Serializer.Deserialize<MultiPropMessage>(ms);
             }
@@ -333,7 +335,7 @@ namespace Serializer.Tests.ProtocolBuffers
             using (var ms = new MemoryStream())
             {
                 o.Print(msg, ms);
-                Debug.WriteLine("DAS\r\n-----------------------------------");
+                //Debug.WriteLine("DAS\r\n-----------------------------------");
                 PrintMemoryStream(ms);
                 ms.Position = 0;
                 var okThen = o.Scan(ms);
@@ -350,7 +352,7 @@ namespace Serializer.Tests.ProtocolBuffers
             {
                 ProtoBuf.Serializer.Serialize(ms, msg);
 
-                Debug.WriteLine("PNET\r\n-----------------------------------");
+                //Debug.WriteLine("PNET\r\n-----------------------------------");
                 PrintMemoryStream(ms);
 
                 ms.Position = 0;

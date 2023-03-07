@@ -31,6 +31,7 @@ namespace Das.Serializer.ProtoBuf
         ///     specified in the applicable ProtoBufOptions{TPropertyAttribute} instance
         /// </summary>
         /// <typeparam name="T">The type of the class to serialize </typeparam>
+        /// <param name="settings"></param>
         /// <param name="allowReadOnly">skips generating a scan method if no usable constructor is found</param>
         /// <exception cref="MissingMethodException">If allowReadOnly is false and no default constructor is found</exception>
         IProtoProxy<T> GetProtoProxy<T>(ISerializerSettings settings,
