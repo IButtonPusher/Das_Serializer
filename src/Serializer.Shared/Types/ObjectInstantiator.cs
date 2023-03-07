@@ -247,9 +247,12 @@ namespace Das.Serializer
         }
 
         public bool TryGetDefaultConstructor(Type type,
+                                             #if NETSTANDARD21 || NET40
+                                             [System.Diagnostics.CodeAnalysis.MaybeNullWhen(false)]
+                                                #endif   
                                              out ConstructorInfo ctor)
         {
-            if (Constructors.TryGetValue(type, out ctor!))
+            if (Constructors.TryGetValue(type, out ctor))
             {
                 if (ctor == null)
                     return false;

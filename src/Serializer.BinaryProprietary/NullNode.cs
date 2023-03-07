@@ -104,32 +104,10 @@ namespace Das.Serializer
             yield break;
         }
 
-        public Boolean Equals(INode other)
+        public Boolean Equals(INode? other)
         {
             return ReferenceEquals(Instance, other);
         }
-
-        //public String Text => String.Empty;
-
-
-        //public void Append(String str)
-        //{
-        //}
-
-        //public void Append(Char c)
-        //{
-        //}
-
-        //public void SetText(Object value)
-        //{
-        //}
-
-        //public void AddChild(ITextNode node)
-        //{
-        //    throw new InvalidOperationException();
-        //}
-
-        //public IDictionary<String, ITextNode> Children { get; }
 
 
         public static NullNode Instance { get; }

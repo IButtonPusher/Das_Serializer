@@ -96,9 +96,9 @@ namespace Das.Serializer
         public void SetStream(Stream value)
         {
             _stream = value;
-            if (value != null)
+            //if (value != null)
                 Length = value.Length;
-            else Length = 0;
+            //else Length = 0;
         }
 
         [ThreadStatic]

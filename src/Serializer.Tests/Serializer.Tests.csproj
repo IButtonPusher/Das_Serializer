@@ -58,27 +58,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BinaryTests.cs" />
-    <Compile Include="ExpressionTests.cs" />
-    <Compile Include="ILPurgatory.cs" />
-    <Compile Include="INiceAndEasy.cs" />
-    <Compile Include="InstantiationTests.cs" />
-    <Compile Include="JsonTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ProtocolBuffers\ProtoBufTests.cs" />
-    <Compile Include="ProtocolBuffers\SimpleMessage.cs" />
-    <Compile Include="ProtocolBuffers\UnDecompileDump.cs" />
-    <Compile Include="SlowEquality.cs" />
-    <Compile Include="TestBase.cs" />
-    <Compile Include="TestClasses.cs" />
-    <Compile Include="TestTypes\AbstractTypes.cs" />
-    <Compile Include="TestTypes\ExplicitImplementation.cs" />
-    <Compile Include="TestTypes\PartialPropertyCtor.cs" />
-    <Compile Include="TestTypes\PropertyImplicitToCtorParam.cs" />
-    <Compile Include="TypeTests.cs" />
-    <Compile Include="XmlTests.cs" />
-    <Compile Include="Xml\SvgDocument.cs" />
-    <Compile Include="Xml\SvgPath.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet">
@@ -104,30 +84,11 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="Xml\cog.svg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Xml\Headlines.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Xml\ExtraAttributes.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Xml\book.svg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
   <ItemGroup />
   <Import Project="..\Interfaces.Shared\Interfaces.Shared.projitems" Label="Shared" />
   <Import Project="..\Serializer.Shared\Serializer.Shared.projitems" Label="Shared" />
   <Import Project="..\Serializer.BinaryProprietary\Serializer.BinaryProprietary.projitems" Label="Shared" />
   <Import Project="..\Reflection.Common\Reflection.Common.projitems" Label="Shared" />
+  <Import Project="..\Serializer.Tests.Shared\Serializer.Tests.Shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

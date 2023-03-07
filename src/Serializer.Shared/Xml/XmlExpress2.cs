@@ -74,18 +74,18 @@ namespace Das.Serializer.Xml
             }
         }
 
-        
-        protected Object? DeserializeNode(String txt,
-                                          ref Int32 currentIndex,
-                                          StringBuilder stringBuilder,
-                                          Type? specifiedType,
-                                          ISerializerSettings settings,
-                                          Object[] ctorValues,
-                                          ref NodeScanState nodeScanState,
-                                          Object? parent,
-                                          IPropertyAccessor? nodeIsProperty,
-                                          Object? root,
-                                          Boolean canBeEncodingNode)
+
+        private Object? DeserializeNode(String txt,
+                                        ref Int32 currentIndex,
+                                        StringBuilder stringBuilder,
+                                        Type? specifiedType,
+                                        ISerializerSettings settings,
+                                        Object[] ctorValues,
+                                        ref NodeScanState nodeScanState,
+                                        Object? parent,
+                                        IPropertyAccessor? nodeIsProperty,
+                                        Object? root,
+                                        Boolean canBeEncodingNode)
         {
             var nodeType = OpenNode(txt, ref currentIndex, ref specifiedType, ref nodeScanState,
                 stringBuilder, canBeEncodingNode);
@@ -454,8 +454,8 @@ namespace Das.Serializer.Xml
         }
 
         [MethodImpl(256)]
-        protected static IPropertyAccessor? GetProperty(ITypeStructure type,
-                                                        String name)
+        private static IPropertyAccessor? GetProperty(ITypeStructure type,
+                                                      String name)
         {
             if (type.TryGetPropertyAccessor(name, PropertyNameFormat.Default, out var prop))
                 return prop;
@@ -466,10 +466,10 @@ namespace Das.Serializer.Xml
             return default;
         }
 
-        protected void AdvanceScanStateToNodeClose(String txt,
-                                                            ref Int32 currentIndex,
-                                                            StringBuilder stringBuilder,
-                                                            ref NodeScanState scanState)
+        private static void AdvanceScanStateToNodeClose(String txt,
+                                                        ref Int32 currentIndex,
+                                                        StringBuilder stringBuilder,
+                                                        ref NodeScanState scanState)
         {
             while (scanState != NodeScanState.EndOfMarkup &&
                    scanState != NodeScanState.NodeSelfClosed &&
@@ -480,10 +480,10 @@ namespace Das.Serializer.Xml
                 currentIndex++;
         }
 
-        protected void AdvanceScanStateToNodeNameRead(String txt,
-                                                               ref Int32 currentIndex,
-                                                               StringBuilder stringBuilder,
-                                                               ref NodeScanState scanState)
+        private static void AdvanceScanStateToNodeNameRead(String txt,
+                                                           ref Int32 currentIndex,
+                                                           StringBuilder stringBuilder,
+                                                           ref NodeScanState scanState)
         {
             while (scanState != NodeScanState.NodeSelfClosed &&
                    scanState != NodeScanState.EndOfNodeOpen &&
@@ -491,21 +491,21 @@ namespace Das.Serializer.Xml
                 AdvanceScanState(txt, ref currentIndex, stringBuilder, ref scanState);
         }
 
-        protected void AdvanceScanStateToNodeOpened(String txt,
-                                                             ref Int32 currentIndex,
-                                                             StringBuilder stringBuilder,
-                                                             ref NodeScanState scanState)
+        private static void AdvanceScanStateToNodeOpened(String txt,
+                                                         ref Int32 currentIndex,
+                                                         StringBuilder stringBuilder,
+                                                         ref NodeScanState scanState)
         {
             while (scanState != NodeScanState.NodeSelfClosed &&
                    scanState != NodeScanState.EndOfNodeOpen)
                 AdvanceScanState(txt, ref currentIndex, stringBuilder, ref scanState);
         }
 
-        protected void AdvanceScanStateUntil(String txt,
-                                                      ref Int32 currentIndex,
-                                                      StringBuilder stringBuilder,
-                                                      NodeScanState targetState,
-                                                      ref NodeScanState scanState)
+        private static void AdvanceScanStateUntil(String txt,
+                                                  ref Int32 currentIndex,
+                                                  StringBuilder stringBuilder,
+                                                  NodeScanState targetState,
+                                                  ref NodeScanState scanState)
         {
             while (scanState != targetState)
             {
@@ -542,9 +542,9 @@ namespace Das.Serializer.Xml
             return txt[currentIndex + 1] != '/';
         }
 
-        protected static void LoadNextPrimitive(ref Int32 currentIndex,
-                                                String txt,
-                                                StringBuilder stringBuilder)
+        private static void LoadNextPrimitive(ref Int32 currentIndex,
+                                              String txt,
+                                              StringBuilder stringBuilder)
         {
             switch (txt[currentIndex])
             {
@@ -591,8 +591,8 @@ namespace Das.Serializer.Xml
         }
 
         [MethodImpl(256)]
-        protected static void SkipWhiteSpace(ref Int32 currentIndex,
-                                             String txt)
+        private static void SkipWhiteSpace(ref Int32 currentIndex,
+                                           String txt)
         {
             for (; currentIndex < txt.Length; currentIndex++)
                 switch (txt[currentIndex])
@@ -608,12 +608,12 @@ namespace Das.Serializer.Xml
         }
 
 
-        protected NodeTypes OpenNode(String txt,
-                                     ref Int32 currentIndex,
-                                     ref Type? specifiedType,
-                                     ref NodeScanState nodeScanState,
-                                     StringBuilder stringBuilder,
-                                     Boolean canBeEncodingNode)
+        private NodeTypes OpenNode(String txt,
+                                   ref Int32 currentIndex,
+                                   ref Type? specifiedType,
+                                   ref NodeScanState nodeScanState,
+                                   StringBuilder stringBuilder,
+                                   Boolean canBeEncodingNode)
         {
             if (nodeScanState == NodeScanState.None &&
                 !AdvanceScanState(txt, ref currentIndex, stringBuilder, ref nodeScanState))
@@ -692,9 +692,9 @@ namespace Das.Serializer.Xml
             throw new NotSupportedException($"Could not detect a safe way to instantiate type {specifiedType}");
         }
 
-        protected bool TryGetNextString(ref Int32 currentIndex,
-                                        String xml,
-                                        StringBuilder sbString)
+        private bool TryGetNextString(ref Int32 currentIndex,
+                                      String xml,
+                                      StringBuilder sbString)
         {
             var foundChar = xml[currentIndex];
 
@@ -764,18 +764,18 @@ namespace Das.Serializer.Xml
 
         private static readonly Object[] _emptyCtorValues = new Object[0];
 
-        protected readonly String _circularReferenceAttribute;
-        protected readonly IDynamicTypes _dynamicTypes;
-        protected readonly Char[] _fieldStartChars;
+        private readonly String _circularReferenceAttribute;
+        private readonly IDynamicTypes _dynamicTypes;
+        private readonly Char[] _fieldStartChars;
 
         
-        protected readonly String _nullPrimitiveAttribute;
-        protected readonly IObjectManipulator _objectManipulator;
+        private readonly String _nullPrimitiveAttribute;
+        private readonly IObjectManipulator _objectManipulator;
 
 
-        protected readonly IStringPrimitiveScanner _primitiveScanner;
-        protected readonly ITypeInferrer _typeInference;
+        private readonly IStringPrimitiveScanner _primitiveScanner;
+        private readonly ITypeInferrer _typeInference;
         
-        protected readonly String _typeWrapAttribute;
+        private readonly String _typeWrapAttribute;
     }
 }

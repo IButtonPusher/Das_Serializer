@@ -640,7 +640,7 @@ namespace Das.Serializer
                                                                   String[] subPropTokens,
                                                                   Int32 index)
         {
-            if (declaringType == null ||
+            if (//declaringType == null ||
                 !TryGetMembers(declaringType, subPropTokens[index], out var subMems))
                 yield break;
 

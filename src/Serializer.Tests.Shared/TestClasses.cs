@@ -146,7 +146,7 @@ namespace Serializer.Tests
         public String SuperSecret { get; }
 
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var sc = obj as SimpleClassObjectProperty;
             if (sc == null)

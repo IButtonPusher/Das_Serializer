@@ -21,6 +21,10 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Serializer.BinaryProprietar
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Reflection.Common", "Reflection.Common\Reflection.Common.shproj", "{D76598FA-95A2-49E4-9458-F7461685B873}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Serializer.Tests.Shared", "Serializer.Tests.Shared\Serializer.Tests.Shared.shproj", "{D4654587-15F1-45F0-8E73-239D45C4C07C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serializer.Tests.NetCore", "Serializer.Tests.NetCore\Serializer.Tests.NetCore.csproj", "{3ED5D24B-C447-40DB-B90E-213AF259D8F8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +67,14 @@ Global
 		{ECB2B428-C066-4D2B-B891-711B83951C65}.TEST_NO_CODEGENERATION|Any CPU.Build.0 = TEST_NO_CODEGENERATION|Any CPU
 		{ECB2B428-C066-4D2B-B891-711B83951C65}.TEST|Any CPU.ActiveCfg = Release|Any CPU
 		{ECB2B428-C066-4D2B-B891-711B83951C65}.TEST|Any CPU.Build.0 = Release|Any CPU
+		{3ED5D24B-C447-40DB-B90E-213AF259D8F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3ED5D24B-C447-40DB-B90E-213AF259D8F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3ED5D24B-C447-40DB-B90E-213AF259D8F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3ED5D24B-C447-40DB-B90E-213AF259D8F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3ED5D24B-C447-40DB-B90E-213AF259D8F8}.TEST_NO_CODEGENERATION|Any CPU.ActiveCfg = Debug|Any CPU
+		{3ED5D24B-C447-40DB-B90E-213AF259D8F8}.TEST_NO_CODEGENERATION|Any CPU.Build.0 = Debug|Any CPU
+		{3ED5D24B-C447-40DB-B90E-213AF259D8F8}.TEST|Any CPU.ActiveCfg = Debug|Any CPU
+		{3ED5D24B-C447-40DB-B90E-213AF259D8F8}.TEST|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -72,6 +84,11 @@ Global
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Serializer.Shared\Serializer.Shared.projitems*{228fd1e5-7105-4531-804e-d0b97a2b58cb}*SharedItemsImports = 13
+		Interfaces.Shared\Interfaces.Shared.projitems*{3ed5d24b-c447-40db-b90e-213af259d8f8}*SharedItemsImports = 5
+		Reflection.Common\Reflection.Common.projitems*{3ed5d24b-c447-40db-b90e-213af259d8f8}*SharedItemsImports = 5
+		Serializer.BinaryProprietary\Serializer.BinaryProprietary.projitems*{3ed5d24b-c447-40db-b90e-213af259d8f8}*SharedItemsImports = 5
+		Serializer.Shared\Serializer.Shared.projitems*{3ed5d24b-c447-40db-b90e-213af259d8f8}*SharedItemsImports = 5
+		Serializer.Tests.Shared\Serializer.Tests.Shared.projitems*{3ed5d24b-c447-40db-b90e-213af259d8f8}*SharedItemsImports = 5
 		Interfaces.Shared\Interfaces.Shared.projitems*{a9d2ef65-4059-4c0a-b513-d49ac3d66cf2}*SharedItemsImports = 5
 		Reflection.Common\Reflection.Common.projitems*{a9d2ef65-4059-4c0a-b513-d49ac3d66cf2}*SharedItemsImports = 5
 		Serializer.BinaryProprietary\Serializer.BinaryProprietary.projitems*{a9d2ef65-4059-4c0a-b513-d49ac3d66cf2}*SharedItemsImports = 5
@@ -81,10 +98,12 @@ Global
 		Serializer.BinaryProprietary\Serializer.BinaryProprietary.projitems*{b631f449-68dd-4f5f-bd04-c2f2e5bf124d}*SharedItemsImports = 5
 		Serializer.Shared\Serializer.Shared.projitems*{b631f449-68dd-4f5f-bd04-c2f2e5bf124d}*SharedItemsImports = 5
 		Interfaces.Shared\Interfaces.Shared.projitems*{c6e56268-9045-4dbb-b83a-f14c009a5944}*SharedItemsImports = 5
+		Serializer.Tests.Shared\Serializer.Tests.Shared.projitems*{d4654587-15f1-45f0-8e73-239d45c4c07c}*SharedItemsImports = 13
 		Reflection.Common\Reflection.Common.projitems*{d76598fa-95a2-49e4-9458-f7461685b873}*SharedItemsImports = 13
 		Interfaces.Shared\Interfaces.Shared.projitems*{ecb2b428-c066-4d2b-b891-711b83951c65}*SharedItemsImports = 4
 		Reflection.Common\Reflection.Common.projitems*{ecb2b428-c066-4d2b-b891-711b83951c65}*SharedItemsImports = 4
 		Serializer.BinaryProprietary\Serializer.BinaryProprietary.projitems*{ecb2b428-c066-4d2b-b891-711b83951c65}*SharedItemsImports = 4
 		Serializer.Shared\Serializer.Shared.projitems*{ecb2b428-c066-4d2b-b891-711b83951c65}*SharedItemsImports = 4
+		Serializer.Tests.Shared\Serializer.Tests.Shared.projitems*{ecb2b428-c066-4d2b-b891-711b83951c65}*SharedItemsImports = 4
 	EndGlobalSection
 EndGlobal

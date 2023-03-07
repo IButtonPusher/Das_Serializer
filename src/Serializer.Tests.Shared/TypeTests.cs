@@ -81,7 +81,7 @@ namespace Serializer.Tests
             type2 = Serializer.TypeInferrer.GetTypeFromClearName(str, true);
             Assert.Equal(type, type2);
 
-            var fullName = type.FullName;
+            var fullName = type.FullName ?? throw new NullReferenceException(nameof(type.FullName));
             type2 = Serializer.TypeInferrer.GetTypeFromClearName(fullName, true);
             Assert.Equal(type, type2);
 
@@ -195,7 +195,7 @@ namespace Serializer.Tests
         public void PropertySetters()
         {
             var inst = SimpleClass.GetExample();
-            var nameProp = typeof(SimpleClass).GetProperty(nameof(SimpleClass.Name));
+            var nameProp = typeof(SimpleClass).GetPropertyOrDie(nameof(SimpleClass.Name));
 
             #if !TEST_NO_CODEGENERATION
             var setter = TypeManipulator.CreateDynamicSetter<SimpleClass>(nameProp.Name);

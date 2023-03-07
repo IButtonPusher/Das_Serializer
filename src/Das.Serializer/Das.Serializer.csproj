@@ -44,7 +44,7 @@ o = serializer.FromJson(json);</Description>
 </PropertyGroup>
 
 <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.1|AnyCPU'">
-  <DefineConstants>GENERATECODE</DefineConstants>
+  <DefineConstants>GENERATECODE;NETSTANDARD21</DefineConstants>
   <DocumentationFile>Das.Serializer.xml</DocumentationFile>
   <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
   <NoWarn>1701;1702;CS1591</NoWarn>
@@ -54,7 +54,7 @@ o = serializer.FromJson(json);</Description>
 
 
 <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.1|AnyCPU'">
-  <DefineConstants>TRACE;DEBUG;GENERATECODE</DefineConstants>
+  <DefineConstants>TRACE;DEBUG;GENERATECODE;NETSTANDARD21</DefineConstants>
   <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 </PropertyGroup>
 
