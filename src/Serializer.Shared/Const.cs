@@ -14,6 +14,7 @@ namespace Das.Serializer
         public const String WutXml = "?xml";
         public const String XmlType = "xsi:type";
         public const String XmlXsiAttribute = "xmlns:xsi";
+        public const String XmlNsXsd = "xmlns:xsd";
 
         public const String XmlXsiNamespace = " " + XmlXsiAttribute + "=\"http://www.w3.org/2001/XMLSchema-instance\"";
 

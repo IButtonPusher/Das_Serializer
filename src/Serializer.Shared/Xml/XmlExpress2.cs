@@ -25,7 +25,7 @@ namespace Das.Serializer.Xml
             _primitiveScanner = primitiveScanner;
 
             _dynamicTypes = dynamicTypes;
-            _typeWrapAttribute = Const.XmlType;
+            //_typeWrapAttribute = Const.XmlType;
             _circularReferenceAttribute = Const.RefTag;
 
             _fieldStartChars = new[] {'"', '>'};
@@ -645,6 +645,7 @@ namespace Das.Serializer.Xml
                     switch (stringBuilder.ToString())
                     {
                         case Const.XmlXsiAttribute:
+                        case Const.XmlNsXsd:
                             // ignore the url
                             AdvanceScanState(txt, ref currentIndex, stringBuilder, ref nodeScanState);
                             stringBuilder.Clear();
@@ -776,6 +777,6 @@ namespace Das.Serializer.Xml
         private readonly IStringPrimitiveScanner _primitiveScanner;
         private readonly ITypeInferrer _typeInference;
         
-        private readonly String _typeWrapAttribute;
+        //private readonly String _typeWrapAttribute;
     }
 }
