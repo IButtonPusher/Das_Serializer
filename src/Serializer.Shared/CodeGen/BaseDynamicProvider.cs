@@ -591,9 +591,8 @@ namespace Das.Serializer.CodeGen
                 : TypeCode.Empty;
         }
 
-        private const string AssemblyName = "BOB.Stuff";
+        private const string AssemblyName = "DasDynamic";
 
-        //private static readonly String SaveFile = $"{AssemblyName}.dll";
         protected readonly AssemblyBuilder _asmBuilder;
 
         protected readonly IInstantiator _instantiator;

@@ -515,10 +515,10 @@ namespace Das.Serializer.Xml
         }
 
 
-        private void HandleEncodingNode(String txt,
-                                        ref Int32 currentIndex,
-                                        StringBuilder stringBuilder,
-                                        ref NodeScanState nodeScanState)
+        private static void HandleEncodingNode(String txt,
+                                               ref Int32 currentIndex,
+                                               StringBuilder stringBuilder,
+                                               ref NodeScanState nodeScanState)
         {
             AdvanceScanStateUntil(txt, ref currentIndex, stringBuilder,
                 NodeScanState.EncodingNodeClose, ref nodeScanState);
