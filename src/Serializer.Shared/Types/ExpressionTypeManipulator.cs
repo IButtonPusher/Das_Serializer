@@ -11,11 +11,11 @@ using Das.Extensions;
 using Das.Serializer;
 
 
-namespace Das.Serializer
+namespace Das.Serializer;
+
+public partial class TypeManipulator
 {
-    public partial class TypeManipulator
-    {
-        #if !GENERATECODE
+   #if !GENERATECODE
         public static Func<Object, Object> CreatePropertyGetter(Type targetType,
                                                                 PropertyInfo propertyInfo)
         {
@@ -418,11 +418,10 @@ namespace Das.Serializer
                              .Compile();
         }
 
-        #endif
+   #endif
 
-        #if !GENERATECODE || TEST_NO_CODEGENERATION
+   #if !GENERATECODE || TEST_NO_CODEGENERATION
 
 
-        #endif
-    }
+   #endif
 }

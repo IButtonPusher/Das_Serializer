@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Serializer.Tests
+namespace Serializer.Tests;
+
+public interface INiceAndEasy
 {
-    public interface INiceAndEasy
-    {
-        void YouCan<T>(Action<T> touch);
-    }
+   void YouCan<T>(Action<T> touch);
 }

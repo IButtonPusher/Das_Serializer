@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Das.Serializer
+namespace Das.Serializer;
+
+public interface IBinaryState : ISerializationState, IBinaryContext
 {
-    public interface IBinaryState : ISerializationState, IBinaryContext
-    {
-        IBinaryScanner Scanner { get; }
-    }
+   IBinaryScanner Scanner { get; }
 }

@@ -2,28 +2,27 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Das.Serializer
+namespace Das.Serializer;
+
+public interface ISerializationCore
 {
-    public interface ISerializationCore
-    {
-        IAssemblyList AssemblyList { get; }
+   IAssemblyList AssemblyList { get; }
 
-        IDynamicTypes DynamicTypes { get; }
+   IDynamicTypes DynamicTypes { get; }
 
-        INodeTypeProvider NodeTypeProvider { get; }
+   INodeTypeProvider NodeTypeProvider { get; }
 
-        IInstantiator ObjectInstantiator { get; }
+   IInstantiator ObjectInstantiator { get; }
 
-        IObjectManipulator ObjectManipulator { get; }
+   IObjectManipulator ObjectManipulator { get; }
 
-        INodeManipulator ScanNodeManipulator { get; }
+   INodeManipulator ScanNodeManipulator { get; }
 
-        IDictionary<Type, Type> Surrogates { get; }
+   IDictionary<Type, Type> Surrogates { get; }
 
-        //ITextParser TextParser { get; }
+   //ITextParser TextParser { get; }
 
-        ITypeInferrer TypeInferrer { get; }
+   ITypeInferrer TypeInferrer { get; }
 
-        ITypeManipulator TypeManipulator { get; }
-    }
+   ITypeManipulator TypeManipulator { get; }
 }

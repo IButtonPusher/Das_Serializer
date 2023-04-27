@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Das.Serializer
+namespace Das.Serializer;
+
+public interface IMutableState
 {
-    public interface IMutableState
-    {
-        void UpdateSettings(ISerializerSettings settings);
-    }
+   void UpdateSettings(ISerializerSettings settings);
 }

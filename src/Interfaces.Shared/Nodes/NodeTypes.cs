@@ -1,25 +1,24 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Das.Serializer
+namespace Das.Serializer;
+
+public enum NodeTypes
 {
-    public enum NodeTypes
-    {
-        None = 0,
+   None = 0,
 
-        /// <summary>
-        ///     Serialize using BinaryFormatter or ToString()
-        /// </summary>
-        Fallback,
-        Primitive,
-        Object,
-        Collection,
+   /// <summary>
+   ///     Serialize using BinaryFormatter or ToString()
+   /// </summary>
+   Fallback,
+   Primitive,
+   Object,
+   Collection,
 
-        /// <summary>
-        ///     have to use default serialization for binary and string methods for text
-        /// </summary>
-        PropertiesToConstructor,
-        Dynamic,
-        StringConvertible
-    }
+   /// <summary>
+   ///     have to use default serialization for binary and string methods for text
+   /// </summary>
+   PropertiesToConstructor,
+   Dynamic,
+   StringConvertible
 }

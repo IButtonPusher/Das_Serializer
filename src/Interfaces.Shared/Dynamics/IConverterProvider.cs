@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Das.Serializer
+namespace Das.Serializer;
+
+public interface IConverterProvider
 {
-    public interface IConverterProvider
-    {
-        IObjectConverter ObjectConverter { get; }
-    }
+   IObjectConverter ObjectConverter { get; }
 }

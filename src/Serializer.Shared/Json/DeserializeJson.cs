@@ -61,6 +61,11 @@ namespace Das.Serializer
         }
 
 
-        private static readonly Object[] _empty = new Object[0];
+        private static readonly Object[] _empty = 
+           #if NET40
+            new Object[0];
+           #else
+           Array.Empty<Object>();
+        #endif
     }
 }

@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Das.Serializer
+namespace Das.Serializer;
+
+public interface IStreamWrapper<out T> : IEnumerable<T>, IDisposable
 {
-    public interface IStreamWrapper<out T> : IEnumerable<T>, IDisposable
-    {
-    }
 }

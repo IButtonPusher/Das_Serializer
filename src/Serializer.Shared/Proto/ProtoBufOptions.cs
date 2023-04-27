@@ -1,25 +1,24 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Das.Serializer
+namespace Das.Serializer;
+
+public class ProtoBufOptions<TPropertyAttribute> : IProtoBufOptions<TPropertyAttribute>
+   where TPropertyAttribute : Attribute
 {
-    public class ProtoBufOptions<TPropertyAttribute> : IProtoBufOptions<TPropertyAttribute>
-        where TPropertyAttribute : Attribute
-    {
-        public ProtoBufOptions(Func<TPropertyAttribute, Int32> getIndex)
-        {
-            GetIndex = getIndex;
-        }
+   public ProtoBufOptions(Func<TPropertyAttribute, Int32> getIndex)
+   {
+      GetIndex = getIndex;
+   }
 
-        public Func<TPropertyAttribute, Int32> GetIndex { get; }
-    }
+   public Func<TPropertyAttribute, Int32> GetIndex { get; }
+}
 
-    public class ProtoBufOptions : ProtoBufOptions<IndexedMemberAttribute>
-    {
-        private ProtoBufOptions() : base(p => p.Index)
-        {
-        }
+public class ProtoBufOptions : ProtoBufOptions<IndexedMemberAttribute>
+{
+   private ProtoBufOptions() : base(p => p.Index)
+   {
+   }
 
-        public static readonly ProtoBufOptions Default = new();
-    }
+   public static readonly ProtoBufOptions Default = new();
 }

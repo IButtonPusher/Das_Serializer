@@ -3,34 +3,33 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace Das.Serializer
+namespace Das.Serializer;
+
+public interface IDynamicTypes
 {
-    public interface IDynamicTypes
-    {
-        Object BuildDynamicObject(IRuntimeObject robj);
+   Object BuildDynamicObject(IRuntimeObject robj);
 
-        Type GetDynamicImplementation(Type baseInterface);
+   Type GetDynamicImplementation(Type baseInterface);
 
-        /// <summary>
-        ///     Gets a dynamic type in a wrapper that allows for properties to be accessed quickly
-        /// </summary>
-        IPropertyType GetDynamicType(String typeName,
-                                     IEnumerable<DasProperty> properties,
-                                     Boolean isCreatePropertyDelegates,
-                                     IEnumerable<EventInfo> events,
-                                     IDictionary<MethodInfo, MethodInfo> methodReplacements,
-                                     params Type[] parentTypes);
+   /// <summary>
+   ///     Gets a dynamic type in a wrapper that allows for properties to be accessed quickly
+   /// </summary>
+   IPropertyType GetDynamicType(String typeName,
+                                IEnumerable<DasProperty> properties,
+                                Boolean isCreatePropertyDelegates,
+                                IEnumerable<EventInfo> events,
+                                IDictionary<MethodInfo, MethodInfo> methodReplacements,
+                                params Type[] parentTypes);
 
-        Type GetDynamicType(String typeName,
-                            IDictionary<MethodInfo, MethodInfo> methodReplacements,
-                            IEnumerable<DasProperty> properties,
-                            IEnumerable<EventInfo> events,
-                            params Type[] parentTypes);
+   Type GetDynamicType(String typeName,
+                       IDictionary<MethodInfo, MethodInfo> methodReplacements,
+                       IEnumerable<DasProperty> properties,
+                       IEnumerable<EventInfo> events,
+                       params Type[] parentTypes);
 
-        Boolean TryGetDynamicType(String clearName,
-                                  out Type? type);
+   Boolean TryGetDynamicType(String clearName,
+                             out Type? type);
 
-        Boolean TryGetFromAssemblyQualifiedName(String assemblyQualified,
-                                                out Type type);
-    }
+   Boolean TryGetFromAssemblyQualifiedName(String assemblyQualified,
+                                           out Type type);
 }

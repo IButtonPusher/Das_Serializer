@@ -6,37 +6,36 @@ using System.Threading.Tasks;
 
 // ReSharper disable UnusedMember.Global
 
-namespace Das.Serializer
+namespace Das.Serializer;
+
+public interface IBinarySerializer
 {
-    public interface IBinarySerializer
-    {
-        T FromBytes<T>(Byte[] bytes);
+   T FromBytes<T>(Byte[] bytes);
 
-        T FromBytes<T>(FileInfo fileName);
+   T FromBytes<T>(FileInfo fileName);
 
-        T FromBytes<T>(Stream stream);
+   T FromBytes<T>(Stream stream);
 
-        Object FromBytes(Byte[] bytes);
+   Object FromBytes(Byte[] bytes);
 
-        Byte[] ToBytes(Object o);
+   Byte[] ToBytes(Object o);
 
-        /// <summary>
-        ///     Serialize up or down.  For example if TypeB inherits from TypeA
-        ///     and object obj is TypeB, passing the second parameter as typeof(TypeB)
-        ///     will create a byte array that cannot be deserialized as TypeB but
-        ///     can as TypeA
-        /// </summary>
-        Byte[] ToBytes(Object o,
-                       Type asType);
+   /// <summary>
+   ///     Serialize up or down.  For example if TypeB inherits from TypeA
+   ///     and object obj is TypeB, passing the second parameter as typeof(TypeB)
+   ///     will create a byte array that cannot be deserialized as TypeB but
+   ///     can as TypeA
+   /// </summary>
+   Byte[] ToBytes(Object o,
+                  Type asType);
 
-        Byte[] ToBytes<TObject>(TObject o);
+   Byte[] ToBytes<TObject>(TObject o);
 
-        Byte[] ToBytes<TTarget>(Object o);
+   Byte[] ToBytes<TTarget>(Object o);
 
-        void ToBytes(Object o,
-                     FileInfo fileName);
+   void ToBytes(Object o,
+                FileInfo fileName);
 
-        void ToBytes<TTarget>(Object o,
-                              FileInfo fileName);
-    }
+   void ToBytes<TTarget>(Object o,
+                         FileInfo fileName);
 }

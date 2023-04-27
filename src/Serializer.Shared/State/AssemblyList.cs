@@ -6,134 +6,133 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace Das.Serializer
+namespace Das.Serializer;
+
+public class AssemblyList : IAssemblyList
 {
-    public class AssemblyList : IAssemblyList
-    {
-        static AssemblyList()
-        {
-            _assembliesByFileName = new ConcurrentDictionary<String, Assembly>(
-                StringComparer.OrdinalIgnoreCase);
-            _assembliesByName = new ConcurrentDictionary<String, Assembly>(
-                StringComparer.OrdinalIgnoreCase);
+   static AssemblyList()
+   {
+      _assembliesByFileName = new ConcurrentDictionary<String, Assembly>(
+         StringComparer.OrdinalIgnoreCase);
+      _assembliesByName = new ConcurrentDictionary<String, Assembly>(
+         StringComparer.OrdinalIgnoreCase);
 
-            _initialLoadCompletion = new TaskCompletionSource<bool>(
+      _initialLoadCompletion = new TaskCompletionSource<bool>(
 
-                #if !NET40 && !NET45
+         #if !NET40 && !NET45
 
-                TaskCreationOptions.RunContinuationsAsynchronously);
-                #else
+         TaskCreationOptions.RunContinuationsAsynchronously);
+      #else
             );
-                #endif
+      #endif
 
-            var appDomain = AppDomain.CurrentDomain;
-            appDomain.AssemblyLoad += OnAssemblyLoaded;
+      var appDomain = AppDomain.CurrentDomain;
+      appDomain.AssemblyLoad += OnAssemblyLoaded;
 
-            Task.Factory.StartNew(LoadAllRunning, TaskCreationOptions.PreferFairness).ConfigureAwait(false);
-        }
+      Task.Factory.StartNew(LoadAllRunning, TaskCreationOptions.PreferFairness).ConfigureAwait(false);
+   }
 
-        private static void LoadAllRunning()
-        {
-            foreach (var asm in GetRunning())
-            {
-                Add(asm);
-            }
+   private static void LoadAllRunning()
+   {
+      foreach (var asm in GetRunning())
+      {
+         Add(asm);
+      }
 
-            _initialLoadCompletion.TrySetResult(true);
-        }
+      _initialLoadCompletion.TrySetResult(true);
+   }
 
-        public Boolean TryGetAssemblyByFileName(String fileName,
-                                                out Assembly assembly)
-        {
-            if (_assembliesByFileName.TryGetValue(fileName, out assembly))
-                return true;
+   public Boolean TryGetAssemblyByFileName(String fileName,
+                                           out Assembly assembly)
+   {
+      if (_assembliesByFileName.TryGetValue(fileName, out assembly))
+         return true;
 
-            if (!_initialLoadCompletion.Task.IsCompleted)
-                _initialLoadCompletion.Task.Wait();
+      if (!_initialLoadCompletion.Task.IsCompleted)
+         _initialLoadCompletion.Task.Wait();
 
-            return _assembliesByFileName.TryGetValue(fileName, out assembly);
-        }
+      return _assembliesByFileName.TryGetValue(fileName, out assembly);
+   }
 
-        public bool TryGetAssemblyByName(String name,
-                                         out Assembly assembly)
-        {
-            if (_assembliesByName.TryGetValue(name, out assembly))
-                return true;
+   public bool TryGetAssemblyByName(String name,
+                                    out Assembly assembly)
+   {
+      if (_assembliesByName.TryGetValue(name, out assembly))
+         return true;
 
-            if (!_initialLoadCompletion.Task.IsCompleted)
-                _initialLoadCompletion.Task.Wait();
+      if (!_initialLoadCompletion.Task.IsCompleted)
+         _initialLoadCompletion.Task.Wait();
 
-            return _assembliesByName.TryGetValue(name, out assembly);
-        }
+      return _assembliesByName.TryGetValue(name, out assembly);
+   }
 
-        public Type? TryGetConcreteType(Type interfaceType)
-        {
-            foreach (var asm in GetAll())
-            {
-                foreach (var type in asm.GetTypes())
-                {
-                    if (interfaceType.IsAssignableFrom(type))
-                        return type;
-                }
-            }
-
-
-            return default;
-        }
-
-        public IEnumerable<Assembly> GetAll()
-        {
-            return _assembliesByFileName.Values.ToArray();
-        }
-
-        private static void Add(Assembly assembly)
-        {
-            if (!IsAssemblyUsable(assembly))
-                return;
-
-            var asFile = new FileInfo(assembly.Location);
-            var myNameIs = assembly.GetName().Name;
-            if (myNameIs == null)
-               return;
-
-            _assembliesByFileName.TryAdd(asFile.Name, assembly);
-            _assembliesByName.TryAdd(myNameIs, assembly);
-        }
+   public Type? TryGetConcreteType(Type interfaceType)
+   {
+      foreach (var asm in GetAll())
+      {
+         foreach (var type in asm.GetTypes())
+         {
+            if (interfaceType.IsAssignableFrom(type))
+               return type;
+         }
+      }
 
 
-        /// <summary>
-        ///     does not check or modify the cache
-        /// </summary>
-        private static IEnumerable<Assembly> GetRunning()
-        {
-            var sended = new HashSet<Assembly>();
+      return default;
+   }
 
-            foreach (var dll in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                if (!IsAssemblyUsable(dll))
-                    continue;
+   public IEnumerable<Assembly> GetAll()
+   {
+      return _assembliesByFileName.Values.ToArray();
+   }
 
-                if (!sended.Add(dll))
-                    continue;
+   private static void Add(Assembly assembly)
+   {
+      if (!IsAssemblyUsable(assembly))
+         return;
 
-                yield return dll;
-            }
-        }
+      var asFile = new FileInfo(assembly.Location);
+      var myNameIs = assembly.GetName().Name;
+      if (myNameIs == null)
+         return;
 
-        private static Boolean IsAssemblyUsable(Assembly dll)
-        {
-            return !dll.IsDynamic && !String.IsNullOrWhiteSpace(dll.Location);
-        }
+      _assembliesByFileName.TryAdd(asFile.Name, assembly);
+      _assembliesByName.TryAdd(myNameIs, assembly);
+   }
 
-        private static void OnAssemblyLoaded(Object sender,
-                                             AssemblyLoadEventArgs args)
-        {
-            Add(args.LoadedAssembly);
-        }
 
-        private static readonly TaskCompletionSource<Boolean> _initialLoadCompletion;
+   /// <summary>
+   ///     does not check or modify the cache
+   /// </summary>
+   private static IEnumerable<Assembly> GetRunning()
+   {
+      var sended = new HashSet<Assembly>();
 
-        private static readonly ConcurrentDictionary<String, Assembly> _assembliesByFileName;
-        private static readonly ConcurrentDictionary<String, Assembly> _assembliesByName;
-    }
+      foreach (var dll in AppDomain.CurrentDomain.GetAssemblies())
+      {
+         if (!IsAssemblyUsable(dll))
+            continue;
+
+         if (!sended.Add(dll))
+            continue;
+
+         yield return dll;
+      }
+   }
+
+   private static Boolean IsAssemblyUsable(Assembly dll)
+   {
+      return !dll.IsDynamic && !String.IsNullOrWhiteSpace(dll.Location);
+   }
+
+   private static void OnAssemblyLoaded(Object sender,
+                                        AssemblyLoadEventArgs args)
+   {
+      Add(args.LoadedAssembly);
+   }
+
+   private static readonly TaskCompletionSource<Boolean> _initialLoadCompletion;
+
+   private static readonly ConcurrentDictionary<String, Assembly> _assembliesByFileName;
+   private static readonly ConcurrentDictionary<String, Assembly> _assembliesByName;
 }

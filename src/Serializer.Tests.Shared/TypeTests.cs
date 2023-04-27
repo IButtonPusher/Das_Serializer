@@ -13,141 +13,141 @@ using Xunit;
 
 // ReSharper disable All
 
-namespace Serializer.Tests
+namespace Serializer.Tests;
+
+public class TypeTests : TestBase
 {
-    public class TypeTests : TestBase
-    {
-        [Fact]
-        public void AssemblyType()
-        {
-            var type = typeof(DasSerializer);
+   [Fact]
+   public void AssemblyType()
+   {
+      var type = typeof(DasSerializer);
 
-            var str = Serializer.TypeInferrer.ToClearName(type);
-            var type2 = Serializer.TypeInferrer.GetTypeFromClearName(str);
-            Assert.Equal(type, type2);
+      var str = Serializer.TypeInferrer.ToClearName(type);
+      var type2 = Serializer.TypeInferrer.GetTypeFromClearName(str);
+      Assert.Equal(type, type2);
 
-            type = typeof(DasSettings);
-            str = Serializer.TypeInferrer.ToClearName(type);
-            type2 = Serializer.TypeInferrer.GetTypeFromClearName(str);
-            Assert.Equal(type, type2);
-        }
+      type = typeof(DasSettings);
+      str = Serializer.TypeInferrer.ToClearName(type);
+      type2 = Serializer.TypeInferrer.GetTypeFromClearName(str);
+      Assert.Equal(type, type2);
+   }
 
-        [Fact]
-        public void CastDynamicViaImplicitOperator()
-        {
-            var saver = new CompactStringSaver();
-            var sb = Serializer.ObjectManipulator.CastDynamic<StringBuilder>(saver);
-        }
+   [Fact]
+   public void CastDynamicViaImplicitOperator()
+   {
+      var saver = new CompactStringSaver();
+      var sb = Serializer.ObjectManipulator.CastDynamic<StringBuilder>(saver);
+   }
 
-        [Fact]
-        public void ChangeStringCaseStyles()
-        {
-            var pascalCase = "SiteId";
-            var asSnake = Serializer.TypeInferrer.ToSnakeCase(pascalCase);
-            Assert.True(asSnake == "site_id");
+   [Fact]
+   public void ChangeStringCaseStyles()
+   {
+      var pascalCase = "SiteId";
+      var asSnake = Serializer.TypeInferrer.ToSnakeCase(pascalCase);
+      Assert.True(asSnake == "site_id");
 
-            var asCamel = Serializer.TypeInferrer.ToCamelCase(pascalCase);
-            Assert.True(asCamel == "siteId");
+      var asCamel = Serializer.TypeInferrer.ToCamelCase(pascalCase);
+      Assert.True(asCamel == "siteId");
 
-            var snakeCase = "hand_no";
-            asCamel = Serializer.TypeInferrer.ToCamelCase(snakeCase);
-            Assert.True(asCamel == "handNo");
+      var snakeCase = "hand_no";
+      asCamel = Serializer.TypeInferrer.ToCamelCase(snakeCase);
+      Assert.True(asCamel == "handNo");
 
-            var asPascal = Serializer.TypeInferrer.ToPascalCase(snakeCase);
-            Assert.True(asPascal == "HandNo");
+      var asPascal = Serializer.TypeInferrer.ToPascalCase(snakeCase);
+      Assert.True(asPascal == "HandNo");
 
-            var camelCase = "tableName";
-            asSnake = Serializer.TypeInferrer.ToSnakeCase(camelCase);
-            Assert.True(asSnake == "table_name");
+      var camelCase = "tableName";
+      asSnake = Serializer.TypeInferrer.ToSnakeCase(camelCase);
+      Assert.True(asSnake == "table_name");
 
-            asPascal = Serializer.TypeInferrer.ToPascalCase(camelCase);
-            Assert.True(asPascal == "TableName");
-        }
+      asPascal = Serializer.TypeInferrer.ToPascalCase(camelCase);
+      Assert.True(asPascal == "TableName");
+   }
 
 
-        [Fact]
-        public void GenericType()
-        {
-            var type = typeof(List<String>);
-            var str = Serializer.TypeInferrer.ToClearName(type);
-            Serializer.TypeInferrer.ClearCachedNames();
-            var type2 = Serializer.TypeInferrer.GetTypeFromClearName(str, true);
-            Assert.Equal(type, type2);
+   [Fact]
+   public void GenericType()
+   {
+      var type = typeof(List<String>);
+      var str = Serializer.TypeInferrer.ToClearName(type);
+      Serializer.TypeInferrer.ClearCachedNames();
+      var type2 = Serializer.TypeInferrer.GetTypeFromClearName(str, true);
+      Assert.Equal(type, type2);
 
 
-            type = typeof(Dictionary<String, Random>);
-            str = Serializer.TypeInferrer.ToClearName(type);
-            Serializer.TypeInferrer.ClearCachedNames();
-            type2 = Serializer.TypeInferrer.GetTypeFromClearName(str, true);
-            Assert.Equal(type, type2);
+      type = typeof(Dictionary<String, Random>);
+      str = Serializer.TypeInferrer.ToClearName(type);
+      Serializer.TypeInferrer.ClearCachedNames();
+      type2 = Serializer.TypeInferrer.GetTypeFromClearName(str, true);
+      Assert.Equal(type, type2);
 
-            var fullName = type.FullName ?? throw new NullReferenceException(nameof(type.FullName));
-            type2 = Serializer.TypeInferrer.GetTypeFromClearName(fullName, true);
-            Assert.Equal(type, type2);
+      var fullName = type.FullName ?? throw new NullReferenceException(nameof(type.FullName));
+      type2 = Serializer.TypeInferrer.GetTypeFromClearName(fullName, true);
+      Assert.Equal(type, type2);
 
-            type = typeof(Dictionary<String, SimpleClassObjectProperty>);
-            if (type?.FullName == null)
-                throw new Exception();
-            var wrongName = type.FullName.Replace("Serializer.Tests", "Serializer.Tests2");
-            type2 = Serializer.TypeInferrer.GetTypeFromClearName(wrongName);
-            Assert.NotEqual(type, type2);
+      type = typeof(Dictionary<String, SimpleClassObjectProperty>);
+      if (type?.FullName == null)
+         throw new Exception();
+      var wrongName = type.FullName.Replace("Serializer.Tests", "Serializer.Tests2");
+      type2 = Serializer.TypeInferrer.GetTypeFromClearName(wrongName);
+      Assert.NotEqual(type, type2);
 
-            type = typeof(Object[]);
-            str = Serializer.TypeInferrer.ToClearName(type);
-            Serializer.TypeInferrer.ClearCachedNames();
-            type2 = Serializer.TypeInferrer.GetTypeFromClearName(str);
-            Assert.Equal(type, type2);
+      type = typeof(Object[]);
+      str = Serializer.TypeInferrer.ToClearName(type);
+      Serializer.TypeInferrer.ClearCachedNames();
+      type2 = Serializer.TypeInferrer.GetTypeFromClearName(str);
+      Assert.Equal(type, type2);
 
-            type = typeof(GenericClass<SimpleClassObjectProperty>);
-            str = Serializer.TypeInferrer.ToClearName(type);
-            Serializer.TypeInferrer.ClearCachedNames();
-            type2 = Serializer.TypeInferrer.GetTypeFromClearName(str, true);
-            Assert.Equal(type, type2);
+      type = typeof(GenericClass<SimpleClassObjectProperty>);
+      str = Serializer.TypeInferrer.ToClearName(type);
+      Serializer.TypeInferrer.ClearCachedNames();
+      type2 = Serializer.TypeInferrer.GetTypeFromClearName(str, true);
+      Assert.Equal(type, type2);
 
-            type = typeof(Dictionary<string, List<decimal>>);
-            str = Serializer.TypeInferrer.ToClearName(type);
-            Serializer.TypeInferrer.ClearCachedNames();
-            type2 = Serializer.TypeInferrer.GetTypeFromClearName(str, true);
-            Assert.Equal(type, type2);
-        }
+      type = typeof(Dictionary<string, List<decimal>>);
+      str = Serializer.TypeInferrer.ToClearName(type);
+      Serializer.TypeInferrer.ClearCachedNames();
+      type2 = Serializer.TypeInferrer.GetTypeFromClearName(str, true);
+      Assert.Equal(type, type2);
+   }
 
 
-        [Fact]
-        public void NamespaceType()
-        {
-            var type = typeof(Encoding);
-            var str = Serializer.TypeInferrer.ToClearName(type);
-            var type2 = Serializer.TypeInferrer.GetTypeFromClearName(str);
-            Assert.Equal(type, type2);
+   [Fact]
+   public void NamespaceType()
+   {
+      var type = typeof(Encoding);
+      var str = Serializer.TypeInferrer.ToClearName(type);
+      var type2 = Serializer.TypeInferrer.GetTypeFromClearName(str);
+      Assert.Equal(type, type2);
 
-            type = typeof(IEnumerable);
-            str = Serializer.TypeInferrer.ToClearName(type);
-            type2 = Serializer.TypeInferrer.GetTypeFromClearName(str);
-            Assert.Equal(type, type2);
-        }
+      type = typeof(IEnumerable);
+      str = Serializer.TypeInferrer.ToClearName(type);
+      type2 = Serializer.TypeInferrer.GetTypeFromClearName(str);
+      Assert.Equal(type, type2);
+   }
 
-        [Fact]
-        public void PrimitiveType()
-        {
-            var type = typeof(Int32);
-            var str = Serializer.TypeInferrer.ToClearName(type);
-            var type2 = Serializer.TypeInferrer.GetTypeFromClearName(str);
-            Assert.Equal(type, type2);
+   [Fact]
+   public void PrimitiveType()
+   {
+      var type = typeof(Int32);
+      var str = Serializer.TypeInferrer.ToClearName(type);
+      var type2 = Serializer.TypeInferrer.GetTypeFromClearName(str);
+      Assert.Equal(type, type2);
 
-            type = typeof(String);
-            str = Serializer.TypeInferrer.ToClearName(type);
-            type2 = Serializer.TypeInferrer.GetTypeFromClearName(str);
-            Assert.Equal(type, type2);
-        }
+      type = typeof(String);
+      str = Serializer.TypeInferrer.ToClearName(type);
+      type2 = Serializer.TypeInferrer.GetTypeFromClearName(str);
+      Assert.Equal(type, type2);
+   }
 
-        //  #if !TEST_NO_CODEGENERATION
+   //  #if !TEST_NO_CODEGENERATION
 
-        [Fact]
-        public void PropertyGetters()
-        {
-            for (var c = 0; c < 5; c++)
-            {
-                #if !TEST_NO_CODEGENERATION
+   [Fact]
+   public void PropertyGetters()
+   {
+      for (var c = 0; c < 5; c++)
+      {
+         #if !TEST_NO_CODEGENERATION
                 var getter = TypeManipulator.CreateDynamicPropertyGetter(
                     typeof(ISimpleClass),
                     nameof(ISimpleClass.Name),
@@ -186,18 +186,18 @@ namespace Serializer.Tests
                 var res3 = accessor.GetPropertyValue(obj);
                 Assert.Equal(res3, obj.SimpleLeft);
 
-                #endif
-            }
-        }
+         #endif
+      }
+   }
 
 
-        [Fact]
-        public void PropertySetters()
-        {
-            var inst = SimpleClass.GetExample();
-            var nameProp = typeof(SimpleClass).GetPropertyOrDie(nameof(SimpleClass.Name));
+   [Fact]
+   public void PropertySetters()
+   {
+      var inst = SimpleClass.GetExample();
+      var nameProp = typeof(SimpleClass).GetPropertyOrDie(nameof(SimpleClass.Name));
 
-            #if !TEST_NO_CODEGENERATION
+      #if !TEST_NO_CODEGENERATION
             var setter = TypeManipulator.CreateDynamicSetter<SimpleClass>(nameProp.Name);
 
             setter(ref inst, "suzy slammer");
@@ -217,39 +217,38 @@ namespace Serializer.Tests
 
             //////////////
 
-            #endif
+      #endif
 
-            var inst3 = SimpleClass.GetExample();
-            Object oInst3 = inst3;
+      var inst3 = SimpleClass.GetExample();
+      Object oInst3 = inst3;
 
-            var typem = new TypeManipulator(DasSettings.CloneDefault());
-            ITypeManipulator iTypem = typem;
-            var setter3 = iTypem.CreateSetMethod(nameProp);
-            setter3(ref oInst3!, "henry howler");
-            Assert.Equal("henry howler", inst3.Name);
-        }
+      var typem = new TypeManipulator(DasSettings.CloneDefault());
+      ITypeManipulator iTypem = typem;
+      var setter3 = iTypem.CreateSetMethod(nameProp);
+      setter3(ref oInst3!, "henry howler");
+      Assert.Equal("henry howler", inst3.Name);
+   }
 
-        [Fact]
-        public void CopyAbstract()
-        {
-            var copysettings = DasSettings.CloneDefault();
-            copysettings.SerializationDepth = SerializationDepth.Full;
-            var inst = AbstractTypeFactory.GetInstance();
-            var inst2 = Serializer.StateProvider.ObjectConverter.Copy(inst, copysettings);
+   [Fact]
+   public void CopyAbstract()
+   {
+      var copysettings = DasSettings.CloneDefault();
+      copysettings.SerializationDepth = SerializationDepth.Full;
+      var inst = AbstractTypeFactory.GetInstance();
+      var inst2 = Serializer.StateProvider.ObjectConverter.Copy(inst, copysettings);
 
-            var equal = SlowEquality.AreEqual(inst, inst2);
-            Assert.True(equal);
-        }
+      var equal = SlowEquality.AreEqual(inst, inst2);
+      Assert.True(equal);
+   }
 
-        [Fact]
-        public void GetPropertyAmbiguously()
-        {
-            var moo = typeof(SimpleClassNewProp).GetPropertyOrDie(nameof(SimpleClassNewProp.Animal));
-            var pass = moo?.PropertyType == typeof(String);
-            Assert.True(pass);
-        }
+   [Fact]
+   public void GetPropertyAmbiguously()
+   {
+      var moo = typeof(SimpleClassNewProp).GetPropertyOrDie(nameof(SimpleClassNewProp.Animal));
+      var pass = moo?.PropertyType == typeof(String);
+      Assert.True(pass);
+   }
 
 
-        //  #endif
-    }
+   //  #endif
 }

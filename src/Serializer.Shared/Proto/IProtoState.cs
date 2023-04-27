@@ -2,10 +2,9 @@
 using System.Threading.Tasks;
 using Das.Serializer.CodeGen;
 
-namespace Das.Serializer.Proto
+namespace Das.Serializer.Proto;
+
+public interface IProtoState
 {
-    public interface IProtoState
-    {
-        ProxiedInstanceField GetProxy(Type type);
-    }
+   ProxiedInstanceField GetProxy(Type type);
 }

@@ -3,80 +3,69 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Das.Serializer.Properties;
 
-namespace Das.Serializer.ProtoBuf
+namespace Das.Serializer.ProtoBuf;
+
+public class ProtoField : PropertyActor,
+                          IProtoFieldAccessor
 {
-    public class ProtoField : PropertyActor,
-                              IProtoFieldAccessor
-    {
-        public ProtoField(String name,
-                          Type type,
-                          ProtoWireTypes wireType,
-                          Int32 fieldIndex,
-                          Int32 header,
-                          MethodInfo valueGetter,
-                          Boolean isLeaf,
-                          Boolean isRepeated,
-                          FieldAction fieldAction,
-                          Byte[] headerBytes,
-                          MethodInfo? setMethod)
-            : base(name, type, valueGetter, setMethod,
-                fieldAction, fieldIndex)
-        {
-            IsLeafType = isLeaf;
-            IsRepeatedField = isRepeated;
-            HeaderBytes = headerBytes;
-            WireType = wireType;
-            Header = header;
-        }
+   public ProtoField(String name,
+                     Type type,
+                     ProtoWireTypes wireType,
+                     Int32 fieldIndex,
+                     Int32 header,
+                     MethodInfo valueGetter,
+                     Boolean isLeaf,
+                     Boolean isRepeated,
+                     FieldAction fieldAction,
+                     Byte[] headerBytes,
+                     MethodInfo? setMethod)
+      : base(name, type, valueGetter, setMethod,
+         fieldAction, fieldIndex)
+   {
+      IsLeafType = isLeaf;
+      IsRepeatedField = isRepeated;
+      HeaderBytes = headerBytes;
+      WireType = wireType;
+      Header = header;
+   }
 
-        //public Type Type { get; set; }
+   public ProtoWireTypes WireType { get; }
 
-        //public String Name { get; }
+   public Int32 Header { get; }
 
-        public ProtoWireTypes WireType { get; }
+   public Boolean IsLeafType { get; }
 
-        public Int32 Header { get; }
+   public Boolean IsRepeatedField { get; }
 
-        //public TypeCode TypeCode { get; }
+      
 
-        public Boolean IsLeafType { get; }
+   public Byte[] HeaderBytes { get; }
 
-        public Boolean IsRepeatedField { get; }
+   public Boolean Equals(IProtoField? other)
+   {
+      if (ReferenceEquals(null, other))
+         return false;
 
-        //public ProtoFieldAction FieldAction { get; }
+      return other.Header == Header && other.Name == Name;
+   }
 
-        //public MethodInfo GetMethod { get; }
+   public bool Equals(ParameterInfo? other)
+   {
+      if (ReferenceEquals(null, other))
+         return false;
 
-        //public MethodInfo? SetMethod { get; }
+      return other.ParameterType == Type &&
+             String.Equals(other.Name, Name, StringComparison.OrdinalIgnoreCase);
+   }
 
-        public Byte[] HeaderBytes { get; }
-
-        public Boolean Equals(IProtoField other)
-        {
-            if (ReferenceEquals(null, other))
-                return false;
-
-            return other.Header == Header && other.Name == Name;
-        }
-
-        public bool Equals(ParameterInfo other)
-        {
-            if (ReferenceEquals(null, other))
-                return false;
-
-            return other.ParameterType == Type &&
-                   String.Equals(other.Name, Name, StringComparison.OrdinalIgnoreCase);
-        }
-
-        public override Int32 GetHashCode()
-        {
-            return Header;
-        }
+   public override Int32 GetHashCode()
+   {
+      return Header;
+   }
 
 
-        public override String ToString()
-        {
-            return $"{Type.Name} {Name} [{WireType}] protofield";
-        }
-    }
+   public override String ToString()
+   {
+      return $"{Type.Name} {Name} [{WireType}] protofield";
+   }
 }

@@ -7,52 +7,51 @@ using ProtoBuf;
 
 #pragma warning disable 8618
 
-namespace Serializer.Tests
+namespace Serializer.Tests;
+
+public abstract class TestBase
 {
-    public abstract class TestBase
-    {
-        public TestBase()
-        {
-            Settings = new ProtoBufOptions<ProtoMemberAttribute>(p => p.Tag);
-            ProtoSerializer = Serializer.GetProtoSerializer(Settings);
-            _serializer = new DasSerializer();
-            srl = _serializer;
+   public TestBase()
+   {
+      Settings = new ProtoBufOptions<ProtoMemberAttribute>(p => p.Tag);
+      ProtoSerializer = Serializer.GetProtoSerializer(Settings);
+      _serializer = new DasSerializer();
+      srl = _serializer;
 
 
-            #if GENERATECODE
-            TypeProvider = new ProtoDynamicProvider<ProtoMemberAttribute>(Settings,
-                Serializer.TypeManipulator,
-                Serializer.ObjectInstantiator,
-                Serializer.ObjectManipulator,
-                _serializer.Settings);
-            #endif
-        }
+      #if GENERATECODE
+      TypeProvider = new ProtoDynamicProvider<ProtoMemberAttribute>(Settings,
+         Serializer.TypeManipulator,
+         Serializer.ObjectInstantiator,
+         Serializer.ObjectManipulator,
+         _serializer.Settings);
+      #endif
+   }
 
-        public ProtoBufOptions<ProtoMemberAttribute> Settings { get; set; }
+   public ProtoBufOptions<ProtoMemberAttribute> Settings { get; set; }
 
-        protected DasSerializer Serializer => _serializer ?? (_serializer = new DasSerializer());
+   protected DasSerializer Serializer => _serializer ?? (_serializer = new DasSerializer());
 
 
-        protected static Object GetAnonymousObject()
-        {
-            return new
-            {
-                Id = 123,
-                Name = "Bob",
-                NumericString = "8675309",
-                ZipCode = 90210
-            };
-        }
+   protected static Object GetAnonymousObject()
+   {
+      return new
+      {
+         Id = 123,
+         Name = "Bob",
+         NumericString = "8675309",
+         ZipCode = 90210
+      };
+   }
 
-        protected readonly DasSerializer srl;
-        protected DasSerializer _serializer;
+   protected readonly DasSerializer srl;
+   protected DasSerializer _serializer;
 
-        protected IProtoSerializer ProtoSerializer;
+   protected IProtoSerializer ProtoSerializer;
 
-        #if GENERATECODE
+   #if GENERATECODE
 
-        public ProtoDynamicProvider<ProtoMemberAttribute> TypeProvider;
+   public ProtoDynamicProvider<ProtoMemberAttribute> TypeProvider;
 
-        #endif
-    }
+   #endif
 }

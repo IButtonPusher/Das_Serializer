@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Das.Serializer
+namespace Das.Serializer;
+
+public enum PropertyNotFoundBehavior
 {
-    public enum PropertyNotFoundBehavior
-    {
-        Ignore,
-        ThrowException
-    }
+   Ignore,
+   ThrowException
 }

@@ -2,121 +2,160 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Das.Serializer
+namespace Das.Serializer;
+
+public class RuntimeObject : IRuntimeObject
 {
-    //public class RuntimeObject<T> : RuntimeObject
-    //{
-    //    public static implicit operator T(RuntimeObject<T> obj)
-    //    {
-    //        switch (obj)
-    //        {
-    //            case T good:
-    //                return good;
-    //        }
+   public RuntimeObject(ITypeManipulator typeManipulator)
+   {
+      _typeManipulator = typeManipulator;
+      _hash = base.GetHashCode();
+      //Properties = new Dictionary<String, IRuntimeObject>();
+      _properties = new Dictionary<String, Object?>();
+      _propertyTypes = new Dictionary<String, Type>();
+   }
 
-    //        throw new InvalidCastException();
-    //    }
-    //}
+   //public RuntimeObject(ITypeManipulator typeManipulator,
+   //                     Object? primitiveValue)
+   //   : this(typeManipulator)
+   //{
+   //   PrimitiveValue = primitiveValue;
+   //   if (primitiveValue is { } notNull)
+   //      _hash = notNull.GetHashCode();
+   //}
 
-    public class RuntimeObject : IRuntimeObject
-    {
-        public RuntimeObject(ITypeManipulator typeManipulator)
-        {
-            _typeManipulator = typeManipulator;
-            _hash = base.GetHashCode();
-            Properties = new Dictionary<String, IRuntimeObject>();
-        }
+   public Object? this[String key]
+   {
+      get
+      {
+         if (_properties.TryGetValue(key, out var res))
+            return res;
 
-        public RuntimeObject(ITypeManipulator typeManipulator,
-                             Object? primitiveValue)
-            : this(typeManipulator)
-        {
-            PrimitiveValue = primitiveValue;
-            if (primitiveValue is { } notNull)
-                _hash = notNull.GetHashCode();
-        }
+         return default;
+      }
+   }
 
-        public IRuntimeObject? this[String key]
-        {
-            get
+   //public IRuntimeObject? this[String key]
+   //{
+   //   get
+   //   {
+   //      if (Properties.TryGetValue(key, out var res))
+   //         return res;
+
+   //      return default;
+   //   }
+   //}
+
+   //public Object? PrimitiveValue { get; set; }
+
+   public IEnumerable<DasProperty> GetProperties()
+   {
+      foreach (var kvp in _properties)
+      {
+         var propVal = kvp.Value;
+         Type propType;
+         if (!ReferenceEquals(null, propVal))
+            propType = propVal.GetType();
+         else
+         {
+            if (!_propertyTypes.TryGetValue(kvp.Key, out propType))
+               propType = typeof(Object);
+         }
+
+         yield return new DasProperty(kvp.Key, propType, propVal);
+
+      }
+   }
+
+   //public Type GetObjectType() =>
+   //   PrimitiveValue != null
+   //      ? PrimitiveValue.GetType()
+   //      : Const.ObjectType;
+
+   public void AddPropertyValue(String propName,
+                                Object? propVal,
+                                Type propertyType)
+   {
+      _properties.Add(propName, propVal);
+      if (ReferenceEquals(null, propVal))
+         _propertyTypes.Add(propName, propertyType);
+   }
+
+   public void Clear()
+   {
+      _propertyTypes.Clear();
+      _properties.Clear();
+   }
+
+   public Boolean TryGetPropertyValue(String propName,
+                                      out Object? propVal)
+   {
+      if (_properties.TryGetValue(propName, out propVal))
+         return true;
+
+      return false;
+   }
+
+   public override bool Equals(Object? obj)
+
+   {
+      switch (obj)
+      {
+         case null:
+            return false;
+
+         case RuntimeObject robj:
+            if (robj._properties.Count != _properties.Count)
+               return false;
+
+            foreach (var kvp in robj._properties)
             {
-                if (Properties.TryGetValue(key, out var res))
-                    return res;
+               if (!_properties.TryGetValue(kvp.Key, out var myValue))
+                  return false;
 
-                return default;
+               if (!Equals(kvp.Value, myValue))
+                  return false;
             }
-        }
 
-        public Object? PrimitiveValue { get; set; }
+            return true;
 
-        public Dictionary<String, IRuntimeObject> Properties { get; }
+         default:
+            //if (PrimitiveValue != null)
+            //   return Equals(PrimitiveValue, obj);
 
-        public Type GetObjectType()
-        {
-            return PrimitiveValue != null
-                ? PrimitiveValue.GetType()
-                : Const.ObjectType;
-        }
+            var ts = _typeManipulator.GetTypeStructure(obj.GetType());
 
-        public override bool Equals(Object? obj)
+            if (ts.PropertyCount != _properties.Count)
+               return false;
 
-        {
-            switch (obj)
+            foreach (var kvp in ts.IteratePropertyValues(obj, DepthConstants.AllProperties))
             {
-                case null:
-                    return false;
+               if (!_properties.TryGetValue(kvp.Key.Name, out var myValue))
+                  return false;
 
-                case RuntimeObject robj:
-                    if (robj.Properties.Count != Properties.Count)
-                        return false;
-
-                    foreach (var kvp in robj.Properties)
-                    {
-                        if (!Properties.TryGetValue(kvp.Key, out var myValue))
-                            return false;
-
-                        if (!Equals(kvp.Value, myValue))
-                            return false;
-                    }
-
-                    return true;
-
-                default:
-                    if (PrimitiveValue != null)
-                        return Equals(PrimitiveValue, obj);
-
-                    var ts = _typeManipulator.GetTypeStructure(obj.GetType());//, DepthConstants.AllProperties);
-
-                    if (ts.PropertyCount != Properties.Count)
-                        return false;
-
-                    foreach (var kvp in ts.IteratePropertyValues(obj, DepthConstants.AllProperties))
-                    {
-                        if (!Properties.TryGetValue(kvp.Key.Name, out var myValue))
-                            return false;
-
-                        if (!Equals(kvp.Value, myValue))
-                            return false;
-                    }
-
-                    return true;
+               if (!Equals(kvp.Value, myValue))
+                  return false;
             }
-        }
 
-        public override int GetHashCode()
-        {
-            return _hash;
-        }
+            return true;
+      }
+   }
 
-        public override String ToString()
-        {
-            if (PrimitiveValue is { } p)
-                return p.ToString();
+   public override int GetHashCode() => _hash;
 
-            return GetType().Name + " - " + Properties.Count + " properties";
-        }
+   public override String ToString()
+   {
+      //if (PrimitiveValue is { } p)
+      //   return p.ToString();
 
-        private readonly Int32 _hash;
-        private readonly ITypeManipulator _typeManipulator;
-    }
+      return GetType().Name + " - " + _properties.Count + " properties";
+   }
+
+   private readonly Int32 _hash;
+
+   //public Dictionary<String, IRuntimeObject> Properties { get; }
+
+   private readonly Dictionary<String, Object?> _properties;
+   private readonly Dictionary<String, Type> _propertyTypes;
+   private readonly ITypeManipulator _typeManipulator;
 }

@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace Das.Serializer.State
+namespace Das.Serializer.State;
+
+public interface ICollectionWrapper
 {
-   public interface ICollectionWrapper
-   {
-      Object GetBaseCollection();
-   }
+   Object GetBaseCollection();
 }

@@ -3,14 +3,13 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Das.Serializer.Properties;
 
-namespace Das.Serializer
+namespace Das.Serializer;
+
+public interface IProtoFieldAccessor : IProtoField, IEquatable<ParameterInfo>,
+                                       IPropertyActionAware
 {
-    public interface IProtoFieldAccessor : IProtoField, IEquatable<ParameterInfo>,
-                                           IPropertyActionAware
-    {
-        /// <summary>
-        ///     Wire type | field index
-        /// </summary>
-        Byte[] HeaderBytes { get; }
-    }
+   /// <summary>
+   ///     Wire type | field index
+   /// </summary>
+   Byte[] HeaderBytes { get; }
 }

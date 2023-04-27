@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Das.Serializer.Properties
+namespace Das.Serializer.Properties;
+
+public interface IPropertyActionAware
 {
-    public interface IPropertyActionAware
-    {
-        FieldAction FieldAction { get; }
-    }
+   FieldAction FieldAction { get; }
 }

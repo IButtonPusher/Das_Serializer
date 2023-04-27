@@ -6,6 +6,7 @@ using System.IO;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using Xunit;
+// ReSharper disable All
 
 namespace Serializer.Tests.ProtocolBuffers
 {

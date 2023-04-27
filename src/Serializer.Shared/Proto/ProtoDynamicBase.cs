@@ -7,284 +7,283 @@ using System.Text;
 using System.Threading.Tasks;
 using Das.Serializer.Remunerators;
 
-namespace Das.Serializer.ProtoBuf
+namespace Das.Serializer.ProtoBuf;
+
+public abstract class ProtoDynamicBase<T> : ProtoDynamicBase, IProtoProxy<T>
 {
-    public abstract class ProtoDynamicBase<T> : ProtoDynamicBase, IProtoProxy<T>
-    {
-        protected ProtoDynamicBase(
-            IProtoProvider proxyProvider)
-            : base(proxyProvider)
-        {
-        }
+   protected ProtoDynamicBase(
+      IProtoProvider proxyProvider)
+      : base(proxyProvider)
+   {
+   }
 
-        public abstract void Print(T obj,
-                                   Stream target);
+   public abstract void Print(T obj,
+                              Stream target);
 
-        public T Scan(Stream stream)
-        {
-            return Scan(stream, stream.Length);
-        }
+   public T Scan(Stream stream)
+   {
+      return Scan(stream, stream.Length);
+   }
 
-        public abstract T Scan(Stream stream,
-                               Int64 byteCount);
+   public abstract T Scan(Stream stream,
+                          Int64 byteCount);
 
 
-        public virtual T BuildDefault()
-        {
-            throw new NotSupportedException();
-        }
-    }
+   public virtual T BuildDefault()
+   {
+      throw new NotSupportedException();
+   }
+}
 
-    public abstract class ProtoDynamicBase : ProtoBufWriter
-    {
-        static ProtoDynamicBase()
-        {
-            Utf8 = Encoding.UTF8;
-        }
+public abstract class ProtoDynamicBase : ProtoBufWriter
+{
+   static ProtoDynamicBase()
+   {
+      Utf8 = Encoding.UTF8;
+   }
 
 
-        protected ProtoDynamicBase(IProtoProvider proxyProvider)
-        {
-            _proxyProvider = proxyProvider;
-        }
+   protected ProtoDynamicBase(IProtoProvider proxyProvider)
+   {
+      _proxyProvider = proxyProvider;
+   }
 
-        public abstract Boolean IsReadOnly { get; }
+   public abstract Boolean IsReadOnly { get; }
 
-        public static void AddPacked16<TCollection>(TCollection target,
-                                                    Stream stream,
+   public static void AddPacked16<TCollection>(TCollection target,
+                                               Stream stream,
+                                               Int32 bytesToUse)
+      where TCollection : ICollection<Int16>
+   {
+      var end = stream.Position + bytesToUse;
+
+      while (end > stream.Position)
+         target.Add((Int16) GetInt32(stream));
+   }
+
+   public static void AddPacked32<TCollection>(TCollection target,
+                                               Stream stream,
+                                               Int32 bytesToUse)
+      where TCollection : ICollection<Int32>
+   {
+      var end = stream.Position + bytesToUse;
+
+      while (end > stream.Position)
+         target.Add(GetInt32(stream));
+   }
+
+   public static void AddPacked64<TCollection>(TCollection target,
+                                               Stream stream,
+                                               Int32 bytesToUse)
+      where TCollection : ICollection<Int64>
+   {
+      var end = stream.Position + bytesToUse;
+
+      while (end > stream.Position)
+         target.Add(GetInt64(stream));
+   }
+
+   public static void CopyMemoryStream(NaiveMemoryStream copyFrom,
+                                       Stream destination)
+   {
+      destination.Write(copyFrom._buffer, 0, copyFrom.IntLength);
+   }
+
+   public void DebugWriteline(Object obj1,
+                              object obj2)
+   {
+      Debug.WriteLine("Debug " + obj1 + "\t" + obj2);
+   }
+
+   public static IEnumerable<Int16> ExtractPacked16(Stream stream,
                                                     Int32 bytesToUse)
-            where TCollection : ICollection<Int16>
-        {
-            var end = stream.Position + bytesToUse;
+   {
+      var end = stream.Position + bytesToUse;
 
-            while (end > stream.Position)
-                target.Add((Int16) GetInt32(stream));
-        }
+      while (end > stream.Position)
+         yield return (Int16) GetInt32(stream);
+   }
 
-        public static void AddPacked32<TCollection>(TCollection target,
-                                                    Stream stream,
+   public static IEnumerable<Int32> ExtractPacked32(Stream stream,
                                                     Int32 bytesToUse)
-            where TCollection : ICollection<Int32>
-        {
-            var end = stream.Position + bytesToUse;
+   {
+      var end = stream.Position + bytesToUse;
 
-            while (end > stream.Position)
-                target.Add(GetInt32(stream));
-        }
+      while (end > stream.Position)
+         yield return GetInt32(stream);
+   }
 
-        public static void AddPacked64<TCollection>(TCollection target,
-                                                    Stream stream,
+   public static IEnumerable<Int64> ExtractPacked64(Stream stream,
                                                     Int32 bytesToUse)
-            where TCollection : ICollection<Int64>
-        {
-            var end = stream.Position + bytesToUse;
+   {
+      var end = stream.Position + bytesToUse;
 
-            while (end > stream.Position)
-                target.Add(GetInt64(stream));
-        }
+      while (end > stream.Position)
+         yield return GetInt64(stream);
+   }
 
-        public static void CopyMemoryStream(NaiveMemoryStream copyFrom,
-                                            Stream destination)
-        {
-            destination.Write(copyFrom._buffer, 0, copyFrom.IntLength);
-        }
+   // ReSharper disable once UnusedMember.Global
+   public static IEnumerable<TChild> GetChildren<TChild>(Stream stream,
+                                                         IProtoProxy<TChild> proxy)
+   {
+      var nextItemLength = GetPositiveInt32(stream);
 
-        public void DebugWriteline(Object obj1,
-                                   object obj2)
-        {
-            Debug.WriteLine("Debug " + obj1 + "\t" + obj2);
-        }
+      if (nextItemLength > stream.Length) yield break; //TODO:
 
-        public static IEnumerable<Int16> ExtractPacked16(Stream stream,
-                                                         Int32 bytesToUse)
-        {
-            var end = stream.Position + bytesToUse;
+      var positionWas = stream.Position;
+      var endPosition = positionWas + nextItemLength;
 
-            while (end > stream.Position)
-                yield return (Int16) GetInt32(stream);
-        }
+      while (positionWas < endPosition && endPosition <= stream.Length)
+      {
+         yield return proxy.Scan(stream, nextItemLength);
+         positionWas = stream.Position;
+      }
+   }
 
-        public static IEnumerable<Int32> ExtractPacked32(Stream stream,
-                                                         Int32 bytesToUse)
-        {
-            var end = stream.Position + bytesToUse;
+   public static Int32 GetColumnIndex(Stream stream)
+   {
+      var result = 0;
+      var push = 0;
 
-            while (end > stream.Position)
-                yield return GetInt32(stream);
-        }
+      while (true)
+      {
+         var currentByte = stream.ReadByte();
+         if (currentByte == -1)
+            return 0;
 
-        public static IEnumerable<Int64> ExtractPacked64(Stream stream,
-                                                         Int32 bytesToUse)
-        {
-            var end = stream.Position + bytesToUse;
+         result += (currentByte & 0x7F) << push;
 
-            while (end > stream.Position)
-                yield return GetInt64(stream);
-        }
+         push += 7;
+         if ((currentByte & 0x80) == 0)
+            return result >> 3;
+      }
+   }
 
-        // ReSharper disable once UnusedMember.Global
-        public static IEnumerable<TChild> GetChildren<TChild>(Stream stream,
-                                                              IProtoProxy<TChild> proxy)
-        {
-            var nextItemLength = GetPositiveInt32(stream);
+   public static Int32 GetInt32(Stream stream)
+   {
+      var result = 0;
+      var push = 0;
 
-            if (nextItemLength > stream.Length) yield break; //TODO:
+      while (true)
+      {
+         var currentByte = stream.ReadByte();
 
-            var positionWas = stream.Position;
-            var endPosition = positionWas + nextItemLength;
+         result += (currentByte & 0x7F) << push;
+         if (push == 28 && result < 0)
+         {
+            stream.Position += 5;
+            return result;
+         }
 
-            while (positionWas < endPosition && endPosition <= stream.Length)
-            {
-                yield return proxy.Scan(stream, nextItemLength);
-                positionWas = stream.Position;
-            }
-        }
+         push += 7;
+         if ((currentByte & 0x80) == 0)
+            return result;
+      }
+   }
 
-        public static Int32 GetColumnIndex(Stream stream)
-        {
-            var result = 0;
-            var push = 0;
+   public static DateTime GetDateTime(Stream stream)
+   {
+      return DateTime.FromFileTime(GetInt64(stream));
+   }
 
-            while (true)
-            {
-                var currentByte = stream.ReadByte();
-                if (currentByte == -1)
-                    return 0;
+   public static Int64 GetInt64(Stream stream)
+   {
+      var result = 0L;
+      var push = 0;
 
-                result += (currentByte & 0x7F) << push;
+      while (true)
+      {
+         var currentByte = (Int64) stream.ReadByte();
 
-                push += 7;
-                if ((currentByte & 0x80) == 0)
-                    return result >> 3;
-            }
-        }
+         result += (currentByte & 0x7F) << push;
+         if (push == 28 && result < 0)
+         {
+            stream.Position += 5;
+            return result;
+         }
 
-        public static Int32 GetInt32(Stream stream)
-        {
-            var result = 0;
-            var push = 0;
+         push += 7;
+         if ((currentByte & 0x80) == 0)
+            return result;
+      }
+   }
 
-            while (true)
-            {
-                var currentByte = stream.ReadByte();
+   public static Int32 GetPositiveInt32(Stream stream)
+   {
+      var result = 0;
+      var push = 0;
 
-                result += (currentByte & 0x7F) << push;
-                if (push == 28 && result < 0)
-                {
-                    stream.Position += 5;
-                    return result;
-                }
+      while (true)
+      {
+         var currentByte = stream.ReadByte();
 
-                push += 7;
-                if ((currentByte & 0x80) == 0)
-                    return result;
-            }
-        }
+         result += (currentByte & 0x7F) << push;
 
-        public static DateTime GetDateTime(Stream stream)
-        {
-            return DateTime.FromFileTime(GetInt64(stream));
-        }
+         push += 7;
+         if ((currentByte & 0x80) == 0)
+            return result;
+      }
+   }
 
-        public static Int64 GetInt64(Stream stream)
-        {
-            var result = 0L;
-            var push = 0;
+   public static Int64 GetPositiveInt64(Stream stream)
+   {
+      var result = 0L;
+      var push = 0;
 
-            while (true)
-            {
-                var currentByte = (Int64) stream.ReadByte();
+      while (true)
+      {
+         var currentByte = stream.ReadByte();
 
-                result += (currentByte & 0x7F) << push;
-                if (push == 28 && result < 0)
-                {
-                    stream.Position += 5;
-                    return result;
-                }
+         result += (currentByte & 0x7F) << push;
 
-                push += 7;
-                if ((currentByte & 0x80) == 0)
-                    return result;
-            }
-        }
+         push += 7;
+         if ((currentByte & 0x80) == 0)
+            return result;
+      }
+   }
 
-        public static Int32 GetPositiveInt32(Stream stream)
-        {
-            var result = 0;
-            var push = 0;
+   public static UInt32 GetUInt32(Stream stream)
+   {
+      UInt32 result = 0;
+      var push = 0;
 
-            while (true)
-            {
-                var currentByte = stream.ReadByte();
+      while (true)
+      {
+         var currentByte = stream.ReadByte();
 
-                result += (currentByte & 0x7F) << push;
+         result += (UInt32) (currentByte & 0x7F) << push;
 
-                push += 7;
-                if ((currentByte & 0x80) == 0)
-                    return result;
-            }
-        }
+         push += 7;
+         if ((currentByte & 0x80) == 0)
+            return result;
+      }
+   }
 
-        public static Int64 GetPositiveInt64(Stream stream)
-        {
-            var result = 0L;
-            var push = 0;
+   public static UInt64 GetUInt64(Stream stream)
+   {
+      UInt64 result = 0L;
+      var push = 0;
 
-            while (true)
-            {
-                var currentByte = stream.ReadByte();
+      while (true)
+      {
+         var currentByte = stream.ReadByte();
 
-                result += (currentByte & 0x7F) << push;
+         result += (UInt64) (currentByte & 0x7F) << push;
 
-                push += 7;
-                if ((currentByte & 0x80) == 0)
-                    return result;
-            }
-        }
+         push += 7;
+         if ((currentByte & 0x80) == 0)
+            return result;
+      }
+   }
 
-        public static UInt32 GetUInt32(Stream stream)
-        {
-            UInt32 result = 0;
-            var push = 0;
+   public static BindingFlags InstanceNonPublic = BindingFlags.Instance | BindingFlags.NonPublic;
 
-            while (true)
-            {
-                var currentByte = stream.ReadByte();
+   protected static Encoding Utf8;
 
-                result += (UInt32) (currentByte & 0x7F) << push;
+   // ReSharper disable once UnusedMember.Global
+   [ThreadStatic]
+   protected static Byte[]? _readBytes;
 
-                push += 7;
-                if ((currentByte & 0x80) == 0)
-                    return result;
-            }
-        }
-
-        public static UInt64 GetUInt64(Stream stream)
-        {
-            UInt64 result = 0L;
-            var push = 0;
-
-            while (true)
-            {
-                var currentByte = stream.ReadByte();
-
-                result += (UInt64) (currentByte & 0x7F) << push;
-
-                push += 7;
-                if ((currentByte & 0x80) == 0)
-                    return result;
-            }
-        }
-
-        public static BindingFlags InstanceNonPublic = BindingFlags.Instance | BindingFlags.NonPublic;
-
-        protected static Encoding Utf8;
-
-        // ReSharper disable once UnusedMember.Global
-        [ThreadStatic]
-        protected static Byte[]? _readBytes;
-
-        // ReSharper disable once NotAccessedField.Global
-        protected readonly IProtoProvider _proxyProvider;
-    }
+   // ReSharper disable once NotAccessedField.Global
+   protected readonly IProtoProvider _proxyProvider;
 }

@@ -1,26 +1,25 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Das.Serializer
+namespace Das.Serializer;
+
+public readonly struct AttributeValue
 {
-    public readonly struct AttributeValue
-    {
-        public AttributeValue(String value,
-                              Boolean wasValueInQuotes)
-        {
-            Value = value;
-            WasValueInQuotes = wasValueInQuotes;
-        }
+   public AttributeValue(String value,
+                         Boolean wasValueInQuotes)
+   {
+      Value = value;
+      WasValueInQuotes = wasValueInQuotes;
+   }
 
-        public override string ToString()
-        {
-            if (WasValueInQuotes)
-                return "\"" + Value + "\"";
+   public override string ToString()
+   {
+      if (WasValueInQuotes)
+         return "\"" + Value + "\"";
 
-            return Value;
-        }
+      return Value;
+   }
 
-        public readonly String Value;
-        public readonly Boolean WasValueInQuotes;
-    }
+   public readonly String Value;
+   public readonly Boolean WasValueInQuotes;
 }

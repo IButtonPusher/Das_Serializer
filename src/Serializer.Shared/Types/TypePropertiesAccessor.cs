@@ -4,64 +4,56 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace Das.Serializer.Types
+namespace Das.Serializer.Types;
+
+public class TypePropertiesAccessor : IEnumerable<IPropertyAccessor>, ITypeAccessor
 {
-   
-
-   public class TypePropertiesAccessor : IEnumerable<IPropertyAccessor>, ITypeAccessor
+   public TypePropertiesAccessor(Type type,
+                                 IEnumerable<PropertyInfo> properties)
    {
-      public TypePropertiesAccessor(Type type,
-                                    ITypeManipulator typeManipulator,
-                                    IEnumerable<PropertyInfo> properties)
-      {
-         Type = type;
-         _accessors = new Dictionary<string, IPropertyAccessor>();
+      Type = type;
+      _accessors = new Dictionary<string, IPropertyAccessor>();
 
-         foreach (var pi in properties)
-         {
-            var accessor = PropertyDictionary.GetPropertyAccessor(pi);
+      foreach (var pi in properties)
+      {
+         var accessor = PropertyDictionary.GetPropertyAccessor(pi);
 
            
-            _accessors[pi.Name] = accessor;
-         }
+         _accessors[pi.Name] = accessor;
       }
+   }
 
-      public IEnumerator<IPropertyAccessor> GetEnumerator()
-      {
-         foreach (var kvp in _accessors)
-            yield return kvp.Value;
-      }
+   public IEnumerator<IPropertyAccessor> GetEnumerator()
+   {
+      foreach (var kvp in _accessors)
+         yield return kvp.Value;
+   }
 
-      IEnumerator IEnumerable.GetEnumerator()
-      {
-         return GetEnumerator();
-      }
+   IEnumerator IEnumerable.GetEnumerator()
+   {
+      return GetEnumerator();
+   }
 
       
 
-      public Type Type { get; }
+   public Type Type { get; }
 
-      public IPropertyAccessor this[String propertyName] =>
-         _accessors.TryGetValue(propertyName, out var yay)
-            ? yay
-            : throw new MissingMemberException(propertyName);
+   public IPropertyAccessor this[String propertyName] =>
+      _accessors.TryGetValue(propertyName, out var yay)
+         ? yay
+         : throw new MissingMemberException(propertyName);
 
-      public bool TryGetPropertyAccessor(String propName,
-                                         out IPropertyAccessor accessor)
-      {
-         return _accessors.TryGetValue(propName, out accessor);
-      }
-
-      //private static readonly Type[] ParamTypes =
-      //{
-      //   Const.ObjectType.MakeByRefType(), Const.ObjectType
-      //};
-
-      private readonly Dictionary<String, IPropertyAccessor> _accessors;
+   public bool TryGetPropertyAccessor(String propName,
+                                      out IPropertyAccessor accessor)
+   {
+      return _accessors.TryGetValue(propName, out accessor);
    }
 
-   public delegate PropertySetter? CreateSetMethodHandler(MemberInfo property);
 
-   public delegate Func<Object, Object> CreatePropertyGetterHandler(Type targetType,
-                                                                    PropertyInfo propertyInfo);
+   private readonly Dictionary<String, IPropertyAccessor> _accessors;
 }
+
+public delegate PropertySetter? CreateSetMethodHandler(MemberInfo property);
+
+public delegate Func<Object, Object> CreatePropertyGetterHandler(Type targetType,
+                                                                 PropertyInfo propertyInfo);

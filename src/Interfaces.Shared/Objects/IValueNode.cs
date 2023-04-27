@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Das.Serializer
-{
-    public interface IValueNode
-    {
-        Type? Type { get; set; }
+namespace Das.Serializer;
 
-        Object? Value { get; }
-    }
+public interface IValueNode
+{
+   Type? Type { get; set; }
+
+   Object? Value { get; }
 }

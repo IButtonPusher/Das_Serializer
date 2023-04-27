@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Das.Serializer
-{
-    public interface IBinaryPrimitiveScanner : IPrimitiveScanner<Byte[]>
-    {
-        Int32 GetInt32(Byte[] arr);
+namespace Das.Serializer;
 
-        String? GetString(Byte[] tempByte);
-    }
+public interface IBinaryPrimitiveScanner : IPrimitiveScanner<Byte[]>
+{
+   Int32 GetInt32(Byte[] arr);
+
+   String? GetString(Byte[] tempByte);
 }

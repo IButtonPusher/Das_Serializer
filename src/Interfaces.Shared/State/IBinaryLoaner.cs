@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Das.Serializer
+namespace Das.Serializer;
+
+public interface IBinaryLoaner : IBinaryState, IMutableState
 {
-    public interface IBinaryLoaner : IBinaryState, IMutableState
-    {
-    }
 }

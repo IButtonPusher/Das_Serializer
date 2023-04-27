@@ -145,7 +145,7 @@ namespace Das.Serializer
         private readonly Func<TextWriter, String, Task> _writeAsync;
 
         protected readonly JsonExpress JsonExpress;
-        protected readonly BaseExpress XmlExpress;
+        protected readonly XmlExpress2 XmlExpress;
 
         #if !NET40
 

@@ -2,10 +2,9 @@
 using System.Threading.Tasks;
 using Das.Serializer.Types;
 
-namespace Das.Serializer.CodeGen
+namespace Das.Serializer.CodeGen;
+
+public interface IProxyProvider
 {
-    public interface IProxyProvider
-    {
-        ISerializerTypeProxy<TType> GetJsonProxy<TType>(ISerializerSettings settings);
-    }
+   ISerializerTypeProxy<TType> GetJsonProxy<TType>(ISerializerSettings settings);
 }

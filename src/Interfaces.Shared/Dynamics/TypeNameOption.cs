@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Das.Serializer
+namespace Das.Serializer;
+
+[Flags]
+public enum TypeNameOption
 {
-    [Flags]
-    public enum TypeNameOption
-    {
-        Invalid = 0,
-        AssemblyName = 1,
-        Namespace = 2,
-        OmitGenericArguments = 4
-    }
+   Invalid = 0,
+   AssemblyName = 1,
+   Namespace = 2,
+   OmitGenericArguments = 4
 }

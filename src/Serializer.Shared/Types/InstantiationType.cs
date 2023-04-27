@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Das.Serializer
+namespace Das.Serializer;
+
+public enum InstantiationType
 {
-    public enum InstantiationType
-    {
-        NullObject,
-        EmptyString,
-        EmptyArray,
-        DefaultConstructor,
-        Emit,
-        Uninitialized,
-        Abstract
-    }
+   NullObject,
+   EmptyString,
+   EmptyArray,
+   DefaultConstructor,
+   Emit,
+   Uninitialized,
+   Abstract
 }

@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Das.Serializer
+namespace Das.Serializer;
+
+public interface IStringPrimitiveScanner : IPrimitiveScanner<String>
 {
-    public interface IStringPrimitiveScanner : IPrimitiveScanner<String>
-    {
-        String Descape(String input);
-    }
+   String Descape(String input);
 }

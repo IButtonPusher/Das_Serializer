@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Das.Serializer
+namespace Das.Serializer;
+
+public enum PropertyNameFormat
 {
-    public enum PropertyNameFormat
-    {
-        Default,
-        PascalCase,
-        CamelCase,
-        SnakeCase
-    }
+   Default,
+   PascalCase,
+   CamelCase,
+   SnakeCase
 }

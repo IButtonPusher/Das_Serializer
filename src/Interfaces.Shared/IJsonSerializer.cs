@@ -6,62 +6,61 @@ using System.Threading.Tasks;
 
 // ReSharper disable UnusedMember.Global
 
-namespace Das.Serializer
+namespace Das.Serializer;
+
+public interface IJsonSerializer : ISerializationCore
 {
-    public interface IJsonSerializer : ISerializationCore
-    {
-        /////////////////////////////////////////////////////////////////
-        //////////////////////////  JSON  ///////////////////////////////
-        /////////////////////////////////////////////////////////////////
+   /////////////////////////////////////////////////////////////////
+   //////////////////////////  JSON  ///////////////////////////////
+   /////////////////////////////////////////////////////////////////
 
-        T FromJson<T>(String json);
+   T FromJson<T>(String json);
 
-        T FromJson<T>(FileInfo file);
+   T FromJson<T>(FileInfo file);
 
-        T FromJson<T>(Stream stream);
+   T FromJson<T>(Stream stream);
 
-        Object FromJson(String json);
+   Object FromJson(String json);
 
-        Object FromJson(String json,
-                        Type type);
+   Object FromJson(String json,
+                   Type type);
 
-        Task<T> FromJsonAsync<T>(Stream stream);
+   Task<T> FromJsonAsync<T>(Stream stream);
 
-        //T FromJsonEx<T>(String json);
+   //T FromJsonEx<T>(String json);
 
-        //T FromJsonEx<T>(String json,
-        //                Object[] ctorValues);
+   //T FromJsonEx<T>(String json,
+   //                Object[] ctorValues);
 
-        String JsonEscape(String str);
+   String JsonEscape(String str);
 
-        /////////////////////////////////////////////////////////////////
+   /////////////////////////////////////////////////////////////////
 
-        /// <summary>
-        ///     Create a Json string from any object.  For more options set the Settings
-        ///     property of the serializer instance or the factory on which this is invoked
-        /// </summary>
-        /// <param name="o">The object to serialize</param>
-        String ToJson(Object o);
+   /// <summary>
+   ///     Create a Json string from any object.  For more options set the Settings
+   ///     property of the serializer instance or the factory on which this is invoked
+   /// </summary>
+   /// <param name="o">The object to serialize</param>
+   String ToJson(Object o);
 
-        String ToJson<TObject>(TObject o);
+   String ToJson<TObject>(TObject o);
 
-        /// <summary>
-        ///     Serialize up or down.  Only the properties of TTarget will be serialized
-        /// </summary>
-        String ToJson<TTarget>(Object o);
+   /// <summary>
+   ///     Serialize up or down.  Only the properties of TTarget will be serialized
+   /// </summary>
+   String ToJson<TTarget>(Object o);
 
-        String ToJsonEx<TObject>(TObject obj,
-                                 ISerializerSettings settings);
+   String ToJsonEx<TObject>(TObject obj,
+                            ISerializerSettings settings);
 
-        String ToJsonEx<TObject>(TObject obj);
+   String ToJsonEx<TObject>(TObject obj);
 
-        void ToJson(Object o,
-                    FileInfo fileInfo);
+   void ToJson(Object o,
+               FileInfo fileInfo);
 
-        /// <summary>
-        ///     Serialize up or down.  Only the properties of TTarget will be serialized
-        /// </summary>
-        void ToJson<TTarget>(Object o,
-                             FileInfo fileInfo);
-    }
+   /// <summary>
+   ///     Serialize up or down.  Only the properties of TTarget will be serialized
+   /// </summary>
+   void ToJson<TTarget>(Object o,
+                        FileInfo fileInfo);
 }

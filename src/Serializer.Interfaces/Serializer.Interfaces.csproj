@@ -23,7 +23,7 @@
   </PropertyGroup>
   
   <PropertyGroup>
-   <LangVersion>9.0</LangVersion>
+   <LangVersion>10.0</LangVersion>
    <Nullable>enable</Nullable>
    <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
    <AssemblyVersion>0.0.26.0</AssemblyVersion>

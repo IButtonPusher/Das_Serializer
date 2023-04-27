@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Das.Serializer
+namespace Das.Serializer;
+
+public interface INodeSealer<in TNode> : ISettingsUser
+   where TNode : INode<TNode>
 {
-    public interface INodeSealer<in TNode> : ISettingsUser
-        where TNode : INode<TNode>
-    {
-        void CloseNode(TNode node);
+   void CloseNode(TNode node);
 
-        void Imbue([NotNull] TNode node,
-                   String propertyName,
-                   Object value);
+   void Imbue([NotNull] TNode node,
+              String propertyName,
+              Object value);
 
-        void Imbue(TNode childNode);
-    }
+   void Imbue(TNode childNode);
 }

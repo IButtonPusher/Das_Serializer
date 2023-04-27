@@ -117,9 +117,14 @@ namespace Das.Serializer.ProtoBuf
         public IProtoProxy<T> GetProtoProxy<T>(ISerializerSettings settings,
                                                Boolean allowReadOnly = false)
         {
-            return ProxyLookup<T>.Instance ??= allowReadOnly
+            var proxy = ProxyLookup<T>.Instance ??= allowReadOnly
                 ? CreateProxyTypeYesReadOnly<T>()
                 : CreateProxyTypeNoReadOnly<T>();
+
+            if (!allowReadOnly && proxy.IsReadOnly)
+               proxy = ProxyLookup<T>.Instance = CreateProxyTypeNoReadOnly<T>();
+            return proxy;
+
         }
 
         Boolean IProtoProvider.TryGetProtoField(PropertyInfo prop,
@@ -301,7 +306,15 @@ namespace Das.Serializer.ProtoBuf
             ////////////////////////////////////
 
 
-            var example = canSetValuesInline ? ctor.Invoke(new Object[0]) : default;
+            var example = canSetValuesInline
+               ? ctor.Invoke(
+                  #if NET40
+            new Object[0]
+                  #else
+                  Array.Empty<Object>()
+                  #endif
+               )
+               : default;
             AddScanMethod(type, bldr, genericParent,
                 scanFieldArr,
                 example!, canSetValuesInline,

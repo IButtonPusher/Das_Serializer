@@ -2,16 +2,20 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Das.Serializer
+namespace Das.Serializer;
+
+public interface IRuntimeObject
 {
-    public interface IRuntimeObject
-    {
-        IRuntimeObject? this[String key] { get; }
+   //IRuntimeObject? this[String key] { get; }
 
-        Object? PrimitiveValue { get; set; }
+   Object? this[String key] { get; }
 
-        Dictionary<String, IRuntimeObject> Properties { get; }
 
-        Type GetObjectType();
-    }
+   //Object? PrimitiveValue { get; set; }
+
+   //Dictionary<String, IRuntimeObject> Properties { get; }
+
+   IEnumerable<DasProperty> GetProperties();
+
+   //Type GetObjectType();
 }

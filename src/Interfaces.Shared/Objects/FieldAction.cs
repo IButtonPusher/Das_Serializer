@@ -1,36 +1,35 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Das.Serializer
+namespace Das.Serializer;
+
+public enum FieldAction
 {
-    public enum FieldAction
-    {
-        Primitive,
-        VarInt,
-        String,
-        ByteArray,
-        PackedArray,
-        ChildObject,
+   Primitive,
+   VarInt,
+   String,
+   ByteArray,
+   PackedArray,
+   ChildObject,
 
-        ChildObjectCollection,
-        ChildObjectArray,
+   ChildObjectCollection,
+   ChildObjectArray,
 
-        ChildPrimitiveCollection,
-        ChildPrimitiveArray,
+   ChildPrimitiveCollection,
+   ChildPrimitiveArray,
 
-        Dictionary,
+   Dictionary,
 
-        DateTime,
-        NullableValueType,
+   DateTime,
+   NullableValueType,
 
-        /// <summary>
-        /// A special property is one where the type and name matches that of the single
-        /// constructor argument for one of the declaring type's constructors
-        /// </summary>
-        HasSpecialProperty,
+   /// <summary>
+   /// A special property is one where the type and name matches that of the single
+   /// constructor argument for one of the declaring type's constructors
+   /// </summary>
+   HasSpecialProperty,
 
-        FallbackSerializable,
+   FallbackSerializable,
 
-        Enum
-    }
+   Enum
 }

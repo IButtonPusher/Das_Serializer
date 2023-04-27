@@ -58,8 +58,15 @@ namespace Das.Types
             {
                 if (!uniqueProps.Add(pi.Name))
                     continue;
-                var cooked = new DasProperty(pi.Name, pi.PropertyType,
-                    new DasAttribute[0]);
+
+                var cooked = new DasProperty(pi);
+                //var cooked = new DasProperty(pi.Name, pi.PropertyType,
+                //   #if NET40
+                //     new DasAttribute[0]
+                //   #else
+                //   Array.Empty<DasAttribute>()
+                //   #endif
+                //    );
                 propTypes.Add(cooked);
             }
 
@@ -71,25 +78,32 @@ namespace Das.Types
 
         public object BuildDynamicObject(IRuntimeObject robj)
         {
-            var props = new List<DasProperty>();
-            foreach (var kvp in robj.Properties)
-            {
-                var prop = new DasProperty(kvp.Key, kvp.Value.GetObjectType(), _emptyAttributes);
-                props.Add(prop);
-            }
+           //var allProps = robj.GetProperties();
+
+            var props = new List<DasProperty>(robj.GetProperties());
+            //foreach (var kvp in robj.Properties)
+            //{
+            //    var prop = new DasProperty(kvp.Key, kvp.Value.GetObjectType(), _emptyAttributes);
+            //    props.Add(prop);
+            //}
 
             var dType = GetDynamicType(Guid.NewGuid().ToString(), props, true,
                 Enumerable.Empty<EventInfo>(), _emptyMethodReplacements);
 
             var dObj = Activator.CreateInstance(dType.ManagedType)!;
 
-            foreach (var kvp in robj.Properties)
+            foreach (var prop in props)
             {
-                if (kvp.Value.PrimitiveValue == null)
-                    throw new NotImplementedException();
-
-                dType.SetPropertyValue(ref dObj, kvp.Key, kvp.Value.PrimitiveValue);
+               dType.SetPropertyValue(ref dObj, prop.Name, prop.Value);
             }
+
+            //foreach (var kvp in robj.Properties)
+            //{
+            //    if (kvp.Value.PrimitiveValue == null)
+            //        throw new NotImplementedException();
+
+            //    dType.SetPropertyValue(ref dObj, kvp.Key, kvp.Value.PrimitiveValue);
+            //}
 
             return dObj;
         }
@@ -228,7 +242,13 @@ namespace Das.Types
                 }
             }
 
+            #if NET40
             return new DasAttribute[0];
+            #else
+            return Array.Empty<DasAttribute>();
+            #endif
+
+            //return new DasAttribute[0];
         }
 
         public static PropertyBuilder CreateProperty(TypeBuilder tb,
@@ -570,7 +590,12 @@ namespace Das.Types
         private static readonly Dictionary<MethodInfo, MethodInfo> _emptyMethodReplacements =
             new();
 
-        private static readonly DasAttribute[] _emptyAttributes = new DasAttribute[0];
+        //private static readonly DasAttribute[] _emptyAttributes =
+        //   #if NET40
+        //    new DasAttribute[0];
+        //   #else
+        //   Array.Empty<DasAttribute>();
+        //#endif
         private readonly IObjectManipulator _objectManipulator;
 
         private readonly ITypeManipulator _typeManipulator;

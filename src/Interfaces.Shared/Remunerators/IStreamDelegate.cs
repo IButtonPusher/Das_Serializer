@@ -2,10 +2,9 @@
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Das.Serializer.Remunerators
+namespace Das.Serializer.Remunerators;
+
+public interface IStreamDelegate
 {
-    public interface IStreamDelegate
-    {
-        Stream OutStream { get; set; }
-    }
+   Stream OutStream { get; set; }
 }

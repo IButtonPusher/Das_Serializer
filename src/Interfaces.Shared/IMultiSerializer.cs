@@ -4,23 +4,22 @@ using System.Threading.Tasks;
 // ReSharper disable UnusedMemberInSuper.Global
 // ReSharper disable UnusedMember.Global
 
-namespace Das.Serializer
+namespace Das.Serializer;
+
+public interface IMultiSerializer : IJsonSerializer,
+                                    IBinarySerializer,
+                                    IXmlSerializer,
+                                    ISerializationState
 {
-    public interface IMultiSerializer : IJsonSerializer,
-                                        IBinarySerializer,
-                                        IXmlSerializer,
-                                        ISerializationState
-    {
-        IStateProvider StateProvider { get; }
+   IStateProvider StateProvider { get; }
 
-        IProtoSerializer GetProtoSerializer<TPropertyAttribute>(
-            IProtoBufOptions<TPropertyAttribute> options)
-            where TPropertyAttribute : Attribute;
+   IProtoSerializer GetProtoSerializer<TPropertyAttribute>(
+      IProtoBufOptions<TPropertyAttribute> options)
+      where TPropertyAttribute : Attribute;
 
-        void SetTypeSurrogate(Type looksLike,
-                              Type isReally);
+   void SetTypeSurrogate(Type looksLike,
+                         Type isReally);
 
-        Boolean TryDeleteSurrogate(Type lookedLike,
-                                   Type wasReally);
-    }
+   Boolean TryDeleteSurrogate(Type lookedLike,
+                              Type wasReally);
 }

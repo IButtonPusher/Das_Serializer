@@ -2,14 +2,13 @@
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace Das.Serializer
+namespace Das.Serializer;
+
+public interface IPropertyInfo : INamedField
 {
-    public interface IPropertyInfo : INamedField
-    {
-        MethodInfo GetMethod { get; }
+   MethodInfo GetMethod { get; }
 
-        MethodInfo? SetMethod { get; }
+   MethodInfo? SetMethod { get; }
 
-        TypeCode TypeCode { get; }
-    }
+   TypeCode TypeCode { get; }
 }

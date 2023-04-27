@@ -2,25 +2,24 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Das.Serializer
+namespace Das.Serializer;
+
+public interface IRemunerable<in T, in TE> : IRemunerable<T>,
+                                             IDisposable 
+   where T : IEnumerable<TE>
 {
-    public interface IRemunerable<in T, in TE> : IRemunerable<T>,
-                                                IDisposable 
-        where T : IEnumerable<TE>
-    {
-        void Append(TE data);
-    }
+   void Append(TE data);
+}
 
-    public interface IRemunerable<in T> : IRemunerable
-    {
-        void Append(T data);
+public interface IRemunerable<in T> : IRemunerable
+{
+   void Append(T data);
 
-        void Append(T data,
-                    Int32 limit);
-    }
+   void Append(T data,
+               Int32 limit);
+}
 
-    public interface IRemunerable
-    {
-        Boolean IsEmpty { get; }
-    }
+public interface IRemunerable
+{
+   Boolean IsEmpty { get; }
 }
