@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
+	  <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+	  <GenerateRuntimeConfigDevFile>true</GenerateRuntimeConfigDevFile>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
@@ -20,10 +22,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.13.2" />
-    <PackageReference Include="Microsoft.TestPlatform.TestHost" Version="17.4.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="protobuf-net" Version="3.0.73" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.13.5" />
+    <PackageReference Include="Microsoft.TestPlatform.TestHost" Version="17.5.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="protobuf-net" Version="3.2.16" />
     <PackageReference Include="xunit" Version="2.4.2" />
     <PackageReference Include="xunit.runner.console" Version="2.4.2">
       <PrivateAssets>all</PrivateAssets>
@@ -35,14 +37,16 @@
     </PackageReference>
   </ItemGroup>
 
-  <Import Project="..\Interfaces.Shared\Interfaces.Shared.projitems" Label="Shared" />
+  <Import Project="..\..\Interfaces.Shared\Interfaces.Shared.projitems" Label="Shared" />
 
-  <Import Project="..\Reflection.Common\Reflection.Common.projitems" Label="Shared" />
+  <Import Project="..\..\Reflection.Common\Reflection.Common.projitems" Label="Shared" />
 
-  <Import Project="..\Serializer.BinaryProprietary\Serializer.BinaryProprietary.projitems" Label="Shared" />
+  <Import Project="..\..\Serializer.BinaryProprietary\Serializer.BinaryProprietary.projitems" Label="Shared" />
 
-  <Import Project="..\Serializer.Shared\Serializer.Shared.projitems" Label="Shared" />
+  <Import Project="..\..\Serializer.Shared\Serializer.Shared.projitems" Label="Shared" />
 
   <Import Project="..\Serializer.Tests.Shared\Serializer.Tests.Shared.projitems" Label="Shared" />
+
+  <Import Project="..\..\Serializer.ProtocolBuffers\Serializer.ProtocolBuffers.projitems" Label="Shared" />
 
 </Project>

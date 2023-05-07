@@ -36,7 +36,7 @@ namespace Das.Serializer.CodeGen
             _moduleBuilder = _asmBuilder.DefineDynamicModule(AssemblyName, $"{AssemblyName}.dll");
 
             #else
-            access = AssemblyBuilderAccess.Run;
+            access = AssemblyBuilderAccess.RunAndCollect;
             _asmBuilder = AssemblyBuilder.DefineDynamicAssembly(asmName, access);
             _moduleBuilder = _asmBuilder.DefineDynamicModule(AssemblyName);
 

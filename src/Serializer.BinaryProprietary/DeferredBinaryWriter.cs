@@ -11,7 +11,7 @@ namespace Das.Serializer.Remunerators;
 /// </summary>
 public class DeferredBinaryWriter : BinaryWriterWrapper, IBinaryWriter
 {
-   public DeferredBinaryWriter(IBinaryWriter parent,
+   public DeferredBinaryWriter(BinaryWriterWrapper parent,
                                NodeTypes nodeType,
                                Boolean isWrapping)
       : base(parent)
@@ -47,7 +47,7 @@ public class DeferredBinaryWriter : BinaryWriterWrapper, IBinaryWriter
    }
 
 
-   public override IBinaryWriter Pop()
+   public override BinaryWriterWrapper/*IBinaryWriter */Pop()
    {
       _isPopped = true;
 
@@ -138,6 +138,6 @@ private void SetLength(Int64 val)
    private readonly ByteBuilder _backingList;
    private readonly Boolean _isWrapPossible;
 
-   private readonly IBinaryWriter _parent;
+   private readonly BinaryWriterWrapper _parent;
    private Boolean _isPopped;
 }

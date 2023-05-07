@@ -19,8 +19,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)BinaryNodeSealer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BinaryPrimitiveScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BinaryPrinter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BinaryPrinterBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BinaryScanner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BinaryState.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BinarySurrogate.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BinaryWriterBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BinaryWriterWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DefaultStateProvider.cs" />
@@ -32,5 +34,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)NullNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SerializeBinary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StateProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Streamers\ByteArray.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Streamers\ByteStream.cs" />
   </ItemGroup>
 </Project>

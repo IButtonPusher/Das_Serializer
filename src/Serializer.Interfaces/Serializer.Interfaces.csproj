@@ -45,12 +45,26 @@
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
     <NoWarn>1701;1702;CS1591</NoWarn>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;PARTIALTRUST</DefineConstants>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;PARTIALTRUST</DefineConstants>
   </PropertyGroup>
+
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net45|AnyCPU'">
+		<DocumentationFile>Serializer.Interfaces.xml</DocumentationFile>
+		<GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+		<DebugType>none</DebugType>
+		<DebugSymbols>false</DebugSymbols>
+		<NoWarn>1701;1702;CS1591</NoWarn>
+		<DefineConstants>TRACE;GENERATECODE;DEBUG;NET40</DefineConstants>
+	</PropertyGroup>
+  
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net45|AnyCPU'">
+		<DefineConstants>TRACE;GENERATECODE;NET40</DefineConstants>
+	</PropertyGroup>
 
 
   <ItemGroup>

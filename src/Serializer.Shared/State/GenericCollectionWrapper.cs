@@ -29,10 +29,10 @@ public static class GenericCollectionWrapper
       )!;
 
 
-      var res = callMe.Invoke(null, new[] { collection });
+      var res = callMe.Invoke(null, new[] { collection }) as IList;
 
 
-      return (IList)res;
+      return res ?? throw new InvalidOperationException($"Cannot use {collectionType} as an IList");
    }
 
    public static IList GetGeneric<T>(Object collection)

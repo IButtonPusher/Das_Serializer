@@ -18,7 +18,8 @@ namespace Das.Serializer.ProtoBuf
                                               Type dtoType,
                                               IEnumerable<IProtoFieldAccessor> fields,
                                               IDictionary<Type, ProxiedInstanceField> typeProxies,
-                                              out ProtoPrintState? initialState)
+                                              out ProtoPrintState? initialState,
+                                              out MethodBuilder method)
         {
             var genericParent = typeof(ProtoDynamicBase<>).MakeGenericType(dtoType);
 
@@ -26,7 +27,7 @@ namespace Das.Serializer.ProtoBuf
                                      nameof(ProtoDynamicBase<Object>.Print))
                                  ?? throw new InvalidOperationException();
 
-            var method = bldr.DefineMethod(nameof(ProtoDynamicBase<Object>.Print),
+            method = bldr.DefineMethod(nameof(ProtoDynamicBase<Object>.Print),
                 MethodOverride, typeof(void), new[] { dtoType, typeof(Stream) });
             bldr.DefineMethodOverride(method, abstractMethod);
 
@@ -66,12 +67,15 @@ namespace Das.Serializer.ProtoBuf
         }
 
 
-        private void AddPrintMethod(Type parentType,
+        private MethodBuilder AddPrintMethod(Type parentType,
                                     TypeBuilder bldr,
                                     IEnumerable<IProtoFieldAccessor> fields,
-                                    IDictionary<Type, ProxiedInstanceField> typeProxies)
+                                    IDictionary<Type, ProxiedInstanceField> typeProxies,
+                                    out ILGenerator il)
         {
-            var il = OpenPrintMethod(bldr, parentType, fields, typeProxies, out var state);
+            il = OpenPrintMethod(bldr, parentType, fields, typeProxies, 
+               out var state,
+               out var method);
 
 
             if (state == null)
@@ -79,15 +83,20 @@ namespace Das.Serializer.ProtoBuf
 
 
             foreach (var protoField in state)
-                /////////////////////////////////////////
             {
-                AddFieldToPrintMethod(protoField);
+               /////////////////////////////////////////
+               AddFieldToPrintMethod(protoField);
+               /////////////////////////////////////////
             }
-            /////////////////////////////////////////
+
 
             endOfMethod:
             il.Emit(OpCodes.Ret);
+
+            return method;
         }
+
+        
     }
 }
 

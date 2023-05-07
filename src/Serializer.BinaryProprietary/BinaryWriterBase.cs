@@ -31,6 +31,7 @@ public abstract class BinaryWriterBase<TChildWriter> : BinaryWriterBase
       }
    }
 
+ 
    //public override IBinaryWriter Push(IPrintNode node)
    //{
    //    var list = GetChildWriter(node);

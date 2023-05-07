@@ -23,7 +23,7 @@ public partial class DasCoreSerializer
          var bWriter = new BinaryWriterWrapper(ms);
 
          //using (var state = StateProvider.BorrowBinary(Settings))
-         using (var bp = new BinaryPrinter(//bWriter, //state))
+         using (var bp = new BinaryPrinter<BinaryWriterWrapper>(//bWriter, //state))
                    //Settings, 
                    TypeInferrer, NodeTypeProvider, ObjectManipulator, TypeManipulator))
          {

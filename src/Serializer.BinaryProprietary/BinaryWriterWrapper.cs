@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer.Remunerators;
 
-public class BinaryWriterWrapper : BinaryWriterBase<DeferredBinaryWriter>, IBinaryWriter
+public class BinaryWriterWrapper : BinaryWriterBase<DeferredBinaryWriter>, 
+                                   IBinaryWriter<BinaryWriterWrapper>
 {
    public BinaryWriterWrapper(Stream stream) : base(stream)
    {
@@ -17,6 +18,19 @@ public class BinaryWriterWrapper : BinaryWriterBase<DeferredBinaryWriter>, IBina
    {
    }
 
+
+   public new virtual BinaryWriterWrapper Pop()
+   {
+      return this;
+   }
+
+   public new BinaryWriterWrapper Push(NodeTypes nodeType,
+                                       Boolean isWrapping)
+   {
+      var list = GetChildWriter(nodeType, isWrapping);
+      Children.Add(list);
+      return list;
+   }
 
    IEnumerator IEnumerable.GetEnumerator()
    {

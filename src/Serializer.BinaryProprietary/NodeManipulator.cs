@@ -31,15 +31,6 @@ public class NodeManipulator : TypeCore, INodeManipulator
             continue;
 
          propTypes.Add(new DasProperty(prop.Key, prop.Value));
-
-         //propTypes.Add(new DasProperty(prop.Key,
-         //   prop.Value.GetType(),
-         //   #if NET40
-         //   new DasAttribute[0]
-         //   #else
-         //   Array.Empty<DasAttribute>()
-         //   #endif
-         //));
       }
 
       //we have to build a type here because we only now know all the properties						

@@ -14,6 +14,8 @@ public interface IInstantiator
 
    IList BuildGenericList(Type type);
 
+   T CreatePrimitiveObject<T>(Byte[] rawValue);
+
    T CreatePrimitiveObject<T>(Byte[] rawValue,
                               Type objType);
 

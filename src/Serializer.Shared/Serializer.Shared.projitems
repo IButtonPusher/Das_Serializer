@@ -60,29 +60,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Properties\PropertyActor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\PropertyInfoBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\SimplePropertyAccessor.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Proto\CoreProtoProvider.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Proto\IProtoState.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Proto\Printers\IProtoPrintState.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Proto\IProtoScanState.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Proto\IValueExtractor.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Proto\Printers\ProtoCollectionPrinter.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Proto\Printers\ProtoPrimitivePrinter.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoAutoProvider.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoBufOptions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoBufSerializer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Proto\Printers\ProtoPrintState.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoScanningField.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoScanState.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoCollectionBuilder.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoDynamicBase.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoEnumerator.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoPackedBuilder.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoPrintBuilder.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoProxyConstruction.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoScanBuilder.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoStateBase.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoVarIntBuilder.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Proto\ProxyLookup.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\ByteBuilder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\CompactStringBuilderWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Remunerators\CompactStringSaver.cs" />
@@ -108,9 +85,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)State\IDynamicPrintState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\IDynamicState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State\ValueCollectionWrapper.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Streamers\ByteArray.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Streamers\ByteStream.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Streamers\StreamStreamer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TextCommon\StringAccessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TextCommon\StringBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\EnumCache.cs" />
@@ -129,7 +103,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Types\InvalidCollection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\InvalidTypeBuilder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\ObjectInstantiator.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Proto\ProtoDynamicProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\ObjectManipulator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\TypeCore.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Types\TypeInference.cs" />
@@ -141,5 +114,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Xml\SerializeXml.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xml\XmlExpress2.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xml\XmlScanState.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)Proto\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Streamers\" />
   </ItemGroup>
 </Project>

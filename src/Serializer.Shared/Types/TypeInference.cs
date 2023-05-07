@@ -1,4 +1,5 @@
-﻿using System;
+﻿// ReSharper disable RedundantUsingDirective - why?
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -212,6 +213,9 @@ public class TypeInference : TypeCore,
 
       var typo = typeof(T);
 
+      if (typo.IsValueType)
+         return value.Equals(default(T)!);
+
       if (typo != typeof(Object))
          return EqualityComparer<T>.Default.Equals(value);
 
@@ -399,12 +403,6 @@ public class TypeInference : TypeCore,
       if (TypeNames.TryGetValue(clearName, out var type))
          return type;
 
-      //var nsSearch = _settings.TypeSearchNameSpaces;
-      //foreach (var ns in nsSearch)
-      //{
-      //   var nsQualified = ns + "." + clearName;
-      //   ddd
-      //}
 
       if (_dynamicTypes.TryGetDynamicType(clearName, out type))
          return type;

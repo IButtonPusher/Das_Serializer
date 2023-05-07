@@ -77,4 +77,11 @@ public static class Const
    public static readonly Type IntType = typeof(Int32);
    public static readonly Type ByteType = typeof(Byte);
    public static readonly Type ByteArrayType = typeof(Byte[]);
+
+   public static readonly Object[] EmptyObjectList =
+      #if NET40
+            new Object[0];
+      #else
+      Array.Empty<Object>();
+   #endif
 }

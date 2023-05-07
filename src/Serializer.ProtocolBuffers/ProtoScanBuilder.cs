@@ -115,7 +115,7 @@ namespace Das.Serializer.ProtoBuf
         /// <summary>
         ///     1. Creates a method to deserialize from a stream
         /// </summary>
-        private void AddScanMethod(Type parentType,
+        private MethodBuilder AddScanMethod(Type parentType,
                                    TypeBuilder bldr,
                                    Type genericParent,
                                    IEnumerable<IProtoFieldAccessor> fields,
@@ -186,6 +186,8 @@ namespace Das.Serializer.ProtoBuf
 
             il.Emit(OpCodes.Ret);
             bldr.DefineMethodOverride(method, abstractMethod);
+
+            return method;
         }
 
         /// <summary>
@@ -346,11 +348,11 @@ namespace Das.Serializer.ProtoBuf
             return returnValue;
         }
 
-        private static MethodInfo PrepareScanMethod(TypeBuilder bldr,
-                                                    Type genericParent,
-                                                    Type parentType,
-                                                    out MethodInfo abstractMethod,
-                                                    out ILGenerator il)
+        private static MethodBuilder PrepareScanMethod(TypeBuilder bldr,
+                                                       Type genericParent,
+                                                       Type parentType,
+                                                       out MethodInfo abstractMethod,
+                                                       out ILGenerator il)
         {
             var methodArgs = new[] {typeof(Stream), typeof(Int64)};
 

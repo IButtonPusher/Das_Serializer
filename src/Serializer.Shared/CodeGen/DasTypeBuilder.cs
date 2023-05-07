@@ -60,13 +60,7 @@ namespace Das.Types
                     continue;
 
                 var cooked = new DasProperty(pi);
-                //var cooked = new DasProperty(pi.Name, pi.PropertyType,
-                //   #if NET40
-                //     new DasAttribute[0]
-                //   #else
-                //   Array.Empty<DasAttribute>()
-                //   #endif
-                //    );
+               
                 propTypes.Add(cooked);
             }
 
@@ -247,8 +241,7 @@ namespace Das.Types
             #else
             return Array.Empty<DasAttribute>();
             #endif
-
-            //return new DasAttribute[0];
+      
         }
 
         public static PropertyBuilder CreateProperty(TypeBuilder tb,

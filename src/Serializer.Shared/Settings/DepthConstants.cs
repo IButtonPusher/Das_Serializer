@@ -27,7 +27,7 @@ public class DepthConstants : ISerializationDepth
    public static readonly ISerializationDepth AllProperties =
       new DepthConstants(SerializationDepth.AllProperties, true, false);
 
-   public Boolean Equals(ISerializationDepth other)
+   public Boolean Equals(ISerializationDepth? other)
    {
       return this.AreEqual(other);
    }

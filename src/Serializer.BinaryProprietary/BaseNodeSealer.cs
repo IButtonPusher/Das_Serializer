@@ -169,7 +169,8 @@ public abstract class BaseNodeSealer<TNode> : INodeSealer<TNode>
       var values = new List<Object?>();
       foreach (var conParam in cInfo.GetParameters())
       {
-         if (TryGetPropertyValue(node, conParam.Name, conParam.ParameterType, out var val))
+         if (!string.IsNullOrEmpty(conParam.Name) &&
+             TryGetPropertyValue(node, conParam.Name, conParam.ParameterType, out var val))
             values.Add(val);
          else
          {

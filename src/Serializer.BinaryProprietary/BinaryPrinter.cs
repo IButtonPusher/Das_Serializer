@@ -1,18 +1,22 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Runtime.CompilerServices;
-using System.Runtime.Serialization.Formatters.Binary;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Das.Extensions;
 using Das.Serializer;
 using Das.Serializer.Remunerators;
+using Microsoft.CodeAnalysis.Operations;
+using Reflection.Common;
+using Serializer.BinaryProprietary;
 
 namespace Das.Printers;
 
-public class BinaryPrinter : PrinterBase<Byte[], Byte, IBinaryWriter>,
-                             IDisposable
+public class BinaryPrinter<TWriter> : PrinterBase<Byte[], Byte, TWriter>,
+                                      IDisposable,
+                                      IBinaryPrimitivePrinter
+   where TWriter : IBinaryWriter<TWriter>
 {
    public BinaryPrinter(ITypeInferrer typeInferrer,
                         INodeTypeProvider nodeTypes,
@@ -21,14 +25,13 @@ public class BinaryPrinter : PrinterBase<Byte[], Byte, IBinaryWriter>,
       : base(typeInferrer, nodeTypes, objectManipulator,
          true, '.', typeManipulator)
    {
-      _fallbackFormatter = new BinaryFormatter();
+      //_fallbackFormatter = new BinaryFormatter();
 
       IsTextPrinter = false;
    }
 
    public void Dispose()
    {
-            
    }
 
 
@@ -41,7 +44,7 @@ public class BinaryPrinter : PrinterBase<Byte[], Byte, IBinaryWriter>,
       var bytes = new Byte[len];
       fixed (void* ptr = str)
       {
-         System.Runtime.InteropServices.Marshal.Copy(new IntPtr(ptr), bytes, 0, len);
+         Marshal.Copy(new IntPtr(ptr), bytes, 0, len);
       }
 
       return bytes;
@@ -59,7 +62,7 @@ public class BinaryPrinter : PrinterBase<Byte[], Byte, IBinaryWriter>,
                                          Type? propType,
                                          Object? val,
                                          NodeTypes valueNodeType,
-                                         IBinaryWriter writer,
+                                         TWriter writer,
                                          ISerializerSettings settings,
                                          ICircularReferenceHandler circularReferenceHandler)
    {
@@ -86,8 +89,8 @@ public class BinaryPrinter : PrinterBase<Byte[], Byte, IBinaryWriter>,
          }
 
          var nodeType = _nodeTypes.GetNodeType(propType);
-                
-         PrintBinaryNode(val, propType!, nodeType, ref writer, isWrapping, 
+
+         PrintBinaryNode(val, propType!, nodeType, ref writer, isWrapping,
             !isLeaf || isWrapping, settings, circularReferenceHandler);
       }
       finally
@@ -109,46 +112,46 @@ public class BinaryPrinter : PrinterBase<Byte[], Byte, IBinaryWriter>,
             WriteString(o?.ToString(), _bWriter);
             return true;
          case TypeCode.Boolean:
-            bytes = BitConverter.GetBytes((Boolean) o!);
+            bytes = BitConverter.GetBytes((Boolean)o!);
             break;
          case TypeCode.Char:
-            bytes = BitConverter.GetBytes((Char) o!);
+            bytes = BitConverter.GetBytes((Char)o!);
             break;
          case TypeCode.SByte:
-            _bWriter.WriteInt8((SByte) o!);
+            _bWriter.WriteInt8((SByte)o!);
             return true;
          case TypeCode.Byte:
-            _bWriter.WriteInt8((Byte) o!);
+            _bWriter.WriteInt8((Byte)o!);
             return true;
          case TypeCode.Int16:
-            _bWriter.WriteInt16((Int16) o!);
+            _bWriter.WriteInt16((Int16)o!);
             return true;
          case TypeCode.UInt16:
-            _bWriter.WriteInt16((UInt16) o!);
+            _bWriter.WriteInt16((UInt16)o!);
             return true;
          case TypeCode.Int32:
-            _bWriter.WriteInt32((Int32) o!);
+            _bWriter.WriteInt32((Int32)o!);
             return true;
          case TypeCode.UInt32:
-            _bWriter.WriteInt32((UInt32) o!);
+            _bWriter.WriteInt32((UInt32)o!);
             return true;
          case TypeCode.Int64:
-            _bWriter.WriteInt64((Int64) o!);
+            _bWriter.WriteInt64((Int64)o!);
             return true;
          case TypeCode.UInt64:
-            _bWriter.WriteInt64((UInt64) o!);
+            _bWriter.WriteInt64((UInt64)o!);
             return true;
          case TypeCode.Single:
-            bytes = BitConverter.GetBytes((Single) o!);
+            bytes = BitConverter.GetBytes((Single)o!);
             break;
          case TypeCode.Double:
-            bytes = BitConverter.GetBytes((Double) o!);
+            bytes = BitConverter.GetBytes((Double)o!);
             break;
          case TypeCode.Decimal:
             bytes = ((Decimal)o!).ToByteArray();
             break;
          case TypeCode.DateTime:
-            _bWriter.WriteInt64(((DateTime) o!).Ticks);
+            _bWriter.WriteInt64(((DateTime)o!).Ticks);
             return true;
          default:
             return false;
@@ -158,11 +161,11 @@ public class BinaryPrinter : PrinterBase<Byte[], Byte, IBinaryWriter>,
       return true;
    }
 
-      
+
    protected Boolean PrintBinaryNode(Object? nodeValue,
                                      Type propType,
                                      NodeTypes nodeType,
-                                     ref IBinaryWriter _bWriter,
+                                     ref TWriter _bWriter,
                                      Boolean isWrapping,
                                      Boolean isPush,
                                      ISerializerSettings settings,
@@ -170,7 +173,7 @@ public class BinaryPrinter : PrinterBase<Byte[], Byte, IBinaryWriter>,
    {
       if (isPush)
       {
-         Push(nodeValue, nodeType, ref _bWriter,  isWrapping);
+         Push(nodeValue, nodeType, ref _bWriter, isWrapping);
          PrintObject(nodeValue, propType, nodeType, _bWriter, settings, circularReferenceHandler);
 
          _bWriter = _bWriter.Pop();
@@ -183,7 +186,7 @@ public class BinaryPrinter : PrinterBase<Byte[], Byte, IBinaryWriter>,
 
 
    public override void PrintCircularDependency(Int32 index,
-                                                IBinaryWriter _bWriter,
+                                                TWriter _bWriter,
                                                 ISerializerSettings settings,
                                                 IEnumerable<String> pathStack,
                                                 ICircularReferenceHandler circularReferenceHandler)
@@ -191,14 +194,13 @@ public class BinaryPrinter : PrinterBase<Byte[], Byte, IBinaryWriter>,
       if (index > 255)
          throw new FieldAccessException();
 
-      _bWriter.WriteInt8((SByte) index);
+      _bWriter.WriteInt8((SByte)index);
    }
 
-      
 
    protected override void PrintCollection(Object? value,
                                            Type valType,
-                                           IBinaryWriter _bWriter,
+                                           TWriter _bWriter,
                                            ISerializerSettings settings,
                                            ICircularReferenceHandler circularReferenceHandler)
    {
@@ -216,13 +218,13 @@ public class BinaryPrinter : PrinterBase<Byte[], Byte, IBinaryWriter>,
             var isLeaf = _typeInferrer.IsLeaf(germane, true);
 
             if (isLeaf)
-               PrintSeries(boom, _bWriter, 
+               PrintSeries(boom, _bWriter,
                   PrintPrimitiveItem, NodeTypes.Primitive, settings,
                   circularReferenceHandler);
             else
             {
                var germaneNodeType = _nodeTypes.GetNodeType(germane);
-               PrintSeries(boom, _bWriter, PrintCollectionObject, germaneNodeType, 
+               PrintSeries(boom, _bWriter, PrintCollectionObject, germaneNodeType,
                   settings, circularReferenceHandler);
             }
 
@@ -235,7 +237,7 @@ public class BinaryPrinter : PrinterBase<Byte[], Byte, IBinaryWriter>,
 
 
    protected override void PrintFallback(Object? o,
-                                         IBinaryWriter bWriter,
+                                         TWriter bWriter,
                                          Type useType)
    {
       if (o != null && _typeInferrer.IsUseless(useType))
@@ -247,36 +249,70 @@ public class BinaryPrinter : PrinterBase<Byte[], Byte, IBinaryWriter>,
       else if (_typeInferrer.IsLeaf(useType, true))
          PrintPrimitive(o, bWriter, useType);
       else
-         using (var stream = new MemoryStream())
+      {
+         switch (o)
          {
-            _fallbackFormatter.Serialize(stream, o);
+            case TimeSpan ts:
+               PrintPrimitive(ts.Milliseconds, bWriter, typeof(Int32));
+               break;
 
-            var length = (Int32) stream.Length;
-            var buff = stream.GetBuffer();
-            bWriter.Append(buff, length);
+            default:
+               var ggetValue = GetType()
+                               .GetMethodOrDie(nameof(PrintFallbackValue))
+                               .MakeGenericMethod(useType);
+
+               ggetValue.Invoke(this, new [] { o, bWriter });
+               break;
+
+               //throw new InvalidOperationException($"Unable to serialize to binary type {useType}");
          }
+      }
+   }
+
+   public void PrintFallbackValue<T>(T value,
+                                TWriter writer)
+   {
+      var printFunc = BinarySurrogate<T>.PrintFunc;
+      if (printFunc == null)
+         throw new InvalidOperationException($"Unable to deserialize from binary type {typeof(T)}");
+
+      printFunc(value, this, writer);
+   }
+
+   public void PrintPrimitive<T>(T o,
+                                 IBinaryWriter bWriter)
+   {
+      PrintPrimitiveImpl(o, bWriter, typeof(T));
    }
 
    protected override void PrintPrimitive(Object? o,
-                                          IBinaryWriter _bWriter,
+                                          TWriter bWriter,
                                           Type type)
+   {
+    PrintPrimitiveImpl(o, bWriter, type);
+   }
+
+   private void PrintPrimitiveImpl<TWrite>(Object? o,
+                                          TWrite bWriter,
+                                          Type type)
+   where TWrite : IBinaryWriter
    {
       while (true)
       {
          var code = Type.GetTypeCode(type);
 
-         if (Print(o, code, _bWriter))
+         if (Print(o, code, bWriter))
             return;
 
          if (!_typeInferrer.TryGetNullableType(type, out var primType))
             throw new NotSupportedException($"Type {type} cannot be printed as a primitive");
 
          if (o == null)
-            _bWriter.WriteInt8(0);
+            bWriter.WriteInt8(0);
          else
          {
             //flag that there is a value
-            _bWriter.WriteInt8(1);
+            bWriter.WriteInt8(1);
             type = primType;
             continue;
          }
@@ -322,18 +358,17 @@ public class BinaryPrinter : PrinterBase<Byte[], Byte, IBinaryWriter>,
    private void PrintPrimitiveItem(Object? o,
                                    Type propType,
                                    Int32 index,
-                                   IBinaryWriter _bWriter,
+                                   TWriter _bWriter,
                                    NodeTypes nodeType,
                                    ISerializerSettings settings,
                                    ICircularReferenceHandler circularReferenceHandler)
    {
-
       PrintPrimitive(o, _bWriter, propType);
    }
 
    private void Push(Object? nodeValue,
                      NodeTypes nodeType,
-                     ref IBinaryWriter _bWriter,
+                     ref TWriter _bWriter,
                      Boolean isWrapping)
    {
       _bWriter = _bWriter.Push(nodeType, isWrapping);
@@ -371,5 +406,6 @@ public class BinaryPrinter : PrinterBase<Byte[], Byte, IBinaryWriter>,
       WriteString(typeName, _bWriter);
    }
 
-   private readonly BinaryFormatter _fallbackFormatter;
+   //private readonly BinaryFormatter _fallbackFormatter;
+   
 }

@@ -96,4 +96,6 @@ public interface ISerializerSettings : ISerializationDepth
    /// IsOmitDefaultValues
    /// </summary>
    Int32 GetPrintScanSignature();
+
+   ISerializerSettings DeepCopy();
 }

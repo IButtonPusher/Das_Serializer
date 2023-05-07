@@ -30,7 +30,7 @@ public class BinaryFeeder : SerializerCore,
    public Double GetDouble()
    {
       var bytes = GetBytes(8);
-      var res = _scanner.GetValue(bytes, typeof(Double), false);
+      var res = _scanner.GetValue<Double>(bytes);
       return (Double) res!;
    }
 
@@ -81,7 +81,10 @@ public class BinaryFeeder : SerializerCore,
 
    public T GetPrimitive<T>()
    {
-      return (T) GetPrimitive(typeof(T))!;
+      var bytes = GetPrimitiveBytes(typeof(T));
+      var res = _scanner.GetValue<T>(bytes!);
+      return res;
+      //return (T) GetPrimitive(typeof(T))!;
    }
 
 
@@ -96,7 +99,7 @@ public class BinaryFeeder : SerializerCore,
    public Single GetInt8()
    {
       var bytes = GetBytes(4);
-      var res = _scanner.GetValue(bytes, typeof(Single), false);
+      var res = _scanner.GetValue<Single>(bytes);
       return (Single) res!;
    }
 

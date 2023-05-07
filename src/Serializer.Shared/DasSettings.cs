@@ -99,6 +99,26 @@ public class DasSettings : ISerializerSettings
       return _printScanSignature;
    }
 
+   public ISerializerSettings DeepCopy()
+   {
+      var res = new DasSettings
+      {
+         IsFormatSerializedText = IsFormatSerializedText,
+         TypeSpecificity = TypeSpecificity,
+         TypeSearchNameSpaces = new String[TypeSearchNameSpaces.Length],
+         SerializationDepth = SerializationDepth,
+         CacheTypeConstructors = CacheTypeConstructors,
+         IsUseAttributesInXml = IsUseAttributesInXml,
+         PropertyNameFormat = PropertyNameFormat,
+         PropertyNotFoundBehavior = PropertyNotFoundBehavior,
+         CircularReferenceBehavior = CircularReferenceBehavior
+      };
+
+      TypeSearchNameSpaces.CopyTo(res.TypeSearchNameSpaces, 0);
+
+      return res;
+   }
+
    private static Int32 GetI4(Boolean b,
                               Int32 push)
    {

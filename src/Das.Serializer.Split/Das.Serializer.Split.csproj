@@ -73,11 +73,11 @@ o = serializer.FromJson(json);</Description>
 </PropertyGroup>
 
 <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net45|AnyCPU'">
-  <DefineConstants>GENERATECODE</DefineConstants>
+  <DefineConstants>GENERATECODE;NET40</DefineConstants>
 </PropertyGroup>
 
 <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net45|AnyCPU'">
-  <DefineConstants>TRACE;DEBUG;GENERATECODE</DefineConstants>
+  <DefineConstants>TRACE;DEBUG;GENERATECODE;NET40</DefineConstants>
 </PropertyGroup>
 
 <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">

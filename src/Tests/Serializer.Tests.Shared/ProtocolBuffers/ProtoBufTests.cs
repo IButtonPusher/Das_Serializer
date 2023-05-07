@@ -419,7 +419,7 @@ namespace Serializer.Tests.ProtocolBuffers
         [Fact]
         public void CollectionsTest()
         {
-            var fromNet = ProtoCollections();
+           var fromNet = ProtoCollections();
 
             var fromDas = DasCollections();
             var fromDas2 = DasCollections();

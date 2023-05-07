@@ -71,7 +71,8 @@ public partial class DasCoreSerializer
          if (amAnonymous)
          {
                     
-            settings = StateProvider.ObjectConverter.Copy(settings, settings);
+            //settings = StateProvider.ObjectConverter.Copy(settings, settings);
+            settings = settings.DeepCopy();
 
             settings.TypeSpecificity = TypeSpecificity.All;
             settings.CacheTypeConstructors = false;

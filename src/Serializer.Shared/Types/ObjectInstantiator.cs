@@ -120,6 +120,8 @@ public class ObjectInstantiator : TypeCore,
       return f();
    }
 
+   
+
    public TDelegate GetConstructorDelegate<TDelegate>(Type type)
       where TDelegate : Delegate
    {
@@ -217,11 +219,18 @@ public class ObjectInstantiator : TypeCore,
    //}
 
 
+   public T CreatePrimitiveObject<T>(Byte[] rawValue) => CreatePrimitiveObject<T>(rawValue, typeof(T));
+
    public T CreatePrimitiveObject<T>(Byte[] rawValue,
                                      Type objType)
    {
       if (rawValue.Length == 0)
          return default!;
+
+      if (objType == typeof(String) &&
+          BinaryPrimitiveScanner.GetString(rawValue) is T good)
+         return good;
+         
 
       var handle = GCHandle.Alloc(rawValue, GCHandleType.Pinned);
       var structure = (T) Marshal.PtrToStructure(handle.AddrOfPinnedObject(), objType)!;
@@ -247,14 +256,17 @@ public class ObjectInstantiator : TypeCore,
    }
 
    public bool TryGetDefaultConstructor(Type type,
-                                        #if NETSTANDARD21 || NET40
+                                        #if NETSTANDARD21
                                         [System.Diagnostics.CodeAnalysis.MaybeNullWhen(false)]
-                                        #endif   
                                         out ConstructorInfo ctor)
+      #else
+      out ConstructorInfo? ctor)
+      #endif
+
    {
       if (Constructors.TryGetValue(type, out ctor!))
       {
-         if (ctor == null)
+         if (ctor == null!)
             return false;
 
          if (ctor.GetParameters().Length == 0)
@@ -268,7 +280,7 @@ public class ObjectInstantiator : TypeCore,
       Constructors.TryAdd(type, ctor);
 
       byeNow:
-      return ctor != null;
+      return ctor != null!;
    }
 
    public bool TryGetDefaultConstructor<T>(out ConstructorInfo? ctor)

@@ -11,19 +11,23 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Interfaces.Shared", "Interf
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Serializer.Shared", "Serializer.Shared\Serializer.Shared.shproj", "{228FD1E5-7105-4531-804E-D0B97A2B58CB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serializer.Benchmarks", "Serializer.Benchmarks\Serializer.Benchmarks.csproj", "{3DCBE685-4644-4F16-9F39-B7A2A320B487}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Das.Serializer.Split", "Das.Serializer.Split\Das.Serializer.Split.csproj", "{B631F449-68DD-4F5F-BD04-C2F2E5BF124D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serializer.Tests", "Serializer.Tests\Serializer.Tests.csproj", "{ECB2B428-C066-4D2B-B891-711B83951C65}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serializer.Tests.NetFramework", "Tests\Serializer.Tests\Serializer.Tests.NetFramework.csproj", "{ECB2B428-C066-4D2B-B891-711B83951C65}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Serializer.BinaryProprietary", "Serializer.BinaryProprietary\Serializer.BinaryProprietary.shproj", "{AD1BD953-9174-4080-AF16-BC244F1F9189}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Reflection.Common", "Reflection.Common\Reflection.Common.shproj", "{D76598FA-95A2-49E4-9458-F7461685B873}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Serializer.Tests.Shared", "Serializer.Tests.Shared\Serializer.Tests.Shared.shproj", "{D4654587-15F1-45F0-8E73-239D45C4C07C}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{7646F680-163B-4565-B88A-76533B58FE00}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serializer.Tests.NetCore", "Serializer.Tests.NetCore\Serializer.Tests.NetCore.csproj", "{3ED5D24B-C447-40DB-B90E-213AF259D8F8}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Serializer.Tests.Shared", "Tests\Serializer.Tests.Shared\Serializer.Tests.Shared.shproj", "{D4654587-15F1-45F0-8E73-239D45C4C07C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Serializer.Tests.NetCore", "Tests\Serializer.Tests.NetCore\Serializer.Tests.NetCore.csproj", "{1C306D30-F0D7-44A5-BD3B-5B46BA373EDB}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Serializer.ProtocolBuffers", "Serializer.ProtocolBuffers\Serializer.ProtocolBuffers.shproj", "{C464BDE0-BE90-4F8E-9883-5789CF0FEE53}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serializer.Tests.NoCodeGen", "Tests\Serializer.Tests.NoCodeGen\Serializer.Tests.NoCodeGen.csproj", "{5CD0A4D8-47F8-4A04-A796-AC9803FF4F9E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -46,13 +50,6 @@ Global
 		{A9D2EF65-4059-4C0A-B513-D49AC3D66CF2}.TEST_NO_CODEGENERATION|Any CPU.ActiveCfg = TEST_NO_CODEGENERATION|Any CPU
 		{A9D2EF65-4059-4C0A-B513-D49AC3D66CF2}.TEST|Any CPU.ActiveCfg = Release|Any CPU
 		{A9D2EF65-4059-4C0A-B513-D49AC3D66CF2}.TEST|Any CPU.Build.0 = Release|Any CPU
-		{3DCBE685-4644-4F16-9F39-B7A2A320B487}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3DCBE685-4644-4F16-9F39-B7A2A320B487}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3DCBE685-4644-4F16-9F39-B7A2A320B487}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3DCBE685-4644-4F16-9F39-B7A2A320B487}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3DCBE685-4644-4F16-9F39-B7A2A320B487}.TEST_NO_CODEGENERATION|Any CPU.ActiveCfg = Release|Any CPU
-		{3DCBE685-4644-4F16-9F39-B7A2A320B487}.TEST|Any CPU.ActiveCfg = Release|Any CPU
-		{3DCBE685-4644-4F16-9F39-B7A2A320B487}.TEST|Any CPU.Build.0 = Release|Any CPU
 		{B631F449-68DD-4F5F-BD04-C2F2E5BF124D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B631F449-68DD-4F5F-BD04-C2F2E5BF124D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B631F449-68DD-4F5F-BD04-C2F2E5BF124D}.Release|Any CPU.Build.0 = Release|Any CPU
@@ -65,45 +62,63 @@ Global
 		{ECB2B428-C066-4D2B-B891-711B83951C65}.Release|Any CPU.Build.0 = Release|Any CPU
 		{ECB2B428-C066-4D2B-B891-711B83951C65}.TEST_NO_CODEGENERATION|Any CPU.ActiveCfg = TEST_NO_CODEGENERATION|Any CPU
 		{ECB2B428-C066-4D2B-B891-711B83951C65}.TEST_NO_CODEGENERATION|Any CPU.Build.0 = TEST_NO_CODEGENERATION|Any CPU
-		{ECB2B428-C066-4D2B-B891-711B83951C65}.TEST|Any CPU.ActiveCfg = Release|Any CPU
-		{ECB2B428-C066-4D2B-B891-711B83951C65}.TEST|Any CPU.Build.0 = Release|Any CPU
-		{3ED5D24B-C447-40DB-B90E-213AF259D8F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3ED5D24B-C447-40DB-B90E-213AF259D8F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3ED5D24B-C447-40DB-B90E-213AF259D8F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3ED5D24B-C447-40DB-B90E-213AF259D8F8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3ED5D24B-C447-40DB-B90E-213AF259D8F8}.TEST_NO_CODEGENERATION|Any CPU.ActiveCfg = Debug|Any CPU
-		{3ED5D24B-C447-40DB-B90E-213AF259D8F8}.TEST_NO_CODEGENERATION|Any CPU.Build.0 = Debug|Any CPU
-		{3ED5D24B-C447-40DB-B90E-213AF259D8F8}.TEST|Any CPU.ActiveCfg = Debug|Any CPU
-		{3ED5D24B-C447-40DB-B90E-213AF259D8F8}.TEST|Any CPU.Build.0 = Debug|Any CPU
+		{ECB2B428-C066-4D2B-B891-711B83951C65}.TEST|Any CPU.ActiveCfg = TEST_NO_CODEGENERATION|Any CPU
+		{ECB2B428-C066-4D2B-B891-711B83951C65}.TEST|Any CPU.Build.0 = TEST_NO_CODEGENERATION|Any CPU
+		{1C306D30-F0D7-44A5-BD3B-5B46BA373EDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C306D30-F0D7-44A5-BD3B-5B46BA373EDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C306D30-F0D7-44A5-BD3B-5B46BA373EDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C306D30-F0D7-44A5-BD3B-5B46BA373EDB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C306D30-F0D7-44A5-BD3B-5B46BA373EDB}.TEST_NO_CODEGENERATION|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C306D30-F0D7-44A5-BD3B-5B46BA373EDB}.TEST_NO_CODEGENERATION|Any CPU.Build.0 = Debug|Any CPU
+		{1C306D30-F0D7-44A5-BD3B-5B46BA373EDB}.TEST|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C306D30-F0D7-44A5-BD3B-5B46BA373EDB}.TEST|Any CPU.Build.0 = Debug|Any CPU
+		{5CD0A4D8-47F8-4A04-A796-AC9803FF4F9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5CD0A4D8-47F8-4A04-A796-AC9803FF4F9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5CD0A4D8-47F8-4A04-A796-AC9803FF4F9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5CD0A4D8-47F8-4A04-A796-AC9803FF4F9E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5CD0A4D8-47F8-4A04-A796-AC9803FF4F9E}.TEST_NO_CODEGENERATION|Any CPU.ActiveCfg = Debug|Any CPU
+		{5CD0A4D8-47F8-4A04-A796-AC9803FF4F9E}.TEST_NO_CODEGENERATION|Any CPU.Build.0 = Debug|Any CPU
+		{5CD0A4D8-47F8-4A04-A796-AC9803FF4F9E}.TEST|Any CPU.ActiveCfg = Debug|Any CPU
+		{5CD0A4D8-47F8-4A04-A796-AC9803FF4F9E}.TEST|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{ECB2B428-C066-4D2B-B891-711B83951C65} = {7646F680-163B-4565-B88A-76533B58FE00}
+		{D4654587-15F1-45F0-8E73-239D45C4C07C} = {7646F680-163B-4565-B88A-76533B58FE00}
+		{1C306D30-F0D7-44A5-BD3B-5B46BA373EDB} = {7646F680-163B-4565-B88A-76533B58FE00}
+		{5CD0A4D8-47F8-4A04-A796-AC9803FF4F9E} = {7646F680-163B-4565-B88A-76533B58FE00}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {28EAF669-F146-49A1-A5D7-48DDE54D9FC5}
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Interfaces.Shared\Interfaces.Shared.projitems*{1c306d30-f0d7-44a5-bd3b-5b46ba373edb}*SharedItemsImports = 5
+		Reflection.Common\Reflection.Common.projitems*{1c306d30-f0d7-44a5-bd3b-5b46ba373edb}*SharedItemsImports = 5
+		Serializer.BinaryProprietary\Serializer.BinaryProprietary.projitems*{1c306d30-f0d7-44a5-bd3b-5b46ba373edb}*SharedItemsImports = 5
+		Serializer.ProtocolBuffers\Serializer.ProtocolBuffers.projitems*{1c306d30-f0d7-44a5-bd3b-5b46ba373edb}*SharedItemsImports = 5
+		Serializer.Shared\Serializer.Shared.projitems*{1c306d30-f0d7-44a5-bd3b-5b46ba373edb}*SharedItemsImports = 5
+		Tests\Serializer.Tests.Shared\Serializer.Tests.Shared.projitems*{1c306d30-f0d7-44a5-bd3b-5b46ba373edb}*SharedItemsImports = 5
 		Serializer.Shared\Serializer.Shared.projitems*{228fd1e5-7105-4531-804e-d0b97a2b58cb}*SharedItemsImports = 13
-		Interfaces.Shared\Interfaces.Shared.projitems*{3ed5d24b-c447-40db-b90e-213af259d8f8}*SharedItemsImports = 5
-		Reflection.Common\Reflection.Common.projitems*{3ed5d24b-c447-40db-b90e-213af259d8f8}*SharedItemsImports = 5
-		Serializer.BinaryProprietary\Serializer.BinaryProprietary.projitems*{3ed5d24b-c447-40db-b90e-213af259d8f8}*SharedItemsImports = 5
-		Serializer.Shared\Serializer.Shared.projitems*{3ed5d24b-c447-40db-b90e-213af259d8f8}*SharedItemsImports = 5
-		Serializer.Tests.Shared\Serializer.Tests.Shared.projitems*{3ed5d24b-c447-40db-b90e-213af259d8f8}*SharedItemsImports = 5
-		Interfaces.Shared\Interfaces.Shared.projitems*{a9d2ef65-4059-4c0a-b513-d49ac3d66cf2}*SharedItemsImports = 5
-		Reflection.Common\Reflection.Common.projitems*{a9d2ef65-4059-4c0a-b513-d49ac3d66cf2}*SharedItemsImports = 5
-		Serializer.BinaryProprietary\Serializer.BinaryProprietary.projitems*{a9d2ef65-4059-4c0a-b513-d49ac3d66cf2}*SharedItemsImports = 5
+		Interfaces.Shared\Interfaces.Shared.projitems*{5cd0a4d8-47f8-4a04-a796-ac9803ff4f9e}*SharedItemsImports = 5
+		Reflection.Common\Reflection.Common.projitems*{5cd0a4d8-47f8-4a04-a796-ac9803ff4f9e}*SharedItemsImports = 5
+		Serializer.BinaryProprietary\Serializer.BinaryProprietary.projitems*{5cd0a4d8-47f8-4a04-a796-ac9803ff4f9e}*SharedItemsImports = 5
+		Serializer.ProtocolBuffers\Serializer.ProtocolBuffers.projitems*{5cd0a4d8-47f8-4a04-a796-ac9803ff4f9e}*SharedItemsImports = 5
+		Serializer.Shared\Serializer.Shared.projitems*{5cd0a4d8-47f8-4a04-a796-ac9803ff4f9e}*SharedItemsImports = 5
+		Tests\Serializer.Tests.Shared\Serializer.Tests.Shared.projitems*{5cd0a4d8-47f8-4a04-a796-ac9803ff4f9e}*SharedItemsImports = 5
 		Serializer.BinaryProprietary\Serializer.BinaryProprietary.projitems*{ad1bd953-9174-4080-af16-bc244f1f9189}*SharedItemsImports = 13
 		Interfaces.Shared\Interfaces.Shared.projitems*{aeb86a21-7287-4a27-b467-1a0d1c66fa9f}*SharedItemsImports = 13
-		Reflection.Common\Reflection.Common.projitems*{b631f449-68dd-4f5f-bd04-c2f2e5bf124d}*SharedItemsImports = 5
-		Serializer.BinaryProprietary\Serializer.BinaryProprietary.projitems*{b631f449-68dd-4f5f-bd04-c2f2e5bf124d}*SharedItemsImports = 5
-		Serializer.Shared\Serializer.Shared.projitems*{b631f449-68dd-4f5f-bd04-c2f2e5bf124d}*SharedItemsImports = 5
+		Serializer.ProtocolBuffers\Serializer.ProtocolBuffers.projitems*{c464bde0-be90-4f8e-9883-5789cf0fee53}*SharedItemsImports = 13
 		Interfaces.Shared\Interfaces.Shared.projitems*{c6e56268-9045-4dbb-b83a-f14c009a5944}*SharedItemsImports = 5
-		Serializer.Tests.Shared\Serializer.Tests.Shared.projitems*{d4654587-15f1-45f0-8e73-239d45c4c07c}*SharedItemsImports = 13
+		Tests\Serializer.Tests.Shared\Serializer.Tests.Shared.projitems*{d4654587-15f1-45f0-8e73-239d45c4c07c}*SharedItemsImports = 13
 		Reflection.Common\Reflection.Common.projitems*{d76598fa-95a2-49e4-9458-f7461685b873}*SharedItemsImports = 13
+		Serializer.BinaryProprietary\Serializer.BinaryProprietary.projitems*{d76598fa-95a2-49e4-9458-f7461685b873}*SharedItemsImports = 13
 		Interfaces.Shared\Interfaces.Shared.projitems*{ecb2b428-c066-4d2b-b891-711b83951c65}*SharedItemsImports = 4
 		Reflection.Common\Reflection.Common.projitems*{ecb2b428-c066-4d2b-b891-711b83951c65}*SharedItemsImports = 4
 		Serializer.BinaryProprietary\Serializer.BinaryProprietary.projitems*{ecb2b428-c066-4d2b-b891-711b83951c65}*SharedItemsImports = 4
+		Serializer.ProtocolBuffers\Serializer.ProtocolBuffers.projitems*{ecb2b428-c066-4d2b-b891-711b83951c65}*SharedItemsImports = 4
 		Serializer.Shared\Serializer.Shared.projitems*{ecb2b428-c066-4d2b-b891-711b83951c65}*SharedItemsImports = 4
-		Serializer.Tests.Shared\Serializer.Tests.Shared.projitems*{ecb2b428-c066-4d2b-b891-711b83951c65}*SharedItemsImports = 4
+		Tests\Serializer.Tests.Shared\Serializer.Tests.Shared.projitems*{ecb2b428-c066-4d2b-b891-711b83951c65}*SharedItemsImports = 4
 	EndGlobalSection
 EndGlobal

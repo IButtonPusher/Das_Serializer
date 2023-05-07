@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Das.Serializer;
 
-public class BinaryNodeSealer : BaseNodeSealer<IBinaryNode>
+public sealed class BinaryNodeSealer : BaseNodeSealer<IBinaryNode>
 {
    public BinaryNodeSealer(INodeManipulator nodeManipulator,
                            ISerializationCore dynamicFacade,

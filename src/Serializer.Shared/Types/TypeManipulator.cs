@@ -500,7 +500,7 @@ public partial class TypeManipulator : TypeCore,
       return res!;
    }
 
-   #if NET40 || NET45
+   #if NET40 || NET45 || NETSTANDARD21
 
         private static VoidMethod CreateAddDelegateImpl(MethodInfo method)
         {
@@ -598,8 +598,7 @@ public partial class TypeManipulator : TypeCore,
    // ReSharper disable once MemberCanBeMadeStatic.Local
    private VoidMethod? GetAdderImpl(Type type)
    {
-      #if NET40 || NET45
-            if (type.IsGenericType)
+      if (type.IsGenericType)
             {
                 var gargs = type.GetGenericArguments();
                 MethodInfo? addMethod;
@@ -624,10 +623,9 @@ public partial class TypeManipulator : TypeCore,
 
                 return default;
             }
-      #endif
+      
 
-      return CreateAddDelegate( //boxList, 
-         type);
+      return CreateAddDelegate(type);
    }
 
    private MethodInfo? GetAddMethodImpl(Type cType)

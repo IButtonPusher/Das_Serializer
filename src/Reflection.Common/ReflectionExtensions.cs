@@ -178,10 +178,18 @@ public static class ReflectionExtensions
    public static FieldInfo GetFieldOrDie(this Type t,
                                          String fieldName)
    {
+      return GetFieldOrDie(t, fieldName, AnyInstance);
+   }
+
+   [Pure]
+   public static FieldInfo GetFieldOrDie(this Type t,
+                                         String fieldName,
+                                         BindingFlags flags)
+   {
       var useType = t;
       while (useType != null)
       {
-         var field = t.GetField(fieldName, AnyInstance);
+         var field = t.GetField(fieldName, flags);
          if (field != null)
             return field;
 

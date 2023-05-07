@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -52,7 +53,7 @@ namespace Das.Serializer.ProtoBuf
             _setStreamPosition = stream.SetterOrDie(nameof(Stream.Position));
 
             _readStreamByte = stream.GetMethodOrDie(nameof(Stream.ReadByte));
-            _readStreamBytes = stream.GetMethodOrDie(nameof(Stream.Read));
+            _readStreamBytes = stream.GetMethodOrDie(nameof(Stream.Read), typeof(Byte[]), typeof(Int32), typeof(Int32));
 
             _getPositiveInt32 = protoDynBase.GetPublicStaticMethodOrDie(
                 nameof(ProtoDynamicBase.GetPositiveInt32));
@@ -300,8 +301,14 @@ namespace Das.Serializer.ProtoBuf
             else
                 printFields = scanFieldArr;
 
-            AddPrintMethod(type, bldr,
-                printFields, typeProxies);
+            var printMethod = AddPrintMethod(type, bldr,
+                printFields, typeProxies, out var printIl);
+
+            //var derp = printIl.GetType().GetField("m_ILStream", Const.NonPublic);
+            //var merp = (Byte[])derp!.GetValue(printIl);
+            //var yurp = string.Join("", merp);
+            //Debug.WriteLine("worp " + yurp);
+            
 
             ////////////////////////////////////
 
@@ -315,7 +322,7 @@ namespace Das.Serializer.ProtoBuf
                   #endif
                )
                : default;
-            AddScanMethod(type, bldr, genericParent,
+            var scanMethod = AddScanMethod(type, bldr, genericParent,
                 scanFieldArr,
                 example!, canSetValuesInline,
                 buildReturnValue,
